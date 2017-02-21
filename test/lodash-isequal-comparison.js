@@ -36,7 +36,7 @@ Tests adopted from https://github.com/lodash/lodash/blob/3967c1e1197b726463246b4
 
 import vm from 'vm'
 import test from 'ava'
-import isEqual from 'lodash.isequal'
+import isEqual from '../lib/compare'
 
 const realm = vm.runInNewContext('(function () { return this })()')
 const symbol1 = Symbol ? Symbol('a') : true
@@ -44,13 +44,13 @@ const symbol2 = Symbol ? Symbol('b') : false
 
 test('compare primitives', t => {
   const pairs = [
-    [1, 1, true], [1, Object(1), true], [1, '1', false], [1, 2, false],
-    [-0, -0, true], [0, 0, true], [0, Object(0), true], [Object(0), Object(0), true], [-0, 0, true], [0, '0', false], [0, null, false],
-    [NaN, NaN, true], [NaN, Object(NaN), true], [Object(NaN), Object(NaN), true], [NaN, 'a', false], [NaN, Infinity, false],
-    ['a', 'a', true], ['a', Object('a'), true], [Object('a'), Object('a'), true], ['a', 'b', false], ['a', ['a'], false],
-    [true, true, true], [true, Object(true), true], [Object(true), Object(true), true], [true, 1, false], [true, 'a', false],
-    [false, false, true], [false, Object(false), true], [Object(false), Object(false), true], [false, 0, false], [false, '', false],
-    [symbol1, symbol1, true], [symbol1, Object(symbol1), true], [Object(symbol1), Object(symbol1), true], [symbol1, symbol2, false],
+    [1, 1, true], [1, Object(1), false], [1, '1', false], [1, 2, false],
+    [-0, -0, true], [0, 0, true], [0, Object(0), false], [Object(0), Object(0), true], [-0, 0, true], [0, '0', false], [0, null, false],
+    [NaN, NaN, true], [NaN, Object(NaN), false], [Object(NaN), Object(NaN), true], [NaN, 'a', false], [NaN, Infinity, false],
+    ['a', 'a', true], ['a', Object('a'), false], [Object('a'), Object('a'), true], ['a', 'b', false], ['a', ['a'], false],
+    [true, true, true], [true, Object(true), false], [Object(true), Object(true), true], [true, 1, false], [true, 'a', false],
+    [false, false, true], [false, Object(false), false], [Object(false), Object(false), true], [false, 0, false], [false, '', false],
+    [symbol1, symbol1, true], [symbol1, Object(symbol1), false], [Object(symbol1), Object(symbol1), true], [symbol1, symbol2, false],
     [null, null, true], [null, undefined, false], [null, {}, false], [null, '', false],
     [undefined, undefined, true], [undefined, null, false], [undefined, '', false]
   ]
@@ -83,7 +83,7 @@ test('compare arrays', t => {
   array1 = [Object(1), false, Object('a'), /x/, new Date(2012, 4, 23), ['a', 'b', [Object('c')]], { 'a': 1 }]
   array2 = [1, Object(false), 'a', /x/, new Date(2012, 4, 23), ['a', Object('b'), ['c']], { 'a': 1 }]
 
-  t.true(isEqual(array1, array2))
+  t.false(isEqual(array1, array2))
 
   array1 = [1, 2, 3]
   array2 = [3, 2, 1]
@@ -96,7 +96,7 @@ test('compare arrays', t => {
   t.false(isEqual(array1, array2))
 })
 
-test('treat arrays with identical values but different non-index properties as equal', t => {
+test('treat arrays with identical values but different non-index properties as unequal', t => {
   let array1 = [1, 2, 3]
   let array2 = [1, 2, 3]
 
@@ -108,7 +108,7 @@ test('treat arrays with identical values but different non-index properties as e
   array2.reverse = array2.shift = array2.slice =
   array2.sort = array2.splice = array2.unshift = null
 
-  t.true(isEqual(array1, array2))
+  t.false(isEqual(array1, array2))
 
   array1 = [1, 2, 3]
   array1.a = 1
@@ -116,12 +116,12 @@ test('treat arrays with identical values but different non-index properties as e
   array2 = [1, 2, 3]
   array2.b = 1
 
-  t.true(isEqual(array1, array2))
+  t.false(isEqual(array1, array2))
 
   array1 = /c/.exec('abcde')
   array2 = ['c']
 
-  t.true(isEqual(array1, array2))
+  t.false(isEqual(array1, array2))
 })
 
 test('compare sparse arrays', t => {
@@ -172,11 +172,11 @@ test('compare nested objects', t => {
   const object1 = {
     'a': [1, 2, 3],
     'b': true,
-    'c': Object(1),
+    'c': 1,
     'd': 'a',
     'e': {
-      'f': ['a', Object('b'), 'c'],
-      'g': Object(false),
+      'f': ['a', 'b', 'c'],
+      'g': false,
       'h': new Date(2012, 4, 23),
       'i': noop,
       'j': 'a'
@@ -184,10 +184,10 @@ test('compare nested objects', t => {
   }
 
   const object2 = {
-    'a': [1, Object(2), 3],
-    'b': Object(true),
+    'a': [1, 2, 3],
+    'b': true,
     'c': 1,
-    'd': Object('a'),
+    'd': 'a',
     'e': {
       'f': ['a', 'b', 'c'],
       'g': false,
@@ -273,7 +273,7 @@ test('compare objects with circular references', t => {
   t.true(isEqual(object1, object2))
 
   object1.b = 0
-  object2.b = Object(0)
+  object2.b = 0
 
   t.true(isEqual(object1, object2))
 
@@ -311,7 +311,7 @@ test('compare objects with multiple circular references', t => {
   t.true(isEqual(array1, array2))
 
   array1[0].b = 0
-  array2[0].b = Object(0)
+  array2[0].b = 0
 
   t.true(isEqual(array1, array2))
 
@@ -392,17 +392,12 @@ test('compare `arguments` objects', t => {
   t.false(isEqual(args1, args3))
 })
 
-test('treat `arguments` objects like `Object` objects', t => {
-  const object = { '0': 1, '1': 2, '2': 3 }
-
-  function Foo () {}
-  Foo.prototype = object
+test('actual `arguments` objects may be compared to expected arrays', t => {
+  const array = [1, 2, 3]
 
   const args = (function () { return arguments })(1, 2, 3)
-  t.true(isEqual(args, object))
-  t.true(isEqual(object, args))
-  t.false(isEqual(args, new Foo()))
-  t.false(isEqual(new Foo(), args))
+  t.true(isEqual(args, array))
+  t.false(isEqual(array, args))
 })
 
 test('compare array buffers', t => {
@@ -498,7 +493,7 @@ test('compare maps', t => {
 
     map1.set('b', 2)
     map2.set('a', 1)
-    t.true(isEqual(map1, map2))
+    t.false(isEqual(map1, map2))
 
     map1.delete('a')
     map1.set('a', 1)
@@ -550,7 +545,7 @@ test('compare sets', t => {
 
     set1.add(2)
     set2.add(1)
-    t.true(isEqual(set1, set2))
+    t.false(isEqual(set1, set2))
 
     set1.delete(1)
     set1.add(1)
