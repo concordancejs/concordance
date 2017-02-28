@@ -421,7 +421,15 @@ test('compare array views', t => {
     'DataView'
   ]
 
-  for (const ns of [global, realm]) {
+  const namespaces = [global]
+  // Node.js 4 cannot convert an ArrayBuffer from a different realm into a
+  // regular buffer.
+  try {
+    Buffer.from(new realm.ArrayBuffer(8))
+    namespaces.push(realm)
+  } catch (err) {}
+
+  for (const ns of namespaces) {
     arrayViews.forEach((type, viewIndex) => {
       const otherType = arrayViews[(viewIndex + 1) % arrayViews.length]
       const CtorA = ns[type]

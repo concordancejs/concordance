@@ -7,6 +7,9 @@
     "lib",
     "index.js"
   ],
+  "engines": {
+    "node": ">=4.5"
+  },
   "scripts": {
     "coverage": "nyc npm test",
     "lint": "as-i-preach",
