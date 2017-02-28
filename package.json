@@ -26,6 +26,11 @@
     "url": "https://github.com/novemberborn/kathryn/issues"
   },
   "homepage": "https://github.com/novemberborn/kathryn#readme",
+  "dependencies": {
+    "esutils": "^2.0.2",
+    "negative-zero": "^2.0.0",
+    "well-known-symbols": "^1.0.0"
+  },
   "devDependencies": {
     "@novemberborn/as-i-preach": "^7.0.0",
     "ava": "^0.18.2",
