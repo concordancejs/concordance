@@ -36,7 +36,9 @@ Tests adopted from https://github.com/lodash/lodash/blob/3967c1e1197b726463246b4
 
 import vm from 'vm'
 import test from 'ava'
-import isEqual from '../lib/compare'
+import {compare} from '../lib/compare'
+
+const isEqual = (actual, expected) => compare(actual, expected).pass
 
 const realm = vm.runInNewContext('(function () { return this })()')
 const symbol1 = Symbol ? Symbol('a') : true

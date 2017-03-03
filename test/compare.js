@@ -1,6 +1,6 @@
 import test from 'ava'
 
-import compare from '../lib/compare'
+import {compare} from '../lib/compare'
 
 test('compare functions by reference', t => {
   function a () { return 1 + 2 }
@@ -8,7 +8,7 @@ test('compare functions by reference', t => {
     return function a () { return 1 + 2 } // eslint-disable-line no-shadow
   })()
 
-  t.false(compare(a, a_))
+  t.false(compare(a, a_).pass)
 })
 
 test('objects compare even if symbol properties are out of order', t => {
@@ -17,7 +17,7 @@ test('objects compare even if symbol properties are out of order', t => {
   const o1 = { [s1]: 1, [s2]: 2 }
   const o2 = { [s2]: 2, [s1]: 1 }
 
-  t.true(compare(o1, o2))
+  t.true(compare(o1, o2).pass)
 
   const a1 = new Set([1, 2])
   a1[s1] = 1
@@ -26,7 +26,7 @@ test('objects compare even if symbol properties are out of order', t => {
   a2[s2] = 2
   a2[s1] = 1
 
-  t.true(compare(a1, a2))
+  t.true(compare(a1, a2).pass)
 
   const a3 = new Set([3, 0])
   a1[s1] = 1
@@ -35,5 +35,5 @@ test('objects compare even if symbol properties are out of order', t => {
   a2[s2] = 2
   a2[s1] = 1
 
-  t.false(compare(a3, a4))
+  t.false(compare(a3, a4).pass)
 })

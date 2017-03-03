@@ -37,7 +37,7 @@ Benchmarks adopted from <https://github.com/lodash/lodash/blob/3967c1e1197b72646
 const Benchmark = require('benchmark')
 
 global.isEqual = require('lodash.isequal')
-global.compare = require('../lib/compare')
+global.compare = require('../lib/compare').compare
 
 const buildName = 'lodash.isequal'
 const otherName = 'compare'
