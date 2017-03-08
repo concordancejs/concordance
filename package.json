@@ -27,7 +27,10 @@
   },
   "homepage": "https://github.com/novemberborn/kathryn#readme",
   "dependencies": {
+    "ansi-styles": "^3.0.0",
+    "es6-error": "^4.0.2",
     "esutils": "^2.0.2",
+    "fast-diff": "^1.1.1",
     "negative-zero": "^2.0.0",
     "well-known-symbols": "^1.0.0"
   },
