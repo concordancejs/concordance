@@ -432,3 +432,7 @@ test('shows non-Object tag if constructor name is different', t => {
   const actual5 = format(new Quux())
   t.is(actual5, 'Quux @Int16Array []')
 })
+
+test('formats global', t => {
+  t.is(format(global), 'Global {}')
+})
