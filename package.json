@@ -1,6 +1,6 @@
 {
   "name": "kathryn",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Compare, format, diff and snapshot any JavaScript value",
   "main": "index.js",
   "files": [
