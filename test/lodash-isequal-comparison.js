@@ -47,7 +47,7 @@ const symbol2 = Symbol ? Symbol('b') : false
 test('compare primitives', t => {
   const pairs = [
     [1, 1, true], [1, Object(1), false], [1, '1', false], [1, 2, false],
-    [-0, -0, true], [0, 0, true], [0, Object(0), false], [Object(0), Object(0), true], [-0, 0, true], [0, '0', false], [0, null, false], // eslint-disable-line max-len
+    [-0, -0, true], [0, 0, true], [0, Object(0), false], [Object(0), Object(0), true], [-0, 0, false], [0, '0', false], [0, null, false], // eslint-disable-line max-len
     [NaN, NaN, true], [NaN, Object(NaN), false], [Object(NaN), Object(NaN), true], [NaN, 'a', false], [NaN, Infinity, false],
     ['a', 'a', true], ['a', Object('a'), false], [Object('a'), Object('a'), true], ['a', 'b', false], ['a', ['a'], false],
     [true, true, true], [true, Object(true), false], [Object(true), Object(true), true], [true, 1, false], [true, 'a', false],

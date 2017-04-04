@@ -37,3 +37,13 @@ test('objects compare even if symbol properties are out of order', t => {
 
   t.false(compare(a3, a4).pass)
 })
+
+test('-0 is not equal to +0', t => {
+  t.false(compare(-0, +0).pass)
+  t.false(compare({zero: -0}, {zero: +0}).pass)
+})
+
+test('NaN is equal to NaN', t => {
+  t.true(compare(NaN, NaN).pass)
+  t.true(compare({notANumber: NaN}, {notANumber: NaN}).pass)
+})
