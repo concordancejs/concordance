@@ -47,12 +47,12 @@ const symbol2 = Symbol ? Symbol('b') : false
 test('compare primitives', t => {
   const pairs = [
     [1, 1, true], [1, Object(1), false], [1, '1', false], [1, 2, false],
-    [-0, -0, true], [0, 0, true], [0, Object(0), false], [Object(0), Object(0), true], [-0, 0, true], [0, '0', false], [0, null, false],
+    [-0, -0, true], [0, 0, true], [0, Object(0), false], [Object(0), Object(0), true], [-0, 0, true], [0, '0', false], [0, null, false], // eslint-disable-line max-len
     [NaN, NaN, true], [NaN, Object(NaN), false], [Object(NaN), Object(NaN), true], [NaN, 'a', false], [NaN, Infinity, false],
     ['a', 'a', true], ['a', Object('a'), false], [Object('a'), Object('a'), true], ['a', 'b', false], ['a', ['a'], false],
     [true, true, true], [true, Object(true), false], [Object(true), Object(true), true], [true, 1, false], [true, 'a', false],
-    [false, false, true], [false, Object(false), false], [Object(false), Object(false), true], [false, 0, false], [false, '', false],
-    [symbol1, symbol1, true], [symbol1, Object(symbol1), false], [Object(symbol1), Object(symbol1), true], [symbol1, symbol2, false],
+    [false, false, true], [false, Object(false), false], [Object(false), Object(false), true], [false, 0, false], [false, '', false], // eslint-disable-line max-len
+    [symbol1, symbol1, true], [symbol1, Object(symbol1), false], [Object(symbol1), Object(symbol1), true], [symbol1, symbol2, false], // eslint-disable-line max-len
     [null, null, true], [null, undefined, false], [null, {}, false], [null, '', false],
     [undefined, undefined, true], [undefined, null, false], [undefined, '', false]
   ]
@@ -448,10 +448,10 @@ test('compare array views', t => {
 })
 
 test('compare buffers', t => {
-  const buffer = new Buffer([1])
+  const buffer = Buffer.from([1])
 
-  t.true(isEqual(buffer, new Buffer([1])))
-  t.false(isEqual(buffer, new Buffer([2])))
+  t.true(isEqual(buffer, Buffer.from([1])))
+  t.false(isEqual(buffer, Buffer.from([2])))
   t.false(isEqual(buffer, new Uint8Array([1])))
 })
 

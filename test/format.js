@@ -23,7 +23,7 @@ test('formats primitives', t => {
     [Infinity, 'Infinity'],
     [-Infinity, '-Infinity'],
     [NaN, 'NaN'],
-    [Symbol(), 'Symbol()'],
+    [Symbol(), 'Symbol()'], // eslint-disable-line symbol-description
     [Symbol('foo'), 'Symbol(foo)'],
     [Symbol.for('bar'), 'Symbol(bar)'],
     [Symbol.iterator, 'Symbol.iterator']
@@ -204,7 +204,7 @@ test('formats funky objects that are lists and have an iterator', t => {
     foo: 'bar'
   }
   Object.defineProperty(funky, 'length', { value: 2 })
-  Object.defineProperty(funky, Symbol.iterator, { *value () { yield 'baz' } })
+  Object.defineProperty(funky, Symbol.iterator, { * value () { yield 'baz' } })
 
   const actual = format(funky)
   t.is(actual, `Object [
@@ -250,20 +250,20 @@ test('formats functions with additional properties', t => {
 
 {
   // Node.js 4 provides Function, more recent versions use GeneratorFunction
-  const tag = getTag(function *() {})
+  const tag = getTag(function * () {})
 
   test('formats anonymous generator functions', t => {
-    const actual = format(function *() {})
+    const actual = format(function * () {})
     t.is(actual, `${tag}`)
   })
 
   test('formats named generator functions', t => {
-    const actual = format(function *foo () {})
+    const actual = format(function * foo () {})
     t.is(actual, `${tag} foo`)
   })
 
   test('formats generator functions with additional properties', t => {
-    const actual = format(Object.assign(function *foo () {}, { bar: 'baz' }))
+    const actual = format(Object.assign(function * foo () {}, { bar: 'baz' }))
     t.is(actual, `${tag} foo {
   bar: 'baz',
 }`)

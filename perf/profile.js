@@ -69,7 +69,7 @@ const objectOfObjects2 = {
   'string': new String('A') // eslint-disable-line no-new-wrappers
 }
 
-const symbol1 = Symbol()
+const symbol1 = Symbol('symbol1')
 const object2 = {}
 const object3 = {}
 const objects2 = Array(limit)

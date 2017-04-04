@@ -14,8 +14,8 @@ test('diffs primitives', t => {
     [null, true, '- null\n+ true'],
     [null, '', '- null\n+ \'\''],
     [null, 42, '- null\n+ 42'],
-    [null, Symbol(), '- null\n+ Symbol()'],
-    [Symbol(), Symbol(), '- Symbol()\n+ Symbol()'],
+    [null, Symbol(), '- null\n+ Symbol()'], // eslint-disable-line symbol-description
+    [Symbol(), Symbol(), '- Symbol()\n+ Symbol()'], // eslint-disable-line symbol-description
     [null, {}, '- null\n+ Object {}']
   ]) {
     const actual = diff(lhs, rhs)

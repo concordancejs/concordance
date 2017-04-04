@@ -35,7 +35,7 @@
     "well-known-symbols": "^1.0.0"
   },
   "devDependencies": {
-    "@novemberborn/as-i-preach": "^7.0.0",
+    "@novemberborn/as-i-preach": "^8.0.0",
     "ava": "^0.18.2",
     "benchmark": "^2.1.3",
     "chalk": "^1.1.3",
