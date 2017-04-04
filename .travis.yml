@@ -10,4 +10,4 @@ cache:
 before_install: 'npm install --global npm'
 before_script: 'npm prune'
 script: 'npm run coverage'
-after_script: 'cat ./coverage/lcov.info | ./node_modules/.bin/coveralls'
+after_script: './node_modules/.bin/codecov --file=./coverage/lcov.info'
