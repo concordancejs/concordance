@@ -12,9 +12,9 @@ test('formats primitives', t => {
     ['', "''"],
     ['foo', "'foo'"],
     ['\\ -- \' -- "', '`\\\\ -- \' -- "`'],
-    ['foo\nbar\\baz\'"', '`foo<LF>\nbar\\\\baz\'"`'],
-    ['qux\r\nquux', '`qux<CR><LF>\nquux`'],
-    ['qux\rquux', '`qux<CR>\nquux`'],
+    ['foo\nbar\\baz\'"', '`foo\u240A\nbar\\\\baz\'"`'],
+    ['qux\r\nquux', '`qux\u240D\u240A\nquux`'],
+    ['qux\rquux', '`qux\u240D\nquux`'],
     [42, '42'],
     [-42, '-42'],
     [0, '0'],
@@ -54,7 +54,7 @@ test('formats a simple, nested object', t => {
 test('formats multiline strings inside an object', t => {
   const actual = format({ 'foo\nbar': 'baz\nqux' })
   t.is(actual, `Object {
-  'foo\\nbar': \`baz<LF>
+  'foo\\nbar': \`baz\u240A
   qux\`,
 }`)
 })
@@ -121,7 +121,7 @@ test('formats an array with additional properties', t => {
 test('formats a multiline string inside an array', t => {
   const actual = format(['bar\nbaz'])
   t.is(actual, `Array [
-  \`bar<LF>
+  \`bar\u240A
   baz\`,
 ]`)
 })
@@ -146,8 +146,8 @@ test('formats maps', t => {
 test('formats multiline strings inside a map', t => {
   const actual = format(new Map([['foo\nbar', 'baz\nqux']]))
   t.is(actual, `Map {
-  \`foo<LF>
-  bar\` => \`baz<LF>
+  \`foo\u240A
+  bar\` => \`baz\u240A
   qux\`,
 }`)
 })
@@ -180,7 +180,7 @@ test('formats sets', t => {
 test('formats a multiline string inside sets', t => {
   const actual = format(new Set(['bar\nbaz']))
   t.is(actual, `Set {
-  \`bar<LF>
+  \`bar\u240A
   baz\`,
 }`)
 })

@@ -45,38 +45,38 @@ test('diffs single line strings', t => {
 
 test('diffs multiline strings', t => {
   const actual1 = diff('foo\nbar', 'baz\nbar')
-  t.is(actual1, `- \`foo<LF>
-+ \`baz<LF>
+  t.is(actual1, `- \`foo\u240A
++ \`baz\u240A
   bar\``)
 
   const actual2 = diff('foo\nbar', 'foo\nbaz')
-  t.is(actual2, `  \`foo<LF>
+  t.is(actual2, `  \`foo\u240A
 - bar\`
 + baz\``)
 
   const actual3 = diff('foo\nbar\nbaz', 'foo\nbaz')
-  t.is(actual3, `  \`foo<LF>
-- bar<LF>
+  t.is(actual3, `  \`foo\u240A
+- bar\u240A
   baz\``)
 
   const actual4 = diff('foo\nbaz', 'foo\nbar\nbaz')
-  t.is(actual4, `  \`foo<LF>
-+ bar<LF>
+  t.is(actual4, `  \`foo\u240A
++ bar\u240A
   baz\``)
 
   const actual5 = diff('foo\n', 'foo\nbaz')
-  t.is(actual5, `  \`foo<LF>
+  t.is(actual5, `  \`foo\u240A
 - \`
 + ${u`baz`}\``)
 
   const actual6 = diff('foo\nbaz', 'foo\n')
-  t.is(actual6, `  \`foo<LF>
+  t.is(actual6, `  \`foo\u240A
 - ${u`baz`}\`
 + \``)
 
   const actual7 = diff('foo\nbar\nbaz', 'foo\n')
-  t.is(actual7, `  \`foo<LF>
-- bar<LF>
+  t.is(actual7, `  \`foo\u240A
+- bar\u240A
 - ${u`baz`}\`
 + \``)
 
@@ -89,13 +89,13 @@ grault
 baz
 garply
 quux`)
-  t.is(actual8, `- \`${u`fo`}o<LF>
-- ${u`b`}a${u`r`}<LF>
-+ \`${u`c`}o${u`rge`}<LF>
-+ ${u`gr`}a${u`ult`}<LF>
-  baz<LF>
-- ${u`qux`}<LF>
-+ ${u`garply`}<LF>
+  t.is(actual8, `- \`${u`fo`}o\u240A
+- ${u`b`}a${u`r`}\u240A
++ \`${u`c`}o${u`rge`}\u240A
++ ${u`gr`}a${u`ult`}\u240A
+  baz\u240A
+- ${u`qux`}\u240A
++ ${u`garply`}\u240A
   quux\``)
 })
 
@@ -468,16 +468,16 @@ test('detects missing map entries', t => {
 test('diffs multiline string values in objects', t => {
   const actual1 = diff({foo: 'bar\nbaz'}, {foo: 'qux\nbaz'})
   t.is(actual1, `  Object {
--   foo: \`bar<LF>
-+   foo: \`qux<LF>
+-   foo: \`bar\u240A
++   foo: \`qux\u240A
     baz\`,
   }`)
 
   const s1 = Symbol('s1')
   const actual2 = diff({[s1]: 'bar\nbaz'}, {[s1]: 'qux\nbaz'})
   t.is(actual2, `  Object {
--   [Symbol(s1)]: \`bar<LF>
-+   [Symbol(s1)]: \`qux<LF>
+-   [Symbol(s1)]: \`bar\u240A
++   [Symbol(s1)]: \`qux\u240A
     baz\`,
   }`)
 })
@@ -485,9 +485,9 @@ test('diffs multiline string values in objects', t => {
 test('does not diff multiline string values in arrays', t => {
   const actual = diff(['foo\nbar'], ['baz\nbar'])
   t.is(actual, `  Array [
--   \`foo<LF>
+-   \`foo\u240A
 -   bar\`,
-+   \`baz<LF>
++   \`baz\u240A
 +   bar\`,
   ]`)
 })
@@ -495,9 +495,9 @@ test('does not diff multiline string values in arrays', t => {
 test('does not diff multiline string values in sets', t => {
   const actual = diff(new Set(['foo\nbar']), new Set(['baz\nbar']))
   t.is(actual, `  Set {
--   \`foo<LF>
+-   \`foo\u240A
 -   bar\`,
-+   \`baz<LF>
++   \`baz\u240A
 +   bar\`,
   }`)
 })
@@ -505,17 +505,17 @@ test('does not diff multiline string values in sets', t => {
 test('diffs multiline string values in maps when key is primitive', t => {
   const actual1 = diff(new Map([[1, 'foo\nbar']]), new Map([[1, 'baz\nbar']]))
   t.is(actual1, `  Map {
--   1 => \`foo<LF>
-+   1 => \`baz<LF>
+-   1 => \`foo\u240A
++   1 => \`baz\u240A
     bar\`,
   }`)
 
   const actual2 = diff(new Map([['foo\nbar', 'foo\nbar']]), new Map([['foo\nbar', 'baz\nbar']]))
   t.is(actual2, `  Map {
--   \`foo<LF>
--   bar\` => \`foo<LF>
-+   \`foo<LF>
-+   bar\` => \`baz<LF>
+-   \`foo\u240A
+-   bar\` => \`foo\u240A
++   \`foo\u240A
++   bar\` => \`baz\u240A
     bar\`,
   }`)
 })
@@ -523,9 +523,9 @@ test('diffs multiline string values in maps when key is primitive', t => {
 test('does not diff multiline string values in maps when key is complex', t => {
   const actual = diff(new Map([[{}, 'foo\nbar']]), new Map([[{}, 'baz\nbar']]))
   t.is(actual, `  Map {
--   Object {} => \`foo<LF>
+-   Object {} => \`foo\u240A
 -   bar\`,
-+   Object {} => \`baz<LF>
++   Object {} => \`baz\u240A
 +   bar\`,
   }`)
 })
@@ -556,7 +556,7 @@ test('diffs properties with different values', t => {
 -   value: Foo {
 -     value: 42,
 -   },
-+   value: \`foo<LF>
++   value: \`foo\u240A
 +   bar\`,
   }`)
 })
@@ -587,17 +587,17 @@ test('diffs map keys with different values', t => {
 -   'key' => Foo {
 -     value: 42,
 -   },
-+   'key' => \`foo<LF>
++   'key' => \`foo\u240A
 +   bar\`,
   }`)
 
   const actual4 = diff(new Map([['key\nline', new Foo()]]), new Map([['key\nline', new Bar()]]))
   t.is(actual4, `  Map {
--   \`key<LF>
+-   \`key\u240A
 -   line\` => Foo {
 -     value: 42,
 -   },
-+   \`key<LF>
++   \`key\u240A
 +   line\` => Bar {
 +     value: 42,
 +   },
