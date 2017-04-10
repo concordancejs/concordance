@@ -1,7 +1,7 @@
 import test from 'ava'
 
 import {format} from '../lib/format'
-import getTag from '../lib/getTag'
+import getStringTag from '../lib/getStringTag'
 
 test('formats primitives', t => {
   for (const [value, expected] of [
@@ -250,7 +250,7 @@ test('formats functions with additional properties', t => {
 
 {
   // Node.js 4 provides Function, more recent versions use GeneratorFunction
-  const tag = getTag(function * () {})
+  const tag = getStringTag(function * () {})
 
   test('formats anonymous generator functions', t => {
     const actual = format(function * () {})
