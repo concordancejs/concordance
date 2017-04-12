@@ -31,6 +31,7 @@
     "es6-error": "^4.0.2",
     "esutils": "^2.0.2",
     "fast-diff": "^1.1.1",
+    "lodash.flattendeep": "^4.4.0",
     "well-known-symbols": "^1.0.0"
   },
   "devDependencies": {
