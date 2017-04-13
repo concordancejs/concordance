@@ -473,9 +473,18 @@ test('diffs multiline string values in objects', t => {
     baz\`,
   }`)
 
-  const s1 = Symbol('s1')
-  const actual2 = diff({[s1]: 'bar\nbaz'}, {[s1]: 'qux\nbaz'})
+  const actual2 = diff({foo: 'bar\nbaz\nqux'}, {foo: 'bar\nqux\nbaz'})
   t.is(actual2, `  Object {
+    foo: \`bar\u240A
+-   ${u`baz`}\u240A
+-   ${u`qux`}\`,
++   ${u`qux`}\u240A
++   ${u`baz`}\`,
+  }`)
+
+  const s1 = Symbol('s1')
+  const actual3 = diff({[s1]: 'bar\nbaz'}, {[s1]: 'qux\nbaz'})
+  t.is(actual3, `  Object {
 -   [Symbol(s1)]: \`bar\u240A
 +   [Symbol(s1)]: \`qux\u240A
     baz\`,
@@ -518,6 +527,15 @@ test('diffs multiline string values in maps when key is primitive', t => {
 +   bar\` => \`baz\u240A
     bar\`,
   }`)
+
+  const actual3 = diff(new Map([['foo', 'bar\nbaz\nqux']]), new Map([['foo', 'bar\nqux\nbaz']]))
+  t.is(actual3, `  Map {
+    'foo' => \`bar\u240A
+-   ${u`baz`}\u240A
+-   ${u`qux`}\`,
++   ${u`qux`}\u240A
++   ${u`baz`}\`,
+  }`)
 })
 
 test('does not diff multiline string values in maps when key is complex', t => {
@@ -558,6 +576,12 @@ test('diffs properties with different values', t => {
 -   },
 +   value: \`foo\u240A
 +   bar\`,
+  }`)
+
+  const actual4 = diff({ foo: 'bar' }, { foo: 'not bar' })
+  t.is(actual4, `  Object {
+-   foo: 'bar',
++   foo: '${u`not `}bar',
   }`)
 })
 
