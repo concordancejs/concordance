@@ -1,11 +1,22 @@
 import styles from 'ansi-styles'
 import test from 'ava'
 
-import {diff} from '../lib/diff'
+import {diff as unthemedDiff} from '../lib/diff'
 
 function u (strings) {
   return styles.underline.open + strings[0] + styles.underline.close
 }
+
+const theme = {
+  string: {
+    diff: {
+      insert: { open: styles.underline.open, close: styles.underline.close },
+      delete: { open: styles.underline.open, close: styles.underline.close }
+    }
+  }
+}
+
+const diff = (actual, expected) => unthemedDiff(actual, expected, {theme})
 
 test('diffs primitives', t => {
   for (const [lhs, rhs, expected] of [
@@ -51,8 +62,8 @@ test('diffs multiline strings', t => {
 
   const actual2 = diff('foo\nbar', 'foo\nbaz')
   t.is(actual2, `  \`foo\u240A
-- bar\`
-+ baz\``)
+- ba${u`r`}\`
++ ba${u`z`}\``)
 
   const actual3 = diff('foo\nbar\nbaz', 'foo\nbaz')
   t.is(actual3, `  \`foo\u240A
@@ -94,8 +105,8 @@ quux`)
 + \`${u`c`}o${u`rge`}\u240A
 + ${u`gr`}a${u`ult`}\u240A
   baz\u240A
-- ${u`qux`}\u240A
-+ ${u`garply`}\u240A
+- qux\u240A
++ garply\u240A
   quux\``)
 })
 
@@ -492,10 +503,10 @@ test('diffs multiline string values in objects', t => {
   const actual2 = diff({foo: 'bar\nbaz\nqux'}, {foo: 'bar\nqux\nbaz'})
   t.is(actual2, `  Object {
     foo: \`bar\u240A
--   ${u`baz`}\u240A
--   ${u`qux`}\`,
-+   ${u`qux`}\u240A
-+   ${u`baz`}\`,
+-   baz\u240A
+-   qux\`,
++   qux\u240A
++   baz\`,
   }`)
 
   const s1 = Symbol('s1')
@@ -511,9 +522,8 @@ test('diffs multiline string values in arrays', t => {
   const actual = diff(['foo\nbar'], ['baz\nbar'])
   t.is(actual, `  Array [
 -   \`foo\u240A
--   bar\`,
 +   \`baz\u240A
-+   bar\`,
+    bar\`,
   ]`)
 })
 
@@ -521,9 +531,8 @@ test('diffs multiline string values in sets', t => {
   const actual = diff(new Set(['foo\nbar']), new Set(['baz\nbar']))
   t.is(actual, `  Set {
 -   \`foo\u240A
--   bar\`,
 +   \`baz\u240A
-+   bar\`,
+    bar\`,
   }`)
 })
 
@@ -547,10 +556,10 @@ test('diffs multiline string values in maps when key is primitive', t => {
   const actual3 = diff(new Map([['foo', 'bar\nbaz\nqux']]), new Map([['foo', 'bar\nqux\nbaz']]))
   t.is(actual3, `  Map {
     'foo' => \`bar\u240A
--   ${u`baz`}\u240A
--   ${u`qux`}\`,
-+   ${u`qux`}\u240A
-+   ${u`baz`}\`,
+-   baz\u240A
+-   qux\`,
++   qux\u240A
++   baz\`,
   }`)
 })
 
@@ -712,4 +721,14 @@ test('diffs circular references', t => {
 +     },
     },
   }`)
+})
+
+test('diff dates with extra properties', t => {
+  const actual = diff(new Date('1969-07-20T20:17:40.000Z'), Object.assign(new Date('1969-07-21T20:17:40.000Z'), {
+    foo: 'bar'
+  }))
+  t.is(actual, `- Date 1969-07-20T20:17:40.000Z {}
++ Date 1969-07-21T20:17:40.000Z {
++   foo: 'bar',
++ }`)
 })

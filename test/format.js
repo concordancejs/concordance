@@ -11,7 +11,7 @@ test('formats primitives', t => {
     [true, 'true'],
     ['', "''"],
     ['foo', "'foo'"],
-    ['\\ -- \' -- "', '`\\\\ -- \' -- "`'],
+    ['\\ -- \' -- "', '\'\\\\ -- \\\' -- "\''],
     ['foo\nbar\\baz\'"', '`foo\u240A\nbar\\\\baz\'"`'],
     ['qux\r\nquux', '`qux\u240D\u240A\nquux`'],
     ['qux\rquux', '`qux\u240D\nquux`'],
@@ -233,12 +233,12 @@ test('formats regular expressions with additional properties', t => {
 
 test('formats anonymous functions', t => {
   const actual = format(() => {})
-  t.is(actual, 'Function')
+  t.is(actual, 'Function {}')
 })
 
 test('formats named functions', t => {
   const actual = format(function foo () {})
-  t.is(actual, 'Function foo')
+  t.is(actual, 'Function foo {}')
 })
 
 test('formats functions with additional properties', t => {
@@ -254,12 +254,12 @@ test('formats functions with additional properties', t => {
 
   test('formats anonymous generator functions', t => {
     const actual = format(function * () {})
-    t.is(actual, `${tag}`)
+    t.is(actual, `${tag} {}`)
   })
 
   test('formats named generator functions', t => {
     const actual = format(function * foo () {})
-    t.is(actual, `${tag} foo`)
+    t.is(actual, `${tag} foo {}`)
   })
 
   test('formats generator functions with additional properties', t => {
@@ -399,7 +399,7 @@ test('formats circular references', t => {
 
 test('formats dates', t => {
   const actual = format(new Date('1969-07-20T20:17:40Z'))
-  t.is(actual, 'Date 1969-07-20T20:17:40.000Z')
+  t.is(actual, 'Date 1969-07-20T20:17:40.000Z {}')
 })
 
 test('formats dates with additional properties', t => {
@@ -420,7 +420,7 @@ test('shows non-Object tag if constructor name is different', t => {
 
   class Baz extends Date {}
   const actual3 = format(new Baz('1969-07-20T20:17:40Z'))
-  t.is(actual3, 'Baz @Date 1969-07-20T20:17:40.000Z')
+  t.is(actual3, 'Baz @Date 1969-07-20T20:17:40.000Z {}')
 
   class Qux extends RegExp {}
   const actual4 = format(new Qux('foo'))
