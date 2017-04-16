@@ -491,23 +491,21 @@ test('diffs multiline string values in objects', t => {
   }`)
 })
 
-test('does not diff multiline string values in arrays', t => {
+test('diffs multiline string values in arrays', t => {
   const actual = diff(['foo\nbar'], ['baz\nbar'])
   t.is(actual, `  Array [
 -   \`foo\u240A
--   bar\`,
 +   \`baz\u240A
-+   bar\`,
+    bar\`,
   ]`)
 })
 
-test('does not diff multiline string values in sets', t => {
+test('diffs multiline string values in sets', t => {
   const actual = diff(new Set(['foo\nbar']), new Set(['baz\nbar']))
   t.is(actual, `  Set {
 -   \`foo\u240A
--   bar\`,
 +   \`baz\u240A
-+   bar\`,
+    bar\`,
   }`)
 })
 
