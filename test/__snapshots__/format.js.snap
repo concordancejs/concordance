@@ -1,0 +1,535 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`formats ArrayBuffer 1`] = `
+"ArrayBuffer [
+  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad
+]"
+`;
+
+exports[`formats ArrayBuffer with additional properties 1`] = `
+"ArrayBuffer [
+  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad
+  ---
+  foo: 'bar',
+]"
+`;
+
+exports[`formats Buffer @Uint8Array 1`] = `
+"Buffer @Uint8Array [
+  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad
+]"
+`;
+
+exports[`formats Buffer @Uint8Array with additional properties 1`] = `
+"Buffer @Uint8Array [
+  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad
+  ---
+  foo: 'bar',
+]"
+`;
+
+exports[`formats DataView 1`] = `
+"DataView [
+  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad
+]"
+`;
+
+exports[`formats DataView with additional properties 1`] = `
+"DataView [
+  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad
+  ---
+  foo: 'bar',
+]"
+`;
+
+exports[`formats Float32Array 1`] = `
+"Float32Array [
+  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad
+]"
+`;
+
+exports[`formats Float32Array with additional properties 1`] = `
+"Float32Array [
+  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad
+  ---
+  foo: 'bar',
+]"
+`;
+
+exports[`formats Float64Array 1`] = `
+"Float64Array [
+  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad
+]"
+`;
+
+exports[`formats Float64Array with additional properties 1`] = `
+"Float64Array [
+  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad
+  ---
+  foo: 'bar',
+]"
+`;
+
+exports[`formats Int8Array 1`] = `
+"Int8Array [
+  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad
+]"
+`;
+
+exports[`formats Int8Array with additional properties 1`] = `
+"Int8Array [
+  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad
+  ---
+  foo: 'bar',
+]"
+`;
+
+exports[`formats Int16Array 1`] = `
+"Int16Array [
+  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad
+]"
+`;
+
+exports[`formats Int16Array with additional properties 1`] = `
+"Int16Array [
+  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad
+  ---
+  foo: 'bar',
+]"
+`;
+
+exports[`formats Int32Array 1`] = `
+"Int32Array [
+  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad
+]"
+`;
+
+exports[`formats Int32Array with additional properties 1`] = `
+"Int32Array [
+  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad
+  ---
+  foo: 'bar',
+]"
+`;
+
+exports[`formats Uint8Array 1`] = `
+"Uint8Array [
+  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad
+]"
+`;
+
+exports[`formats Uint8Array with additional properties 1`] = `
+"Uint8Array [
+  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad
+  ---
+  foo: 'bar',
+]"
+`;
+
+exports[`formats Uint8ClampedArray 1`] = `
+"Uint8ClampedArray [
+  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad
+]"
+`;
+
+exports[`formats Uint8ClampedArray with additional properties 1`] = `
+"Uint8ClampedArray [
+  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad
+  ---
+  foo: 'bar',
+]"
+`;
+
+exports[`formats Uint16Array 1`] = `
+"Uint16Array [
+  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad
+]"
+`;
+
+exports[`formats Uint16Array with additional properties 1`] = `
+"Uint16Array [
+  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad
+  ---
+  foo: 'bar',
+]"
+`;
+
+exports[`formats Uint32Array 1`] = `
+"Uint32Array [
+  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad
+]"
+`;
+
+exports[`formats Uint32Array with additional properties 1`] = `
+"Uint32Array [
+  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad
+  ---
+  foo: 'bar',
+]"
+`;
+
+exports[`formats a multiline string inside an array 1`] = `
+"Array [
+  \`bar␊
+  baz\`,
+]"
+`;
+
+exports[`formats a multiline string inside sets 1`] = `
+"Set {
+  \`bar␊
+  baz\`,
+}"
+`;
+
+exports[`formats a simple array 1`] = `
+"Array [
+  'foo',
+  'bar',
+]"
+`;
+
+exports[`formats a simple object 1`] = `
+"Object {
+  baz: 'qux',
+  foo: 'bar',
+}"
+`;
+
+exports[`formats a simple, nested array 1`] = `
+"Array [
+  Array [
+    'foo',
+    'bar',
+  ],
+]"
+`;
+
+exports[`formats a simple, nested object 1`] = `
+"Object {
+  foo: Object {
+    baz: 'qux',
+  },
+}"
+`;
+
+exports[`formats an array with additional properties 1`] = `
+"Array [
+  'foo',
+  'bar',
+  ---
+  baz: 'qux',
+]"
+`;
+
+exports[`formats anonymous functions 1`] = `"Function {}"`;
+
+exports[`formats arguments 1`] = `
+"Arguments [
+  'foo',
+  'bar',
+  'baz',
+]"
+`;
+
+exports[`formats circular references 1`] = `
+"Object {
+  circular: [Circular],
+}"
+`;
+
+exports[`formats dates 1`] = `"Date 1969-07-20T20:17:40.000Z {}"`;
+
+exports[`formats dates with additional properties 1`] = `
+"Date 1969-07-20T20:17:40.000Z {
+  foo: 'bar',
+}"
+`;
+
+exports[`formats errors with a name that does not include Error and does not match the constructor 1`] = `
+"Bar (Foo) @Error {
+  message: 'Test message',
+}"
+`;
+
+exports[`formats errors with additional properties 1`] = `
+"TypeError {
+  foo: 'bar',
+  message: 'Test message',
+}"
+`;
+
+exports[`formats functions with additional properties 1`] = `
+"Function foo {
+  bar: 'baz',
+}"
+`;
+
+exports[`formats funky objects that are lists and have an iterator 1`] = `
+"Object [
+  'first',
+  'second',
+  ---
+  foo: 'bar',
+  ---
+  'baz',
+]"
+`;
+
+exports[`formats global 1`] = `"Global {}"`;
+
+exports[`formats maps 1`] = `
+"Map {
+  'foo' => 'bar',
+  Object {
+    baz: 'qux',
+  } => 'quux',
+  'corge' => Object {
+    grault: 'garply',
+  },
+}"
+`;
+
+exports[`formats maps with additional properties 1`] = `
+"Map {
+  baz: 'qux',
+  ---
+  'foo' => 'bar',
+}"
+`;
+
+exports[`formats multiline strings inside a map 1`] = `
+"Map {
+  \`foo␊
+  bar\` => \`baz␊
+  qux\`,
+}"
+`;
+
+exports[`formats multiline strings inside an object 1`] = `
+"Object {
+  'foo\\\\nbar': \`baz␊
+  qux\`,
+}"
+`;
+
+exports[`formats named functions 1`] = `"Function foo {}"`;
+
+exports[`formats pointers 1`] = `
+"Object {
+  baz: Object {
+    foo: 'bar',
+  },
+  qux: Object {
+    quux: Object {
+      foo: 'bar',
+    },
+  },
+}"
+`;
+
+exports[`formats primitive:  1`] = `"''"`;
+
+exports[`formats primitive: \\ -- ' -- " 1`] = `"'\\\\\\\\ -- \\\\' -- \\"'"`;
+
+exports[`formats primitive: -42 1`] = `"-42"`;
+
+exports[`formats primitive: -Infinity 1`] = `"-Infinity"`;
+
+exports[`formats primitive: 0 1`] = `"0"`;
+
+exports[`formats primitive: 0 2`] = `"-0"`;
+
+exports[`formats primitive: 0 3`] = `"0"`;
+
+exports[`formats primitive: 42 1`] = `"42"`;
+
+exports[`formats primitive: Infinity 1`] = `"Infinity"`;
+
+exports[`formats primitive: NaN 1`] = `"NaN"`;
+
+exports[`formats primitive: Symbol() 1`] = `"Symbol()"`;
+
+exports[`formats primitive: Symbol(Symbol.iterator) 1`] = `"Symbol.iterator"`;
+
+exports[`formats primitive: Symbol(bar) 1`] = `"Symbol(bar)"`;
+
+exports[`formats primitive: Symbol(foo) 1`] = `"Symbol(foo)"`;
+
+exports[`formats primitive: false 1`] = `"false"`;
+
+exports[`formats primitive: foo 1`] = `"'foo'"`;
+
+exports[`formats primitive: foo\\nbar\\baz'" 1`] = `
+"\`foo␊
+bar\\\\\\\\baz'\\"\`"
+`;
+
+exports[`formats primitive: null 1`] = `"null"`;
+
+exports[`formats primitive: qux\\r\\nquux 1`] = `
+"\`qux␍␊
+quux\`"
+`;
+
+exports[`formats primitive: qux\\rquux 1`] = `
+"\`qux␍
+quux\`"
+`;
+
+exports[`formats primitive: true 1`] = `"true"`;
+
+exports[`formats primitive: undefined 1`] = `"undefined"`;
+
+exports[`formats promises 1`] = `"Promise {}"`;
+
+exports[`formats promises with additional properties 1`] = `
+"Promise {
+  foo: 'bar',
+}"
+`;
+
+exports[`formats regular expressions 1`] = `"/foo/gim"`;
+
+exports[`formats regular expressions with additional properties 1`] = `
+"RegExp {
+  /foo/gim
+  ---
+  bar: 'baz',
+}"
+`;
+
+exports[`formats sets 1`] = `
+"Set {
+  'foo',
+  Object {
+    bar: 'baz',
+  },
+}"
+`;
+
+exports[`formats sets with additional properties 1`] = `
+"Set {
+  bar: 'baz',
+  ---
+  'foo',
+}"
+`;
+
+exports[`formats simple errors 1`] = `
+"TypeError {
+  message: 'Test message',
+}"
+`;
+
+exports[`formats simple errors with a modified name 1`] = `
+"FooError (TypeError) {
+  message: 'Test message',
+}"
+`;
+
+exports[`formats wrapped primitive: -42 1`] = `
+"Number {
+  -42
+}"
+`;
+
+exports[`formats wrapped primitive: -Infinity 1`] = `
+"Number {
+  -Infinity
+}"
+`;
+
+exports[`formats wrapped primitive: 0 1`] = `
+"Number {
+  0
+}"
+`;
+
+exports[`formats wrapped primitive: 0 2`] = `
+"Number {
+  -0
+}"
+`;
+
+exports[`formats wrapped primitive: 0 3`] = `
+"Number {
+  0
+}"
+`;
+
+exports[`formats wrapped primitive: 42 1`] = `
+"Number {
+  42
+}"
+`;
+
+exports[`formats wrapped primitive: Infinity 1`] = `
+"Number {
+  Infinity
+}"
+`;
+
+exports[`formats wrapped primitive: NaN 1`] = `
+"Number {
+  NaN
+}"
+`;
+
+exports[`formats wrapped primitive: false 1`] = `
+"Boolean {
+  false
+}"
+`;
+
+exports[`formats wrapped primitive: true 1`] = `
+"Boolean {
+  true
+}"
+`;
+
+exports[`formats wrapped strings as a list 1`] = `
+"String [
+  'f',
+  'o',
+  'o',
+]"
+`;
+
+exports[`shows non-Object tag if constructor name is different 1`] = `"Foo {}"`;
+
+exports[`shows non-Object tag if constructor name is different 2`] = `"Bar @Array []"`;
+
+exports[`shows non-Object tag if constructor name is different 3`] = `"Baz @Date 1969-07-20T20:17:40.000Z {}"`;
+
+exports[`shows non-Object tag if constructor name is different 4`] = `
+"Qux @RegExp {
+  /foo/
+}"
+`;
+
+exports[`shows non-Object tag if constructor name is different 5`] = `"Quux @Int16Array []"`;

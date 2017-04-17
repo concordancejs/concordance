@@ -3,127 +3,104 @@ import test from 'ava'
 import {format} from '../lib/format'
 import getStringTag from '../lib/getStringTag'
 
-test('formats primitives', t => {
-  for (const [value, expected] of [
-    [null, 'null'],
-    [undefined, 'undefined'],
-    [false, 'false'],
-    [true, 'true'],
-    ['', "''"],
-    ['foo', "'foo'"],
-    ['\\ -- \' -- "', '\'\\\\ -- \\\' -- "\''],
-    ['foo\nbar\\baz\'"', '`foo\u240A\nbar\\\\baz\'"`'],
-    ['qux\r\nquux', '`qux\u240D\u240A\nquux`'],
-    ['qux\rquux', '`qux\u240D\nquux`'],
-    [42, '42'],
-    [-42, '-42'],
-    [0, '0'],
-    [-0, '-0'],
-    [+0, '0'],
-    [Infinity, 'Infinity'],
-    [-Infinity, '-Infinity'],
-    [NaN, 'NaN'],
-    [Symbol(), 'Symbol()'], // eslint-disable-line symbol-description
-    [Symbol('foo'), 'Symbol(foo)'],
-    [Symbol.for('bar'), 'Symbol(bar)'],
-    [Symbol.iterator, 'Symbol.iterator']
-  ]) {
-    t.is(format(value), expected)
+{
+  const formatsPrimitive = (t, value) => t.snapshot(format(value))
+  formatsPrimitive.title = (_, value) => {
+    const str = String(value)
+      .replace(/\r/g, '\\r')
+      .replace(/\n/g, '\\n')
+    return `formats primitive: ${str}`
   }
-})
+  for (const value of [
+    null,
+    undefined,
+    false,
+    true,
+    '',
+    'foo',
+    '\\ -- \' -- "',
+    'foo\nbar\\baz\'"',
+    'qux\r\nquux',
+    'qux\rquux',
+    42,
+    -42,
+    0,
+    -0,
+    +0,
+    Infinity,
+    -Infinity,
+    NaN,
+    Symbol(), // eslint-disable-line symbol-description
+    Symbol('foo'),
+    Symbol.for('bar'),
+    Symbol.iterator
+  ]) {
+    test(formatsPrimitive, value)
+  }
+}
 
 test('formats a simple object', t => {
   const obj = { foo: 'bar', baz: 'qux' }
   const actual = format(obj)
-  t.is(actual, `Object {
-  baz: 'qux',
-  foo: 'bar',
-}`)
+  t.snapshot(actual)
 })
 
 test('formats a simple, nested object', t => {
   const obj = { foo: { baz: 'qux' } }
   const actual = format(obj)
-  t.is(actual, `Object {
-  foo: Object {
-    baz: 'qux',
-  },
-}`)
+  t.snapshot(actual)
 })
 
 test('formats multiline strings inside an object', t => {
   const actual = format({ 'foo\nbar': 'baz\nqux' })
-  t.is(actual, `Object {
-  'foo\\nbar': \`baz\u240A
-  qux\`,
-}`)
+  t.snapshot(actual)
 })
 
-test('formats wrapped primitives', t => {
-  for (const [value, expected, tag] of [
-    [false, 'false', 'Boolean'],
-    [true, 'true', 'Boolean'],
-    [42, '42', 'Number'],
-    [-42, '-42', 'Number'],
-    [0, '0', 'Number'],
-    [-0, '-0', 'Number'],
-    [+0, '0', 'Number'],
-    [Infinity, 'Infinity', 'Number'],
-    [-Infinity, '-Infinity', 'Number'],
-    [NaN, 'NaN', 'Number']
+{
+  const formatsWrappedPrimitive = (t, value) => t.snapshot(format(Object(value)))
+  formatsWrappedPrimitive.title = (_, value) => `formats wrapped primitive: ${String(value)}`
+  for (const value of [
+    false,
+    true,
+    42,
+    -42,
+    0,
+    -0,
+    +0,
+    Infinity,
+    -Infinity,
+    NaN
   ]) {
-    t.is(format(Object(value)), `${tag} {
-  ${expected}
-}`)
+    test(formatsWrappedPrimitive, value)
   }
-})
+}
 
 test('formats wrapped strings as a list', t => {
-  t.is(format(Object('foo')), `String [
-  'f',
-  'o',
-  'o',
-]`)
+  t.snapshot(format(Object('foo')))
 })
 
 test('formats a simple array', t => {
   const arr = ['foo', 'bar']
   const actual = format(arr)
-  t.is(actual, `Array [
-  'foo',
-  'bar',
-]`)
+  t.snapshot(actual)
 })
 
 test('formats a simple, nested array', t => {
   const arr = [['foo', 'bar']]
   const actual = format(arr)
-  t.is(actual, `Array [
-  Array [
-    'foo',
-    'bar',
-  ],
-]`)
+  t.snapshot(actual)
 })
 
 test('formats an array with additional properties', t => {
   const arr = ['foo', 'bar']
   arr.baz = 'qux'
   const actual = format(arr)
-  t.is(actual, `Array [
-  'foo',
-  'bar',
-  ---
-  baz: 'qux',
-]`)
+  t.snapshot(actual)
 })
 
 test('formats a multiline string inside an array', t => {
   const actual = format(['bar\nbaz'])
-  t.is(actual, `Array [
-  \`bar\u240A
-  baz\`,
-]`)
+  t.snapshot(actual)
 })
 
 test('formats maps', t => {
@@ -132,24 +109,12 @@ test('formats maps', t => {
   map.set({ baz: 'qux' }, 'quux')
   map.set('corge', { grault: 'garply' })
   const actual = format(map)
-  t.is(actual, `Map {
-  'foo' => 'bar',
-  Object {
-    baz: 'qux',
-  } => 'quux',
-  'corge' => Object {
-    grault: 'garply',
-  },
-}`)
+  t.snapshot(actual)
 })
 
 test('formats multiline strings inside a map', t => {
   const actual = format(new Map([['foo\nbar', 'baz\nqux']]))
-  t.is(actual, `Map {
-  \`foo\u240A
-  bar\` => \`baz\u240A
-  qux\`,
-}`)
+  t.snapshot(actual)
 })
 
 test('formats maps with additional properties', t => {
@@ -157,11 +122,7 @@ test('formats maps with additional properties', t => {
   map.set('foo', 'bar')
   map.baz = 'qux'
   const actual = format(map)
-  t.is(actual, `Map {
-  baz: 'qux',
-  ---
-  'foo' => 'bar',
-}`)
+  t.snapshot(actual)
 })
 
 test('formats sets', t => {
@@ -169,20 +130,12 @@ test('formats sets', t => {
   set.add('foo')
   set.add({ bar: 'baz' })
   const actual = format(set)
-  t.is(actual, `Set {
-  'foo',
-  Object {
-    bar: 'baz',
-  },
-}`)
+  t.snapshot(actual)
 })
 
 test('formats a multiline string inside sets', t => {
   const actual = format(new Set(['bar\nbaz']))
-  t.is(actual, `Set {
-  \`bar\u240A
-  baz\`,
-}`)
+  t.snapshot(actual)
 })
 
 test('formats sets with additional properties', t => {
@@ -190,11 +143,7 @@ test('formats sets with additional properties', t => {
   set.add('foo')
   set.bar = 'baz'
   const actual = format(set)
-  t.is(actual, `Set {
-  bar: 'baz',
-  ---
-  'foo',
-}`)
+  t.snapshot(actual)
 })
 
 test('formats funky objects that are lists and have an iterator', t => {
@@ -207,45 +156,32 @@ test('formats funky objects that are lists and have an iterator', t => {
   Object.defineProperty(funky, Symbol.iterator, { * value () { yield 'baz' } })
 
   const actual = format(funky)
-  t.is(actual, `Object [
-  'first',
-  'second',
-  ---
-  foo: 'bar',
-  ---
-  'baz',
-]`)
+  t.snapshot(actual)
 })
 
 test('formats regular expressions', t => {
   const actual = format(/foo/gim)
-  t.is(actual, '/foo/gim')
+  t.snapshot(actual)
 })
 
 test('formats regular expressions with additional properties', t => {
   const actual = format(Object.assign(/foo/gim, { bar: 'baz' }))
-  t.is(actual, `RegExp {
-  /foo/gim
-  ---
-  bar: 'baz',
-}`)
+  t.snapshot(actual)
 })
 
 test('formats anonymous functions', t => {
   const actual = format(() => {})
-  t.is(actual, 'Function {}')
+  t.snapshot(actual)
 })
 
 test('formats named functions', t => {
   const actual = format(function foo () {})
-  t.is(actual, 'Function foo {}')
+  t.snapshot(actual)
 })
 
 test('formats functions with additional properties', t => {
   const actual = format(Object.assign(function foo () {}, { bar: 'baz' }))
-  t.is(actual, `Function foo {
-  bar: 'baz',
-}`)
+  t.snapshot(actual)
 })
 
 {
@@ -273,28 +209,20 @@ test('formats functions with additional properties', t => {
 test('formats arguments', t => {
   (function (a, b, c) {
     const actual = format(arguments)
-    t.is(actual, `Arguments [
-  'foo',
-  'bar',
-  'baz',
-]`)
+    t.snapshot(actual)
   })('foo', 'bar', 'baz')
 })
 
 test('formats simple errors', t => {
   const actual = format(new TypeError('Test message'))
-  t.is(actual, `TypeError {
-  message: 'Test message',
-}`)
+  t.snapshot(actual)
 })
 
 test('formats simple errors with a modified name', t => {
   const err = new TypeError('Test message')
   err.name = 'FooError'
   const actual = format(err)
-  t.is(actual, `FooError (TypeError) {
-  message: 'Test message',
-}`)
+  t.snapshot(actual)
 })
 
 test('formats errors with a name that does not include Error and does not match the constructor', t => {
@@ -305,73 +233,47 @@ test('formats errors with a name that does not include Error and does not match 
     }
   }
   const actual = format(new Foo('Test message'))
-  t.is(actual, `Bar (Foo) @Error {
-  message: 'Test message',
-}`)
+  t.snapshot(actual)
 })
 
 test('formats errors with additional properties', t => {
   const actual = format(Object.assign(new TypeError('Test message'), { foo: 'bar' }))
-  t.is(actual, `TypeError {
-  foo: 'bar',
-  message: 'Test message',
-}`)
+  t.snapshot(actual)
 })
 
 test('formats promises', t => {
   const actual = format(Promise.resolve())
-  t.is(actual, 'Promise {}')
+  t.snapshot(actual)
 })
 
 test('formats promises with additional properties', t => {
   const actual = format(Object.assign(Promise.resolve(), { foo: 'bar' }))
-  t.is(actual, `Promise {
-  foo: 'bar',
-}`)
+  t.snapshot(actual)
 })
 
 test('formats pointers', t => {
   const obj = { foo: 'bar' }
   const actual = format({ baz: obj, qux: { quux: obj } })
-  t.is(actual, `Object {
-  baz: Object {
-    foo: 'bar',
-  },
-  qux: Object {
-    quux: Object {
-      foo: 'bar',
-    },
-  },
-}`)
+  t.snapshot(actual)
 })
 
 test('formats circular references', t => {
   const obj = {}
   obj.circular = obj
   const actual = format(obj)
-  t.is(actual, `Object {
-  circular: [Circular],
-}`)
+  t.snapshot(actual)
 })
 
 {
   const plain = (t, value, tag) => {
     const actual = format(value)
-    t.is(actual, `${tag} [
-  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
-  decafbad decafbad decafbad decafbad
-]`)
+    t.snapshot(actual)
   }
   plain.title = (_, __, tag) => `formats ${tag}`
 
   const withProperties = (t, value, tag) => {
     const actual = format(Object.assign(value, { foo: 'bar' }))
-    t.is(actual, `${tag} [
-  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
-  decafbad decafbad decafbad decafbad
-  ---
-  foo: 'bar',
-]`)
+    t.snapshot(actual)
   }
   withProperties.title = (_, __, tag) => `formats ${tag} with additional properties`
 
@@ -399,40 +301,36 @@ test('formats circular references', t => {
 
 test('formats dates', t => {
   const actual = format(new Date('1969-07-20T20:17:40Z'))
-  t.is(actual, 'Date 1969-07-20T20:17:40.000Z {}')
+  t.snapshot(actual)
 })
 
 test('formats dates with additional properties', t => {
   const actual = format(Object.assign(new Date('1969-07-20T20:17:40Z'), { foo: 'bar' }))
-  t.is(actual, `Date 1969-07-20T20:17:40.000Z {
-  foo: 'bar',
-}`)
+  t.snapshot(actual)
 })
 
 test('shows non-Object tag if constructor name is different', t => {
   class Foo {}
   const actual1 = format(new Foo())
-  t.is(actual1, 'Foo {}')
+  t.snapshot(actual1)
 
   class Bar extends Array {}
   const actual2 = format(new Bar())
-  t.is(actual2, 'Bar @Array []')
+  t.snapshot(actual2)
 
   class Baz extends Date {}
   const actual3 = format(new Baz('1969-07-20T20:17:40Z'))
-  t.is(actual3, 'Baz @Date 1969-07-20T20:17:40.000Z {}')
+  t.snapshot(actual3)
 
   class Qux extends RegExp {}
   const actual4 = format(new Qux('foo'))
-  t.is(actual4, `Qux @RegExp {
-  /foo/
-}`)
+  t.snapshot(actual4)
 
   class Quux extends Int16Array {}
   const actual5 = format(new Quux())
-  t.is(actual5, 'Quux @Int16Array []')
+  t.snapshot(actual5)
 })
 
 test('formats global', t => {
-  t.is(format(global), 'Global {}')
+  t.snapshot(format(global))
 })

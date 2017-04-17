@@ -1,0 +1,867 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`detects extraneous arguments items 1`] = `
+"  Arguments [
+    1,
+-   3,
+    2,
+  ]"
+`;
+
+exports[`detects extraneous arguments items 2`] = `
+"  Arguments [
+    1,
+-   Object {},
+    2,
+  ]"
+`;
+
+exports[`detects extraneous arguments items 3`] = `
+"  Arguments [
+    1,
+-   Object {
+-     foo: 'bar',
+-   },
+    Object {
+      baz: 'qux',
+    },
+    2,
+  ]"
+`;
+
+exports[`detects extraneous arguments items 4`] = `
+"  Arguments [
+    1,
+-   Object {
+-     [Symbol(s1)]: 'bar',
+-   },
+    Object {
+      [Symbol(s2)]: 'qux',
+    },
+    2,
+  ]"
+`;
+
+exports[`detects extraneous array items 1`] = `
+"  Array [
+    1,
+-   3,
+    2,
+  ]"
+`;
+
+exports[`detects extraneous array items 2`] = `
+"  Array [
+    1,
+-   Object {},
+    2,
+  ]"
+`;
+
+exports[`detects extraneous array items 3`] = `
+"  Array [
+    1,
+-   Object {
+-     foo: 'bar',
+-   },
+    Object {
+      baz: 'qux',
+    },
+    2,
+  ]"
+`;
+
+exports[`detects extraneous array items 4`] = `
+"  Array [
+    1,
+-   Object {
+-     [Symbol(s1)]: 'bar',
+-   },
+    Object {
+      [Symbol(s2)]: 'qux',
+    },
+    2,
+  ]"
+`;
+
+exports[`detects extraneous map entries 1`] = `
+"  Map {
+    1 => 1,
+-   3 => 3,
+    2 => 2,
+  }"
+`;
+
+exports[`detects extraneous map entries 2`] = `
+"  Map {
+    1 => 1,
+-   Object {} => 3,
+    2 => 2,
+  }"
+`;
+
+exports[`detects extraneous map entries 3`] = `
+"  Map {
+    1 => 1,
+-   Object {
+-     foo: 'bar',
+-   } => 4,
+    Object {
+      baz: 'qux',
+    } => 2,
+    3 => 3,
+  }"
+`;
+
+exports[`detects extraneous map entries 4`] = `
+"  Map {
+    1 => 1,
+-   Object {
+-     [Symbol(s1)]: 'bar',
+-   } => 4,
+    Object {
+      [Symbol(s2)]: 'qux',
+    } => 2,
+    3 => 3,
+  }"
+`;
+
+exports[`detects extraneous name properties 1`] = `
+"  Object {
+    a: 1,
+-   b: 2,
+    c: 3,
+  }"
+`;
+
+exports[`detects extraneous name properties 2`] = `
+"  Object {
+    a: 1,
+-   b: Object {},
+    c: 3,
+  }"
+`;
+
+exports[`detects extraneous set items 1`] = `
+"  Set {
+    1,
+-   3,
+    2,
+  }"
+`;
+
+exports[`detects extraneous set items 2`] = `
+"  Set {
+    1,
+-   Object {},
+    2,
+  }"
+`;
+
+exports[`detects extraneous set items 3`] = `
+"  Set {
+    1,
+-   Object {
+-     foo: 'bar',
+-   },
+    Object {
+      baz: 'qux',
+    },
+    2,
+  }"
+`;
+
+exports[`detects extraneous set items 4`] = `
+"  Set {
+    1,
+-   Object {
+-     [Symbol(s1)]: 'bar',
+-   },
+    Object {
+      [Symbol(s2)]: 'qux',
+    },
+    2,
+  }"
+`;
+
+exports[`detects extraneous symbol properties 1`] = `
+"  Object {
+    [Symbol(s1)]: 1,
+-   [Symbol(s2)]: 2,
+    [Symbol(s3)]: 3,
+  }"
+`;
+
+exports[`detects extraneous symbol properties 2`] = `
+"  Object {
+    [Symbol(s1)]: 1,
+-   [Symbol(s2)]: Object {},
+    [Symbol(s3)]: 3,
+  }"
+`;
+
+exports[`detects missing arguments items 1`] = `
+"  Arguments [
+    1,
++   3,
+    2,
+  ]"
+`;
+
+exports[`detects missing arguments items 2`] = `
+"  Arguments [
+    1,
++   Object {},
+    2,
+  ]"
+`;
+
+exports[`detects missing arguments items 3`] = `
+"  Arguments [
+    1,
++   Object {
++     foo: 'bar',
++   },
+    Object {
+      baz: 'qux',
+    },
+    2,
+  ]"
+`;
+
+exports[`detects missing arguments items 4`] = `
+"  Arguments [
+    1,
++   Object {
++     [Symbol(s1)]: 'bar',
++   },
+    Object {
+      [Symbol(s2)]: 'qux',
+    },
+    2,
+  ]"
+`;
+
+exports[`detects missing array items 1`] = `
+"  Array [
+    1,
++   3,
+    2,
+  ]"
+`;
+
+exports[`detects missing array items 2`] = `
+"  Array [
+    1,
++   Object {},
+    2,
+  ]"
+`;
+
+exports[`detects missing array items 3`] = `
+"  Array [
+    1,
++   Object {
++     foo: 'bar',
++   },
+    Object {
+      baz: 'qux',
+    },
+    2,
+  ]"
+`;
+
+exports[`detects missing array items 4`] = `
+"  Array [
+    1,
++   Object {
++     [Symbol(s1)]: 'bar',
++   },
+    Object {
+      [Symbol(s2)]: 'qux',
+    },
+    2,
+  ]"
+`;
+
+exports[`detects missing map entries 1`] = `
+"  Map {
+    1 => 1,
++   3 => 3,
+    2 => 2,
+  }"
+`;
+
+exports[`detects missing map entries 2`] = `
+"  Map {
+    1 => 1,
++   Object {} => 3,
+    2 => 2,
+  }"
+`;
+
+exports[`detects missing map entries 3`] = `
+"  Map {
+    1 => 1,
++   Object {
++     foo: 'bar',
++   } => 4,
+    Object {
+      baz: 'qux',
+    } => 2,
+    3 => 3,
+  }"
+`;
+
+exports[`detects missing map entries 4`] = `
+"  Map {
+    1 => 1,
++   Object {
++     [Symbol(s1)]: 'bar',
++   } => 4,
+    Object {
+      [Symbol(s2)]: 'qux',
+    } => 2,
+    3 => 3,
+  }"
+`;
+
+exports[`detects missing name properties 1`] = `
+"  Object {
+    a: 1,
++   b: 2,
+    c: 3,
+  }"
+`;
+
+exports[`detects missing name properties 2`] = `
+"  Object {
+    a: 1,
++   b: Object {},
+    c: 3,
+  }"
+`;
+
+exports[`detects missing set items 1`] = `
+"  Set {
+    1,
++   3,
+    2,
+  }"
+`;
+
+exports[`detects missing set items 2`] = `
+"  Set {
+    1,
++   Object {},
+    2,
+  }"
+`;
+
+exports[`detects missing set items 3`] = `
+"  Set {
+    1,
++   Object {
++     foo: 'bar',
++   },
+    Object {
+      baz: 'qux',
+    },
+    2,
+  }"
+`;
+
+exports[`detects missing set items 4`] = `
+"  Set {
+    1,
++   Object {
++     [Symbol(s1)]: 'bar',
++   },
+    Object {
+      [Symbol(s2)]: 'qux',
+    },
+    2,
+  }"
+`;
+
+exports[`detects missing symbol properties 1`] = `
+"  Object {
+    [Symbol(s1)]: 1,
+    [Symbol(s3)]: 3,
++   [Symbol(s2)]: 2,
+  }"
+`;
+
+exports[`detects missing symbol properties 2`] = `
+"  Object {
+    [Symbol(s1)]: 1,
+    [Symbol(s3)]: 3,
++   [Symbol(s2)]: Object {},
+  }"
+`;
+
+exports[`diff dates with extra properties 1`] = `
+"- Date 1969-07-20T20:17:40.000Z {}
++ Date 1969-07-21T20:17:40.000Z {
++   foo: 'bar',
++ }"
+`;
+
+exports[`diffs arguments 1`] = `
+"  Arguments [
+    1,
+-   2,
++   3,
+    4,
+  ]"
+`;
+
+exports[`diffs arguments 2`] = `
+"  Arguments [
+    1,
+    Object {
+-     foo: 'bar',
++     baz: 'qux',
+    },
+    2,
+  ]"
+`;
+
+exports[`diffs arrays 1`] = `
+"  Array [
+    1,
+-   2,
++   3,
+    4,
+  ]"
+`;
+
+exports[`diffs arrays 2`] = `
+"  Array [
+    1,
+    Object {
+-     foo: 'bar',
++     baz: 'qux',
+    },
+    2,
+  ]"
+`;
+
+exports[`diffs circular references 1`] = `
+"  Object {
+    obj: Object {
+      obj: [Circular],
+    },
+  }"
+`;
+
+exports[`diffs circular references 2`] = `
+"  Object {
+    obj: Object {
+      obj: Object {
+-       obj: [Circular],
++       obj: [Circular],
+      },
+    },
+  }"
+`;
+
+exports[`diffs circular references 3`] = `
+"  Array [
+    Array [
+      Array [
+-       [Circular],
++       [Circular],
+      ],
+    ],
+  ]"
+`;
+
+exports[`diffs circular references 4`] = `
+"  Map {
+    'map' => Map {
+      'map' => Map {
+-       'map' => [Circular],
++       'map' => [Circular],
+      },
+    },
+  }"
+`;
+
+exports[`diffs circular references 5`] = `
+"  Map {
+    Object {
+      key: true,
+    } => Map {
+-     Object {
+-       key: true,
+-     } => [Circular],
++     Object {
++       key: true,
++     } => Map {
++       Object {
++         key: true,
++       } => [Circular],
++     },
+    },
+  }"
+`;
+
+exports[`diffs diverging complex types 1`] = `
+"- Object {
+-   foo: 'bar',
+- }
++ Array [
++   'baz',
++ ]"
+`;
+
+exports[`diffs map keys with different values 1`] = `
+"  Map {
+-   'key' => Foo {
+-     value: 42,
+-   },
++   'key' => Bar {
++     value: 42,
++   },
+  }"
+`;
+
+exports[`diffs map keys with different values 2`] = `
+"  Map {
+-   'key' => Foo {
+-     value: 42,
+-   },
++   'key' => 42,
+  }"
+`;
+
+exports[`diffs map keys with different values 3`] = `
+"  Map {
+-   'key' => Foo {
+-     value: 42,
+-   },
++   'key' => \`foo␊
++   bar\`,
+  }"
+`;
+
+exports[`diffs map keys with different values 4`] = `
+"  Map {
+-   \`key␊
+-   line\` => Foo {
+-     value: 42,
+-   },
++   \`key␊
++   line\` => Bar {
++     value: 42,
++   },
+  }"
+`;
+
+exports[`diffs maps 1`] = `
+"  Map {
+    1 => 1,
+-   2 => 2,
++   3 => 3,
+    4 => 4,
+  }"
+`;
+
+exports[`diffs maps 2`] = `
+"  Map {
+    1 => 1,
+    Object {
+-     foo: 'bar',
++     baz: 'qux',
+    } => 2,
+    4 => 4,
+  }"
+`;
+
+exports[`diffs maps 3`] = `
+"  Map {
+    1 => 1,
+-   Object {
+-     foo: 'bar',
+-   } => 2,
++   Object {
++     baz: 'qux',
++   } => 3,
+    4 => 4,
+  }"
+`;
+
+exports[`diffs maps with extra properties 1`] = `
+"  Map {
++   baz: 'qux',
+    ---
+    'foo' => 'bar',
+  }"
+`;
+
+exports[`diffs maps with extra properties 2`] = `
+"  Map {
+-   baz: 'qux',
+    ---
+    'foo' => 'bar',
+  }"
+`;
+
+exports[`diffs multiline string values in arrays 1`] = `
+"  Array [
+-   \`foo␊
++   \`baz␊
+    bar\`,
+  ]"
+`;
+
+exports[`diffs multiline string values in maps when key is primitive 1`] = `
+"  Map {
+-   1 => \`foo␊
++   1 => \`baz␊
+    bar\`,
+  }"
+`;
+
+exports[`diffs multiline string values in maps when key is primitive 2`] = `
+"  Map {
+-   \`foo␊
+-   bar\` => \`foo␊
++   \`foo␊
++   bar\` => \`baz␊
+    bar\`,
+  }"
+`;
+
+exports[`diffs multiline string values in maps when key is primitive 3`] = `
+"  Map {
+    'foo' => \`bar␊
+-   baz␊
+-   qux\`,
++   qux␊
++   baz\`,
+  }"
+`;
+
+exports[`diffs multiline string values in objects 1`] = `
+"  Object {
+-   foo: \`bar␊
++   foo: \`qux␊
+    baz\`,
+  }"
+`;
+
+exports[`diffs multiline string values in objects 2`] = `
+"  Object {
+    foo: \`bar␊
+-   baz␊
+-   qux\`,
++   qux␊
++   baz\`,
+  }"
+`;
+
+exports[`diffs multiline string values in objects 3`] = `
+"  Object {
+-   [Symbol(s1)]: \`bar␊
++   [Symbol(s1)]: \`qux␊
+    baz\`,
+  }"
+`;
+
+exports[`diffs multiline string values in sets 1`] = `
+"  Set {
+-   \`foo␊
++   \`baz␊
+    bar\`,
+  }"
+`;
+
+exports[`diffs multiline strings 1`] = `
+"- \`foo␊
++ \`baz␊
+  bar\`"
+`;
+
+exports[`diffs multiline strings 2`] = `
+"  \`foo␊
+- ba%string.diff.insert.open%r%string.diff.insert.close%\`
++ ba%string.diff.insert.open%z%string.diff.insert.close%\`"
+`;
+
+exports[`diffs multiline strings 3`] = `
+"  \`foo␊
+- bar␊
+  baz\`"
+`;
+
+exports[`diffs multiline strings 4`] = `
+"  \`foo␊
++ bar␊
+  baz\`"
+`;
+
+exports[`diffs multiline strings 5`] = `
+"  \`foo␊
+- \`
++ %string.diff.insert.open%baz%string.diff.insert.close%\`"
+`;
+
+exports[`diffs multiline strings 6`] = `
+"  \`foo␊
+- %string.diff.insert.open%baz%string.diff.insert.close%\`
++ \`"
+`;
+
+exports[`diffs multiline strings 7`] = `
+"  \`foo␊
+- bar␊
+- %string.diff.insert.open%baz%string.diff.insert.close%\`
++ \`"
+`;
+
+exports[`diffs multiline strings 8`] = `
+"- \`%string.diff.insert.open%fo%string.diff.insert.close%o␊
+- %string.diff.insert.open%b%string.diff.insert.close%a%string.diff.insert.open%r%string.diff.insert.close%␊
++ \`%string.diff.insert.open%c%string.diff.insert.close%o%string.diff.insert.open%rge%string.diff.insert.close%␊
++ %string.diff.insert.open%gr%string.diff.insert.close%a%string.diff.insert.open%ult%string.diff.insert.close%␊
+  baz␊
+- qux␊
++ garply␊
+  quux\`"
+`;
+
+exports[`diffs primitives: Symbol() versus Symbol() 1`] = `
+"- Symbol()
++ Symbol()"
+`;
+
+exports[`diffs primitives: null versus  1`] = `
+"- null
++ ''"
+`;
+
+exports[`diffs primitives: null versus [object Object] 1`] = `
+"- null
++ Object {}"
+`;
+
+exports[`diffs primitives: null versus 42 1`] = `
+"- null
++ 42"
+`;
+
+exports[`diffs primitives: null versus Symbol() 1`] = `
+"- null
++ Symbol()"
+`;
+
+exports[`diffs primitives: null versus false 1`] = `
+"- null
++ false"
+`;
+
+exports[`diffs primitives: null versus true 1`] = `
+"- null
++ true"
+`;
+
+exports[`diffs primitives: null versus undefined 1`] = `
+"- null
++ undefined"
+`;
+
+exports[`diffs properties with different values 1`] = `
+"  Object {
+-   value: Foo {
+-     value: 42,
+-   },
++   value: Bar {
++     value: 42,
++   },
+  }"
+`;
+
+exports[`diffs properties with different values 2`] = `
+"  Object {
+-   value: Foo {
+-     value: 42,
+-   },
++   value: 42,
+  }"
+`;
+
+exports[`diffs properties with different values 3`] = `
+"  Object {
+-   value: Foo {
+-     value: 42,
+-   },
++   value: \`foo␊
++   bar\`,
+  }"
+`;
+
+exports[`diffs properties with different values 4`] = `
+"  Object {
+-   foo: 'bar',
++   foo: '%string.diff.insert.open%not %string.diff.insert.close%bar',
+  }"
+`;
+
+exports[`diffs sets 1`] = `
+"  Set {
+    1,
+-   2,
++   3,
+    4,
+  }"
+`;
+
+exports[`diffs sets 2`] = `
+"  Set {
+    1,
+    Object {
+-     foo: 'bar',
++     baz: 'qux',
+    },
+    2,
+  }"
+`;
+
+exports[`diffs single line strings 1`] = `
+"- 'foo'
++ 'bar'"
+`;
+
+exports[`diffs single line strings 2`] = `
+"- 'ba%string.diff.insert.open%r%string.diff.insert.close%'
++ 'ba%string.diff.insert.open%z%string.diff.insert.close%'"
+`;
+
+exports[`diffs wrapped primitives: -42 versus 42 1`] = `
+"- Number {
+-   -42
+- }
++ Number {
++   42
++ }"
+`;
+
+exports[`diffs wrapped primitives: true versus false 1`] = `
+"- Boolean {
+-   true
+- }
++ Boolean {
++   false
++ }"
+`;
+
+exports[`does not diff multiline string values in maps when key is complex 1`] = `
+"  Map {
+-   Object {} => \`foo␊
+-   bar\`,
++   Object {} => \`baz␊
++   bar\`,
+  }"
+`;
