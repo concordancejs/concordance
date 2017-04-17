@@ -465,6 +465,22 @@ test('detects missing map entries', t => {
   }`)
 })
 
+test('diffs maps with extra properties', t => {
+  const actual1 = diff(new Map([['foo', 'bar']]), Object.assign(new Map([['foo', 'bar']]), {baz: 'qux'}))
+  t.is(actual1, `  Map {
++   baz: 'qux',
+    ---
+    'foo' => 'bar',
+  }`)
+
+  const actual2 = diff(Object.assign(new Map([['foo', 'bar']]), {baz: 'qux'}), new Map([['foo', 'bar']]))
+  t.is(actual2, `  Map {
+-   baz: 'qux',
+    ---
+    'foo' => 'bar',
+  }`)
+})
+
 test('diffs multiline string values in objects', t => {
   const actual1 = diff({foo: 'bar\nbaz'}, {foo: 'qux\nbaz'})
   t.is(actual1, `  Object {
@@ -495,8 +511,9 @@ test('diffs multiline string values in arrays', t => {
   const actual = diff(['foo\nbar'], ['baz\nbar'])
   t.is(actual, `  Array [
 -   \`foo\u240A
+-   bar\`,
 +   \`baz\u240A
-    bar\`,
++   bar\`,
   ]`)
 })
 
@@ -504,8 +521,9 @@ test('diffs multiline string values in sets', t => {
   const actual = diff(new Set(['foo\nbar']), new Set(['baz\nbar']))
   t.is(actual, `  Set {
 -   \`foo\u240A
+-   bar\`,
 +   \`baz\u240A
-    bar\`,
++   bar\`,
   }`)
 })
 
