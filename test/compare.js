@@ -47,3 +47,11 @@ test('NaN is equal to NaN', t => {
   t.true(compare(NaN, NaN).pass)
   t.true(compare({notANumber: NaN}, {notANumber: NaN}).pass)
 })
+
+test('survives odd circular references', t => {
+  const foo = { foo: {} }
+  foo.foo.foo = foo
+  const foo2 = {}
+  foo2.foo = foo
+  t.false(compare(foo, foo2).pass)
+})

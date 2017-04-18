@@ -643,3 +643,73 @@ test('diffs map keys with different values', t => {
 +   },
   }`)
 })
+
+test('diffs circular references', t => {
+  const obj1 = { obj: {} }
+  obj1.obj.obj = obj1
+  const obj2 = {}
+  obj2.obj = obj2
+  t.is(diff(obj1, obj2), `  Object {
+    obj: Object {
+      obj: [Circular],
+    },
+  }`)
+
+  obj2.obj = obj1
+  t.is(diff(obj1, obj2), `  Object {
+    obj: Object {
+      obj: Object {
+-       obj: [Circular],
++       obj: [Circular],
+      },
+    },
+  }`)
+
+  const arr1 = [[]]
+  arr1[0][0] = arr1
+  const arr2 = []
+  arr2[0] = arr1
+  t.is(diff(arr1, arr2), `  Array [
+    Array [
+      Array [
+-       [Circular],
++       [Circular],
+      ],
+    ],
+  ]`)
+
+  const map1 = new Map([['map', new Map()]])
+  map1.get('map').set('map', map1)
+  const map2 = new Map()
+  map2.set('map', map1)
+  t.is(diff(map1, map2), `  Map {
+    'map' => Map {
+      'map' => Map {
+-       'map' => [Circular],
++       'map' => [Circular],
+      },
+    },
+  }`)
+
+  const key = {key: true}
+  const map3 = new Map([[key, new Map()]])
+  map3.get(key).set(key, map3)
+  const map4 = new Map()
+  map4.set(key, map3)
+  t.is(diff(map3, map4), `  Map {
+    Object {
+      key: true,
+    } => Map {
+-     Object {
+-       key: true,
+-     } => [Circular],
++     Object {
++       key: true,
++     } => Map {
++       Object {
++         key: true,
++       } => [Circular],
++     },
+    },
+  }`)
+})
