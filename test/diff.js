@@ -1,17 +1,11 @@
 import test from 'ava'
 
-import {diff as unthemedDiff} from '../lib/diff'
+import {diff as _diff} from '../lib/diff'
 
-const theme = {
-  string: {
-    diff: {
-      insert: { open: '%string.diff.insert.open%', close: '%string.diff.insert.close%' },
-      delete: { open: '%string.diff.insert.open%', close: '%string.diff.insert.close%' }
-    }
-  }
-}
+import theme, {checkThemeUsage} from './_instrumentedTheme'
 
-const diff = (actual, expected) => unthemedDiff(actual, expected, {theme})
+const diff = (actual, expected) => _diff(actual, expected, {theme})
+test.after(checkThemeUsage)
 
 {
   const diffsPrimitives = (t, lhs, rhs) => t.snapshot(diff(lhs, rhs))
@@ -388,4 +382,37 @@ test('diff dates with extra properties', t => {
     foo: 'bar'
   }))
   t.snapshot(actual)
+})
+
+test('diffs errors', t => {
+  class Custom extends Error {}
+  t.snapshot(diff(new Custom(), new Error()))
+})
+
+test('diffs functions', t => {
+  t.snapshot(diff(function foo () {}, function bar () {}))
+})
+
+test('diffs globals', t => {
+  t.snapshot(diff(global, global))
+})
+
+test('diffs objects without constructor', t => {
+  const obj = {}
+  Object.defineProperty(obj, 'constructor', {})
+  t.snapshot(diff(obj, {}))
+})
+
+test('diffs builtin subclasses', t => {
+  class Foo extends Array {}
+  t.snapshot(diff(new Foo(), []))
+})
+
+test('diffs regexps', t => {
+  t.snapshot(diff(/foo/, /foo/g))
+  t.snapshot(diff(/foo/, Object.assign(/foo/, {bar: 'baz'})))
+})
+
+test('diffs buffers', t => {
+  t.snapshot(diff(Buffer.from('decafbad', 'hex'), Buffer.from('flat white', 'utf8')))
 })

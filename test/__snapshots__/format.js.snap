@@ -1,535 +1,543 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`formats ArrayBuffer 1`] = `
-"ArrayBuffer [
-  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
-  decafbad decafbad decafbad decafbad
-]"
+"%object.ctor.open%ArrayBuffer%object.ctor.close% %list.open#[%
+  %typedArray.bytes.open%decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad%typedArray.bytes.close%
+%list.close#]%"
 `;
 
 exports[`formats ArrayBuffer with additional properties 1`] = `
-"ArrayBuffer [
-  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
-  decafbad decafbad decafbad decafbad
-  ---
-  foo: 'bar',
-]"
+"%object.ctor.open%ArrayBuffer%object.ctor.close% %list.open#[%
+  %typedArray.bytes.open%decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad%typedArray.bytes.close%
+  %stats.separator#---%
+  foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%list.close#]%"
 `;
 
 exports[`formats Buffer @Uint8Array 1`] = `
-"Buffer @Uint8Array [
-  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
-  decafbad decafbad decafbad decafbad
-]"
+"%object.ctor.open%Buffer%object.ctor.close% %object.secondaryStringTag.open#@%Uint8Array%object.secondaryStringTag.close% %list.open#[%
+  %typedArray.bytes.open%decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad%typedArray.bytes.close%
+%list.close#]%"
 `;
 
 exports[`formats Buffer @Uint8Array with additional properties 1`] = `
-"Buffer @Uint8Array [
-  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
-  decafbad decafbad decafbad decafbad
-  ---
-  foo: 'bar',
-]"
+"%object.ctor.open%Buffer%object.ctor.close% %object.secondaryStringTag.open#@%Uint8Array%object.secondaryStringTag.close% %list.open#[%
+  %typedArray.bytes.open%decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad%typedArray.bytes.close%
+  %stats.separator#---%
+  foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%list.close#]%"
 `;
 
 exports[`formats DataView 1`] = `
-"DataView [
-  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
-  decafbad decafbad decafbad decafbad
-]"
+"%object.ctor.open%DataView%object.ctor.close% %list.open#[%
+  %typedArray.bytes.open%decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad%typedArray.bytes.close%
+%list.close#]%"
 `;
 
 exports[`formats DataView with additional properties 1`] = `
-"DataView [
-  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
-  decafbad decafbad decafbad decafbad
-  ---
-  foo: 'bar',
-]"
+"%object.ctor.open%DataView%object.ctor.close% %list.open#[%
+  %typedArray.bytes.open%decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad%typedArray.bytes.close%
+  %stats.separator#---%
+  foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%list.close#]%"
 `;
 
 exports[`formats Float32Array 1`] = `
-"Float32Array [
-  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
-  decafbad decafbad decafbad decafbad
-]"
+"%object.ctor.open%Float32Array%object.ctor.close% %list.open#[%
+  %typedArray.bytes.open%decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad%typedArray.bytes.close%
+%list.close#]%"
 `;
 
 exports[`formats Float32Array with additional properties 1`] = `
-"Float32Array [
-  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
-  decafbad decafbad decafbad decafbad
-  ---
-  foo: 'bar',
-]"
+"%object.ctor.open%Float32Array%object.ctor.close% %list.open#[%
+  %typedArray.bytes.open%decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad%typedArray.bytes.close%
+  %stats.separator#---%
+  foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%list.close#]%"
 `;
 
 exports[`formats Float64Array 1`] = `
-"Float64Array [
-  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
-  decafbad decafbad decafbad decafbad
-]"
+"%object.ctor.open%Float64Array%object.ctor.close% %list.open#[%
+  %typedArray.bytes.open%decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad%typedArray.bytes.close%
+%list.close#]%"
 `;
 
 exports[`formats Float64Array with additional properties 1`] = `
-"Float64Array [
-  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
-  decafbad decafbad decafbad decafbad
-  ---
-  foo: 'bar',
-]"
+"%object.ctor.open%Float64Array%object.ctor.close% %list.open#[%
+  %typedArray.bytes.open%decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad%typedArray.bytes.close%
+  %stats.separator#---%
+  foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%list.close#]%"
 `;
 
 exports[`formats Int8Array 1`] = `
-"Int8Array [
-  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
-  decafbad decafbad decafbad decafbad
-]"
+"%object.ctor.open%Int8Array%object.ctor.close% %list.open#[%
+  %typedArray.bytes.open%decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad%typedArray.bytes.close%
+%list.close#]%"
 `;
 
 exports[`formats Int8Array with additional properties 1`] = `
-"Int8Array [
-  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
-  decafbad decafbad decafbad decafbad
-  ---
-  foo: 'bar',
-]"
+"%object.ctor.open%Int8Array%object.ctor.close% %list.open#[%
+  %typedArray.bytes.open%decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad%typedArray.bytes.close%
+  %stats.separator#---%
+  foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%list.close#]%"
 `;
 
 exports[`formats Int16Array 1`] = `
-"Int16Array [
-  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
-  decafbad decafbad decafbad decafbad
-]"
+"%object.ctor.open%Int16Array%object.ctor.close% %list.open#[%
+  %typedArray.bytes.open%decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad%typedArray.bytes.close%
+%list.close#]%"
 `;
 
 exports[`formats Int16Array with additional properties 1`] = `
-"Int16Array [
-  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
-  decafbad decafbad decafbad decafbad
-  ---
-  foo: 'bar',
-]"
+"%object.ctor.open%Int16Array%object.ctor.close% %list.open#[%
+  %typedArray.bytes.open%decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad%typedArray.bytes.close%
+  %stats.separator#---%
+  foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%list.close#]%"
 `;
 
 exports[`formats Int32Array 1`] = `
-"Int32Array [
-  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
-  decafbad decafbad decafbad decafbad
-]"
+"%object.ctor.open%Int32Array%object.ctor.close% %list.open#[%
+  %typedArray.bytes.open%decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad%typedArray.bytes.close%
+%list.close#]%"
 `;
 
 exports[`formats Int32Array with additional properties 1`] = `
-"Int32Array [
-  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
-  decafbad decafbad decafbad decafbad
-  ---
-  foo: 'bar',
-]"
+"%object.ctor.open%Int32Array%object.ctor.close% %list.open#[%
+  %typedArray.bytes.open%decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad%typedArray.bytes.close%
+  %stats.separator#---%
+  foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%list.close#]%"
 `;
 
 exports[`formats Uint8Array 1`] = `
-"Uint8Array [
-  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
-  decafbad decafbad decafbad decafbad
-]"
+"%object.ctor.open%Uint8Array%object.ctor.close% %list.open#[%
+  %typedArray.bytes.open%decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad%typedArray.bytes.close%
+%list.close#]%"
 `;
 
 exports[`formats Uint8Array with additional properties 1`] = `
-"Uint8Array [
-  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
-  decafbad decafbad decafbad decafbad
-  ---
-  foo: 'bar',
-]"
+"%object.ctor.open%Uint8Array%object.ctor.close% %list.open#[%
+  %typedArray.bytes.open%decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad%typedArray.bytes.close%
+  %stats.separator#---%
+  foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%list.close#]%"
 `;
 
 exports[`formats Uint8ClampedArray 1`] = `
-"Uint8ClampedArray [
-  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
-  decafbad decafbad decafbad decafbad
-]"
+"%object.ctor.open%Uint8ClampedArray%object.ctor.close% %list.open#[%
+  %typedArray.bytes.open%decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad%typedArray.bytes.close%
+%list.close#]%"
 `;
 
 exports[`formats Uint8ClampedArray with additional properties 1`] = `
-"Uint8ClampedArray [
-  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
-  decafbad decafbad decafbad decafbad
-  ---
-  foo: 'bar',
-]"
+"%object.ctor.open%Uint8ClampedArray%object.ctor.close% %list.open#[%
+  %typedArray.bytes.open%decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad%typedArray.bytes.close%
+  %stats.separator#---%
+  foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%list.close#]%"
 `;
 
 exports[`formats Uint16Array 1`] = `
-"Uint16Array [
-  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
-  decafbad decafbad decafbad decafbad
-]"
+"%object.ctor.open%Uint16Array%object.ctor.close% %list.open#[%
+  %typedArray.bytes.open%decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad%typedArray.bytes.close%
+%list.close#]%"
 `;
 
 exports[`formats Uint16Array with additional properties 1`] = `
-"Uint16Array [
-  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
-  decafbad decafbad decafbad decafbad
-  ---
-  foo: 'bar',
-]"
+"%object.ctor.open%Uint16Array%object.ctor.close% %list.open#[%
+  %typedArray.bytes.open%decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad%typedArray.bytes.close%
+  %stats.separator#---%
+  foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%list.close#]%"
 `;
 
 exports[`formats Uint32Array 1`] = `
-"Uint32Array [
-  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
-  decafbad decafbad decafbad decafbad
-]"
+"%object.ctor.open%Uint32Array%object.ctor.close% %list.open#[%
+  %typedArray.bytes.open%decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad%typedArray.bytes.close%
+%list.close#]%"
 `;
 
 exports[`formats Uint32Array with additional properties 1`] = `
-"Uint32Array [
-  decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
-  decafbad decafbad decafbad decafbad
-  ---
-  foo: 'bar',
-]"
+"%object.ctor.open%Uint32Array%object.ctor.close% %list.open#[%
+  %typedArray.bytes.open%decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
+  decafbad decafbad decafbad decafbad%typedArray.bytes.close%
+  %stats.separator#---%
+  foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%list.close#]%"
 `;
 
 exports[`formats a multiline string inside an array 1`] = `
-"Array [
-  \`bar␊
-  baz\`,
-]"
+"%object.ctor.open%Array%object.ctor.close% %list.open#[%
+  %string.multiline.open#\`%%string.open%bar%string.close%%string.controlPicture.open%␊%string.controlPicture.close%%string.open%
+  baz%string.close%%string.multiline.close#\`%%item.after#,%
+%list.close#]%"
 `;
 
 exports[`formats a multiline string inside sets 1`] = `
-"Set {
-  \`bar␊
-  baz\`,
-}"
+"%object.ctor.open%Set%object.ctor.close% %object.open#{%
+  %string.multiline.open#\`%%string.open%bar%string.close%%string.controlPicture.open%␊%string.controlPicture.close%%string.open%
+  baz%string.close%%string.multiline.close#\`%%item.after#,%
+%object.close#}%"
 `;
 
 exports[`formats a simple array 1`] = `
-"Array [
-  'foo',
-  'bar',
-]"
+"%object.ctor.open%Array%object.ctor.close% %list.open#[%
+  %string.line.open#'%%string.open%foo%string.close%%string.line.close#'%%item.after#,%
+  %string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%item.after#,%
+%list.close#]%"
 `;
 
 exports[`formats a simple object 1`] = `
-"Object {
-  baz: 'qux',
-  foo: 'bar',
-}"
+"%object.ctor.open%Object%object.ctor.close% %object.open#{%
+  baz%property.separator#: %%string.line.open#'%%string.open%qux%string.close%%string.line.close#'%%property.after#,%
+  foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%object.close#}%"
 `;
 
 exports[`formats a simple, nested array 1`] = `
-"Array [
-  Array [
-    'foo',
-    'bar',
-  ],
-]"
+"%object.ctor.open%Array%object.ctor.close% %list.open#[%
+  %object.ctor.open%Array%object.ctor.close% %list.open#[%
+    %string.line.open#'%%string.open%foo%string.close%%string.line.close#'%%item.after#,%
+    %string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%item.after#,%
+  %list.close#]%%item.after#,%
+%list.close#]%"
 `;
 
 exports[`formats a simple, nested object 1`] = `
-"Object {
-  foo: Object {
-    baz: 'qux',
-  },
-}"
+"%object.ctor.open%Object%object.ctor.close% %object.open#{%
+  foo%property.separator#: %%object.ctor.open%Object%object.ctor.close% %object.open#{%
+    baz%property.separator#: %%string.line.open#'%%string.open%qux%string.close%%string.line.close#'%%property.after#,%
+  %object.close#}%%property.after#,%
+%object.close#}%"
 `;
 
 exports[`formats an array with additional properties 1`] = `
-"Array [
-  'foo',
-  'bar',
-  ---
-  baz: 'qux',
-]"
+"%object.ctor.open%Array%object.ctor.close% %list.open#[%
+  %string.line.open#'%%string.open%foo%string.close%%string.line.close#'%%item.after#,%
+  %string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%item.after#,%
+  %stats.separator#---%
+  baz%property.separator#: %%string.line.open#'%%string.open%qux%string.close%%string.line.close#'%%property.after#,%
+%list.close#]%"
 `;
 
-exports[`formats anonymous functions 1`] = `"Function {}"`;
+exports[`formats anonymous functions 1`] = `"%function.stringTag.open%Function%function.stringTag.close% %object.open#{%%object.close#}%"`;
 
 exports[`formats arguments 1`] = `
-"Arguments [
-  'foo',
-  'bar',
-  'baz',
-]"
+"%object.ctor.open%Arguments%object.ctor.close% %list.open#[%
+  %string.line.open#'%%string.open%foo%string.close%%string.line.close#'%%item.after#,%
+  %string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%item.after#,%
+  %string.line.open#'%%string.open%baz%string.close%%string.line.close#'%%item.after#,%
+%list.close#]%"
 `;
 
 exports[`formats circular references 1`] = `
-"Object {
-  circular: [Circular],
-}"
+"%object.ctor.open%Object%object.ctor.close% %object.open#{%
+  circular%property.separator#: %%circular#[Circular]%%property.after#,%
+%object.close#}%"
 `;
 
-exports[`formats dates 1`] = `"Date 1969-07-20T20:17:40.000Z {}"`;
+exports[`formats dates 1`] = `"%object.ctor.open%Date%object.ctor.close% %date.value.open%1969-07-20T20:17:40.000Z%date.value.close% %object.open#{%%object.close#}%"`;
 
 exports[`formats dates with additional properties 1`] = `
-"Date 1969-07-20T20:17:40.000Z {
-  foo: 'bar',
-}"
+"%object.ctor.open%Date%object.ctor.close% %date.value.open%1969-07-20T20:17:40.000Z%date.value.close% %object.open#{%
+  foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%object.close#}%"
 `;
 
 exports[`formats errors with a name that does not include Error and does not match the constructor 1`] = `
-"Bar (Foo) @Error {
-  message: 'Test message',
-}"
+"%error.name.open%Bar%error.name.close% %error.ctor.open#(%Foo%error.ctor.close#)% %object.secondaryStringTag.open#@%Error%object.secondaryStringTag.close% %object.open#{%
+  message%property.separator#: %%string.line.open#'%%string.open%Test message%string.close%%string.line.close#'%%property.after#,%
+%object.close#}%"
 `;
 
 exports[`formats errors with additional properties 1`] = `
-"TypeError {
-  foo: 'bar',
-  message: 'Test message',
-}"
+"%error.name.open%TypeError%error.name.close% %object.open#{%
+  foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+  message%property.separator#: %%string.line.open#'%%string.open%Test message%string.close%%string.line.close#'%%property.after#,%
+%object.close#}%"
 `;
 
 exports[`formats functions with additional properties 1`] = `
-"Function foo {
-  bar: 'baz',
-}"
+"%function.stringTag.open%Function%function.stringTag.close% %function.name.open%foo%function.name.close% %object.open#{%
+  bar%property.separator#: %%string.line.open#'%%string.open%baz%string.close%%string.line.close#'%%property.after#,%
+%object.close#}%"
 `;
 
 exports[`formats funky objects that are lists and have an iterator 1`] = `
-"Object [
-  'first',
-  'second',
-  ---
-  foo: 'bar',
-  ---
-  'baz',
-]"
+"%object.ctor.open%Object%object.ctor.close% %list.open#[%
+  %string.line.open#'%%string.open%first%string.close%%string.line.close#'%%item.after#,%
+  %string.line.open#'%%string.open%second%string.close%%string.line.close#'%%item.after#,%
+  %stats.separator#---%
+  foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+  %stats.separator#---%
+  %string.line.open#'%%string.open%baz%string.close%%string.line.close#'%%item.after#,%
+%list.close#]%"
 `;
 
-exports[`formats global 1`] = `"Global {}"`;
+exports[`formats global 1`] = `"%global.open%Global%global.close% %object.open#{%%object.close#}%"`;
 
 exports[`formats maps 1`] = `
-"Map {
-  'foo' => 'bar',
-  Object {
-    baz: 'qux',
-  } => 'quux',
-  'corge' => Object {
-    grault: 'garply',
-  },
-}"
+"%object.ctor.open%Map%object.ctor.close% %object.open#{%
+  %string.line.open#'%%string.open%foo%string.close%%string.line.close#'%%mapEntry.separator# => %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%mapEntry.after#,%
+  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+    baz%property.separator#: %%string.line.open#'%%string.open%qux%string.close%%string.line.close#'%%property.after#,%
+  %object.close#}%%mapEntry.separator# => %%string.line.open#'%%string.open%quux%string.close%%string.line.close#'%%mapEntry.after#,%
+  %string.line.open#'%%string.open%corge%string.close%%string.line.close#'%%mapEntry.separator# => %%object.ctor.open%Object%object.ctor.close% %object.open#{%
+    grault%property.separator#: %%string.line.open#'%%string.open%garply%string.close%%string.line.close#'%%property.after#,%
+  %object.close#}%%mapEntry.after#,%
+%object.close#}%"
 `;
 
 exports[`formats maps with additional properties 1`] = `
-"Map {
-  baz: 'qux',
-  ---
-  'foo' => 'bar',
-}"
+"%object.ctor.open%Map%object.ctor.close% %object.open#{%
+  baz%property.separator#: %%string.line.open#'%%string.open%qux%string.close%%string.line.close#'%%property.after#,%
+  %stats.separator#---%
+  %string.line.open#'%%string.open%foo%string.close%%string.line.close#'%%mapEntry.separator# => %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%mapEntry.after#,%
+%object.close#}%"
 `;
 
 exports[`formats multiline strings inside a map 1`] = `
-"Map {
-  \`foo␊
-  bar\` => \`baz␊
-  qux\`,
-}"
+"%object.ctor.open%Map%object.ctor.close% %object.open#{%
+  %string.multiline.open#\`%%string.open%foo%string.close%%string.controlPicture.open%␊%string.controlPicture.close%%string.open%
+  bar%string.close%%string.multiline.close#\`%%mapEntry.separator# => %%string.multiline.open#\`%%string.open%baz%string.close%%string.controlPicture.open%␊%string.controlPicture.close%%string.open%
+  qux%string.close%%string.multiline.close#\`%%mapEntry.after#,%
+%object.close#}%"
 `;
 
 exports[`formats multiline strings inside an object 1`] = `
-"Object {
-  'foo\\\\nbar': \`baz␊
-  qux\`,
-}"
+"%object.ctor.open%Object%object.ctor.close% %object.open#{%
+  %string.line.open#'%%string.open%foo\\\\nbar%string.close%%string.line.close#'%%property.separator#: %%string.multiline.open#\`%%string.open%baz%string.close%%string.controlPicture.open%␊%string.controlPicture.close%%string.open%
+  qux%string.close%%string.multiline.close#\`%%property.after#,%
+%object.close#}%"
 `;
 
-exports[`formats named functions 1`] = `"Function foo {}"`;
+exports[`formats named functions 1`] = `"%function.stringTag.open%Function%function.stringTag.close% %function.name.open%foo%function.name.close% %object.open#{%%object.close#}%"`;
 
 exports[`formats pointers 1`] = `
-"Object {
-  baz: Object {
-    foo: 'bar',
-  },
-  qux: Object {
-    quux: Object {
-      foo: 'bar',
-    },
-  },
-}"
+"%object.ctor.open%Object%object.ctor.close% %object.open#{%
+  baz%property.separator#: %%object.ctor.open%Object%object.ctor.close% %object.open#{%
+    foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+  %object.close#}%%property.after#,%
+  qux%property.separator#: %%object.ctor.open%Object%object.ctor.close% %object.open#{%
+    quux%property.separator#: %%object.ctor.open%Object%object.ctor.close% %object.open#{%
+      foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+    %object.close#}%%property.after#,%
+  %object.close#}%%property.after#,%
+%object.close#}%"
 `;
 
-exports[`formats primitive:  1`] = `"''"`;
+exports[`formats primitive:  1`] = `"%string.line.open#'%%string.open%%string.close%%string.line.close#'%"`;
 
-exports[`formats primitive: \\ -- ' -- " 1`] = `"'\\\\\\\\ -- \\\\' -- \\"'"`;
+exports[`formats primitive: \\ -- ' -- " 1`] = `"%string.line.open#'%%string.open%\\\\\\\\ -- ' -- \\\\%string.line.escapeQuote#'%%string.close%%string.line.close#'%"`;
 
-exports[`formats primitive: -42 1`] = `"-42"`;
+exports[`formats primitive: -42 1`] = `"%number.open%-42%number.close%"`;
 
-exports[`formats primitive: -Infinity 1`] = `"-Infinity"`;
+exports[`formats primitive: -Infinity 1`] = `"%number.open%-Infinity%number.close%"`;
 
-exports[`formats primitive: 0 1`] = `"0"`;
+exports[`formats primitive: 0 1`] = `"%number.open%0%number.close%"`;
 
-exports[`formats primitive: 0 2`] = `"-0"`;
+exports[`formats primitive: 0 2`] = `"%number.open%-0%number.close%"`;
 
-exports[`formats primitive: 0 3`] = `"0"`;
+exports[`formats primitive: 0 3`] = `"%number.open%0%number.close%"`;
 
-exports[`formats primitive: 42 1`] = `"42"`;
+exports[`formats primitive: 42 1`] = `"%number.open%42%number.close%"`;
 
-exports[`formats primitive: Infinity 1`] = `"Infinity"`;
+exports[`formats primitive: Infinity 1`] = `"%number.open%Infinity%number.close%"`;
 
-exports[`formats primitive: NaN 1`] = `"NaN"`;
+exports[`formats primitive: NaN 1`] = `"%number.open%NaN%number.close%"`;
 
-exports[`formats primitive: Symbol() 1`] = `"Symbol()"`;
+exports[`formats primitive: Symbol() 1`] = `"%symbol.open%Symbol()%symbol.close%"`;
 
-exports[`formats primitive: Symbol(Symbol.iterator) 1`] = `"Symbol.iterator"`;
+exports[`formats primitive: Symbol(Symbol.iterator) 1`] = `"%symbol.open%Symbol.iterator%symbol.close%"`;
 
-exports[`formats primitive: Symbol(bar) 1`] = `"Symbol(bar)"`;
+exports[`formats primitive: Symbol(bar) 1`] = `"%symbol.open%Symbol(bar)%symbol.close%"`;
 
-exports[`formats primitive: Symbol(foo) 1`] = `"Symbol(foo)"`;
+exports[`formats primitive: Symbol(foo) 1`] = `"%symbol.open%Symbol(foo)%symbol.close%"`;
 
-exports[`formats primitive: false 1`] = `"false"`;
+exports[`formats primitive: false 1`] = `"%boolean.open%false%boolean.close%"`;
 
-exports[`formats primitive: foo 1`] = `"'foo'"`;
+exports[`formats primitive: foo 1`] = `"%string.line.open#'%%string.open%foo%string.close%%string.line.close#'%"`;
 
 exports[`formats primitive: foo\\nbar\\baz'" 1`] = `
-"\`foo␊
-bar\\\\\\\\baz'\\"\`"
+"%string.multiline.open#\`%%string.open%foo%string.close%%string.controlPicture.open%␊%string.controlPicture.close%%string.open%
+bar\\\\\\\\baz'\\"%string.close%%string.multiline.close#\`%"
 `;
 
-exports[`formats primitive: null 1`] = `"null"`;
+exports[`formats primitive: null 1`] = `"%null.open%null%null.close%"`;
 
 exports[`formats primitive: qux\\r\\nquux 1`] = `
-"\`qux␍␊
-quux\`"
+"%string.multiline.open#\`%%string.open%qux%string.close%%string.controlPicture.open%␍%string.controlPicture.close%%string.open%%string.close%%string.controlPicture.open%␊%string.controlPicture.close%%string.open%
+quux%string.close%%string.multiline.close#\`%"
 `;
 
 exports[`formats primitive: qux\\rquux 1`] = `
-"\`qux␍
-quux\`"
+"%string.multiline.open#\`%%string.open%qux%string.close%%string.controlPicture.open%␍%string.controlPicture.close%%string.open%
+quux%string.close%%string.multiline.close#\`%"
 `;
 
-exports[`formats primitive: true 1`] = `"true"`;
+exports[`formats primitive: true 1`] = `"%boolean.open%true%boolean.close%"`;
 
-exports[`formats primitive: undefined 1`] = `"undefined"`;
+exports[`formats primitive: undefined 1`] = `"%undefined.open%undefined%undefined.close%"`;
 
-exports[`formats promises 1`] = `"Promise {}"`;
+exports[`formats promises 1`] = `"%object.ctor.open%Promise%object.ctor.close% %object.open#{%%object.close#}%"`;
 
 exports[`formats promises with additional properties 1`] = `
-"Promise {
-  foo: 'bar',
-}"
+"%object.ctor.open%Promise%object.ctor.close% %object.open#{%
+  foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%object.close#}%"
 `;
 
-exports[`formats regular expressions 1`] = `"/foo/gim"`;
+exports[`formats regular expressions 1`] = `"%regexp.source.open#/%foo%regexp.source.close#/%%regexp.flags.open%gim%regexp.flags.close%"`;
 
 exports[`formats regular expressions with additional properties 1`] = `
-"RegExp {
-  /foo/gim
-  ---
-  bar: 'baz',
-}"
+"%object.ctor.open%RegExp%object.ctor.close% %object.open#{%
+  %regexp.source.open#/%foo%regexp.source.close#/%%regexp.flags.open%gim%regexp.flags.close%
+  %regexp.separator#---%
+  bar%property.separator#: %%string.line.open#'%%string.open%baz%string.close%%string.line.close#'%%property.after#,%
+%object.close#}%"
 `;
 
 exports[`formats sets 1`] = `
-"Set {
-  'foo',
-  Object {
-    bar: 'baz',
-  },
-}"
+"%object.ctor.open%Set%object.ctor.close% %object.open#{%
+  %string.line.open#'%%string.open%foo%string.close%%string.line.close#'%%item.after#,%
+  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+    bar%property.separator#: %%string.line.open#'%%string.open%baz%string.close%%string.line.close#'%%property.after#,%
+  %object.close#}%%item.after#,%
+%object.close#}%"
 `;
 
 exports[`formats sets with additional properties 1`] = `
-"Set {
-  bar: 'baz',
-  ---
-  'foo',
-}"
+"%object.ctor.open%Set%object.ctor.close% %object.open#{%
+  bar%property.separator#: %%string.line.open#'%%string.open%baz%string.close%%string.line.close#'%%property.after#,%
+  %stats.separator#---%
+  %string.line.open#'%%string.open%foo%string.close%%string.line.close#'%%item.after#,%
+%object.close#}%"
 `;
 
 exports[`formats simple errors 1`] = `
-"TypeError {
-  message: 'Test message',
-}"
+"%error.name.open%TypeError%error.name.close% %object.open#{%
+  message%property.separator#: %%string.line.open#'%%string.open%Test message%string.close%%string.line.close#'%%property.after#,%
+%object.close#}%"
 `;
 
 exports[`formats simple errors with a modified name 1`] = `
-"FooError (TypeError) {
-  message: 'Test message',
-}"
+"%error.name.open%FooError%error.name.close% %error.ctor.open#(%TypeError%error.ctor.close#)% %object.open#{%
+  message%property.separator#: %%string.line.open#'%%string.open%Test message%string.close%%string.line.close#'%%property.after#,%
+%object.close#}%"
+`;
+
+exports[`formats symbol keys 1`] = `
+"%object.ctor.open%Object%object.ctor.close% %object.open#{%
+  %property.keyBracket.open#[%%symbol.open%Symbol()%symbol.close%%property.keyBracket.close#]%%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%object.close#}%"
 `;
 
 exports[`formats wrapped primitive: -42 1`] = `
-"Number {
-  -42
-}"
+"%object.ctor.open%Number%object.ctor.close% %object.open#{%
+  %number.open%-42%number.close%
+%object.close#}%"
 `;
 
 exports[`formats wrapped primitive: -Infinity 1`] = `
-"Number {
-  -Infinity
-}"
+"%object.ctor.open%Number%object.ctor.close% %object.open#{%
+  %number.open%-Infinity%number.close%
+%object.close#}%"
 `;
 
 exports[`formats wrapped primitive: 0 1`] = `
-"Number {
-  0
-}"
+"%object.ctor.open%Number%object.ctor.close% %object.open#{%
+  %number.open%0%number.close%
+%object.close#}%"
 `;
 
 exports[`formats wrapped primitive: 0 2`] = `
-"Number {
-  -0
-}"
+"%object.ctor.open%Number%object.ctor.close% %object.open#{%
+  %number.open%-0%number.close%
+%object.close#}%"
 `;
 
 exports[`formats wrapped primitive: 0 3`] = `
-"Number {
-  0
-}"
+"%object.ctor.open%Number%object.ctor.close% %object.open#{%
+  %number.open%0%number.close%
+%object.close#}%"
 `;
 
 exports[`formats wrapped primitive: 42 1`] = `
-"Number {
-  42
-}"
+"%object.ctor.open%Number%object.ctor.close% %object.open#{%
+  %number.open%42%number.close%
+%object.close#}%"
 `;
 
 exports[`formats wrapped primitive: Infinity 1`] = `
-"Number {
-  Infinity
-}"
+"%object.ctor.open%Number%object.ctor.close% %object.open#{%
+  %number.open%Infinity%number.close%
+%object.close#}%"
 `;
 
 exports[`formats wrapped primitive: NaN 1`] = `
-"Number {
-  NaN
-}"
+"%object.ctor.open%Number%object.ctor.close% %object.open#{%
+  %number.open%NaN%number.close%
+%object.close#}%"
 `;
 
 exports[`formats wrapped primitive: false 1`] = `
-"Boolean {
-  false
-}"
+"%object.ctor.open%Boolean%object.ctor.close% %object.open#{%
+  %boolean.open%false%boolean.close%
+%object.close#}%"
 `;
 
 exports[`formats wrapped primitive: true 1`] = `
-"Boolean {
-  true
-}"
+"%object.ctor.open%Boolean%object.ctor.close% %object.open#{%
+  %boolean.open%true%boolean.close%
+%object.close#}%"
 `;
 
 exports[`formats wrapped strings as a list 1`] = `
-"String [
-  'f',
-  'o',
-  'o',
-]"
+"%object.ctor.open%String%object.ctor.close% %list.open#[%
+  %string.line.open#'%%string.open%f%string.close%%string.line.close#'%%item.after#,%
+  %string.line.open#'%%string.open%o%string.close%%string.line.close#'%%item.after#,%
+  %string.line.open#'%%string.open%o%string.close%%string.line.close#'%%item.after#,%
+%list.close#]%"
 `;
 
-exports[`shows non-Object tag if constructor name is different 1`] = `"Foo {}"`;
+exports[`shows non-Object tag if constructor name is different 1`] = `"%object.ctor.open%Foo%object.ctor.close% %object.open#{%%object.close#}%"`;
 
-exports[`shows non-Object tag if constructor name is different 2`] = `"Bar @Array []"`;
+exports[`shows non-Object tag if constructor name is different 2`] = `"%object.ctor.open%Bar%object.ctor.close% %object.secondaryStringTag.open#@%Array%object.secondaryStringTag.close% %list.open#[%%list.close#]%"`;
 
-exports[`shows non-Object tag if constructor name is different 3`] = `"Baz @Date 1969-07-20T20:17:40.000Z {}"`;
+exports[`shows non-Object tag if constructor name is different 3`] = `"%object.ctor.open%Baz%object.ctor.close% %object.secondaryStringTag.open#@%Date%object.secondaryStringTag.close% %date.value.open%1969-07-20T20:17:40.000Z%date.value.close% %object.open#{%%object.close#}%"`;
 
 exports[`shows non-Object tag if constructor name is different 4`] = `
-"Qux @RegExp {
-  /foo/
-}"
+"%object.ctor.open%Qux%object.ctor.close% %object.secondaryStringTag.open#@%RegExp%object.secondaryStringTag.close% %object.open#{%
+  %regexp.source.open#/%foo%regexp.source.close#/%%regexp.flags.open%%regexp.flags.close%
+%object.close#}%"
 `;
 
-exports[`shows non-Object tag if constructor name is different 5`] = `"Quux @Int16Array []"`;
+exports[`shows non-Object tag if constructor name is different 5`] = `"%object.ctor.open%Quux%object.ctor.close% %object.secondaryStringTag.open#@%Int16Array%object.secondaryStringTag.close% %list.open#[%%list.close#]%"`;
+
+exports[`shows string tag if object has no constructor 1`] = `"%object.stringTag.open#@%Object%object.stringTag.close% %object.open#{%%object.close#}%"`;

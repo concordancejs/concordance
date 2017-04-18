@@ -1,867 +1,913 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`detects extraneous arguments items 1`] = `
-"  Arguments [
-    1,
--   3,
-    2,
-  ]"
+"%gutters.neutral#  %%object.ctor.open%Arguments%object.ctor.close% %list.open#[%
+%gutters.neutral#  %  %number.open%1%number.close%%item.after#,%
+%gutters.actualIsExtraneous#- %  %number.open%3%number.close%%item.after#,%
+%gutters.neutral#  %  %number.open%2%number.close%%item.after#,%
+%gutters.neutral#  %%list.close#]%"
 `;
 
 exports[`detects extraneous arguments items 2`] = `
-"  Arguments [
-    1,
--   Object {},
-    2,
-  ]"
+"%gutters.neutral#  %%object.ctor.open%Arguments%object.ctor.close% %list.open#[%
+%gutters.neutral#  %  %number.open%1%number.close%%item.after#,%
+%gutters.actualIsExtraneous#- %  %object.ctor.open%Object%object.ctor.close% %object.open#{%%object.close#}%%item.after#,%
+%gutters.neutral#  %  %number.open%2%number.close%%item.after#,%
+%gutters.neutral#  %%list.close#]%"
 `;
 
 exports[`detects extraneous arguments items 3`] = `
-"  Arguments [
-    1,
--   Object {
--     foo: 'bar',
--   },
-    Object {
-      baz: 'qux',
-    },
-    2,
-  ]"
+"%gutters.neutral#  %%object.ctor.open%Arguments%object.ctor.close% %list.open#[%
+%gutters.neutral#  %  %number.open%1%number.close%%item.after#,%
+%gutters.actualIsExtraneous#- %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.actualIsExtraneous#- %    foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%gutters.actualIsExtraneous#- %  %object.close#}%%item.after#,%
+%gutters.neutral#  %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.neutral#  %    baz%property.separator#: %%string.line.open#'%%string.open%qux%string.close%%string.line.close#'%%property.after#,%
+%gutters.neutral#  %  %object.close#}%%item.after#,%
+%gutters.neutral#  %  %number.open%2%number.close%%item.after#,%
+%gutters.neutral#  %%list.close#]%"
 `;
 
 exports[`detects extraneous arguments items 4`] = `
-"  Arguments [
-    1,
--   Object {
--     [Symbol(s1)]: 'bar',
--   },
-    Object {
-      [Symbol(s2)]: 'qux',
-    },
-    2,
-  ]"
+"%gutters.neutral#  %%object.ctor.open%Arguments%object.ctor.close% %list.open#[%
+%gutters.neutral#  %  %number.open%1%number.close%%item.after#,%
+%gutters.actualIsExtraneous#- %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.actualIsExtraneous#- %    %property.keyBracket.open#[%%symbol.open%Symbol(s1)%symbol.close%%property.keyBracket.close#]%%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%gutters.actualIsExtraneous#- %  %object.close#}%%item.after#,%
+%gutters.neutral#  %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.neutral#  %    %property.keyBracket.open#[%%symbol.open%Symbol(s2)%symbol.close%%property.keyBracket.close#]%%property.separator#: %%string.line.open#'%%string.open%qux%string.close%%string.line.close#'%%property.after#,%
+%gutters.neutral#  %  %object.close#}%%item.after#,%
+%gutters.neutral#  %  %number.open%2%number.close%%item.after#,%
+%gutters.neutral#  %%list.close#]%"
 `;
 
 exports[`detects extraneous array items 1`] = `
-"  Array [
-    1,
--   3,
-    2,
-  ]"
+"%gutters.neutral#  %%object.ctor.open%Array%object.ctor.close% %list.open#[%
+%gutters.neutral#  %  %number.open%1%number.close%%item.after#,%
+%gutters.actualIsExtraneous#- %  %number.open%3%number.close%%item.after#,%
+%gutters.neutral#  %  %number.open%2%number.close%%item.after#,%
+%gutters.neutral#  %%list.close#]%"
 `;
 
 exports[`detects extraneous array items 2`] = `
-"  Array [
-    1,
--   Object {},
-    2,
-  ]"
+"%gutters.neutral#  %%object.ctor.open%Array%object.ctor.close% %list.open#[%
+%gutters.neutral#  %  %number.open%1%number.close%%item.after#,%
+%gutters.actualIsExtraneous#- %  %object.ctor.open%Object%object.ctor.close% %object.open#{%%object.close#}%%item.after#,%
+%gutters.neutral#  %  %number.open%2%number.close%%item.after#,%
+%gutters.neutral#  %%list.close#]%"
 `;
 
 exports[`detects extraneous array items 3`] = `
-"  Array [
-    1,
--   Object {
--     foo: 'bar',
--   },
-    Object {
-      baz: 'qux',
-    },
-    2,
-  ]"
+"%gutters.neutral#  %%object.ctor.open%Array%object.ctor.close% %list.open#[%
+%gutters.neutral#  %  %number.open%1%number.close%%item.after#,%
+%gutters.actualIsExtraneous#- %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.actualIsExtraneous#- %    foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%gutters.actualIsExtraneous#- %  %object.close#}%%item.after#,%
+%gutters.neutral#  %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.neutral#  %    baz%property.separator#: %%string.line.open#'%%string.open%qux%string.close%%string.line.close#'%%property.after#,%
+%gutters.neutral#  %  %object.close#}%%item.after#,%
+%gutters.neutral#  %  %number.open%2%number.close%%item.after#,%
+%gutters.neutral#  %%list.close#]%"
 `;
 
 exports[`detects extraneous array items 4`] = `
-"  Array [
-    1,
--   Object {
--     [Symbol(s1)]: 'bar',
--   },
-    Object {
-      [Symbol(s2)]: 'qux',
-    },
-    2,
-  ]"
+"%gutters.neutral#  %%object.ctor.open%Array%object.ctor.close% %list.open#[%
+%gutters.neutral#  %  %number.open%1%number.close%%item.after#,%
+%gutters.actualIsExtraneous#- %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.actualIsExtraneous#- %    %property.keyBracket.open#[%%symbol.open%Symbol(s1)%symbol.close%%property.keyBracket.close#]%%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%gutters.actualIsExtraneous#- %  %object.close#}%%item.after#,%
+%gutters.neutral#  %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.neutral#  %    %property.keyBracket.open#[%%symbol.open%Symbol(s2)%symbol.close%%property.keyBracket.close#]%%property.separator#: %%string.line.open#'%%string.open%qux%string.close%%string.line.close#'%%property.after#,%
+%gutters.neutral#  %  %object.close#}%%item.after#,%
+%gutters.neutral#  %  %number.open%2%number.close%%item.after#,%
+%gutters.neutral#  %%list.close#]%"
 `;
 
 exports[`detects extraneous map entries 1`] = `
-"  Map {
-    1 => 1,
--   3 => 3,
-    2 => 2,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Map%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  %number.open%1%number.close%%mapEntry.separator# => %%number.open%1%number.close%%mapEntry.after#,%
+%gutters.actualIsExtraneous#- %  %number.open%3%number.close%%mapEntry.separator# => %%number.open%3%number.close%%mapEntry.after#,%
+%gutters.neutral#  %  %number.open%2%number.close%%mapEntry.separator# => %%number.open%2%number.close%%mapEntry.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`detects extraneous map entries 2`] = `
-"  Map {
-    1 => 1,
--   Object {} => 3,
-    2 => 2,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Map%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  %number.open%1%number.close%%mapEntry.separator# => %%number.open%1%number.close%%mapEntry.after#,%
+%gutters.actualIsExtraneous#- %  %object.ctor.open%Object%object.ctor.close% %object.open#{%%object.close#}%%mapEntry.separator# => %%number.open%3%number.close%%mapEntry.after#,%
+%gutters.neutral#  %  %number.open%2%number.close%%mapEntry.separator# => %%number.open%2%number.close%%mapEntry.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`detects extraneous map entries 3`] = `
-"  Map {
-    1 => 1,
--   Object {
--     foo: 'bar',
--   } => 4,
-    Object {
-      baz: 'qux',
-    } => 2,
-    3 => 3,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Map%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  %number.open%1%number.close%%mapEntry.separator# => %%number.open%1%number.close%%mapEntry.after#,%
+%gutters.actualIsExtraneous#- %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.actualIsExtraneous#- %    foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%gutters.actualIsExtraneous#- %  %object.close#}%%mapEntry.separator# => %%number.open%4%number.close%%mapEntry.after#,%
+%gutters.neutral#  %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.neutral#  %    baz%property.separator#: %%string.line.open#'%%string.open%qux%string.close%%string.line.close#'%%property.after#,%
+%gutters.neutral#  %  %object.close#}%%mapEntry.separator# => %%number.open%2%number.close%%mapEntry.after#,%
+%gutters.neutral#  %  %number.open%3%number.close%%mapEntry.separator# => %%number.open%3%number.close%%mapEntry.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`detects extraneous map entries 4`] = `
-"  Map {
-    1 => 1,
--   Object {
--     [Symbol(s1)]: 'bar',
--   } => 4,
-    Object {
-      [Symbol(s2)]: 'qux',
-    } => 2,
-    3 => 3,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Map%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  %number.open%1%number.close%%mapEntry.separator# => %%number.open%1%number.close%%mapEntry.after#,%
+%gutters.actualIsExtraneous#- %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.actualIsExtraneous#- %    %property.keyBracket.open#[%%symbol.open%Symbol(s1)%symbol.close%%property.keyBracket.close#]%%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%gutters.actualIsExtraneous#- %  %object.close#}%%mapEntry.separator# => %%number.open%4%number.close%%mapEntry.after#,%
+%gutters.neutral#  %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.neutral#  %    %property.keyBracket.open#[%%symbol.open%Symbol(s2)%symbol.close%%property.keyBracket.close#]%%property.separator#: %%string.line.open#'%%string.open%qux%string.close%%string.line.close#'%%property.after#,%
+%gutters.neutral#  %  %object.close#}%%mapEntry.separator# => %%number.open%2%number.close%%mapEntry.after#,%
+%gutters.neutral#  %  %number.open%3%number.close%%mapEntry.separator# => %%number.open%3%number.close%%mapEntry.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`detects extraneous name properties 1`] = `
-"  Object {
-    a: 1,
--   b: 2,
-    c: 3,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  a%property.separator#: %%number.open%1%number.close%%property.after#,%
+%gutters.actualIsExtraneous#- %  b%property.separator#: %%number.open%2%number.close%%property.after#,%
+%gutters.neutral#  %  c%property.separator#: %%number.open%3%number.close%%property.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`detects extraneous name properties 2`] = `
-"  Object {
-    a: 1,
--   b: Object {},
-    c: 3,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  a%property.separator#: %%number.open%1%number.close%%property.after#,%
+%gutters.actualIsExtraneous#- %  b%property.separator#: %%object.ctor.open%Object%object.ctor.close% %object.open#{%%object.close#}%%property.after#,%
+%gutters.neutral#  %  c%property.separator#: %%number.open%3%number.close%%property.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`detects extraneous set items 1`] = `
-"  Set {
-    1,
--   3,
-    2,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Set%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  %number.open%1%number.close%%item.after#,%
+%gutters.actualIsExtraneous#- %  %number.open%3%number.close%%item.after#,%
+%gutters.neutral#  %  %number.open%2%number.close%%item.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`detects extraneous set items 2`] = `
-"  Set {
-    1,
--   Object {},
-    2,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Set%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  %number.open%1%number.close%%item.after#,%
+%gutters.actualIsExtraneous#- %  %object.ctor.open%Object%object.ctor.close% %object.open#{%%object.close#}%%item.after#,%
+%gutters.neutral#  %  %number.open%2%number.close%%item.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`detects extraneous set items 3`] = `
-"  Set {
-    1,
--   Object {
--     foo: 'bar',
--   },
-    Object {
-      baz: 'qux',
-    },
-    2,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Set%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  %number.open%1%number.close%%item.after#,%
+%gutters.actualIsExtraneous#- %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.actualIsExtraneous#- %    foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%gutters.actualIsExtraneous#- %  %object.close#}%%item.after#,%
+%gutters.neutral#  %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.neutral#  %    baz%property.separator#: %%string.line.open#'%%string.open%qux%string.close%%string.line.close#'%%property.after#,%
+%gutters.neutral#  %  %object.close#}%%item.after#,%
+%gutters.neutral#  %  %number.open%2%number.close%%item.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`detects extraneous set items 4`] = `
-"  Set {
-    1,
--   Object {
--     [Symbol(s1)]: 'bar',
--   },
-    Object {
-      [Symbol(s2)]: 'qux',
-    },
-    2,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Set%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  %number.open%1%number.close%%item.after#,%
+%gutters.actualIsExtraneous#- %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.actualIsExtraneous#- %    %property.keyBracket.open#[%%symbol.open%Symbol(s1)%symbol.close%%property.keyBracket.close#]%%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%gutters.actualIsExtraneous#- %  %object.close#}%%item.after#,%
+%gutters.neutral#  %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.neutral#  %    %property.keyBracket.open#[%%symbol.open%Symbol(s2)%symbol.close%%property.keyBracket.close#]%%property.separator#: %%string.line.open#'%%string.open%qux%string.close%%string.line.close#'%%property.after#,%
+%gutters.neutral#  %  %object.close#}%%item.after#,%
+%gutters.neutral#  %  %number.open%2%number.close%%item.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`detects extraneous symbol properties 1`] = `
-"  Object {
-    [Symbol(s1)]: 1,
--   [Symbol(s2)]: 2,
-    [Symbol(s3)]: 3,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  %property.keyBracket.open#[%%symbol.open%Symbol(s1)%symbol.close%%property.keyBracket.close#]%%property.separator#: %%number.open%1%number.close%%property.after#,%
+%gutters.actualIsExtraneous#- %  %property.keyBracket.open#[%%symbol.open%Symbol(s2)%symbol.close%%property.keyBracket.close#]%%property.separator#: %%number.open%2%number.close%%property.after#,%
+%gutters.neutral#  %  %property.keyBracket.open#[%%symbol.open%Symbol(s3)%symbol.close%%property.keyBracket.close#]%%property.separator#: %%number.open%3%number.close%%property.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`detects extraneous symbol properties 2`] = `
-"  Object {
-    [Symbol(s1)]: 1,
--   [Symbol(s2)]: Object {},
-    [Symbol(s3)]: 3,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  %property.keyBracket.open#[%%symbol.open%Symbol(s1)%symbol.close%%property.keyBracket.close#]%%property.separator#: %%number.open%1%number.close%%property.after#,%
+%gutters.actualIsExtraneous#- %  %property.keyBracket.open#[%%symbol.open%Symbol(s2)%symbol.close%%property.keyBracket.close#]%%property.separator#: %%object.ctor.open%Object%object.ctor.close% %object.open#{%%object.close#}%%property.after#,%
+%gutters.neutral#  %  %property.keyBracket.open#[%%symbol.open%Symbol(s3)%symbol.close%%property.keyBracket.close#]%%property.separator#: %%number.open%3%number.close%%property.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`detects missing arguments items 1`] = `
-"  Arguments [
-    1,
-+   3,
-    2,
-  ]"
+"%gutters.neutral#  %%object.ctor.open%Arguments%object.ctor.close% %list.open#[%
+%gutters.neutral#  %  %number.open%1%number.close%%item.after#,%
+%gutters.expectedIsMissing#+ %  %number.open%3%number.close%%item.after#,%
+%gutters.neutral#  %  %number.open%2%number.close%%item.after#,%
+%gutters.neutral#  %%list.close#]%"
 `;
 
 exports[`detects missing arguments items 2`] = `
-"  Arguments [
-    1,
-+   Object {},
-    2,
-  ]"
+"%gutters.neutral#  %%object.ctor.open%Arguments%object.ctor.close% %list.open#[%
+%gutters.neutral#  %  %number.open%1%number.close%%item.after#,%
+%gutters.expectedIsMissing#+ %  %object.ctor.open%Object%object.ctor.close% %object.open#{%%object.close#}%%item.after#,%
+%gutters.neutral#  %  %number.open%2%number.close%%item.after#,%
+%gutters.neutral#  %%list.close#]%"
 `;
 
 exports[`detects missing arguments items 3`] = `
-"  Arguments [
-    1,
-+   Object {
-+     foo: 'bar',
-+   },
-    Object {
-      baz: 'qux',
-    },
-    2,
-  ]"
+"%gutters.neutral#  %%object.ctor.open%Arguments%object.ctor.close% %list.open#[%
+%gutters.neutral#  %  %number.open%1%number.close%%item.after#,%
+%gutters.expectedIsMissing#+ %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.expectedIsMissing#+ %    foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%gutters.expectedIsMissing#+ %  %object.close#}%%item.after#,%
+%gutters.neutral#  %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.neutral#  %    baz%property.separator#: %%string.line.open#'%%string.open%qux%string.close%%string.line.close#'%%property.after#,%
+%gutters.neutral#  %  %object.close#}%%item.after#,%
+%gutters.neutral#  %  %number.open%2%number.close%%item.after#,%
+%gutters.neutral#  %%list.close#]%"
 `;
 
 exports[`detects missing arguments items 4`] = `
-"  Arguments [
-    1,
-+   Object {
-+     [Symbol(s1)]: 'bar',
-+   },
-    Object {
-      [Symbol(s2)]: 'qux',
-    },
-    2,
-  ]"
+"%gutters.neutral#  %%object.ctor.open%Arguments%object.ctor.close% %list.open#[%
+%gutters.neutral#  %  %number.open%1%number.close%%item.after#,%
+%gutters.expectedIsMissing#+ %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.expectedIsMissing#+ %    %property.keyBracket.open#[%%symbol.open%Symbol(s1)%symbol.close%%property.keyBracket.close#]%%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%gutters.expectedIsMissing#+ %  %object.close#}%%item.after#,%
+%gutters.neutral#  %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.neutral#  %    %property.keyBracket.open#[%%symbol.open%Symbol(s2)%symbol.close%%property.keyBracket.close#]%%property.separator#: %%string.line.open#'%%string.open%qux%string.close%%string.line.close#'%%property.after#,%
+%gutters.neutral#  %  %object.close#}%%item.after#,%
+%gutters.neutral#  %  %number.open%2%number.close%%item.after#,%
+%gutters.neutral#  %%list.close#]%"
 `;
 
 exports[`detects missing array items 1`] = `
-"  Array [
-    1,
-+   3,
-    2,
-  ]"
+"%gutters.neutral#  %%object.ctor.open%Array%object.ctor.close% %list.open#[%
+%gutters.neutral#  %  %number.open%1%number.close%%item.after#,%
+%gutters.expectedIsMissing#+ %  %number.open%3%number.close%%item.after#,%
+%gutters.neutral#  %  %number.open%2%number.close%%item.after#,%
+%gutters.neutral#  %%list.close#]%"
 `;
 
 exports[`detects missing array items 2`] = `
-"  Array [
-    1,
-+   Object {},
-    2,
-  ]"
+"%gutters.neutral#  %%object.ctor.open%Array%object.ctor.close% %list.open#[%
+%gutters.neutral#  %  %number.open%1%number.close%%item.after#,%
+%gutters.expectedIsMissing#+ %  %object.ctor.open%Object%object.ctor.close% %object.open#{%%object.close#}%%item.after#,%
+%gutters.neutral#  %  %number.open%2%number.close%%item.after#,%
+%gutters.neutral#  %%list.close#]%"
 `;
 
 exports[`detects missing array items 3`] = `
-"  Array [
-    1,
-+   Object {
-+     foo: 'bar',
-+   },
-    Object {
-      baz: 'qux',
-    },
-    2,
-  ]"
+"%gutters.neutral#  %%object.ctor.open%Array%object.ctor.close% %list.open#[%
+%gutters.neutral#  %  %number.open%1%number.close%%item.after#,%
+%gutters.expectedIsMissing#+ %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.expectedIsMissing#+ %    foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%gutters.expectedIsMissing#+ %  %object.close#}%%item.after#,%
+%gutters.neutral#  %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.neutral#  %    baz%property.separator#: %%string.line.open#'%%string.open%qux%string.close%%string.line.close#'%%property.after#,%
+%gutters.neutral#  %  %object.close#}%%item.after#,%
+%gutters.neutral#  %  %number.open%2%number.close%%item.after#,%
+%gutters.neutral#  %%list.close#]%"
 `;
 
 exports[`detects missing array items 4`] = `
-"  Array [
-    1,
-+   Object {
-+     [Symbol(s1)]: 'bar',
-+   },
-    Object {
-      [Symbol(s2)]: 'qux',
-    },
-    2,
-  ]"
+"%gutters.neutral#  %%object.ctor.open%Array%object.ctor.close% %list.open#[%
+%gutters.neutral#  %  %number.open%1%number.close%%item.after#,%
+%gutters.expectedIsMissing#+ %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.expectedIsMissing#+ %    %property.keyBracket.open#[%%symbol.open%Symbol(s1)%symbol.close%%property.keyBracket.close#]%%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%gutters.expectedIsMissing#+ %  %object.close#}%%item.after#,%
+%gutters.neutral#  %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.neutral#  %    %property.keyBracket.open#[%%symbol.open%Symbol(s2)%symbol.close%%property.keyBracket.close#]%%property.separator#: %%string.line.open#'%%string.open%qux%string.close%%string.line.close#'%%property.after#,%
+%gutters.neutral#  %  %object.close#}%%item.after#,%
+%gutters.neutral#  %  %number.open%2%number.close%%item.after#,%
+%gutters.neutral#  %%list.close#]%"
 `;
 
 exports[`detects missing map entries 1`] = `
-"  Map {
-    1 => 1,
-+   3 => 3,
-    2 => 2,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Map%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  %number.open%1%number.close%%mapEntry.separator# => %%number.open%1%number.close%%mapEntry.after#,%
+%gutters.expectedIsMissing#+ %  %number.open%3%number.close%%mapEntry.separator# => %%number.open%3%number.close%%mapEntry.after#,%
+%gutters.neutral#  %  %number.open%2%number.close%%mapEntry.separator# => %%number.open%2%number.close%%mapEntry.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`detects missing map entries 2`] = `
-"  Map {
-    1 => 1,
-+   Object {} => 3,
-    2 => 2,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Map%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  %number.open%1%number.close%%mapEntry.separator# => %%number.open%1%number.close%%mapEntry.after#,%
+%gutters.expectedIsMissing#+ %  %object.ctor.open%Object%object.ctor.close% %object.open#{%%object.close#}%%mapEntry.separator# => %%number.open%3%number.close%%mapEntry.after#,%
+%gutters.neutral#  %  %number.open%2%number.close%%mapEntry.separator# => %%number.open%2%number.close%%mapEntry.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`detects missing map entries 3`] = `
-"  Map {
-    1 => 1,
-+   Object {
-+     foo: 'bar',
-+   } => 4,
-    Object {
-      baz: 'qux',
-    } => 2,
-    3 => 3,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Map%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  %number.open%1%number.close%%mapEntry.separator# => %%number.open%1%number.close%%mapEntry.after#,%
+%gutters.expectedIsMissing#+ %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.expectedIsMissing#+ %    foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%gutters.expectedIsMissing#+ %  %object.close#}%%mapEntry.separator# => %%number.open%4%number.close%%mapEntry.after#,%
+%gutters.neutral#  %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.neutral#  %    baz%property.separator#: %%string.line.open#'%%string.open%qux%string.close%%string.line.close#'%%property.after#,%
+%gutters.neutral#  %  %object.close#}%%mapEntry.separator# => %%number.open%2%number.close%%mapEntry.after#,%
+%gutters.neutral#  %  %number.open%3%number.close%%mapEntry.separator# => %%number.open%3%number.close%%mapEntry.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`detects missing map entries 4`] = `
-"  Map {
-    1 => 1,
-+   Object {
-+     [Symbol(s1)]: 'bar',
-+   } => 4,
-    Object {
-      [Symbol(s2)]: 'qux',
-    } => 2,
-    3 => 3,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Map%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  %number.open%1%number.close%%mapEntry.separator# => %%number.open%1%number.close%%mapEntry.after#,%
+%gutters.expectedIsMissing#+ %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.expectedIsMissing#+ %    %property.keyBracket.open#[%%symbol.open%Symbol(s1)%symbol.close%%property.keyBracket.close#]%%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%gutters.expectedIsMissing#+ %  %object.close#}%%mapEntry.separator# => %%number.open%4%number.close%%mapEntry.after#,%
+%gutters.neutral#  %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.neutral#  %    %property.keyBracket.open#[%%symbol.open%Symbol(s2)%symbol.close%%property.keyBracket.close#]%%property.separator#: %%string.line.open#'%%string.open%qux%string.close%%string.line.close#'%%property.after#,%
+%gutters.neutral#  %  %object.close#}%%mapEntry.separator# => %%number.open%2%number.close%%mapEntry.after#,%
+%gutters.neutral#  %  %number.open%3%number.close%%mapEntry.separator# => %%number.open%3%number.close%%mapEntry.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`detects missing name properties 1`] = `
-"  Object {
-    a: 1,
-+   b: 2,
-    c: 3,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  a%property.separator#: %%number.open%1%number.close%%property.after#,%
+%gutters.expectedIsMissing#+ %  b%property.separator#: %%number.open%2%number.close%%property.after#,%
+%gutters.neutral#  %  c%property.separator#: %%number.open%3%number.close%%property.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`detects missing name properties 2`] = `
-"  Object {
-    a: 1,
-+   b: Object {},
-    c: 3,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  a%property.separator#: %%number.open%1%number.close%%property.after#,%
+%gutters.expectedIsMissing#+ %  b%property.separator#: %%object.ctor.open%Object%object.ctor.close% %object.open#{%%object.close#}%%property.after#,%
+%gutters.neutral#  %  c%property.separator#: %%number.open%3%number.close%%property.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`detects missing set items 1`] = `
-"  Set {
-    1,
-+   3,
-    2,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Set%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  %number.open%1%number.close%%item.after#,%
+%gutters.expectedIsMissing#+ %  %number.open%3%number.close%%item.after#,%
+%gutters.neutral#  %  %number.open%2%number.close%%item.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`detects missing set items 2`] = `
-"  Set {
-    1,
-+   Object {},
-    2,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Set%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  %number.open%1%number.close%%item.after#,%
+%gutters.expectedIsMissing#+ %  %object.ctor.open%Object%object.ctor.close% %object.open#{%%object.close#}%%item.after#,%
+%gutters.neutral#  %  %number.open%2%number.close%%item.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`detects missing set items 3`] = `
-"  Set {
-    1,
-+   Object {
-+     foo: 'bar',
-+   },
-    Object {
-      baz: 'qux',
-    },
-    2,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Set%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  %number.open%1%number.close%%item.after#,%
+%gutters.expectedIsMissing#+ %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.expectedIsMissing#+ %    foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%gutters.expectedIsMissing#+ %  %object.close#}%%item.after#,%
+%gutters.neutral#  %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.neutral#  %    baz%property.separator#: %%string.line.open#'%%string.open%qux%string.close%%string.line.close#'%%property.after#,%
+%gutters.neutral#  %  %object.close#}%%item.after#,%
+%gutters.neutral#  %  %number.open%2%number.close%%item.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`detects missing set items 4`] = `
-"  Set {
-    1,
-+   Object {
-+     [Symbol(s1)]: 'bar',
-+   },
-    Object {
-      [Symbol(s2)]: 'qux',
-    },
-    2,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Set%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  %number.open%1%number.close%%item.after#,%
+%gutters.expectedIsMissing#+ %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.expectedIsMissing#+ %    %property.keyBracket.open#[%%symbol.open%Symbol(s1)%symbol.close%%property.keyBracket.close#]%%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%gutters.expectedIsMissing#+ %  %object.close#}%%item.after#,%
+%gutters.neutral#  %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.neutral#  %    %property.keyBracket.open#[%%symbol.open%Symbol(s2)%symbol.close%%property.keyBracket.close#]%%property.separator#: %%string.line.open#'%%string.open%qux%string.close%%string.line.close#'%%property.after#,%
+%gutters.neutral#  %  %object.close#}%%item.after#,%
+%gutters.neutral#  %  %number.open%2%number.close%%item.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`detects missing symbol properties 1`] = `
-"  Object {
-    [Symbol(s1)]: 1,
-    [Symbol(s3)]: 3,
-+   [Symbol(s2)]: 2,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  %property.keyBracket.open#[%%symbol.open%Symbol(s1)%symbol.close%%property.keyBracket.close#]%%property.separator#: %%number.open%1%number.close%%property.after#,%
+%gutters.neutral#  %  %property.keyBracket.open#[%%symbol.open%Symbol(s3)%symbol.close%%property.keyBracket.close#]%%property.separator#: %%number.open%3%number.close%%property.after#,%
+%gutters.expectedIsMissing#+ %  %property.keyBracket.open#[%%symbol.open%Symbol(s2)%symbol.close%%property.keyBracket.close#]%%property.separator#: %%number.open%2%number.close%%property.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`detects missing symbol properties 2`] = `
-"  Object {
-    [Symbol(s1)]: 1,
-    [Symbol(s3)]: 3,
-+   [Symbol(s2)]: Object {},
-  }"
+"%gutters.neutral#  %%object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  %property.keyBracket.open#[%%symbol.open%Symbol(s1)%symbol.close%%property.keyBracket.close#]%%property.separator#: %%number.open%1%number.close%%property.after#,%
+%gutters.neutral#  %  %property.keyBracket.open#[%%symbol.open%Symbol(s3)%symbol.close%%property.keyBracket.close#]%%property.separator#: %%number.open%3%number.close%%property.after#,%
+%gutters.expectedIsMissing#+ %  %property.keyBracket.open#[%%symbol.open%Symbol(s2)%symbol.close%%property.keyBracket.close#]%%property.separator#: %%object.ctor.open%Object%object.ctor.close% %object.open#{%%object.close#}%%property.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`diff dates with extra properties 1`] = `
-"- Date 1969-07-20T20:17:40.000Z {}
-+ Date 1969-07-21T20:17:40.000Z {
-+   foo: 'bar',
-+ }"
+"%gutters.actualIsWrong#- %%object.ctor.open%Date%object.ctor.close% %date.value.open%1969-07-20T20:17:40.000Z%date.value.close% %object.open#{%%object.close#}%
+%gutters.wasExpected#+ %%object.ctor.open%Date%object.ctor.close% %date.value.open%1969-07-21T20:17:40.000Z%date.value.close% %object.open#{%
+%gutters.wasExpected#+ %  foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%gutters.wasExpected#+ %%object.close#}%"
 `;
 
 exports[`diffs arguments 1`] = `
-"  Arguments [
-    1,
--   2,
-+   3,
-    4,
-  ]"
+"%gutters.neutral#  %%object.ctor.open%Arguments%object.ctor.close% %list.open#[%
+%gutters.neutral#  %  %number.open%1%number.close%%item.after#,%
+%gutters.actualIsExtraneous#- %  %number.open%2%number.close%%item.after#,%
+%gutters.expectedIsMissing#+ %  %number.open%3%number.close%%item.after#,%
+%gutters.neutral#  %  %number.open%4%number.close%%item.after#,%
+%gutters.neutral#  %%list.close#]%"
 `;
 
 exports[`diffs arguments 2`] = `
-"  Arguments [
-    1,
-    Object {
--     foo: 'bar',
-+     baz: 'qux',
-    },
-    2,
-  ]"
+"%gutters.neutral#  %%object.ctor.open%Arguments%object.ctor.close% %list.open#[%
+%gutters.neutral#  %  %number.open%1%number.close%%item.after#,%
+%gutters.neutral#  %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.actualIsExtraneous#- %    foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%gutters.expectedIsMissing#+ %    baz%property.separator#: %%string.line.open#'%%string.open%qux%string.close%%string.line.close#'%%property.after#,%
+%gutters.neutral#  %  %object.close#}%%item.after#,%
+%gutters.neutral#  %  %number.open%2%number.close%%item.after#,%
+%gutters.neutral#  %%list.close#]%"
 `;
 
 exports[`diffs arrays 1`] = `
-"  Array [
-    1,
--   2,
-+   3,
-    4,
-  ]"
+"%gutters.neutral#  %%object.ctor.open%Array%object.ctor.close% %list.open#[%
+%gutters.neutral#  %  %number.open%1%number.close%%item.after#,%
+%gutters.actualIsExtraneous#- %  %number.open%2%number.close%%item.after#,%
+%gutters.expectedIsMissing#+ %  %number.open%3%number.close%%item.after#,%
+%gutters.neutral#  %  %number.open%4%number.close%%item.after#,%
+%gutters.neutral#  %%list.close#]%"
 `;
 
 exports[`diffs arrays 2`] = `
-"  Array [
-    1,
-    Object {
--     foo: 'bar',
-+     baz: 'qux',
-    },
-    2,
-  ]"
+"%gutters.neutral#  %%object.ctor.open%Array%object.ctor.close% %list.open#[%
+%gutters.neutral#  %  %number.open%1%number.close%%item.after#,%
+%gutters.neutral#  %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.actualIsExtraneous#- %    foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%gutters.expectedIsMissing#+ %    baz%property.separator#: %%string.line.open#'%%string.open%qux%string.close%%string.line.close#'%%property.after#,%
+%gutters.neutral#  %  %object.close#}%%item.after#,%
+%gutters.neutral#  %  %number.open%2%number.close%%item.after#,%
+%gutters.neutral#  %%list.close#]%"
+`;
+
+exports[`diffs buffers 1`] = `
+"%gutters.neutral#  %%object.ctor.open%Buffer%object.ctor.close% %object.secondaryStringTag.open#@%Uint8Array%object.secondaryStringTag.close% %list.open#[%
+%gutters.actualIsWrong#- %  %typedArray.bytes.open%decafbad%typedArray.bytes.close%
+%gutters.wasExpected#+ %  %typedArray.bytes.open%666c6174 20776869 7465%typedArray.bytes.close%
+%gutters.neutral#  %%list.close#]%"
+`;
+
+exports[`diffs builtin subclasses 1`] = `
+"%gutters.actualIsWrong#- %%object.ctor.open%Foo%object.ctor.close% %object.secondaryStringTag.open#@%Array%object.secondaryStringTag.close% %list.open#[%%list.close#]%
+%gutters.wasExpected#+ %%object.ctor.open%Array%object.ctor.close% %list.open#[%%list.close#]%"
 `;
 
 exports[`diffs circular references 1`] = `
-"  Object {
-    obj: Object {
-      obj: [Circular],
-    },
-  }"
+"%gutters.neutral#  %%object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  obj%property.separator#: %%object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.neutral#  %    obj%property.separator#: %%circular#[Circular]%%property.after#,%
+%gutters.neutral#  %  %object.close#}%%property.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`diffs circular references 2`] = `
-"  Object {
-    obj: Object {
-      obj: Object {
--       obj: [Circular],
-+       obj: [Circular],
-      },
-    },
-  }"
+"%gutters.neutral#  %%object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  obj%property.separator#: %%object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.neutral#  %    obj%property.separator#: %%object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.actualIsWrong#- %      obj%property.separator#: %%circular#[Circular]%%property.after#,%
+%gutters.wasExpected#+ %      obj%property.separator#: %%circular#[Circular]%%property.after#,%
+%gutters.neutral#  %    %object.close#}%%property.after#,%
+%gutters.neutral#  %  %object.close#}%%property.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`diffs circular references 3`] = `
-"  Array [
-    Array [
-      Array [
--       [Circular],
-+       [Circular],
-      ],
-    ],
-  ]"
+"%gutters.neutral#  %%object.ctor.open%Array%object.ctor.close% %list.open#[%
+%gutters.neutral#  %  %object.ctor.open%Array%object.ctor.close% %list.open#[%
+%gutters.neutral#  %    %object.ctor.open%Array%object.ctor.close% %list.open#[%
+%gutters.actualIsWrong#- %      %circular#[Circular]%%item.after#,%
+%gutters.wasExpected#+ %      %circular#[Circular]%%item.after#,%
+%gutters.neutral#  %    %list.close#]%%item.after#,%
+%gutters.neutral#  %  %list.close#]%%item.after#,%
+%gutters.neutral#  %%list.close#]%"
 `;
 
 exports[`diffs circular references 4`] = `
-"  Map {
-    'map' => Map {
-      'map' => Map {
--       'map' => [Circular],
-+       'map' => [Circular],
-      },
-    },
-  }"
+"%gutters.neutral#  %%object.ctor.open%Map%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  %string.line.open#'%%string.open%map%string.close%%string.line.close#'%%mapEntry.separator# => %%object.ctor.open%Map%object.ctor.close% %object.open#{%
+%gutters.neutral#  %    %string.line.open#'%%string.open%map%string.close%%string.line.close#'%%mapEntry.separator# => %%object.ctor.open%Map%object.ctor.close% %object.open#{%
+%gutters.actualIsWrong#- %      %string.line.open#'%%string.open%map%string.close%%string.line.close#'%%mapEntry.separator# => %%circular#[Circular]%%mapEntry.after#,%
+%gutters.wasExpected#+ %      %string.line.open#'%%string.open%map%string.close%%string.line.close#'%%mapEntry.separator# => %%circular#[Circular]%%mapEntry.after#,%
+%gutters.neutral#  %    %object.close#}%%mapEntry.after#,%
+%gutters.neutral#  %  %object.close#}%%mapEntry.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`diffs circular references 5`] = `
-"  Map {
-    Object {
-      key: true,
-    } => Map {
--     Object {
--       key: true,
--     } => [Circular],
-+     Object {
-+       key: true,
-+     } => Map {
-+       Object {
-+         key: true,
-+       } => [Circular],
-+     },
-    },
-  }"
+"%gutters.neutral#  %%object.ctor.open%Map%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.neutral#  %    key%property.separator#: %%boolean.open%true%boolean.close%%property.after#,%
+%gutters.neutral#  %  %object.close#}%%mapEntry.separator# => %%object.ctor.open%Map%object.ctor.close% %object.open#{%
+%gutters.actualIsWrong#- %    %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.actualIsWrong#- %      key%property.separator#: %%boolean.open%true%boolean.close%%property.after#,%
+%gutters.actualIsWrong#- %    %object.close#}%%mapEntry.separator# => %%circular#[Circular]%%mapEntry.after#,%
+%gutters.wasExpected#+ %    %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.wasExpected#+ %      key%property.separator#: %%boolean.open%true%boolean.close%%property.after#,%
+%gutters.wasExpected#+ %    %object.close#}%%mapEntry.separator# => %%object.ctor.open%Map%object.ctor.close% %object.open#{%
+%gutters.wasExpected#+ %      %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.wasExpected#+ %        key%property.separator#: %%boolean.open%true%boolean.close%%property.after#,%
+%gutters.wasExpected#+ %      %object.close#}%%mapEntry.separator# => %%circular#[Circular]%%mapEntry.after#,%
+%gutters.wasExpected#+ %    %object.close#}%%mapEntry.after#,%
+%gutters.neutral#  %  %object.close#}%%mapEntry.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`diffs diverging complex types 1`] = `
-"- Object {
--   foo: 'bar',
-- }
-+ Array [
-+   'baz',
-+ ]"
+"%gutters.actualIsWrong#- %%object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.actualIsWrong#- %  foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%gutters.actualIsWrong#- %%object.close#}%
+%gutters.wasExpected#+ %%object.ctor.open%Array%object.ctor.close% %list.open#[%
+%gutters.wasExpected#+ %  %string.line.open#'%%string.open%baz%string.close%%string.line.close#'%%item.after#,%
+%gutters.wasExpected#+ %%list.close#]%"
 `;
 
+exports[`diffs errors 1`] = `
+"%gutters.actualIsWrong#- %%error.name.open%Error%error.name.close% %error.ctor.open#(%Custom%error.ctor.close#)% %object.open#{%
+%gutters.actualIsWrong#- %  message%property.separator#: %%string.line.open#'%%string.open%%string.close%%string.line.close#'%%property.after#,%
+%gutters.actualIsWrong#- %%object.close#}%
+%gutters.wasExpected#+ %%error.name.open%Error%error.name.close% %object.open#{%
+%gutters.wasExpected#+ %  message%property.separator#: %%string.line.open#'%%string.open%%string.close%%string.line.close#'%%property.after#,%
+%gutters.wasExpected#+ %%object.close#}%"
+`;
+
+exports[`diffs functions 1`] = `
+"%gutters.actualIsWrong#- %%function.stringTag.open%Function%function.stringTag.close% %function.name.open%foo%function.name.close% %object.open#{%%object.close#}%
+%gutters.wasExpected#+ %%function.stringTag.open%Function%function.stringTag.close% %function.name.open%bar%function.name.close% %object.open#{%%object.close#}%"
+`;
+
+exports[`diffs globals 1`] = `"%gutters.neutral#  %%global.open%Global%global.close% %object.open#{%%object.close#}%"`;
+
 exports[`diffs map keys with different values 1`] = `
-"  Map {
--   'key' => Foo {
--     value: 42,
--   },
-+   'key' => Bar {
-+     value: 42,
-+   },
-  }"
+"%gutters.neutral#  %%object.ctor.open%Map%object.ctor.close% %object.open#{%
+%gutters.actualIsWrong#- %  %string.line.open#'%%string.open%key%string.close%%string.line.close#'%%mapEntry.separator# => %%object.ctor.open%Foo%object.ctor.close% %object.open#{%
+%gutters.actualIsWrong#- %    value%property.separator#: %%number.open%42%number.close%%property.after#,%
+%gutters.actualIsWrong#- %  %object.close#}%%mapEntry.after#,%
+%gutters.wasExpected#+ %  %string.line.open#'%%string.open%key%string.close%%string.line.close#'%%mapEntry.separator# => %%object.ctor.open%Bar%object.ctor.close% %object.open#{%
+%gutters.wasExpected#+ %    value%property.separator#: %%number.open%42%number.close%%property.after#,%
+%gutters.wasExpected#+ %  %object.close#}%%mapEntry.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`diffs map keys with different values 2`] = `
-"  Map {
--   'key' => Foo {
--     value: 42,
--   },
-+   'key' => 42,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Map%object.ctor.close% %object.open#{%
+%gutters.actualIsWrong#- %  %string.line.open#'%%string.open%key%string.close%%string.line.close#'%%mapEntry.separator# => %%object.ctor.open%Foo%object.ctor.close% %object.open#{%
+%gutters.actualIsWrong#- %    value%property.separator#: %%number.open%42%number.close%%property.after#,%
+%gutters.actualIsWrong#- %  %object.close#}%%mapEntry.after#,%
+%gutters.wasExpected#+ %  %string.line.open#'%%string.open%key%string.close%%string.line.close#'%%mapEntry.separator# => %%number.open%42%number.close%%mapEntry.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`diffs map keys with different values 3`] = `
-"  Map {
--   'key' => Foo {
--     value: 42,
--   },
-+   'key' => \`foo␊
-+   bar\`,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Map%object.ctor.close% %object.open#{%
+%gutters.actualIsWrong#- %  %string.line.open#'%%string.open%key%string.close%%string.line.close#'%%mapEntry.separator# => %%object.ctor.open%Foo%object.ctor.close% %object.open#{%
+%gutters.actualIsWrong#- %    value%property.separator#: %%number.open%42%number.close%%property.after#,%
+%gutters.actualIsWrong#- %  %object.close#}%%mapEntry.after#,%
+%gutters.wasExpected#+ %  %string.line.open#'%%string.open%key%string.close%%string.line.close#'%%mapEntry.separator# => %%string.multiline.open#\`%%string.open%foo%string.close%%string.controlPicture.open%␊%string.controlPicture.close%%string.open%
+%gutters.wasExpected#+ %  bar%string.close%%string.multiline.close#\`%%mapEntry.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`diffs map keys with different values 4`] = `
-"  Map {
--   \`key␊
--   line\` => Foo {
--     value: 42,
--   },
-+   \`key␊
-+   line\` => Bar {
-+     value: 42,
-+   },
-  }"
+"%gutters.neutral#  %%object.ctor.open%Map%object.ctor.close% %object.open#{%
+%gutters.actualIsWrong#- %  %string.multiline.open#\`%%string.open%key%string.close%%string.controlPicture.open%␊%string.controlPicture.close%%string.open%
+%gutters.actualIsWrong#- %  line%string.close%%string.multiline.close#\`%%mapEntry.separator# => %%object.ctor.open%Foo%object.ctor.close% %object.open#{%
+%gutters.actualIsWrong#- %    value%property.separator#: %%number.open%42%number.close%%property.after#,%
+%gutters.actualIsWrong#- %  %object.close#}%%mapEntry.after#,%
+%gutters.wasExpected#+ %  %string.multiline.open#\`%%string.open%key%string.close%%string.controlPicture.open%␊%string.controlPicture.close%%string.open%
+%gutters.wasExpected#+ %  line%string.close%%string.multiline.close#\`%%mapEntry.separator# => %%object.ctor.open%Bar%object.ctor.close% %object.open#{%
+%gutters.wasExpected#+ %    value%property.separator#: %%number.open%42%number.close%%property.after#,%
+%gutters.wasExpected#+ %  %object.close#}%%mapEntry.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`diffs maps 1`] = `
-"  Map {
-    1 => 1,
--   2 => 2,
-+   3 => 3,
-    4 => 4,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Map%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  %number.open%1%number.close%%mapEntry.separator# => %%number.open%1%number.close%%mapEntry.after#,%
+%gutters.actualIsWrong#- %  %number.open%2%number.close%%mapEntry.separator# => %%number.open%2%number.close%%mapEntry.after#,%
+%gutters.wasExpected#+ %  %number.open%3%number.close%%mapEntry.separator# => %%number.open%3%number.close%%mapEntry.after#,%
+%gutters.neutral#  %  %number.open%4%number.close%%mapEntry.separator# => %%number.open%4%number.close%%mapEntry.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`diffs maps 2`] = `
-"  Map {
-    1 => 1,
-    Object {
--     foo: 'bar',
-+     baz: 'qux',
-    } => 2,
-    4 => 4,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Map%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  %number.open%1%number.close%%mapEntry.separator# => %%number.open%1%number.close%%mapEntry.after#,%
+%gutters.neutral#  %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.actualIsExtraneous#- %    foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%gutters.expectedIsMissing#+ %    baz%property.separator#: %%string.line.open#'%%string.open%qux%string.close%%string.line.close#'%%property.after#,%
+%gutters.neutral#  %  %object.close#}%%mapEntry.separator# => %%number.open%2%number.close%%mapEntry.after#,%
+%gutters.neutral#  %  %number.open%4%number.close%%mapEntry.separator# => %%number.open%4%number.close%%mapEntry.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`diffs maps 3`] = `
-"  Map {
-    1 => 1,
--   Object {
--     foo: 'bar',
--   } => 2,
-+   Object {
-+     baz: 'qux',
-+   } => 3,
-    4 => 4,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Map%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  %number.open%1%number.close%%mapEntry.separator# => %%number.open%1%number.close%%mapEntry.after#,%
+%gutters.actualIsWrong#- %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.actualIsWrong#- %    foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%gutters.actualIsWrong#- %  %object.close#}%%mapEntry.separator# => %%number.open%2%number.close%%mapEntry.after#,%
+%gutters.wasExpected#+ %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.wasExpected#+ %    baz%property.separator#: %%string.line.open#'%%string.open%qux%string.close%%string.line.close#'%%property.after#,%
+%gutters.wasExpected#+ %  %object.close#}%%mapEntry.separator# => %%number.open%3%number.close%%mapEntry.after#,%
+%gutters.neutral#  %  %number.open%4%number.close%%mapEntry.separator# => %%number.open%4%number.close%%mapEntry.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`diffs maps with extra properties 1`] = `
-"  Map {
-+   baz: 'qux',
-    ---
-    'foo' => 'bar',
-  }"
+"%gutters.neutral#  %%object.ctor.open%Map%object.ctor.close% %object.open#{%
+%gutters.expectedIsMissing#+ %  baz%property.separator#: %%string.line.open#'%%string.open%qux%string.close%%string.line.close#'%%property.after#,%
+%gutters.neutral#  %  %stats.separator#---%
+%gutters.neutral#  %  %string.line.open#'%%string.open%foo%string.close%%string.line.close#'%%mapEntry.separator# => %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%mapEntry.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`diffs maps with extra properties 2`] = `
-"  Map {
--   baz: 'qux',
-    ---
-    'foo' => 'bar',
-  }"
+"%gutters.neutral#  %%object.ctor.open%Map%object.ctor.close% %object.open#{%
+%gutters.actualIsExtraneous#- %  baz%property.separator#: %%string.line.open#'%%string.open%qux%string.close%%string.line.close#'%%property.after#,%
+%gutters.neutral#  %  %stats.separator#---%
+%gutters.neutral#  %  %string.line.open#'%%string.open%foo%string.close%%string.line.close#'%%mapEntry.separator# => %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%mapEntry.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`diffs multiline string values in arrays 1`] = `
-"  Array [
--   \`foo␊
-+   \`baz␊
-    bar\`,
-  ]"
+"%gutters.neutral#  %%object.ctor.open%Array%object.ctor.close% %list.open#[%
+%gutters.actualIsWrong#- %  %string.multiline.open#\`%%string.diff.deleteLine.open%foo%string.controlPicture.open%␊%string.controlPicture.close%%string.diff.deleteLine.close%
+%gutters.wasExpected#+ %  %string.multiline.open#\`%%string.diff.insertLine.open%baz%string.controlPicture.open%␊%string.controlPicture.close%%string.diff.insertLine.close%
+%gutters.neutral#  %  %string.diff.equal.open%bar%string.diff.equal.close%%string.multiline.close#\`%%item.after#,%
+%gutters.neutral#  %%list.close#]%"
 `;
 
 exports[`diffs multiline string values in maps when key is primitive 1`] = `
-"  Map {
--   1 => \`foo␊
-+   1 => \`baz␊
-    bar\`,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Map%object.ctor.close% %object.open#{%
+%gutters.actualIsWrong#- %  %number.open%1%number.close%%mapEntry.separator# => %%string.multiline.open#\`%%string.diff.deleteLine.open%foo%string.controlPicture.open%␊%string.controlPicture.close%%string.diff.deleteLine.close%
+%gutters.wasExpected#+ %  %number.open%1%number.close%%mapEntry.separator# => %%string.multiline.open#\`%%string.diff.insertLine.open%baz%string.controlPicture.open%␊%string.controlPicture.close%%string.diff.insertLine.close%
+%gutters.neutral#  %  %string.diff.equal.open%bar%string.diff.equal.close%%string.multiline.close#\`%%mapEntry.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`diffs multiline string values in maps when key is primitive 2`] = `
-"  Map {
--   \`foo␊
--   bar\` => \`foo␊
-+   \`foo␊
-+   bar\` => \`baz␊
-    bar\`,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Map%object.ctor.close% %object.open#{%
+%gutters.actualIsWrong#- %  %string.multiline.open#\`%%string.open%foo%string.close%%string.controlPicture.open%␊%string.controlPicture.close%%string.open%
+%gutters.actualIsWrong#- %  bar%string.close%%string.multiline.close#\`%%mapEntry.separator# => %%string.multiline.open#\`%%string.diff.deleteLine.open%foo%string.controlPicture.open%␊%string.controlPicture.close%%string.diff.deleteLine.close%
+%gutters.wasExpected#+ %  %string.multiline.open#\`%%string.open%foo%string.close%%string.controlPicture.open%␊%string.controlPicture.close%%string.open%
+%gutters.wasExpected#+ %  bar%string.close%%string.multiline.close#\`%%mapEntry.separator# => %%string.multiline.open#\`%%string.diff.insertLine.open%baz%string.controlPicture.open%␊%string.controlPicture.close%%string.diff.insertLine.close%
+%gutters.neutral#  %  %string.diff.equal.open%bar%string.diff.equal.close%%string.multiline.close#\`%%mapEntry.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`diffs multiline string values in maps when key is primitive 3`] = `
-"  Map {
-    'foo' => \`bar␊
--   baz␊
--   qux\`,
-+   qux␊
-+   baz\`,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Map%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  %string.line.open#'%%string.open%foo%string.close%%string.line.close#'%%mapEntry.separator# => %%string.multiline.open#\`%%string.diff.equal.open%bar%string.diff.equal.close%%string.controlPicture.open%␊%string.controlPicture.close%%string.diff.equal.open%%string.diff.equal.close%
+%gutters.actualIsWrong#- %  %string.diff.deleteLine.open%baz%string.controlPicture.open%␊%string.controlPicture.close%%string.diff.deleteLine.close%
+%gutters.actualIsWrong#- %  %string.diff.deleteLine.open%qux%string.diff.deleteLine.close%%string.multiline.close#\`%%mapEntry.after#,%
+%gutters.wasExpected#+ %  %string.diff.insertLine.open%qux%string.controlPicture.open%␊%string.controlPicture.close%%string.diff.insertLine.close%
+%gutters.wasExpected#+ %  %string.diff.insertLine.open%baz%string.diff.insertLine.close%%string.multiline.close#\`%%mapEntry.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`diffs multiline string values in objects 1`] = `
-"  Object {
--   foo: \`bar␊
-+   foo: \`qux␊
-    baz\`,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.actualIsWrong#- %  foo%property.separator#: %%string.multiline.open#\`%%string.diff.deleteLine.open%bar%string.controlPicture.open%␊%string.controlPicture.close%%string.diff.deleteLine.close%
+%gutters.wasExpected#+ %  foo%property.separator#: %%string.multiline.open#\`%%string.diff.insertLine.open%qux%string.controlPicture.open%␊%string.controlPicture.close%%string.diff.insertLine.close%
+%gutters.neutral#  %  %string.diff.equal.open%baz%string.diff.equal.close%%string.multiline.close#\`%%property.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`diffs multiline string values in objects 2`] = `
-"  Object {
-    foo: \`bar␊
--   baz␊
--   qux\`,
-+   qux␊
-+   baz\`,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  foo%property.separator#: %%string.multiline.open#\`%%string.diff.equal.open%bar%string.diff.equal.close%%string.controlPicture.open%␊%string.controlPicture.close%%string.diff.equal.open%%string.diff.equal.close%
+%gutters.actualIsWrong#- %  %string.diff.deleteLine.open%baz%string.controlPicture.open%␊%string.controlPicture.close%%string.diff.deleteLine.close%
+%gutters.actualIsWrong#- %  %string.diff.deleteLine.open%qux%string.diff.deleteLine.close%%string.multiline.close#\`%%property.after#,%
+%gutters.wasExpected#+ %  %string.diff.insertLine.open%qux%string.controlPicture.open%␊%string.controlPicture.close%%string.diff.insertLine.close%
+%gutters.wasExpected#+ %  %string.diff.insertLine.open%baz%string.diff.insertLine.close%%string.multiline.close#\`%%property.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`diffs multiline string values in objects 3`] = `
-"  Object {
--   [Symbol(s1)]: \`bar␊
-+   [Symbol(s1)]: \`qux␊
-    baz\`,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.actualIsWrong#- %  %property.keyBracket.open#[%%symbol.open%Symbol(s1)%symbol.close%%property.keyBracket.close#]%%property.separator#: %%string.multiline.open#\`%%string.diff.deleteLine.open%bar%string.controlPicture.open%␊%string.controlPicture.close%%string.diff.deleteLine.close%
+%gutters.wasExpected#+ %  %property.keyBracket.open#[%%symbol.open%Symbol(s1)%symbol.close%%property.keyBracket.close#]%%property.separator#: %%string.multiline.open#\`%%string.diff.insertLine.open%qux%string.controlPicture.open%␊%string.controlPicture.close%%string.diff.insertLine.close%
+%gutters.neutral#  %  %string.diff.equal.open%baz%string.diff.equal.close%%string.multiline.close#\`%%property.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`diffs multiline string values in sets 1`] = `
-"  Set {
--   \`foo␊
-+   \`baz␊
-    bar\`,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Set%object.ctor.close% %object.open#{%
+%gutters.actualIsWrong#- %  %string.multiline.open#\`%%string.diff.deleteLine.open%foo%string.controlPicture.open%␊%string.controlPicture.close%%string.diff.deleteLine.close%
+%gutters.wasExpected#+ %  %string.multiline.open#\`%%string.diff.insertLine.open%baz%string.controlPicture.open%␊%string.controlPicture.close%%string.diff.insertLine.close%
+%gutters.neutral#  %  %string.diff.equal.open%bar%string.diff.equal.close%%string.multiline.close#\`%%item.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`diffs multiline strings 1`] = `
-"- \`foo␊
-+ \`baz␊
-  bar\`"
+"%gutters.actualIsWrong#- %%string.multiline.open#\`%%string.diff.deleteLine.open%foo%string.controlPicture.open%␊%string.controlPicture.close%%string.diff.deleteLine.close%
+%gutters.wasExpected#+ %%string.multiline.open#\`%%string.diff.insertLine.open%baz%string.controlPicture.open%␊%string.controlPicture.close%%string.diff.insertLine.close%
+%gutters.neutral#  %%string.diff.equal.open%bar%string.diff.equal.close%%string.multiline.close#\`%"
 `;
 
 exports[`diffs multiline strings 2`] = `
-"  \`foo␊
-- ba%string.diff.insert.open%r%string.diff.insert.close%\`
-+ ba%string.diff.insert.open%z%string.diff.insert.close%\`"
+"%gutters.neutral#  %%string.multiline.open#\`%%string.diff.equal.open%foo%string.diff.equal.close%%string.controlPicture.open%␊%string.controlPicture.close%%string.diff.equal.open%%string.diff.equal.close%
+%gutters.actualIsWrong#- %%string.diff.equal.open%ba%string.diff.equal.close%%string.diff.delete.open%r%string.diff.delete.close%%string.multiline.close#\`%
+%gutters.wasExpected#+ %%string.diff.equal.open%ba%string.diff.equal.close%%string.diff.insert.open%z%string.diff.insert.close%%string.multiline.close#\`%"
 `;
 
 exports[`diffs multiline strings 3`] = `
-"  \`foo␊
-- bar␊
-  baz\`"
+"%gutters.neutral#  %%string.multiline.open#\`%%string.diff.equal.open%foo%string.diff.equal.close%%string.controlPicture.open%␊%string.controlPicture.close%%string.diff.equal.open%%string.diff.equal.close%
+%gutters.actualIsExtraneous#- %%string.diff.deleteLine.open%bar␊%string.diff.deleteLine.close%
+%gutters.neutral#  %%string.diff.equal.open%baz%string.diff.equal.close%%string.multiline.close#\`%"
 `;
 
 exports[`diffs multiline strings 4`] = `
-"  \`foo␊
-+ bar␊
-  baz\`"
+"%gutters.neutral#  %%string.multiline.open#\`%%string.diff.equal.open%foo%string.diff.equal.close%%string.controlPicture.open%␊%string.controlPicture.close%%string.diff.equal.open%%string.diff.equal.close%
+%gutters.expectedIsMissing#+ %%string.diff.insertLine.open%bar␊%string.diff.insertLine.close%
+%gutters.neutral#  %%string.diff.equal.open%baz%string.diff.equal.close%%string.multiline.close#\`%"
 `;
 
 exports[`diffs multiline strings 5`] = `
-"  \`foo␊
-- \`
-+ %string.diff.insert.open%baz%string.diff.insert.close%\`"
+"%gutters.neutral#  %%string.multiline.open#\`%%string.diff.equal.open%foo%string.diff.equal.close%%string.controlPicture.open%␊%string.controlPicture.close%%string.diff.equal.open%%string.diff.equal.close%
+%gutters.actualIsWrong#- %%string.multiline.close#\`%
+%gutters.wasExpected#+ %%string.diff.insert.open%baz%string.diff.insert.close%%string.multiline.close#\`%"
 `;
 
 exports[`diffs multiline strings 6`] = `
-"  \`foo␊
-- %string.diff.insert.open%baz%string.diff.insert.close%\`
-+ \`"
+"%gutters.neutral#  %%string.multiline.open#\`%%string.diff.equal.open%foo%string.diff.equal.close%%string.controlPicture.open%␊%string.controlPicture.close%%string.diff.equal.open%%string.diff.equal.close%
+%gutters.actualIsWrong#- %%string.diff.delete.open%baz%string.diff.delete.close%%string.multiline.close#\`%
+%gutters.wasExpected#+ %%string.multiline.close#\`%"
 `;
 
 exports[`diffs multiline strings 7`] = `
-"  \`foo␊
-- bar␊
-- %string.diff.insert.open%baz%string.diff.insert.close%\`
-+ \`"
+"%gutters.neutral#  %%string.multiline.open#\`%%string.diff.equal.open%foo%string.diff.equal.close%%string.controlPicture.open%␊%string.controlPicture.close%%string.diff.equal.open%%string.diff.equal.close%
+%gutters.actualIsExtraneous#- %%string.diff.deleteLine.open%bar␊%string.diff.deleteLine.close%
+%gutters.actualIsWrong#- %%string.diff.delete.open%baz%string.diff.delete.close%%string.multiline.close#\`%
+%gutters.wasExpected#+ %%string.multiline.close#\`%"
 `;
 
 exports[`diffs multiline strings 8`] = `
-"- \`%string.diff.insert.open%fo%string.diff.insert.close%o␊
-- %string.diff.insert.open%b%string.diff.insert.close%a%string.diff.insert.open%r%string.diff.insert.close%␊
-+ \`%string.diff.insert.open%c%string.diff.insert.close%o%string.diff.insert.open%rge%string.diff.insert.close%␊
-+ %string.diff.insert.open%gr%string.diff.insert.close%a%string.diff.insert.open%ult%string.diff.insert.close%␊
-  baz␊
-- qux␊
-+ garply␊
-  quux\`"
+"%gutters.actualIsWrong#- %%string.multiline.open#\`%%string.diff.delete.open%fo%string.diff.delete.close%%string.diff.equal.open%o%string.diff.equal.close%%string.diff.equal.open%%string.diff.equal.close%%string.controlPicture.open%␊%string.controlPicture.close%%string.diff.equal.open%%string.diff.equal.close%
+%gutters.actualIsWrong#- %%string.diff.delete.open%b%string.diff.delete.close%%string.diff.equal.open%a%string.diff.equal.close%%string.diff.delete.open%r%string.diff.delete.close%%string.diff.equal.open%%string.diff.equal.close%%string.controlPicture.open%␊%string.controlPicture.close%%string.diff.equal.open%%string.diff.equal.close%
+%gutters.wasExpected#+ %%string.multiline.open#\`%%string.diff.insert.open%c%string.diff.insert.close%%string.diff.equal.open%o%string.diff.equal.close%%string.diff.insert.open%rge%string.diff.insert.close%%string.diff.equal.open%%string.diff.equal.close%%string.controlPicture.open%␊%string.controlPicture.close%%string.diff.equal.open%%string.diff.equal.close%
+%gutters.wasExpected#+ %%string.diff.insert.open%gr%string.diff.insert.close%%string.diff.equal.open%a%string.diff.equal.close%%string.diff.insert.open%ult%string.diff.insert.close%%string.diff.equal.open%%string.diff.equal.close%%string.controlPicture.open%␊%string.controlPicture.close%%string.diff.equal.open%%string.diff.equal.close%
+%gutters.neutral#  %%string.diff.equal.open%baz%string.diff.equal.close%%string.controlPicture.open%␊%string.controlPicture.close%%string.diff.equal.open%%string.diff.equal.close%
+%gutters.actualIsWrong#- %%string.diff.deleteLine.open%qux%string.controlPicture.open%␊%string.controlPicture.close%%string.diff.deleteLine.close%
+%gutters.wasExpected#+ %%string.diff.insertLine.open%garply%string.controlPicture.open%␊%string.controlPicture.close%%string.diff.insertLine.close%
+%gutters.neutral#  %%string.diff.equal.open%quux%string.diff.equal.close%%string.multiline.close#\`%"
+`;
+
+exports[`diffs objects without constructor 1`] = `
+"%gutters.actualIsWrong#- %%object.stringTag.open#@%Object%object.stringTag.close% %object.open#{%%object.close#}%
+%gutters.wasExpected#+ %%object.ctor.open%Object%object.ctor.close% %object.open#{%%object.close#}%"
 `;
 
 exports[`diffs primitives: Symbol() versus Symbol() 1`] = `
-"- Symbol()
-+ Symbol()"
+"%gutters.actualIsWrong#- %%symbol.open%Symbol()%symbol.close%
+%gutters.wasExpected#+ %%symbol.open%Symbol()%symbol.close%"
 `;
 
 exports[`diffs primitives: null versus  1`] = `
-"- null
-+ ''"
+"%gutters.actualIsWrong#- %%null.open%null%null.close%
+%gutters.wasExpected#+ %%string.line.open#'%%string.open%%string.close%%string.line.close#'%"
 `;
 
 exports[`diffs primitives: null versus [object Object] 1`] = `
-"- null
-+ Object {}"
+"%gutters.actualIsWrong#- %%null.open%null%null.close%
+%gutters.wasExpected#+ %%object.ctor.open%Object%object.ctor.close% %object.open#{%%object.close#}%"
 `;
 
 exports[`diffs primitives: null versus 42 1`] = `
-"- null
-+ 42"
+"%gutters.actualIsWrong#- %%null.open%null%null.close%
+%gutters.wasExpected#+ %%number.open%42%number.close%"
 `;
 
 exports[`diffs primitives: null versus Symbol() 1`] = `
-"- null
-+ Symbol()"
+"%gutters.actualIsWrong#- %%null.open%null%null.close%
+%gutters.wasExpected#+ %%symbol.open%Symbol()%symbol.close%"
 `;
 
 exports[`diffs primitives: null versus false 1`] = `
-"- null
-+ false"
+"%gutters.actualIsWrong#- %%null.open%null%null.close%
+%gutters.wasExpected#+ %%boolean.open%false%boolean.close%"
 `;
 
 exports[`diffs primitives: null versus true 1`] = `
-"- null
-+ true"
+"%gutters.actualIsWrong#- %%null.open%null%null.close%
+%gutters.wasExpected#+ %%boolean.open%true%boolean.close%"
 `;
 
 exports[`diffs primitives: null versus undefined 1`] = `
-"- null
-+ undefined"
+"%gutters.actualIsWrong#- %%null.open%null%null.close%
+%gutters.wasExpected#+ %%undefined.open%undefined%undefined.close%"
 `;
 
 exports[`diffs properties with different values 1`] = `
-"  Object {
--   value: Foo {
--     value: 42,
--   },
-+   value: Bar {
-+     value: 42,
-+   },
-  }"
+"%gutters.neutral#  %%object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.actualIsWrong#- %  value%property.separator#: %%object.ctor.open%Foo%object.ctor.close% %object.open#{%
+%gutters.actualIsWrong#- %    value%property.separator#: %%number.open%42%number.close%%property.after#,%
+%gutters.actualIsWrong#- %  %object.close#}%%property.after#,%
+%gutters.wasExpected#+ %  value%property.separator#: %%object.ctor.open%Bar%object.ctor.close% %object.open#{%
+%gutters.wasExpected#+ %    value%property.separator#: %%number.open%42%number.close%%property.after#,%
+%gutters.wasExpected#+ %  %object.close#}%%property.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`diffs properties with different values 2`] = `
-"  Object {
--   value: Foo {
--     value: 42,
--   },
-+   value: 42,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.actualIsWrong#- %  value%property.separator#: %%object.ctor.open%Foo%object.ctor.close% %object.open#{%
+%gutters.actualIsWrong#- %    value%property.separator#: %%number.open%42%number.close%%property.after#,%
+%gutters.actualIsWrong#- %  %object.close#}%%property.after#,%
+%gutters.wasExpected#+ %  value%property.separator#: %%number.open%42%number.close%%property.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`diffs properties with different values 3`] = `
-"  Object {
--   value: Foo {
--     value: 42,
--   },
-+   value: \`foo␊
-+   bar\`,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.actualIsWrong#- %  value%property.separator#: %%object.ctor.open%Foo%object.ctor.close% %object.open#{%
+%gutters.actualIsWrong#- %    value%property.separator#: %%number.open%42%number.close%%property.after#,%
+%gutters.actualIsWrong#- %  %object.close#}%%property.after#,%
+%gutters.wasExpected#+ %  value%property.separator#: %%string.multiline.open#\`%%string.open%foo%string.close%%string.controlPicture.open%␊%string.controlPicture.close%%string.open%
+%gutters.wasExpected#+ %  bar%string.close%%string.multiline.close#\`%%property.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`diffs properties with different values 4`] = `
-"  Object {
--   foo: 'bar',
-+   foo: '%string.diff.insert.open%not %string.diff.insert.close%bar',
-  }"
+"%gutters.neutral#  %%object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.actualIsWrong#- %  foo%property.separator#: %%string.line.open#'%%string.diff.equal.open%bar%string.diff.equal.close%%string.line.close#'%%property.after#,%
+%gutters.wasExpected#+ %  foo%property.separator#: %%string.line.open#'%%string.diff.insert.open%not %string.diff.insert.close%%string.diff.equal.open%bar%string.diff.equal.close%%string.line.close#'%%property.after#,%
+%gutters.neutral#  %%object.close#}%"
+`;
+
+exports[`diffs regexps 1`] = `
+"%gutters.actualIsWrong#- %%regexp.source.open#/%foo%regexp.source.close#/%%regexp.flags.open%%regexp.flags.close%
+%gutters.wasExpected#+ %%regexp.source.open#/%foo%regexp.source.close#/%%regexp.flags.open%g%regexp.flags.close%"
+`;
+
+exports[`diffs regexps 2`] = `
+"%gutters.neutral#  %%object.ctor.open%RegExp%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  %regexp.source.open#/%foo%regexp.source.close#/%%regexp.flags.open%%regexp.flags.close%
+%gutters.neutral#  %  %regexp.separator#---%
+%gutters.expectedIsMissing#+ %  bar%property.separator#: %%string.line.open#'%%string.open%baz%string.close%%string.line.close#'%%property.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`diffs sets 1`] = `
-"  Set {
-    1,
--   2,
-+   3,
-    4,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Set%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  %number.open%1%number.close%%item.after#,%
+%gutters.actualIsExtraneous#- %  %number.open%2%number.close%%item.after#,%
+%gutters.expectedIsMissing#+ %  %number.open%3%number.close%%item.after#,%
+%gutters.neutral#  %  %number.open%4%number.close%%item.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`diffs sets 2`] = `
-"  Set {
-    1,
-    Object {
--     foo: 'bar',
-+     baz: 'qux',
-    },
-    2,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Set%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  %number.open%1%number.close%%item.after#,%
+%gutters.neutral#  %  %object.ctor.open%Object%object.ctor.close% %object.open#{%
+%gutters.actualIsExtraneous#- %    foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
+%gutters.expectedIsMissing#+ %    baz%property.separator#: %%string.line.open#'%%string.open%qux%string.close%%string.line.close#'%%property.after#,%
+%gutters.neutral#  %  %object.close#}%%item.after#,%
+%gutters.neutral#  %  %number.open%2%number.close%%item.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;
 
 exports[`diffs single line strings 1`] = `
-"- 'foo'
-+ 'bar'"
+"%gutters.actualIsWrong#- %%string.line.open#'%%string.diff.deleteLine.open%foo%string.diff.deleteLine.close%%string.line.close#'%
+%gutters.wasExpected#+ %%string.line.open#'%%string.diff.insertLine.open%bar%string.diff.insertLine.close%%string.line.close#'%"
 `;
 
 exports[`diffs single line strings 2`] = `
-"- 'ba%string.diff.insert.open%r%string.diff.insert.close%'
-+ 'ba%string.diff.insert.open%z%string.diff.insert.close%'"
+"%gutters.actualIsWrong#- %%string.line.open#'%%string.diff.equal.open%ba%string.diff.equal.close%%string.diff.delete.open%r%string.diff.delete.close%%string.line.close#'%
+%gutters.wasExpected#+ %%string.line.open#'%%string.diff.equal.open%ba%string.diff.equal.close%%string.diff.insert.open%z%string.diff.insert.close%%string.line.close#'%"
 `;
 
 exports[`diffs wrapped primitives: -42 versus 42 1`] = `
-"- Number {
--   -42
-- }
-+ Number {
-+   42
-+ }"
+"%gutters.actualIsWrong#- %%object.ctor.open%Number%object.ctor.close% %object.open#{%
+%gutters.actualIsWrong#- %  %number.open%-42%number.close%
+%gutters.actualIsWrong#- %%object.close#}%
+%gutters.wasExpected#+ %%object.ctor.open%Number%object.ctor.close% %object.open#{%
+%gutters.wasExpected#+ %  %number.open%42%number.close%
+%gutters.wasExpected#+ %%object.close#}%"
 `;
 
 exports[`diffs wrapped primitives: true versus false 1`] = `
-"- Boolean {
--   true
-- }
-+ Boolean {
-+   false
-+ }"
+"%gutters.actualIsWrong#- %%object.ctor.open%Boolean%object.ctor.close% %object.open#{%
+%gutters.actualIsWrong#- %  %boolean.open%true%boolean.close%
+%gutters.actualIsWrong#- %%object.close#}%
+%gutters.wasExpected#+ %%object.ctor.open%Boolean%object.ctor.close% %object.open#{%
+%gutters.wasExpected#+ %  %boolean.open%false%boolean.close%
+%gutters.wasExpected#+ %%object.close#}%"
 `;
 
 exports[`does not diff multiline string values in maps when key is complex 1`] = `
-"  Map {
--   Object {} => \`foo␊
--   bar\`,
-+   Object {} => \`baz␊
-+   bar\`,
-  }"
+"%gutters.neutral#  %%object.ctor.open%Map%object.ctor.close% %object.open#{%
+%gutters.actualIsWrong#- %  %object.ctor.open%Object%object.ctor.close% %object.open#{%%object.close#}%%mapEntry.separator# => %%string.multiline.open#\`%%string.open%foo%string.close%%string.controlPicture.open%␊%string.controlPicture.close%%string.open%
+%gutters.actualIsWrong#- %  bar%string.close%%string.multiline.close#\`%%mapEntry.after#,%
+%gutters.wasExpected#+ %  %object.ctor.open%Object%object.ctor.close% %object.open#{%%object.close#}%%mapEntry.separator# => %%string.multiline.open#\`%%string.open%baz%string.close%%string.controlPicture.open%␊%string.controlPicture.close%%string.open%
+%gutters.wasExpected#+ %  bar%string.close%%string.multiline.close#\`%%mapEntry.after#,%
+%gutters.neutral#  %%object.close#}%"
 `;

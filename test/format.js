@@ -1,7 +1,30 @@
 import test from 'ava'
 
-import {format} from '../lib/format'
+import {format as _format} from '../lib/format'
 import getStringTag from '../lib/getStringTag'
+import theme, {normalizedTheme, checkThemeUsage} from './_instrumentedTheme'
+
+const format = value => _format(value, {theme})
+test.after(checkThemeUsage)
+
+// "Use" diff themes
+void (
+  normalizedTheme.gutters.actualIsExtraneous,
+  normalizedTheme.gutters.actualIsWrong,
+  normalizedTheme.gutters.expectedIsMissing,
+  normalizedTheme.gutters.neutral,
+  normalizedTheme.gutters.wasExpected,
+  normalizedTheme.string.diff.insert.open,
+  normalizedTheme.string.diff.insert.close,
+  normalizedTheme.string.diff.delete.open,
+  normalizedTheme.string.diff.delete.close,
+  normalizedTheme.string.diff.equal.open,
+  normalizedTheme.string.diff.equal.close,
+  normalizedTheme.string.diff.insertLine.open,
+  normalizedTheme.string.diff.insertLine.close,
+  normalizedTheme.string.diff.deleteLine.open,
+  normalizedTheme.string.diff.deleteLine.close
+)
 
 {
   const formatsPrimitive = (t, value) => t.snapshot(format(value))
@@ -54,6 +77,10 @@ test('formats a simple, nested object', t => {
 test('formats multiline strings inside an object', t => {
   const actual = format({ 'foo\nbar': 'baz\nqux' })
   t.snapshot(actual)
+})
+
+test('formats symbol keys', t => {
+  t.snapshot(format({ [Symbol('')]: 'bar' }))
 })
 
 {
@@ -190,19 +217,21 @@ test('formats functions with additional properties', t => {
 
   test('formats anonymous generator functions', t => {
     const actual = format(function * () {})
-    t.is(actual, `${tag} {}`)
+    t.is(actual, `%function.stringTag.open%${tag}%function.stringTag.close% %object.open#{%%object.close#}%`)
   })
 
   test('formats named generator functions', t => {
     const actual = format(function * foo () {})
-    t.is(actual, `${tag} foo {}`)
+    // eslint-disable-next-line max-len
+    t.is(actual, `%function.stringTag.open%${tag}%function.stringTag.close% %function.name.open%foo%function.name.close% %object.open#{%%object.close#}%`)
   })
 
   test('formats generator functions with additional properties', t => {
     const actual = format(Object.assign(function * foo () {}, { bar: 'baz' }))
-    t.is(actual, `${tag} foo {
-  bar: 'baz',
-}`)
+    // eslint-disable-next-line max-len
+    t.is(actual, `%function.stringTag.open%${tag}%function.stringTag.close% %function.name.open%foo%function.name.close% %object.open#{%
+  bar%property.separator#: %%string.line.open#'%%string.open%baz%string.close%%string.line.close#'%%property.after#,%
+%object.close#}%`)
   })
 }
 
@@ -329,6 +358,12 @@ test('shows non-Object tag if constructor name is different', t => {
   class Quux extends Int16Array {}
   const actual5 = format(new Quux())
   t.snapshot(actual5)
+})
+
+test('shows string tag if object has no constructor', t => {
+  const obj = {}
+  Object.defineProperty(obj, 'constructor', {})
+  t.snapshot(format(obj))
 })
 
 test('formats global', t => {
