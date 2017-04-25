@@ -1,5 +1,26 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`escapes " according to theme 1`] = `"<\\\\\\">"`;
+
+exports[`escapes " according to theme 2`] = `
+"<\\\\\\"␊
+>"
+`;
+
+exports[`escapes ' according to theme 1`] = `"<\\\\'>"`;
+
+exports[`escapes ' according to theme 2`] = `
+"<\\\\'␊
+>"
+`;
+
+exports[`escapes \` according to theme 1`] = `"<\\\\\`>"`;
+
+exports[`escapes \` according to theme 2`] = `
+"<\\\\\`␊
+>"
+`;
+
 exports[`formats ArrayBuffer 1`] = `
 "%object.ctor.open%ArrayBuffer%object.ctor.close% %list.open#[%
   %typedArray.bytes.open%decafbad decafbad decafbad decafbad decafbad decafbad decafbad decafbad
@@ -354,7 +375,7 @@ exports[`formats pointers 1`] = `
 
 exports[`formats primitive:  1`] = `"%string.line.open#'%%string.open%%string.close%%string.line.close#'%"`;
 
-exports[`formats primitive: \\ -- ' -- " 1`] = `"%string.line.open#'%%string.open%\\\\\\\\ -- ' -- \\\\%string.line.escapeQuote#'%%string.close%%string.line.close#'%"`;
+exports[`formats primitive: \\ -- ' -- " 1`] = `"%string.line.open#'%%string.open%\\\\\\\\ -- ' -- \\"%string.close%%string.line.close#'%"`;
 
 exports[`formats primitive: -42 1`] = `"%number.open%-42%number.close%"`;
 

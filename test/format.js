@@ -62,6 +62,23 @@ void (
   }
 }
 
+{
+  const escapesQuote = (t, escapeQuote) => {
+    const testTheme = {
+      string: {
+        line: { open: '<', close: '>', escapeQuote },
+        multiline: { open: '<', close: '>', escapeQuote }
+      }
+    }
+    t.snapshot(_format(escapeQuote, {theme: testTheme}))
+    t.snapshot(_format(escapeQuote + '\n', {theme: testTheme}))
+  }
+  escapesQuote.title = (_, quote) => `escapes ${quote} according to theme`
+  test(escapesQuote, "'")
+  test(escapesQuote, '"')
+  test(escapesQuote, '`')
+}
+
 test('formats a simple object', t => {
   const obj = { foo: 'bar', baz: 'qux' }
   const actual = format(obj)
