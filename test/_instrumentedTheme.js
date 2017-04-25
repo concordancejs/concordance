@@ -1,6 +1,8 @@
 import {normalize} from '../lib/themeUtils'
 
 const unused = new Set()
+
+const freeze = Object.freeze
 const createAccessors = (object, path = '') => {
   for (const key of Object.keys(object)) {
     const value = object[key]
@@ -17,11 +19,15 @@ const createAccessors = (object, path = '') => {
       })
     }
   }
+  freeze.call(Object, object)
 }
 
 const theme = {} // normalize() caches the result, so this is just a cache key
+
+Object.freeze = obj => obj // Stub out so accessors can be created
 const normalized = normalize(theme)
 createAccessors(normalized)
+Object.freeze = freeze
 
 export default theme
 export {normalized as normalizedTheme}
