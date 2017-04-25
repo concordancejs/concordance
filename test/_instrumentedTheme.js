@@ -1,4 +1,4 @@
-import normalizeTheme from '../lib/normalizeTheme'
+import {normalize} from '../lib/themeUtils'
 
 const unused = new Set()
 const createAccessors = (object, path = '') => {
@@ -19,8 +19,8 @@ const createAccessors = (object, path = '') => {
   }
 }
 
-const theme = {} // normalizeTheme() caches the result, so this is just a cache key
-const normalized = normalizeTheme(theme)
+const theme = {} // normalize() caches the result, so this is just a cache key
+const normalized = normalize(theme)
 createAccessors(normalized)
 
 export default theme
