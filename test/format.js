@@ -101,8 +101,8 @@ test('formats symbol keys', t => {
 })
 
 {
-  const formatsWrappedPrimitive = (t, value) => t.snapshot(format(Object(value)))
-  formatsWrappedPrimitive.title = (_, value) => `formats wrapped primitive: ${String(value)}`
+  const formatsBoxedPrimitive = (t, value) => t.snapshot(format(Object(value)))
+  formatsBoxedPrimitive.title = (_, value) => `formats boxed primitive: ${String(value)}`
   for (const value of [
     false,
     true,
@@ -113,14 +113,15 @@ test('formats symbol keys', t => {
     +0,
     Infinity,
     -Infinity,
-    NaN
+    NaN,
+    'foo'
   ]) {
-    test(formatsWrappedPrimitive, value)
+    test(formatsBoxedPrimitive, value)
   }
 }
 
-test('formats wrapped strings as a list', t => {
-  t.snapshot(format(Object('foo')))
+test('formats boxed primitives with extra properties', t => {
+  t.snapshot(format(Object.assign(Object('foo'), {bar: 'baz'})))
 })
 
 test('formats a simple array', t => {

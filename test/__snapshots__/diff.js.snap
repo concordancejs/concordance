@@ -447,6 +447,35 @@ exports[`diffs arrays 2`] = `
 %gutters.neutral#  %%list.close#]%"
 `;
 
+exports[`diffs boxed primitives with extra properties 1`] = `
+"%gutters.neutral#  %%object.ctor.open%String%object.ctor.close% %object.open#{%
+%gutters.neutral#  %  %string.line.open#'%%string.open%foo%string.close%%string.line.close#'%
+%gutters.neutral#  %  %stats.separator#---%
+%gutters.expectedIsMissing#+ %  bar%property.separator#: %%string.line.open#'%%string.open%baz%string.close%%string.line.close#'%%property.after#,%
+%gutters.neutral#  %%object.close#}%"
+`;
+
+exports[`diffs boxed primitives: -42 versus 42 1`] = `
+"%gutters.neutral#  %%object.ctor.open%Number%object.ctor.close% %object.open#{%
+%gutters.actualIsWrong#- %  %number.open%-42%number.close%
+%gutters.wasExpected#+ %  %number.open%42%number.close%
+%gutters.neutral#  %%object.close#}%"
+`;
+
+exports[`diffs boxed primitives: foo versus bar 1`] = `
+"%gutters.neutral#  %%object.ctor.open%String%object.ctor.close% %object.open#{%
+%gutters.actualIsWrong#- %  %string.line.open#'%%string.diff.deleteLine.open%foo%string.diff.deleteLine.close%%string.line.close#'%
+%gutters.wasExpected#+ %  %string.line.open#'%%string.diff.insertLine.open%bar%string.diff.insertLine.close%%string.line.close#'%
+%gutters.neutral#  %%object.close#}%"
+`;
+
+exports[`diffs boxed primitives: true versus false 1`] = `
+"%gutters.neutral#  %%object.ctor.open%Boolean%object.ctor.close% %object.open#{%
+%gutters.actualIsWrong#- %  %boolean.open%true%boolean.close%
+%gutters.wasExpected#+ %  %boolean.open%false%boolean.close%
+%gutters.neutral#  %%object.close#}%"
+`;
+
 exports[`diffs buffers 1`] = `
 "%gutters.neutral#  %%object.ctor.open%Buffer%object.ctor.close% %object.secondaryStringTag.open#@%Uint8Array%object.secondaryStringTag.close% %list.open#[%
 %gutters.actualIsWrong#- %  %typedArray.bytes.open%decafbad%typedArray.bytes.close%
@@ -883,24 +912,6 @@ exports[`diffs single line strings 1`] = `
 exports[`diffs single line strings 2`] = `
 "%gutters.actualIsWrong#- %%string.line.open#'%%string.diff.equal.open%ba%string.diff.equal.close%%string.diff.delete.open%r%string.diff.delete.close%%string.line.close#'%
 %gutters.wasExpected#+ %%string.line.open#'%%string.diff.equal.open%ba%string.diff.equal.close%%string.diff.insert.open%z%string.diff.insert.close%%string.line.close#'%"
-`;
-
-exports[`diffs wrapped primitives: -42 versus 42 1`] = `
-"%gutters.actualIsWrong#- %%object.ctor.open%Number%object.ctor.close% %object.open#{%
-%gutters.actualIsWrong#- %  %number.open%-42%number.close%
-%gutters.actualIsWrong#- %%object.close#}%
-%gutters.wasExpected#+ %%object.ctor.open%Number%object.ctor.close% %object.open#{%
-%gutters.wasExpected#+ %  %number.open%42%number.close%
-%gutters.wasExpected#+ %%object.close#}%"
-`;
-
-exports[`diffs wrapped primitives: true versus false 1`] = `
-"%gutters.actualIsWrong#- %%object.ctor.open%Boolean%object.ctor.close% %object.open#{%
-%gutters.actualIsWrong#- %  %boolean.open%true%boolean.close%
-%gutters.actualIsWrong#- %%object.close#}%
-%gutters.wasExpected#+ %%object.ctor.open%Boolean%object.ctor.close% %object.open#{%
-%gutters.wasExpected#+ %  %boolean.open%false%boolean.close%
-%gutters.wasExpected#+ %%object.close#}%"
 `;
 
 exports[`does not diff multiline string values in maps when key is complex 1`] = `

@@ -277,6 +277,80 @@ exports[`formats arguments 1`] = `
 %list.close#]%"
 `;
 
+exports[`formats boxed primitive: -42 1`] = `
+"%object.ctor.open%Number%object.ctor.close% %object.open#{%
+  %number.open%-42%number.close%
+%object.close#}%"
+`;
+
+exports[`formats boxed primitive: -Infinity 1`] = `
+"%object.ctor.open%Number%object.ctor.close% %object.open#{%
+  %number.open%-Infinity%number.close%
+%object.close#}%"
+`;
+
+exports[`formats boxed primitive: 0 1`] = `
+"%object.ctor.open%Number%object.ctor.close% %object.open#{%
+  %number.open%0%number.close%
+%object.close#}%"
+`;
+
+exports[`formats boxed primitive: 0 2`] = `
+"%object.ctor.open%Number%object.ctor.close% %object.open#{%
+  %number.open%-0%number.close%
+%object.close#}%"
+`;
+
+exports[`formats boxed primitive: 0 3`] = `
+"%object.ctor.open%Number%object.ctor.close% %object.open#{%
+  %number.open%0%number.close%
+%object.close#}%"
+`;
+
+exports[`formats boxed primitive: 42 1`] = `
+"%object.ctor.open%Number%object.ctor.close% %object.open#{%
+  %number.open%42%number.close%
+%object.close#}%"
+`;
+
+exports[`formats boxed primitive: Infinity 1`] = `
+"%object.ctor.open%Number%object.ctor.close% %object.open#{%
+  %number.open%Infinity%number.close%
+%object.close#}%"
+`;
+
+exports[`formats boxed primitive: NaN 1`] = `
+"%object.ctor.open%Number%object.ctor.close% %object.open#{%
+  %number.open%NaN%number.close%
+%object.close#}%"
+`;
+
+exports[`formats boxed primitive: false 1`] = `
+"%object.ctor.open%Boolean%object.ctor.close% %object.open#{%
+  %boolean.open%false%boolean.close%
+%object.close#}%"
+`;
+
+exports[`formats boxed primitive: foo 1`] = `
+"%object.ctor.open%String%object.ctor.close% %object.open#{%
+  %string.line.open#'%%string.open%foo%string.close%%string.line.close#'%
+%object.close#}%"
+`;
+
+exports[`formats boxed primitive: true 1`] = `
+"%object.ctor.open%Boolean%object.ctor.close% %object.open#{%
+  %boolean.open%true%boolean.close%
+%object.close#}%"
+`;
+
+exports[`formats boxed primitives with extra properties 1`] = `
+"%object.ctor.open%String%object.ctor.close% %object.open#{%
+  %string.line.open#'%%string.open%foo%string.close%%string.line.close#'%
+  %stats.separator#---%
+  bar%property.separator#: %%string.line.open#'%%string.open%baz%string.close%%string.line.close#'%%property.after#,%
+%object.close#}%"
+`;
+
 exports[`formats circular references 1`] = `
 "%object.ctor.open%Object%object.ctor.close% %object.open#{%
   circular%property.separator#: %%circular#[Circular]%%property.after#,%
@@ -477,74 +551,6 @@ exports[`formats symbol keys 1`] = `
 "%object.ctor.open%Object%object.ctor.close% %object.open#{%
   %property.keyBracket.open#[%%symbol.open%Symbol()%symbol.close%%property.keyBracket.close#]%%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
 %object.close#}%"
-`;
-
-exports[`formats wrapped primitive: -42 1`] = `
-"%object.ctor.open%Number%object.ctor.close% %object.open#{%
-  %number.open%-42%number.close%
-%object.close#}%"
-`;
-
-exports[`formats wrapped primitive: -Infinity 1`] = `
-"%object.ctor.open%Number%object.ctor.close% %object.open#{%
-  %number.open%-Infinity%number.close%
-%object.close#}%"
-`;
-
-exports[`formats wrapped primitive: 0 1`] = `
-"%object.ctor.open%Number%object.ctor.close% %object.open#{%
-  %number.open%0%number.close%
-%object.close#}%"
-`;
-
-exports[`formats wrapped primitive: 0 2`] = `
-"%object.ctor.open%Number%object.ctor.close% %object.open#{%
-  %number.open%-0%number.close%
-%object.close#}%"
-`;
-
-exports[`formats wrapped primitive: 0 3`] = `
-"%object.ctor.open%Number%object.ctor.close% %object.open#{%
-  %number.open%0%number.close%
-%object.close#}%"
-`;
-
-exports[`formats wrapped primitive: 42 1`] = `
-"%object.ctor.open%Number%object.ctor.close% %object.open#{%
-  %number.open%42%number.close%
-%object.close#}%"
-`;
-
-exports[`formats wrapped primitive: Infinity 1`] = `
-"%object.ctor.open%Number%object.ctor.close% %object.open#{%
-  %number.open%Infinity%number.close%
-%object.close#}%"
-`;
-
-exports[`formats wrapped primitive: NaN 1`] = `
-"%object.ctor.open%Number%object.ctor.close% %object.open#{%
-  %number.open%NaN%number.close%
-%object.close#}%"
-`;
-
-exports[`formats wrapped primitive: false 1`] = `
-"%object.ctor.open%Boolean%object.ctor.close% %object.open#{%
-  %boolean.open%false%boolean.close%
-%object.close#}%"
-`;
-
-exports[`formats wrapped primitive: true 1`] = `
-"%object.ctor.open%Boolean%object.ctor.close% %object.open#{%
-  %boolean.open%true%boolean.close%
-%object.close#}%"
-`;
-
-exports[`formats wrapped strings as a list 1`] = `
-"%object.ctor.open%String%object.ctor.close% %list.open#[%
-  %string.line.open#'%%string.open%f%string.close%%string.line.close#'%%item.after#,%
-  %string.line.open#'%%string.open%o%string.close%%string.line.close#'%%item.after#,%
-  %string.line.open#'%%string.open%o%string.close%%string.line.close#'%%item.after#,%
-%list.close#]%"
 `;
 
 exports[`shows non-Object tag if constructor name is different 1`] = `"%object.ctor.open%Foo%object.ctor.close% %object.open#{%%object.close#}%"`;

@@ -25,15 +25,20 @@ test.after(checkThemeUsage)
 }
 
 {
-  const diffsWrappedPrimitives = (t, lhs, rhs) => t.snapshot(diff(Object(lhs), Object(rhs)))
-  diffsWrappedPrimitives.title = (_, lhs, rhs) => `diffs wrapped primitives: ${String(lhs)} versus ${String(rhs)}`
+  const diffsBoxedPrimitives = (t, lhs, rhs) => t.snapshot(diff(Object(lhs), Object(rhs)))
+  diffsBoxedPrimitives.title = (_, lhs, rhs) => `diffs boxed primitives: ${String(lhs)} versus ${String(rhs)}`
   for (const [lhs, rhs] of [
     [true, false],
-    [-42, 42]
+    [-42, 42],
+    ['foo', 'bar']
   ]) {
-    test(diffsWrappedPrimitives, lhs, rhs)
+    test(diffsBoxedPrimitives, lhs, rhs)
   }
 }
+
+test('diffs boxed primitives with extra properties', t => {
+  t.snapshot(diff(Object('foo'), Object.assign(Object('foo'), {bar: 'baz'})))
+})
 
 test('diffs single line strings', t => {
   const actual1 = diff('foo', 'bar')
