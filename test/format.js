@@ -9,11 +9,9 @@ test.after(checkThemeUsage)
 
 // "Use" diff themes
 void (
-  normalizedTheme.gutters.actualIsExtraneous,
-  normalizedTheme.gutters.actualIsWrong,
-  normalizedTheme.gutters.expectedIsMissing,
-  normalizedTheme.gutters.neutral,
-  normalizedTheme.gutters.wasExpected,
+  normalizedTheme.diffGutters.actual,
+  normalizedTheme.diffGutters.expected,
+  normalizedTheme.diffGutters.padding,
   normalizedTheme.string.diff.insert.open,
   normalizedTheme.string.diff.insert.close,
   normalizedTheme.string.diff.delete.open,
@@ -67,7 +65,7 @@ void (
     const testTheme = {
       string: {
         line: { open: '<', close: '>', escapeQuote },
-        multiline: { open: '<', close: '>', escapeQuote }
+        multiline: { start: '<', end: '>', escapeQuote }
       }
     }
     t.snapshot(_format(escapeQuote, {theme: testTheme}))
@@ -235,21 +233,21 @@ test('formats functions with additional properties', t => {
 
   test('formats anonymous generator functions', t => {
     const actual = format(function * () {})
-    t.is(actual, `%function.stringTag.open%${tag}%function.stringTag.close% %object.open#{%%object.close#}%`)
+    t.is(actual, `%function.stringTag.open%${tag}%function.stringTag.close% %object.openBracket#{%%object.closeBracket#}%`)
   })
 
   test('formats named generator functions', t => {
     const actual = format(function * foo () {})
     // eslint-disable-next-line max-len
-    t.is(actual, `%function.stringTag.open%${tag}%function.stringTag.close% %function.name.open%foo%function.name.close% %object.open#{%%object.close#}%`)
+    t.is(actual, `%function.stringTag.open%${tag}%function.stringTag.close% %function.name.open%foo%function.name.close% %object.openBracket#{%%object.closeBracket#}%`)
   })
 
   test('formats generator functions with additional properties', t => {
     const actual = format(Object.assign(function * foo () {}, { bar: 'baz' }))
     // eslint-disable-next-line max-len
-    t.is(actual, `%function.stringTag.open%${tag}%function.stringTag.close% %function.name.open%foo%function.name.close% %object.open#{%
+    t.is(actual, `%function.stringTag.open%${tag}%function.stringTag.close% %function.name.open%foo%function.name.close% %object.openBracket#{%
   bar%property.separator#: %%string.line.open#'%%string.open%baz%string.close%%string.line.close#'%%property.after#,%
-%object.close#}%`)
+%object.closeBracket#}%`)
   })
 }
 

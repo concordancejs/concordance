@@ -27,7 +27,6 @@
   },
   "homepage": "https://github.com/novemberborn/kathryn#readme",
   "dependencies": {
-    "es6-error": "^4.0.2",
     "esutils": "^2.0.2",
     "fast-diff": "^1.1.1",
     "lodash.clonedeep": "^4.5.0",
