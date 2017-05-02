@@ -7,9 +7,9 @@ const createAccessors = (object, path = '') => {
   for (const key of Object.keys(object)) {
     const value = object[key]
     const keyPath = path ? `${path}.${key}` : key
-    if (typeof value === 'object') {
+    if (value && typeof value === 'object') {
       createAccessors(value, keyPath)
-    } else {
+    } else if (typeof value === 'string') {
       unused.add(keyPath)
       Object.defineProperty(object, key, {
         get () {
