@@ -1,6 +1,6 @@
 {
   "name": "concordance",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Compare, format, diff and snapshot any JavaScript value",
   "main": "index.js",
   "files": [
