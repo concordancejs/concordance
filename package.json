@@ -1,5 +1,5 @@
 {
-  "name": "kathryn",
+  "name": "concordance",
   "version": "0.3.0",
   "description": "Compare, format, diff and snapshot any JavaScript value",
   "main": "index.js",
@@ -18,14 +18,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/novemberborn/kathryn.git"
+    "url": "git+https://github.com/concordancejs/concordance.git"
   },
   "author": "Mark Wubben (https://novemberborn.net/)",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/novemberborn/kathryn/issues"
+    "url": "https://github.com/concordancejs/concordance/issues"
   },
-  "homepage": "https://github.com/novemberborn/kathryn#readme",
+  "homepage": "https://github.com/concordancejs/concordance#readme",
   "dependencies": {
     "esutils": "^2.0.2",
     "fast-diff": "^1.1.1",
