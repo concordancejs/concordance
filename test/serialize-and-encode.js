@@ -1,6 +1,6 @@
 import test from 'ava'
 
-import {compareDescriptors, describe, formatDescriptor} from '..'
+import {compareDescriptors, describe, diffDescriptors, formatDescriptor} from '..'
 import {deserialize, serialize} from '../lib/serialize'
 
 test('serializes a descriptor into a buffer', t => {
@@ -8,9 +8,8 @@ test('serializes a descriptor into a buffer', t => {
   t.true(Buffer.isBuffer(result))
 })
 
-const useDeserialized = (t, value, expected) => {
+const useDeserialized = (t, value) => {
   const original = describe(value)
-  expected = expected ? describe(expected) : original
 
   const buffer = serialize(original)
   const deserialized = deserialize(buffer)
@@ -77,9 +76,19 @@ test('object with complex property', useDeserialized, {foo: {}})
 test('object with well known symbol key', useDeserialized, {[Symbol.unscopables]: 'bar'})
 test('object with registered symbol key', useDeserialized, {[Symbol.for('foo')]: 'bar'})
 test('object with arbitrary symbol key', useDeserialized, {[Symbol('foo')]: 'bar'})
-test('object with differently ordered symbol keys', useDeserialized,
-  {[Symbol('foo')]: 'bar', [Symbol.for('foo')]: 'baz'},
-  {[Symbol.for('foo')]: 'baz', [Symbol('foo')]: 'bar'})
+
+test('symbol properties are reordered despite serialization', t => {
+  const s1 = Symbol('s1')
+  const s2 = Symbol('s2')
+  const original = describe({[s1]: 1, [s2]: 2})
+  const expected = describe({[s2]: 2, [s1]: 1})
+
+  t.true(compareDescriptors(deserialize(serialize(original)), expected))
+  t.snapshot(diffDescriptors(deserialize(serialize(original)), expected))
+
+  t.true(compareDescriptors(deserialize(serialize(original)), deserialize(serialize(expected))))
+  t.snapshot(diffDescriptors(deserialize(serialize(original)), deserialize(serialize(expected))))
+})
 
 // Arrays
 test('array with primitive item', useDeserialized, ['bar'])

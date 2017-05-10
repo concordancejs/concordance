@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`symbol properties are reordered despite serialization 1`] = `
+"  Object {
+    [Symbol(s1)]: 1,
+    [Symbol(s2)]: 2,
+  }"
+`;
+
+exports[`symbol properties are reordered despite serialization 2`] = `
+"  Object {
+    [Symbol(s1)]: 1,
+    [Symbol(s2)]: 2,
+  }"
+`;
