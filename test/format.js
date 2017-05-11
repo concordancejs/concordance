@@ -98,6 +98,10 @@ test('formats symbol keys', t => {
   t.snapshot(format({ [Symbol('')]: 'bar' }))
 })
 
+test('formats registered symbols differently from normal symbols with same description', t => {
+  t.true(format(Symbol('foo')) !== format(Symbol.for('foo')))
+})
+
 {
   const formatsBoxedPrimitive = (t, value) => t.snapshot(format(Object(value)))
   formatsBoxedPrimitive.title = (_, value) => `formats boxed primitive: ${String(value)}`
