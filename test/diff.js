@@ -2,10 +2,15 @@ import test from 'ava'
 
 import {diff as _diff} from '../lib/diff'
 
-import theme, {checkThemeUsage} from './_instrumentedTheme'
+import theme, {normalizedTheme, checkThemeUsage} from './_instrumentedTheme'
 
 const diff = (actual, expected) => _diff(actual, expected, {theme})
 test.after(checkThemeUsage)
+
+void (
+  // Tested separately
+  normalizedTheme.maxDepth
+)
 
 {
   const diffsPrimitives = (t, lhs, rhs) => t.snapshot(diff(lhs, rhs))
