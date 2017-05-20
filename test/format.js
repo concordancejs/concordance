@@ -21,7 +21,9 @@ void (
   normalizedTheme.string.diff.insertLine.open,
   normalizedTheme.string.diff.insertLine.close,
   normalizedTheme.string.diff.deleteLine.open,
-  normalizedTheme.string.diff.deleteLine.close
+  normalizedTheme.string.diff.deleteLine.close,
+  // Tested separately
+  normalizedTheme.maxDepth
 )
 
 {
