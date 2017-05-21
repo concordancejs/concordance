@@ -478,8 +478,8 @@ exports[`diffs boxed primitives: true versus false 1`] = `
 
 exports[`diffs buffers 1`] = `
 "%diffGutters.padding#  %%object.ctor.open%Buffer%object.ctor.close% %object.secondaryStringTag.open#@%Uint8Array%object.secondaryStringTag.close% %list.openBracket#[%
-%diffGutters.actual#- %%typedArray.bytes.open%decafbad%typedArray.bytes.close%
-%diffGutters.expected#+ %%typedArray.bytes.open%666c6174%typedArray.bytes.close% %typedArray.bytes.open%20776869%typedArray.bytes.close% %typedArray.bytes.open%7465%typedArray.bytes.close%
+%diffGutters.actual#- %  %typedArray.bytes.open%decafbad%typedArray.bytes.close%
+%diffGutters.expected#+ %  %typedArray.bytes.open%666c6174%typedArray.bytes.close% %typedArray.bytes.open%20776869%typedArray.bytes.close% %typedArray.bytes.open%7465%typedArray.bytes.close%
 %diffGutters.padding#  %%list.closeBracket#]%"
 `;
 
