@@ -214,7 +214,7 @@ exports[`formats Uint32Array with additional properties 1`] = `
 `;
 
 exports[`formats a multiline string inside an array 1`] = `
-"%object.ctor.open%Array%object.ctor.close% %list.openBracket#[%
+"%list.openBracket#[%
   %string.multiline.start#\`%%string.open%bar%string.close%%string.controlPicture.open%␊%string.controlPicture.close%%string.open%%string.close%
   %string.open%baz%string.close%%string.multiline.end#\`%%item.after#,%
 %list.closeBracket#]%"
@@ -228,22 +228,22 @@ exports[`formats a multiline string inside sets 1`] = `
 `;
 
 exports[`formats a simple array 1`] = `
-"%object.ctor.open%Array%object.ctor.close% %list.openBracket#[%
+"%list.openBracket#[%
   %string.line.open#'%%string.open%foo%string.close%%string.line.close#'%%item.after#,%
   %string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%item.after#,%
 %list.closeBracket#]%"
 `;
 
 exports[`formats a simple object 1`] = `
-"%object.ctor.open%Object%object.ctor.close% %object.openBracket#{%
+"%object.openBracket#{%
   baz%property.separator#: %%string.line.open#'%%string.open%qux%string.close%%string.line.close#'%%property.after#,%
   foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
 %object.closeBracket#}%"
 `;
 
 exports[`formats a simple, nested array 1`] = `
-"%object.ctor.open%Array%object.ctor.close% %list.openBracket#[%
-  %object.ctor.open%Array%object.ctor.close% %list.openBracket#[%
+"%list.openBracket#[%
+  %list.openBracket#[%
     %string.line.open#'%%string.open%foo%string.close%%string.line.close#'%%item.after#,%
     %string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%item.after#,%
   %list.closeBracket#]%%item.after#,%
@@ -251,15 +251,15 @@ exports[`formats a simple, nested array 1`] = `
 `;
 
 exports[`formats a simple, nested object 1`] = `
-"%object.ctor.open%Object%object.ctor.close% %object.openBracket#{%
-  foo%property.separator#: %%object.ctor.open%Object%object.ctor.close% %object.openBracket#{%
+"%object.openBracket#{%
+  foo%property.separator#: %%object.openBracket#{%
     baz%property.separator#: %%string.line.open#'%%string.open%qux%string.close%%string.line.close#'%%property.after#,%
   %object.closeBracket#}%%property.after#,%
 %object.closeBracket#}%"
 `;
 
 exports[`formats an array with additional properties 1`] = `
-"%object.ctor.open%Array%object.ctor.close% %list.openBracket#[%
+"%list.openBracket#[%
   %string.line.open#'%%string.open%foo%string.close%%string.line.close#'%%item.after#,%
   %string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%item.after#,%
   %stats.separator#---%
@@ -352,7 +352,7 @@ exports[`formats boxed primitives with extra properties 1`] = `
 `;
 
 exports[`formats circular references 1`] = `
-"%object.ctor.open%Object%object.ctor.close% %object.openBracket#{%
+"%object.openBracket#{%
   circular%property.separator#: %%circular#[Circular]%%property.after#,%
 %object.closeBracket#}%"
 `;
@@ -385,7 +385,7 @@ exports[`formats functions with additional properties 1`] = `
 `;
 
 exports[`formats funky objects that are lists and have an iterator 1`] = `
-"%object.ctor.open%Object%object.ctor.close% %list.openBracket#[%
+"%list.openBracket#[%
   %string.line.open#'%%string.open%first%string.close%%string.line.close#'%%item.after#,%
   %string.line.open#'%%string.open%second%string.close%%string.line.close#'%%item.after#,%
   %stats.separator#---%
@@ -400,10 +400,10 @@ exports[`formats global 1`] = `"%global.open%Global%global.close% %object.openBr
 exports[`formats maps 1`] = `
 "%object.ctor.open%Map%object.ctor.close% %object.openBracket#{%
   %string.line.open#'%%string.open%foo%string.close%%string.line.close#'%%mapEntry.separator# => %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%mapEntry.after#,%
-  %object.ctor.open%Object%object.ctor.close% %object.openBracket#{%
+  %object.openBracket#{%
     baz%property.separator#: %%string.line.open#'%%string.open%qux%string.close%%string.line.close#'%%property.after#,%
   %object.closeBracket#}%%mapEntry.separator# => %%string.line.open#'%%string.open%quux%string.close%%string.line.close#'%%mapEntry.after#,%
-  %string.line.open#'%%string.open%corge%string.close%%string.line.close#'%%mapEntry.separator# => %%object.ctor.open%Object%object.ctor.close% %object.openBracket#{%
+  %string.line.open#'%%string.open%corge%string.close%%string.line.close#'%%mapEntry.separator# => %%object.openBracket#{%
     grault%property.separator#: %%string.line.open#'%%string.open%garply%string.close%%string.line.close#'%%property.after#,%
   %object.closeBracket#}%%mapEntry.after#,%
 %object.closeBracket#}%"
@@ -426,7 +426,7 @@ exports[`formats multiline strings inside a map 1`] = `
 `;
 
 exports[`formats multiline strings inside an object 1`] = `
-"%object.ctor.open%Object%object.ctor.close% %object.openBracket#{%
+"%object.openBracket#{%
   %string.line.open#'%%string.open%foo\\\\nbar%string.close%%string.line.close#'%%property.separator#: %%string.multiline.start#\`%%string.open%baz%string.close%%string.controlPicture.open%␊%string.controlPicture.close%%string.open%%string.close%
   %string.open%qux%string.close%%string.multiline.end#\`%%property.after#,%
 %object.closeBracket#}%"
@@ -435,12 +435,12 @@ exports[`formats multiline strings inside an object 1`] = `
 exports[`formats named functions 1`] = `"%function.stringTag.open%Function%function.stringTag.close% %function.name.open%foo%function.name.close% %object.openBracket#{%%object.closeBracket#}%"`;
 
 exports[`formats pointers 1`] = `
-"%object.ctor.open%Object%object.ctor.close% %object.openBracket#{%
-  baz%property.separator#: %%object.ctor.open%Object%object.ctor.close% %object.openBracket#{%
+"%object.openBracket#{%
+  baz%property.separator#: %%object.openBracket#{%
     foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
   %object.closeBracket#}%%property.after#,%
-  qux%property.separator#: %%object.ctor.open%Object%object.ctor.close% %object.openBracket#{%
-    quux%property.separator#: %%object.ctor.open%Object%object.ctor.close% %object.openBracket#{%
+  qux%property.separator#: %%object.openBracket#{%
+    quux%property.separator#: %%object.openBracket#{%
       foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
     %object.closeBracket#}%%property.after#,%
   %object.closeBracket#}%%property.after#,%
@@ -521,7 +521,7 @@ exports[`formats regular expressions with additional properties 1`] = `
 exports[`formats sets 1`] = `
 "%object.ctor.open%Set%object.ctor.close% %object.openBracket#{%
   %string.line.open#'%%string.open%foo%string.close%%string.line.close#'%%item.after#,%
-  %object.ctor.open%Object%object.ctor.close% %object.openBracket#{%
+  %object.openBracket#{%
     bar%property.separator#: %%string.line.open#'%%string.open%baz%string.close%%string.line.close#'%%property.after#,%
   %object.closeBracket#}%%item.after#,%
 %object.closeBracket#}%"
@@ -548,7 +548,7 @@ exports[`formats simple errors with a modified name 1`] = `
 `;
 
 exports[`formats symbol keys 1`] = `
-"%object.ctor.open%Object%object.ctor.close% %object.openBracket#{%
+"%object.openBracket#{%
   %property.keyBracket.open#[%%symbol.open%Symbol()%symbol.close%%property.keyBracket.close#]%%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
 %object.closeBracket#}%"
 `;
