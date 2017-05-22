@@ -401,8 +401,8 @@ exports[`detects missing symbol properties 2`] = `
 `;
 
 exports[`diff dates with extra properties 1`] = `
-"%diffGutters.actual#- %%object.ctor.open%Date%object.ctor.close% %date.value.open%1969-07-20T20:17:40.000Z%date.value.close% %object.openBracket#{%%object.closeBracket#}%
-%diffGutters.expected#+ %%object.ctor.open%Date%object.ctor.close% %date.value.open%1969-07-21T20:17:40.000Z%date.value.close% %object.openBracket#{%
+"%diffGutters.actual#- %%object.ctor.open%Date%object.ctor.close% %date.value.open%1969-07-20 20:17:40 Z%date.value.close% %object.openBracket#{%%object.closeBracket#}%
+%diffGutters.expected#+ %%object.ctor.open%Date%object.ctor.close% %date.value.open%1969-07-21 20:17:40 Z%date.value.close% %object.openBracket#{%
 %diffGutters.expected#+ %  foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
 %diffGutters.expected#+ %%object.closeBracket#}%"
 `;

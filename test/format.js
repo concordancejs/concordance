@@ -351,7 +351,7 @@ test('formats circular references', t => {
 }
 
 test('formats dates', t => {
-  const actual = format(new Date('1969-07-20T20:17:40Z'))
+  const actual = format(new Date('1969-07-20T20:17:40.012Z'))
   t.snapshot(actual)
 })
 
