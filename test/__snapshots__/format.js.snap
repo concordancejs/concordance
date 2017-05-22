@@ -359,6 +359,8 @@ exports[`formats circular references 1`] = `
 
 exports[`formats dates 1`] = `"%object.ctor.open%Date%object.ctor.close% %date.value.open%1969-07-20 20:17:40 12ms Z%date.value.close% %object.openBracket#{%%object.closeBracket#}%"`;
 
+exports[`formats dates 2`] = `"%object.ctor.open%Date%object.ctor.close% %date.invalid#invalid% %object.openBracket#{%%object.closeBracket#}%"`;
+
 exports[`formats dates with additional properties 1`] = `
 "%object.ctor.open%Date%object.ctor.close% %date.value.open%1969-07-20 20:17:40 Z%date.value.close% %object.openBracket#{%
   foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%

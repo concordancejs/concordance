@@ -407,6 +407,8 @@ exports[`diff dates with extra properties 1`] = `
 %diffGutters.expected#+ %%object.closeBracket#}%"
 `;
 
+exports[`diff invalid dates 1`] = `"%diffGutters.padding#  %%object.ctor.open%Date%object.ctor.close% %date.invalid#invalid% %object.openBracket#{%%object.closeBracket#}%"`;
+
 exports[`diffs arguments 1`] = `
 "%diffGutters.padding#  %%object.ctor.open%Arguments%object.ctor.close% %list.openBracket#[%
 %diffGutters.padding#  %  %number.open%1%number.close%%item.after#,%

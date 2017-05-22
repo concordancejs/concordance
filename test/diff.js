@@ -387,6 +387,10 @@ test('diffs circular references', t => {
   t.snapshot(diff(map3, map4))
 })
 
+test('diff invalid dates', t => {
+  t.snapshot(diff(new Date('🚀🌔🛬'), new Date('🚀💥💧')))
+})
+
 test('diff dates with extra properties', t => {
   const actual = diff(new Date('1969-07-20T20:17:40.000Z'), Object.assign(new Date('1969-07-21T20:17:40.000Z'), {
     foo: 'bar'
