@@ -475,7 +475,11 @@ exports[`formats primitive: Symbol(Symbol.iterator) 1`] = `"%symbol.open%Symbol.
 
 exports[`formats primitive: Symbol(bar) 1`] = `"%symbol.open%Symbol.for(bar)%symbol.close%"`;
 
+exports[`formats primitive: Symbol(bar\\nbaz) 1`] = `"%symbol.open%Symbol.for(bar\\\\nbaz)%symbol.close%"`;
+
 exports[`formats primitive: Symbol(foo) 1`] = `"%symbol.open%Symbol(foo)%symbol.close%"`;
+
+exports[`formats primitive: Symbol(foo\\nbar) 1`] = `"%symbol.open%Symbol(foo\\\\nbar)%symbol.close%"`;
 
 exports[`formats primitive: false 1`] = `"%boolean.open%false%boolean.close%"`;
 

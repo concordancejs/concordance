@@ -55,7 +55,9 @@ void (
     NaN,
     Symbol(), // eslint-disable-line symbol-description
     Symbol('foo'),
+    Symbol('foo\nbar'),
     Symbol.for('bar'),
+    Symbol.for('bar\nbaz'),
     Symbol.iterator
   ]) {
     test(formatsPrimitive, value)
