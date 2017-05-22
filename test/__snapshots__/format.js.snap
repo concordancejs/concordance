@@ -357,10 +357,10 @@ exports[`formats circular references 1`] = `
 %object.closeBracket#}%"
 `;
 
-exports[`formats dates 1`] = `"%object.ctor.open%Date%object.ctor.close% %date.value.open%1969-07-20T20:17:40.000Z%date.value.close% %object.openBracket#{%%object.closeBracket#}%"`;
+exports[`formats dates 1`] = `"%object.ctor.open%Date%object.ctor.close% %date.value.open%1969-07-20 20:17:40 12ms Z%date.value.close% %object.openBracket#{%%object.closeBracket#}%"`;
 
 exports[`formats dates with additional properties 1`] = `
-"%object.ctor.open%Date%object.ctor.close% %date.value.open%1969-07-20T20:17:40.000Z%date.value.close% %object.openBracket#{%
+"%object.ctor.open%Date%object.ctor.close% %date.value.open%1969-07-20 20:17:40 Z%date.value.close% %object.openBracket#{%
   foo%property.separator#: %%string.line.open#'%%string.open%bar%string.close%%string.line.close#'%%property.after#,%
 %object.closeBracket#}%"
 `;
@@ -557,7 +557,7 @@ exports[`shows non-Object tag if constructor name is different 1`] = `"%object.c
 
 exports[`shows non-Object tag if constructor name is different 2`] = `"%object.ctor.open%Bar%object.ctor.close% %object.secondaryStringTag.open#@%Array%object.secondaryStringTag.close% %list.openBracket#[%%list.closeBracket#]%"`;
 
-exports[`shows non-Object tag if constructor name is different 3`] = `"%object.ctor.open%Baz%object.ctor.close% %object.secondaryStringTag.open#@%Date%object.secondaryStringTag.close% %date.value.open%1969-07-20T20:17:40.000Z%date.value.close% %object.openBracket#{%%object.closeBracket#}%"`;
+exports[`shows non-Object tag if constructor name is different 3`] = `"%object.ctor.open%Baz%object.ctor.close% %object.secondaryStringTag.open#@%Date%object.secondaryStringTag.close% %date.value.open%1969-07-20 20:17:40 Z%date.value.close% %object.openBracket#{%%object.closeBracket#}%"`;
 
 exports[`shows non-Object tag if constructor name is different 4`] = `
 "%object.ctor.open%Qux%object.ctor.close% %object.secondaryStringTag.open#@%RegExp%object.secondaryStringTag.close% %object.openBracket#{%

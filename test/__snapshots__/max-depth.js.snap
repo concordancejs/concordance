@@ -15,8 +15,8 @@ exports[`diff() respects maxDepth option for equal parts 1`] = `
       two: {
         arr: [],
         arr2: Array [ … ],
-        date: Date 1969-07-20T20:17:40.000Z {},
-        date2: Date 1969-07-20T20:17:40.000Z { … },
+        date: Date 1969-07-20 20:17:40 Z {},
+        date2: Date 1969-07-20 20:17:40 Z { … },
         error: Error { … },
         fn: Function fn {},
         fn2: Function { … },
@@ -62,8 +62,8 @@ exports[`format() respects maxDepth option 1`] = `
     two: {
       arr: [],
       arr2: Array [ … ],
-      date: Date 1969-07-20T20:17:40.000Z {},
-      date2: Date 1969-07-20T20:17:40.000Z { … },
+      date: Date 1969-07-20 20:17:40 Z {},
+      date2: Date 1969-07-20 20:17:40 Z { … },
       error: Error { … },
       fn: Function fn {},
       fn2: Function { … },
