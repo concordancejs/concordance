@@ -27,15 +27,6 @@ test('objects compare even if symbol properties are out of order', t => {
   a2[s1] = 1
 
   t.true(compare(a1, a2).pass)
-
-  const a3 = new Set([3, 0])
-  a1[s1] = 1
-  a1[s2] = 2
-  const a4 = new Set([4, 0])
-  a2[s2] = 2
-  a2[s1] = 1
-
-  t.false(compare(a3, a4).pass)
 })
 
 test('-0 is not equal to +0', t => {
