@@ -1,9 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`diff() respects maxDepth option for equal parts 1`] = `
-"  Object {
-    one: Object {
-      arr: Array [
+"  {
+    one: {
+      arr: [
         Object { … },
       ],
       map: Map {
@@ -12,8 +12,8 @@ exports[`diff() respects maxDepth option for equal parts 1`] = `
       set: Set {
         Object { … },
       },
-      two: Object {
-        arr: Array [],
+      two: {
+        arr: [],
         arr2: Array [ … ],
         date: Date 1969-07-20T20:17:40.000Z {},
         date2: Date 1969-07-20T20:17:40.000Z { … },
@@ -22,7 +22,7 @@ exports[`diff() respects maxDepth option for equal parts 1`] = `
         fn2: Function { … },
         map: Map {},
         map2: Map { … },
-        obj: Object {},
+        obj: {},
         regexp: /foo/,
         regexp2: RegExp { /foo/ … },
         set: Set {},
@@ -36,9 +36,9 @@ exports[`diff() respects maxDepth option for equal parts 1`] = `
 `;
 
 exports[`diff() respects maxDepth option for equal parts 2`] = `
-"  Object {
-    one: Object {
-      two: Object {
+"  {
+    one: {
+      two: {
 -       three: 'baz',
 +       three: 'qux',
         three2: Array [ … ],
@@ -48,9 +48,9 @@ exports[`diff() respects maxDepth option for equal parts 2`] = `
 `;
 
 exports[`format() respects maxDepth option 1`] = `
-"Object {
-  one: Object {
-    arr: Array [
+"{
+  one: {
+    arr: [
       Object { … },
     ],
     map: Map {
@@ -59,8 +59,8 @@ exports[`format() respects maxDepth option 1`] = `
     set: Set {
       Object { … },
     },
-    two: Object {
-      arr: Array [],
+    two: {
+      arr: [],
       arr2: Array [ … ],
       date: Date 1969-07-20T20:17:40.000Z {},
       date2: Date 1969-07-20T20:17:40.000Z { … },
@@ -69,7 +69,7 @@ exports[`format() respects maxDepth option 1`] = `
       fn2: Function { … },
       map: Map {},
       map2: Map { … },
-      obj: Object {},
+      obj: {},
       regexp: /foo/,
       regexp2: RegExp { /foo/ … },
       set: Set {},
