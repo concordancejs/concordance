@@ -4,7 +4,7 @@ import {diff as _diff} from '../lib/diff'
 
 import theme, {normalizedTheme, checkThemeUsage} from './_instrumentedTheme'
 
-const diff = (actual, expected) => _diff(actual, expected, {theme})
+const diff = (actual, expected, {invert} = {}) => _diff(actual, expected, {invert, theme})
 test.after(checkThemeUsage)
 
 void (
@@ -429,4 +429,14 @@ test('diffs regexps', t => {
 
 test('diffs buffers', t => {
   t.snapshot(diff(Buffer.from('decafbad', 'hex'), Buffer.from('flat white', 'utf8')))
+})
+
+test('inverted diffs', t => {
+  t.snapshot(diff({
+    foo: 'bar',
+    baz: 'qux\nquux\ncorge'
+  }, {
+    foo: 'BAR',
+    baz: 'qux\ncorge\nquux'
+  }, {invert: true}))
 })
