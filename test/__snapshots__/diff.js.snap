@@ -922,3 +922,15 @@ exports[`does not diff multiline string values in maps when key is complex 1`] =
 %diffGutters.expected#+ %  %string.open%bar%string.close%%string.multiline.end#\`%%mapEntry.after#,%
 %diffGutters.padding#  %%object.closeBracket#}%"
 `;
+
+exports[`inverted diffs 1`] = `
+"%diffGutters.padding#  %%object.openBracket#{%
+%diffGutters.padding#  %  baz%property.separator#: %%string.multiline.start#\`%%string.diff.equal.open%qux%string.diff.equal.close%%string.controlPicture.open%␊%string.controlPicture.close%%string.diff.equal.open%%string.diff.equal.close%
+%diffGutters.actual#- %  %string.diff.insertLine.open%corge%string.controlPicture.open%␊%string.controlPicture.close%%string.diff.insertLine.close%
+%diffGutters.actual#- %  %string.diff.insertLine.open%quux%string.diff.insertLine.close%%string.multiline.end#\`%%property.after#,%
+%diffGutters.expected#+ %  %string.diff.deleteLine.open%quux%string.controlPicture.open%␊%string.controlPicture.close%%string.diff.deleteLine.close%
+%diffGutters.expected#+ %  %string.diff.deleteLine.open%corge%string.diff.deleteLine.close%%string.multiline.end#\`%%property.after#,%
+%diffGutters.actual#- %  foo%property.separator#: %%string.line.open#'%%string.diff.insertLine.open%BAR%string.diff.insertLine.close%%string.line.close#'%%property.after#,%
+%diffGutters.expected#+ %  foo%property.separator#: %%string.line.open#'%%string.diff.deleteLine.open%bar%string.diff.deleteLine.close%%string.line.close#'%%property.after#,%
+%diffGutters.padding#  %%object.closeBracket#}%"
+`;
