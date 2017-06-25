@@ -1,5 +1,4 @@
 import {serial as test} from 'ava'
-import mock from 'mock-require'
 import proxyquire from 'proxyquire'
 
 const stub = {
@@ -18,9 +17,9 @@ test.beforeEach(() => {
   })
 })
 
-mock('../lib/complexValues/function', proxyquire('../lib/complexValues/function', {
+proxyquire('../lib/complexValues/function', {
   'function-name-support': stub
-}))
+})
 
 const {compareDescriptors, describe, deserialize, serialize} = require('..')
 
