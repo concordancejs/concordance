@@ -29,9 +29,9 @@ void (
 {
   const formatsPrimitive = (t, value) => t.snapshot(format(value))
   formatsPrimitive.title = (_, value) => {
-    const str = String(value)
-      .replace(/\r/g, '\\r')
-      .replace(/\n/g, '\\n')
+    const str = Object.is(value, -0)
+      ? '-0'
+      : String(value).replace(/\r/g, '\\r').replace(/\n/g, '\\n')
     return `formats primitive: ${str}`
   }
   for (const value of [
@@ -108,7 +108,7 @@ test('formats registered symbols differently from normal symbols with same descr
 
 {
   const formatsBoxedPrimitive = (t, value) => t.snapshot(format(Object(value)))
-  formatsBoxedPrimitive.title = (_, value) => `formats boxed primitive: ${String(value)}`
+  formatsBoxedPrimitive.title = (_, value) => `formats boxed primitive: ${Object.is(value, -0) ? '-0' : String(value)}`
   for (const value of [
     false,
     true,
