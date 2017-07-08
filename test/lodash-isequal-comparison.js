@@ -262,7 +262,9 @@ test('have transitive equivalence for circular references of arrays', t => {
 
   t.true(isEqual(array1, array2))
   t.true(isEqual(array2, array3))
-  t.true(isEqual(array1, array3))
+  // Concordance detects a different circular reference in array1 before it does
+  // in array3, making them unequal.
+  t.false(isEqual(array1, array3))
 })
 
 test('compare objects with circular references', t => {
@@ -300,7 +302,9 @@ test('have transitive equivalence for circular references of objects', t => {
 
   t.true(isEqual(object1, object2))
   t.true(isEqual(object2, object3))
-  t.true(isEqual(object1, object3))
+  // Concordance detects a different circular reference in object1 before it
+  // does in object3, making them unequal.
+  t.false(isEqual(object1, object3))
 })
 
 test('compare objects with multiple circular references', t => {
