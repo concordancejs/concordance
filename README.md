@@ -31,6 +31,9 @@ means Concordance's behavior is consistent, no matter how you use it.
   Symbol properties are compared by identity.
 * `Promise` values are compared by identity only.
 * `Symbol` values are compared by identity only.
+* Recursion stops whenever a circular reference is encountered. If the same
+  cycle is present in the actual and expected values they're considered equal,
+  but they're unequal otherwise.
 
 ### Formatting details
 
