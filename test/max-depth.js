@@ -38,3 +38,18 @@ test('diff() respects maxDepth option for equal parts', t => {
   t.snapshot(diff(Object.assign({unequal: 1}, deep), Object.assign({unequal: 2}, deep), {maxDepth: 3}))
   t.snapshot(diff({one: {two: {three: 'baz', three2: ['quux']}}}, {one: {two: {three: 'qux', three2: ['quux']}}}, {maxDepth: 1}))
 })
+
+test('properties with increased indentation respect the maxDepth when formatted', t => {
+  t.snapshot(format({
+    foo: {
+      bar: {}
+    }
+  }, {
+    maxDepth: 1,
+    theme: {
+      property: {
+        increaseValueIndent: true
+      }
+    }
+  }))
+})
