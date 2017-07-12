@@ -105,6 +105,26 @@ test('diffs diverging complex types', t => {
       map([1, {foo: 'bar'}, 2]),
       map([1, {baz: 'qux'}, 2]))
     t.snapshot(actual2)
+
+    class Foo {
+      constructor () {
+        this.foo = 'foo'
+      }
+    }
+    class Bar {
+      constructor () {
+        this.bar = 'bar'
+      }
+    }
+    const actual3 = diff(
+      map([new Foo()]),
+      map([new Bar()]))
+    t.snapshot(actual3)
+
+    const actual4 = diff(
+      map([Buffer.alloc(0)]),
+      map([new Uint8Array()]))
+    t.snapshot(actual4)
   }
   test('diffs arrays', equalLength, mapArray)
   test('diffs arguments', equalLength, mapArguments)
