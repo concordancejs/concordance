@@ -13,7 +13,6 @@
 const util = require('util')
 const prettyFormat = require('pretty-format')
 const chalk = require('chalk')
-const leftPad = require('left-pad')
 
 const format = require('../lib/format').format
 const worldGeoJson = require('./world.geo.json')
@@ -86,7 +85,7 @@ function test (name, value, ignoreResult) {
     let message = current.name
 
     if (current.time) {
-      message += ' - ' + leftPad(current.time, 6) + 'ns'
+      message += ' - ' + String(current.time).padStart(6) + 'ns'
     }
     if (current.total) {
       message +=
