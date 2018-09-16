@@ -43,11 +43,11 @@
     "@novemberborn/as-i-preach": "^10.0.1",
     "ava": "^0.20.0",
     "benchmark": "^2.1.3",
-    "chalk": "^1.1.3",
-    "codecov": "^2.1.0",
+    "chalk": "^2.4.1",
+    "codecov": "^3.1.0",
     "lodash.isequal": "^4.5.0",
-    "nyc": "^11.0.2",
-    "pretty-format": "^19.0.0",
+    "nyc": "^13.0.1",
+    "pretty-format": "^23.6.0",
     "proxyquire": "^1.8.0"
   },
   "as-i-preach": {
