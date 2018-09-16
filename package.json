@@ -29,14 +29,14 @@
   "dependencies": {
     "date-time": "^2.1.0",
     "esutils": "^2.0.2",
-    "fast-diff": "^1.1.1",
+    "fast-diff": "^1.1.2",
     "function-name-support": "^0.2.0",
     "js-string-escape": "^1.0.1",
     "lodash.clonedeep": "^4.5.0",
     "lodash.flattendeep": "^4.4.0",
-    "lodash.merge": "^4.6.0",
+    "lodash.merge": "^4.6.1",
     "md5-hex": "^2.0.0",
-    "semver": "^5.3.0",
+    "semver": "^5.5.1",
     "well-known-symbols": "^1.0.0"
   },
   "devDependencies": {
