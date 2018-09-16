@@ -47,8 +47,7 @@
     "codecov": "^3.1.0",
     "lodash.isequal": "^4.5.0",
     "nyc": "^13.0.1",
-    "pretty-format": "^23.6.0",
-    "proxyquire": "^1.8.0"
+    "pretty-format": "^23.6.0"
   },
   "as-i-preach": {
     "allowDevDependencies": [
