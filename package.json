@@ -11,10 +11,8 @@
     "node": ">=6.12.3 <7 || >=8.9.4 <9 || >=10.0.0"
   },
   "scripts": {
-    "coverage": "nyc npm test",
     "lint": "as-i-preach",
-    "test": "ava",
-    "posttest": "as-i-preach"
+    "test": "npm run -s lint && nyc ava"
   },
   "repository": {
     "type": "git",
