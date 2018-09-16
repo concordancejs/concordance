@@ -1,6 +1,6 @@
 # concordance
 
-Compare, format, diff and serialize any JavaScript value. Built for Node.js 4
+Compare, format, diff and serialize any JavaScript value. Built for Node.js 6
 and above.
 
 ## Behavior
