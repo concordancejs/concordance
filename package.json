@@ -34,7 +34,7 @@
     "lodash.merge": "^4.6.1",
     "md5-hex": "^2.0.0",
     "semver": "^5.5.1",
-    "well-known-symbols": "^1.0.0"
+    "well-known-symbols": "^2.0.0"
   },
   "devDependencies": {
     "@novemberborn/as-i-preach": "^10.0.1",
