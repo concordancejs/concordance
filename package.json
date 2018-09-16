@@ -8,7 +8,7 @@
     "index.js"
   ],
   "engines": {
-    "node": ">=4.5"
+    "node": ">=6.12.3 <7 || >=8.9.4 <9 || >=10.0.0"
   },
   "scripts": {
     "coverage": "nyc npm test",
