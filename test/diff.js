@@ -85,6 +85,9 @@ baz
 garply
 quux`)
   t.snapshot(actual8)
+
+  const actual9 = diff('foo\nbar\ncorge\nbaz\nqux\nquux\n', 'foo\nbar\nbaz\ngrault\nqux\nquux')
+  t.snapshot(actual9)
 })
 
 test('diffs diverging complex types', t => {
