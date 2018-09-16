@@ -28,7 +28,6 @@
     "date-time": "^2.1.0",
     "esutils": "^2.0.2",
     "fast-diff": "^1.1.2",
-    "function-name-support": "^0.2.0",
     "js-string-escape": "^1.0.1",
     "lodash.clonedeep": "^4.5.0",
     "lodash.flattendeep": "^4.4.0",
