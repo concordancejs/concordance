@@ -1,5 +1,7 @@
 import {serial as test} from 'ava'
-import proxyquire from 'proxyquire'
+
+// Ensure module is in the require cache.
+require('function-name-support')
 
 const stub = {
   isSubsetOf (otherFlags) {
@@ -9,19 +11,15 @@ const stub = {
     return (this.bitFlags & otherFlags) === otherFlags
   }
 }
+// Patch the module.
+require.cache[require.resolve('function-name-support')].exports = stub
+
 test.beforeEach(() => {
   Object.assign(stub, {
     support: {},
     hasFullSupport: false,
     bitFlags: 0b101
   })
-})
-
-proxyquire('../lib/complexValues/object', {
-  'function-name-support': stub
-})
-proxyquire('../lib/complexValues/function', {
-  'function-name-support': stub
 })
 
 const {compareDescriptors, describe, deserialize, serialize} = require('..')
