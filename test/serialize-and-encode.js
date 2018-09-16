@@ -67,7 +67,6 @@ test('\'🚀\' (unicode string)', useDeserialized, '🚀')
 test('Symbol.iterator', useDeserialized, Symbol.iterator)
 test('Symbol.for(\'foo\')', useDeserialized, Symbol.for('foo'))
 test('Symbol(\'foo\')', useDeserialized, Symbol('foo'))
-test('Symbol(\'foo\')', useDeserialized, Symbol('foo'))
 test(useDeserialized, undefined)
 
 // Objects
