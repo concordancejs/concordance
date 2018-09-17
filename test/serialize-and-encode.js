@@ -75,6 +75,7 @@ test('object with complex property', useDeserialized, {foo: {}})
 test('object with well known symbol key', useDeserialized, {[Symbol.unscopables]: 'bar'})
 test('object with registered symbol key', useDeserialized, {[Symbol.for('foo')]: 'bar'})
 test('object with arbitrary symbol key', useDeserialized, {[Symbol('foo')]: 'bar'})
+test('object with length property', useDeserialized, { length: 12345678 })
 
 test('symbol properties are reordered despite serialization', t => {
   const s1 = Symbol('s1')
