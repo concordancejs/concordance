@@ -28,11 +28,11 @@ void (
 
 {
   const formatsPrimitive = (t, value) => t.snapshot(format(value))
-  formatsPrimitive.title = (_, value) => {
+  formatsPrimitive.title = (valueRepresentation, value) => {
     const str = Object.is(value, -0)
       ? '-0'
       : String(value).replace(/\r/g, '\\r').replace(/\n/g, '\\n')
-    return `formats primitive: ${str}`
+    return `formats primitive: ${valueRepresentation || str}`
   }
   for (const value of [
     null,
@@ -60,6 +60,11 @@ void (
     Symbol.iterator
   ]) {
     test(formatsPrimitive, value)
+  }
+
+  if (typeof BigInt === 'function') {
+    test('42n', formatsPrimitive, BigInt(42)) // eslint-disable-line no-undef
+    test('-42n', formatsPrimitive, BigInt(-42)) // eslint-disable-line no-undef
   }
 }
 
@@ -107,7 +112,9 @@ test('formats registered symbols differently from normal symbols with same descr
 
 {
   const formatsBoxedPrimitive = (t, value) => t.snapshot(format(Object(value)))
-  formatsBoxedPrimitive.title = (_, value) => `formats boxed primitive: ${Object.is(value, -0) ? '-0' : String(value)}`
+  formatsBoxedPrimitive.title = (valueRepresentation, value) => {
+    return `formats boxed primitive: ${valueRepresentation || (Object.is(value, -0) ? '-0' : String(value))}`
+  }
   for (const value of [
     false,
     true,
@@ -121,6 +128,11 @@ test('formats registered symbols differently from normal symbols with same descr
     'foo'
   ]) {
     test(formatsBoxedPrimitive, value)
+  }
+
+  if (typeof BigInt === 'function') {
+    test('42n', formatsBoxedPrimitive, BigInt(42)) // eslint-disable-line no-undef
+    test('-42n', formatsBoxedPrimitive, BigInt(-42)) // eslint-disable-line no-undef
   }
 }
 
