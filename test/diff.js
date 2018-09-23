@@ -14,8 +14,8 @@ void (
 
 if (typeof BigInt === 'undefined') {
   void (
-    normalizedTheme.bigint.open,
-    normalizedTheme.bigint.close
+    normalizedTheme.bigInt.open,
+    normalizedTheme.bigInt.close
   )
 }
 
