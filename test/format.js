@@ -26,6 +26,13 @@ void (
   normalizedTheme.maxDepth
 )
 
+if (typeof BigInt === 'undefined') {
+  void (
+    normalizedTheme.bigint.open,
+    normalizedTheme.bigint.close
+  )
+}
+
 {
   const formatsPrimitive = (t, value) => t.snapshot(format(value))
   formatsPrimitive.title = (valueRepresentation, value) => {

@@ -12,6 +12,13 @@ void (
   normalizedTheme.maxDepth
 )
 
+if (typeof BigInt === 'undefined') {
+  void (
+    normalizedTheme.bigint.open,
+    normalizedTheme.bigint.close
+  )
+}
+
 {
   const diffsPrimitives = (t, lhs, rhs) => t.snapshot(diff(lhs, rhs))
   diffsPrimitives.title = (_, lhs, rhs, lhsRepresentation = String(lhs), rhsRepresentation = String(rhs)) => {
