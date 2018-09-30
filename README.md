@@ -23,8 +23,7 @@ means Concordance's behavior is consistent, no matter how you use it.
 * `Error` names and messages are always compared, even if these are not
   enumerable properties.
 * `Function` values are compared by identity only. Names are always formatted
-  and serialized, with Concordance handling implementation differences between
-  Node.js 4 and 6.
+  and serialized.
 * `Global` objects are considered equal.
 * `Map` keys and `Set` items are compared in-order.
 * `Object` string properties are compared according to the [traversal order](http://2ality.com/2015/10/property-traversal-order-es6.html).
@@ -63,9 +62,7 @@ methods. Certain value comparisons behave differently when the **actual** value
 is deserialized:
 
 * `Argument` values can only be compared to other `Argument` values.
-* `Function` values are compared by name, taking into account whether
-  serialization and / or comparison is done using Node.js 4, which has less
-  reliable support for function names.
+* `Function` values are compared by name.
 * `Promise` values are compared by their constructor and additional enumerable
   properties, but not by identity.
 * `Symbol` values are compared by their string serialization. [Registered](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Symbol#Shared_symbols_in_the_global_symbol_registry)
