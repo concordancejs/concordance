@@ -1,7 +1,6 @@
 import test from 'ava'
 
 import {format as _format} from '../lib/format'
-import getStringTag from '../lib/getStringTag'
 import theme, {normalizedTheme, checkThemeUsage} from './_instrumentedTheme'
 
 const format = value => _format(value, {theme})
@@ -252,29 +251,25 @@ test('formats functions with additional properties', t => {
   t.snapshot(actual)
 })
 
-{
-  // Node.js 4 provides Function, more recent versions use GeneratorFunction
-  const tag = getStringTag(function * () {})
+test('formats anonymous generator functions', t => {
+  const actual = format(function * () {})
+  // eslint-disable-next-line max-len
+  t.is(actual, `%function.stringTag.open%GeneratorFunction%function.stringTag.close% %object.openBracket#{%%object.closeBracket#}%`)
+})
 
-  test('formats anonymous generator functions', t => {
-    const actual = format(function * () {})
-    t.is(actual, `%function.stringTag.open%${tag}%function.stringTag.close% %object.openBracket#{%%object.closeBracket#}%`)
-  })
+test('formats named generator functions', t => {
+  const actual = format(function * foo () {})
+  // eslint-disable-next-line max-len
+  t.is(actual, `%function.stringTag.open%GeneratorFunction%function.stringTag.close% %function.name.open%foo%function.name.close% %object.openBracket#{%%object.closeBracket#}%`)
+})
 
-  test('formats named generator functions', t => {
-    const actual = format(function * foo () {})
-    // eslint-disable-next-line max-len
-    t.is(actual, `%function.stringTag.open%${tag}%function.stringTag.close% %function.name.open%foo%function.name.close% %object.openBracket#{%%object.closeBracket#}%`)
-  })
-
-  test('formats generator functions with additional properties', t => {
-    const actual = format(Object.assign(function * foo () {}, { bar: 'baz' }))
-    // eslint-disable-next-line max-len
-    t.is(actual, `%function.stringTag.open%${tag}%function.stringTag.close% %function.name.open%foo%function.name.close% %object.openBracket#{%
+test('formats generator functions with additional properties', t => {
+  const actual = format(Object.assign(function * foo () {}, { bar: 'baz' }))
+  // eslint-disable-next-line max-len
+  t.is(actual, `%function.stringTag.open%GeneratorFunction%function.stringTag.close% %function.name.open%foo%function.name.close% %object.openBracket#{%
   bar%property.separator#: %%string.line.open#'%%string.open%baz%string.close%%string.line.close#'%%property.after#,%
 %object.closeBracket#}%`)
-  })
-}
+})
 
 test('formats arguments', t => {
   (function (a, b, c) {
