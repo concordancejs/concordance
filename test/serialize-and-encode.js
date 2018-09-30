@@ -69,6 +69,10 @@ test('Symbol.for(\'foo\')', useDeserialized, Symbol.for('foo'))
 test('Symbol(\'foo\')', useDeserialized, Symbol('foo'))
 test(useDeserialized, undefined)
 
+if (typeof BigInt === 'function') {
+  test('42n', useDeserialized, BigInt(42)) // eslint-disable-line no-undef
+}
+
 // Objects
 test('object with primitive property', useDeserialized, {foo: 'bar'})
 test('object with complex property', useDeserialized, {foo: {}})
