@@ -2,6 +2,7 @@ const test = require('ava')
 
 const { format: _format } = require('../lib/format')
 const { theme, normalizedTheme, checkThemeUsage } = require('./_instrumentedTheme')
+const customErrorPlugin = require('./fixtures/customErrorPlugin')
 
 const format = value => _format(value, { theme })
 test.after(checkThemeUsage)
@@ -407,4 +408,26 @@ test('shows string tag if object has no constructor', t => {
 
 test('formats global', t => {
   t.snapshot(format(global))
+})
+
+test('format with given plugin', t => {
+  const plugins = [
+    {
+      name: 'CustomError',
+      apiVersion: 1,
+      register: props => {
+        customErrorPlugin.setDependencies(props)
+        return function (value, stringTag, ctor) {
+          if (value.name === 'CustomError') {
+            return customErrorPlugin.describe
+          }
+        }
+      }
+    }
+  ]
+
+  const actual1 = _format(new customErrorPlugin.CustomError('plugin formatter', 'PLUGIN'), {plugins, theme})
+  t.snapshot(actual1)
+  const actual2 = _format(new Error('error'), {plugins, theme})
+  t.snapshot(actual2)
 })
