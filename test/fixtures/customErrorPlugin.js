@@ -1,5 +1,6 @@
 'use strict'
 let DescribedMixin
+let DeserializedMixin
 let ObjectValue
 
 class CustomError extends Error {
@@ -14,13 +15,18 @@ exports.CustomError = CustomError
 
 exports.setDependencies = function (dependencies) {
   DescribedMixin = dependencies.DescribedMixin
+  DeserializedMixin = dependencies.DeserializedMixin
   ObjectValue = dependencies.ObjectValue
 }
 
 exports.describe = function (props) {
   const DescribedErrorValue = describe()
-  return new DescribedErrorValue(props)
+  const result = new DescribedErrorValue(props)
+  Object.defineProperty(result, 'tag', { value: exports.tag })
+  return result
 }
+
+exports.tag = Symbol('customError')
 
 function describe () {
   return class DescribedErrorValue extends DescribedMixin(ObjectValue) {
@@ -38,4 +44,11 @@ function describe () {
       }
     }
   }
+}
+
+exports.deserialize = function (state, recursor) {
+  const Deserializer = DeserializedMixin(ObjectValue)
+  const result = new Deserializer(state, recursor)
+  Object.defineProperty(result, 'tag', { value: exports.tag })
+  return result
 }
