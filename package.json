@@ -38,8 +38,8 @@
   },
   "devDependencies": {
     "@novemberborn/as-i-preach": "^10.0.1",
-    "ava": "1.0.0-beta.8",
-    "nyc": "^13.0.1"
+    "ava": "^3.5.1",
+    "nyc": "^15.0.0"
   },
   "as-i-preach": {
     "allowDevDependencies": [

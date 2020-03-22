@@ -1,4 +1,4 @@
-import {normalize} from '../lib/themeUtils'
+const {normalize} = require('../lib/themeUtils')
 
 const unused = new Set()
 
@@ -29,8 +29,8 @@ const normalized = normalize({theme})
 createAccessors(normalized)
 Object.freeze = freeze
 
-export default theme
-export {normalized as normalizedTheme}
-export function checkThemeUsage (t) {
+exports.theme = theme
+exports.normalizedTheme = normalized
+exports.checkThemeUsage = t => {
   t.deepEqual(unused, new Set(), 'All theme properties should be accessed at least once')
 }

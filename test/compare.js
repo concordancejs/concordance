@@ -1,6 +1,6 @@
-import test from 'ava'
+const test = require('ava')
 
-import {compare} from '../lib/compare'
+const {compare} = require('../lib/compare')
 
 test('compare functions by reference', t => {
   function a () { return 1 + 2 }

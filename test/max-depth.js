@@ -1,5 +1,5 @@
-import test from 'ava'
-import {format, diff} from '..'
+const test = require('ava')
+const {format, diff} = require('..')
 
 const deep = {
   one: {

@@ -1,7 +1,7 @@
-import test from 'ava'
+const test = require('ava')
 
-import {compareDescriptors, describe, diffDescriptors, formatDescriptor} from '..'
-import {deserialize, serialize} from '../lib/serialize'
+const {compareDescriptors, describe, diffDescriptors, formatDescriptor} = require('..')
+const {deserialize, serialize} = require('../lib/serialize')
 
 test('serializes a descriptor into a buffer', t => {
   const result = serialize(describe({foo: 'bar'}))

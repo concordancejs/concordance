@@ -1,8 +1,8 @@
-import test from 'ava'
+const test = require('ava')
 
-import {diff as _diff} from '../lib/diff'
+const {diff: _diff} = require('../lib/diff')
 
-import theme, {normalizedTheme, checkThemeUsage} from './_instrumentedTheme'
+const {theme, normalizedTheme, checkThemeUsage} = require('./_instrumentedTheme')
 
 const diff = (actual, expected, {invert} = {}) => _diff(actual, expected, {invert, theme})
 test.after(checkThemeUsage)

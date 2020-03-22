@@ -34,9 +34,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 Tests adopted from https://github.com/lodash/lodash/blob/3967c1e1197b726463246b47521a4099ab74cb35/test/test.js#L9477:L10291>
 */
 
-import vm from 'vm'
-import test from 'ava'
-import {compare} from '../lib/compare'
+const vm = require('vm')
+const test = require('ava')
+const {compare} = require('../lib/compare')
 
 const isEqual = (actual, expected) => compare(actual, expected).pass
 

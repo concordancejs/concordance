@@ -1,7 +1,7 @@
-import test from 'ava'
+const test = require('ava')
 
-import {format as _format} from '../lib/format'
-import theme, {normalizedTheme, checkThemeUsage} from './_instrumentedTheme'
+const {format: _format} = require('../lib/format')
+const {theme, normalizedTheme, checkThemeUsage} = require('./_instrumentedTheme')
 
 const format = value => _format(value, {theme})
 test.after(checkThemeUsage)
