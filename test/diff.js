@@ -1,10 +1,10 @@
 const test = require('ava')
 
-const {diff: _diff} = require('../lib/diff')
+const { diff: _diff } = require('../lib/diff')
 
-const {theme, normalizedTheme, checkThemeUsage} = require('./_instrumentedTheme')
+const { theme, normalizedTheme, checkThemeUsage } = require('./_instrumentedTheme')
 
-const diff = (actual, expected, {invert} = {}) => _diff(actual, expected, {invert, theme})
+const diff = (actual, expected, { invert } = {}) => _diff(actual, expected, { invert, theme })
 test.after(checkThemeUsage)
 
 void (
@@ -32,7 +32,7 @@ if (typeof BigInt === 'undefined') {
     [null, 42],
     [null, Symbol()], // eslint-disable-line symbol-description
     [Symbol(), Symbol()], // eslint-disable-line symbol-description
-    [null, {}]
+    [null, {}],
   ]) {
     test(diffsPrimitives, lhs, rhs)
   }
@@ -43,14 +43,14 @@ if (typeof BigInt === 'undefined') {
 }
 
 {
-  const diffsBoxedPrimitives = (t, lhs, rhs) => t.snapshot(diff(Object(lhs), Object(rhs)))
+  const diffsBoxedPrimitives = (t, lhs, rhs) => t.snapshot(diff(new Object(lhs), new Object(rhs)))
   diffsBoxedPrimitives.title = (_, lhs, rhs, lhsRepresentation = String(lhs), rhsRepresentation = String(rhs)) => {
     return `diffs primitives: ${lhsRepresentation} versus ${rhsRepresentation}`
   }
   for (const [lhs, rhs] of [
     [true, false],
     [-42, 42],
-    ['foo', 'bar']
+    ['foo', 'bar'],
   ]) {
     test(diffsBoxedPrimitives, lhs, rhs)
   }
@@ -61,7 +61,7 @@ if (typeof BigInt === 'undefined') {
 }
 
 test('diffs boxed primitives with extra properties', t => {
-  t.snapshot(diff(Object('foo'), Object.assign(Object('foo'), {bar: 'baz'})))
+  t.snapshot(diff(new Object('foo'), Object.assign(new Object('foo'), { bar: 'baz' })))
 })
 
 test('diffs single line strings', t => {
@@ -124,8 +124,8 @@ test('diffs diverging complex types', t => {
     t.snapshot(actual1)
 
     const actual2 = diff(
-      map([1, {foo: 'bar'}, 2]),
-      map([1, {baz: 'qux'}, 2]))
+      map([1, { foo: 'bar' }, 2]),
+      map([1, { baz: 'qux' }, 2]))
     t.snapshot(actual2)
 
     class Foo {
@@ -160,15 +160,15 @@ test('diffs diverging complex types', t => {
     t.snapshot(actual2)
 
     const actual3 = diff(
-      map([1, {foo: 'bar'}, {baz: 'qux'}, 2]),
-      map([1, {baz: 'qux'}, 2]))
+      map([1, { foo: 'bar' }, { baz: 'qux' }, 2]),
+      map([1, { baz: 'qux' }, 2]))
     t.snapshot(actual3)
 
     const s1 = Symbol('s1')
     const s2 = Symbol('s2')
     const actual4 = diff(
-      map([1, {[s1]: 'bar'}, {[s2]: 'qux'}, 2]),
-      map([1, {[s2]: 'qux'}, 2]))
+      map([1, { [s1]: 'bar' }, { [s2]: 'qux' }, 2]),
+      map([1, { [s2]: 'qux' }, 2]))
     t.snapshot(actual4)
   }
   test('detects extraneous array items', extraneous, mapArray)
@@ -183,15 +183,15 @@ test('diffs diverging complex types', t => {
     t.snapshot(actual2)
 
     const actual3 = diff(
-      map([1, {baz: 'qux'}, 2]),
-      map([1, {foo: 'bar'}, {baz: 'qux'}, 2]))
+      map([1, { baz: 'qux' }, 2]),
+      map([1, { foo: 'bar' }, { baz: 'qux' }, 2]))
     t.snapshot(actual3)
 
     const s1 = Symbol('s1')
     const s2 = Symbol('s2')
     const actual4 = diff(
-      map([1, {[s2]: 'qux'}, 2]),
-      map([1, {[s1]: 'bar'}, {[s2]: 'qux'}, 2]))
+      map([1, { [s2]: 'qux' }, 2]),
+      map([1, { [s1]: 'bar' }, { [s2]: 'qux' }, 2]))
     t.snapshot(actual4)
   }
   test('detects missing array items', missing, mapArray)
@@ -201,25 +201,25 @@ test('diffs diverging complex types', t => {
 
 test('detects extraneous name properties', t => {
   const actual1 = diff(
-    {a: 1, b: 2, c: 3},
-    {a: 1, c: 3})
+    { a: 1, b: 2, c: 3 },
+    { a: 1, c: 3 })
   t.snapshot(actual1)
 
   const actual2 = diff(
-    {a: 1, b: {}, c: 3},
-    {a: 1, c: 3})
+    { a: 1, b: {}, c: 3 },
+    { a: 1, c: 3 })
   t.snapshot(actual2)
 })
 
 test('detects missing name properties', t => {
   const actual1 = diff(
-    {a: 1, c: 3},
-    {a: 1, b: 2, c: 3})
+    { a: 1, c: 3 },
+    { a: 1, b: 2, c: 3 })
   t.snapshot(actual1)
 
   const actual2 = diff(
-    {a: 1, c: 3},
-    {a: 1, b: {}, c: 3})
+    { a: 1, c: 3 },
+    { a: 1, b: {}, c: 3 })
   t.snapshot(actual2)
 })
 
@@ -228,13 +228,13 @@ test('detects extraneous symbol properties', t => {
   const s2 = Symbol('s2')
   const s3 = Symbol('s3')
   const actual1 = diff(
-    {[s1]: 1, [s2]: 2, [s3]: 3},
-    {[s1]: 1, [s3]: 3})
+    { [s1]: 1, [s2]: 2, [s3]: 3 },
+    { [s1]: 1, [s3]: 3 })
   t.snapshot(actual1)
 
   const actual2 = diff(
-    {[s1]: 1, [s2]: {}, [s3]: 3},
-    {[s1]: 1, [s3]: 3})
+    { [s1]: 1, [s2]: {}, [s3]: 3 },
+    { [s1]: 1, [s3]: 3 })
   t.snapshot(actual2)
 })
 
@@ -243,16 +243,16 @@ test('detects missing symbol properties', t => {
   const s2 = Symbol('s2')
   const s3 = Symbol('s3')
   const actual1 = diff(
-    {[s1]: 1, [s3]: 3},
-    {[s1]: 1, [s2]: 2, [s3]: 3})
+    { [s1]: 1, [s3]: 3 },
+    { [s1]: 1, [s2]: 2, [s3]: 3 })
   // Note that when symbol properties are sorted, they're sorted according to
   // their order in the actual value. Missing properties will end up at the
   // bottom.
   t.snapshot(actual1)
 
   const actual2 = diff(
-    {[s1]: 1, [s3]: 3},
-    {[s1]: 1, [s2]: {}, [s3]: 3})
+    { [s1]: 1, [s3]: 3 },
+    { [s1]: 1, [s2]: {}, [s3]: 3 })
   t.snapshot(actual2)
 })
 
@@ -263,13 +263,13 @@ test('diffs maps', t => {
   t.snapshot(actual1)
 
   const actual2 = diff(
-    new Map([[1, 1], [{foo: 'bar'}, 2], [4, 4]]),
-    new Map([[1, 1], [{baz: 'qux'}, 2], [4, 4]]))
+    new Map([[1, 1], [{ foo: 'bar' }, 2], [4, 4]]),
+    new Map([[1, 1], [{ baz: 'qux' }, 2], [4, 4]]))
   t.snapshot(actual2)
 
   const actual3 = diff(
-    new Map([[1, 1], [{foo: 'bar'}, 2], [4, 4]]),
-    new Map([[1, 1], [{baz: 'qux'}, 3], [4, 4]]))
+    new Map([[1, 1], [{ foo: 'bar' }, 2], [4, 4]]),
+    new Map([[1, 1], [{ baz: 'qux' }, 3], [4, 4]]))
   t.snapshot(actual3)
 })
 
@@ -285,15 +285,15 @@ test('detects extraneous map entries', t => {
   t.snapshot(actual2)
 
   const actual3 = diff(
-    new Map([[1, 1], [{foo: 'bar'}, 4], [{baz: 'qux'}, 2], [3, 3]]),
-    new Map([[1, 1], [{baz: 'qux'}, 2], [3, 3]]))
+    new Map([[1, 1], [{ foo: 'bar' }, 4], [{ baz: 'qux' }, 2], [3, 3]]),
+    new Map([[1, 1], [{ baz: 'qux' }, 2], [3, 3]]))
   t.snapshot(actual3)
 
   const s1 = Symbol('s1')
   const s2 = Symbol('s2')
   const actual4 = diff(
-    new Map([[1, 1], [{[s1]: 'bar'}, 4], [{[s2]: 'qux'}, 2], [3, 3]]),
-    new Map([[1, 1], [{[s2]: 'qux'}, 2], [3, 3]]))
+    new Map([[1, 1], [{ [s1]: 'bar' }, 4], [{ [s2]: 'qux' }, 2], [3, 3]]),
+    new Map([[1, 1], [{ [s2]: 'qux' }, 2], [3, 3]]))
   t.snapshot(actual4)
 })
 
@@ -309,35 +309,35 @@ test('detects missing map entries', t => {
   t.snapshot(actual2)
 
   const actual3 = diff(
-    new Map([[1, 1], [{baz: 'qux'}, 2], [3, 3]]),
-    new Map([[1, 1], [{foo: 'bar'}, 4], [{baz: 'qux'}, 2], [3, 3]]))
+    new Map([[1, 1], [{ baz: 'qux' }, 2], [3, 3]]),
+    new Map([[1, 1], [{ foo: 'bar' }, 4], [{ baz: 'qux' }, 2], [3, 3]]))
   t.snapshot(actual3)
 
   const s1 = Symbol('s1')
   const s2 = Symbol('s2')
   const actual4 = diff(
-    new Map([[1, 1], [{[s2]: 'qux'}, 2], [3, 3]]),
-    new Map([[1, 1], [{[s1]: 'bar'}, 4], [{[s2]: 'qux'}, 2], [3, 3]]))
+    new Map([[1, 1], [{ [s2]: 'qux' }, 2], [3, 3]]),
+    new Map([[1, 1], [{ [s1]: 'bar' }, 4], [{ [s2]: 'qux' }, 2], [3, 3]]))
   t.snapshot(actual4)
 })
 
 test('diffs maps with extra properties', t => {
-  const actual1 = diff(new Map([['foo', 'bar']]), Object.assign(new Map([['foo', 'bar']]), {baz: 'qux'}))
+  const actual1 = diff(new Map([['foo', 'bar']]), Object.assign(new Map([['foo', 'bar']]), { baz: 'qux' }))
   t.snapshot(actual1)
 
-  const actual2 = diff(Object.assign(new Map([['foo', 'bar']]), {baz: 'qux'}), new Map([['foo', 'bar']]))
+  const actual2 = diff(Object.assign(new Map([['foo', 'bar']]), { baz: 'qux' }), new Map([['foo', 'bar']]))
   t.snapshot(actual2)
 })
 
 test('diffs multiline string values in objects', t => {
-  const actual1 = diff({foo: 'bar\nbaz'}, {foo: 'qux\nbaz'})
+  const actual1 = diff({ foo: 'bar\nbaz' }, { foo: 'qux\nbaz' })
   t.snapshot(actual1)
 
-  const actual2 = diff({foo: 'bar\nbaz\nqux'}, {foo: 'bar\nqux\nbaz'})
+  const actual2 = diff({ foo: 'bar\nbaz\nqux' }, { foo: 'bar\nqux\nbaz' })
   t.snapshot(actual2)
 
   const s1 = Symbol('s1')
-  const actual3 = diff({[s1]: 'bar\nbaz'}, {[s1]: 'qux\nbaz'})
+  const actual3 = diff({ [s1]: 'bar\nbaz' }, { [s1]: 'qux\nbaz' })
   t.snapshot(actual3)
 })
 
@@ -421,7 +421,7 @@ test('diffs circular references', t => {
   map2.set('map', map1)
   t.snapshot(diff(map1, map2))
 
-  const key = {key: true}
+  const key = { key: true }
   const map3 = new Map([[key, new Map()]])
   map3.get(key).set(key, map3)
   const map4 = new Map()
@@ -435,13 +435,13 @@ test('diff invalid dates', t => {
 
 test('diff dates with extra properties', t => {
   const actual = diff(new Date('1969-07-20T20:17:40.000Z'), Object.assign(new Date('1969-07-21T20:17:40.000Z'), {
-    foo: 'bar'
+    foo: 'bar',
   }))
   t.snapshot(actual)
 })
 
 test('diffs errors', t => {
-  class Custom extends Error {}
+  class Custom extends Error {} // eslint-disable-line unicorn/custom-error-definition
   t.snapshot(diff(new Custom(), new Error()))
 })
 
@@ -466,7 +466,7 @@ test('diffs builtin subclasses', t => {
 
 test('diffs regexps', t => {
   t.snapshot(diff(/foo/, /foo/g))
-  t.snapshot(diff(/foo/, Object.assign(/foo/, {bar: 'baz'})))
+  t.snapshot(diff(/foo/, Object.assign(/foo/, { bar: 'baz' })))
 })
 
 test('diffs buffers', t => {
@@ -476,9 +476,9 @@ test('diffs buffers', t => {
 test('inverted diffs', t => {
   t.snapshot(diff({
     foo: 'bar',
-    baz: 'qux\nquux\ncorge'
+    baz: 'qux\nquux\ncorge',
   }, {
     foo: 'BAR',
-    baz: 'qux\ncorge\nquux'
-  }, {invert: true}))
+    baz: 'qux\ncorge\nquux',
+  }, { invert: true }))
 })

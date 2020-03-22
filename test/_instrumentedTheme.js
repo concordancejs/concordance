@@ -1,4 +1,4 @@
-const {normalize} = require('../lib/themeUtils')
+const { normalize } = require('../lib/themeUtils')
 
 const unused = new Set()
 
@@ -15,7 +15,7 @@ const createAccessors = (object, path = '') => {
         get () {
           unused.delete(keyPath)
           return `%${keyPath}${value ? '#' + value : ''}%`
-        }
+        },
       })
     }
   }
@@ -25,7 +25,7 @@ const createAccessors = (object, path = '') => {
 const theme = {} // normalize() caches the result, so this is just a cache key
 
 Object.freeze = obj => obj // Stub out so accessors can be created
-const normalized = normalize({theme})
+const normalized = normalize({ theme })
 createAccessors(normalized)
 Object.freeze = freeze
 

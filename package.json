@@ -37,14 +37,17 @@
     "well-known-symbols": "^2.0.0"
   },
   "devDependencies": {
-    "@novemberborn/as-i-preach": "^10.0.1",
+    "@novemberborn/eslint-plugin-as-i-preach": "^12.0.0",
     "ava": "^3.5.1",
+    "eslint": "^6.8.0",
+    "eslint-plugin-ava": "^10.2.0",
+    "eslint-plugin-import": "^2.20.1",
+    "eslint-plugin-node": "^11.0.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-security": "^1.4.0",
+    "eslint-plugin-standard": "^4.0.1",
+    "eslint-plugin-unicorn": "^17.2.0",
     "nyc": "^15.0.0"
-  },
-  "as-i-preach": {
-    "allowDevDependencies": [
-      "test/**/*.js"
-    ]
   },
   "nyc": {
     "reporter": [
@@ -52,6 +55,5 @@
       "lcov",
       "text"
     ]
-  },
-  "standard-engine": "@novemberborn/as-i-preach"
+  }
 }

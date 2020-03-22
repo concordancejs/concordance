@@ -1,9 +1,9 @@
 const test = require('ava')
 
-const {format: _format} = require('../lib/format')
-const {theme, normalizedTheme, checkThemeUsage} = require('./_instrumentedTheme')
+const { format: _format } = require('../lib/format')
+const { theme, normalizedTheme, checkThemeUsage } = require('./_instrumentedTheme')
 
-const format = value => _format(value, {theme})
+const format = value => _format(value, { theme })
 test.after(checkThemeUsage)
 
 // "Use" diff themes
@@ -63,7 +63,7 @@ if (typeof BigInt === 'undefined') {
     Symbol('foo\nbar'),
     Symbol.for('bar'),
     Symbol.for('bar\nbaz'),
-    Symbol.iterator
+    Symbol.iterator,
   ]) {
     test(formatsPrimitive, value)
   }
@@ -79,11 +79,11 @@ if (typeof BigInt === 'undefined') {
     const testTheme = {
       string: {
         line: { open: '<', close: '>', escapeQuote },
-        multiline: { start: '<', end: '>', escapeQuote }
-      }
+        multiline: { start: '<', end: '>', escapeQuote },
+      },
     }
-    t.snapshot(_format(escapeQuote, {theme: testTheme}))
-    t.snapshot(_format(escapeQuote + '\n', {theme: testTheme}))
+    t.snapshot(_format(escapeQuote, { theme: testTheme }))
+    t.snapshot(_format(escapeQuote + '\n', { theme: testTheme }))
   }
   escapesQuote.title = (_, quote) => `escapes ${quote} according to theme`
   test(escapesQuote, "'")
@@ -117,7 +117,7 @@ test('formats registered symbols differently from normal symbols with same descr
 })
 
 {
-  const formatsBoxedPrimitive = (t, value) => t.snapshot(format(Object(value)))
+  const formatsBoxedPrimitive = (t, value) => t.snapshot(format(new Object(value)))
   formatsBoxedPrimitive.title = (valueRepresentation, value) => {
     return `formats boxed primitive: ${valueRepresentation || (Object.is(value, -0) ? '-0' : String(value))}`
   }
@@ -131,7 +131,7 @@ test('formats registered symbols differently from normal symbols with same descr
     Infinity,
     -Infinity,
     NaN,
-    'foo'
+    'foo',
   ]) {
     test(formatsBoxedPrimitive, value)
   }
@@ -143,7 +143,7 @@ test('formats registered symbols differently from normal symbols with same descr
 }
 
 test('formats boxed primitives with extra properties', t => {
-  t.snapshot(format(Object.assign(Object('foo'), {bar: 'baz'})))
+  t.snapshot(format(Object.assign(new Object('foo'), { bar: 'baz' })))
 })
 
 test('formats a simple array', t => {
@@ -217,7 +217,7 @@ test('formats funky objects that are lists and have an iterator', t => {
   const funky = {
     0: 'first',
     1: 'second',
-    foo: 'bar'
+    foo: 'bar',
   }
   Object.defineProperty(funky, 'length', { value: 2 })
   Object.defineProperty(funky, Symbol.iterator, { * value () { yield 'baz' } })
@@ -254,13 +254,13 @@ test('formats functions with additional properties', t => {
 test('formats anonymous generator functions', t => {
   const actual = format(function * () {})
   // eslint-disable-next-line max-len
-  t.is(actual, `%function.stringTag.open%GeneratorFunction%function.stringTag.close% %object.openBracket#{%%object.closeBracket#}%`)
+  t.is(actual, '%function.stringTag.open%GeneratorFunction%function.stringTag.close% %object.openBracket#{%%object.closeBracket#}%')
 })
 
 test('formats named generator functions', t => {
   const actual = format(function * foo () {})
   // eslint-disable-next-line max-len
-  t.is(actual, `%function.stringTag.open%GeneratorFunction%function.stringTag.close% %function.name.open%foo%function.name.close% %object.openBracket#{%%object.closeBracket#}%`)
+  t.is(actual, '%function.stringTag.open%GeneratorFunction%function.stringTag.close% %function.name.open%foo%function.name.close% %object.openBracket#{%%object.closeBracket#}%')
 })
 
 test('formats generator functions with additional properties', t => {
@@ -291,10 +291,10 @@ test('formats simple errors with a modified name', t => {
 })
 
 test('formats errors with a name that does not include Error and does not match the constructor', t => {
-  class Foo extends Error {
+  class Foo extends Error { // eslint-disable-line unicorn/custom-error-definition
     constructor (message) {
       super(message)
-      this.name = 'Bar'
+      this.name = 'Bar' // eslint-disable-line unicorn/custom-error-definition
     }
   }
   const actual = format(new Foo('Test message'))
@@ -357,7 +357,7 @@ test('formats circular references', t => {
     ['Uint16Array', new Uint16Array(arrayBuffer)],
     ['Uint32Array', new Uint32Array(arrayBuffer)],
     ['Uint8Array', new Uint8Array(arrayBuffer)],
-    ['Uint8ClampedArray', new Uint8ClampedArray(arrayBuffer)]
+    ['Uint8ClampedArray', new Uint8ClampedArray(arrayBuffer)],
   ]) {
     test(plain, value, tag)
     test(withProperties, valueForProps || value.slice(), tag)
