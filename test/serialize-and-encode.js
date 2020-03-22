@@ -1,10 +1,10 @@
-import test from 'ava'
+const test = require('ava')
 
-import {compareDescriptors, describe, diffDescriptors, formatDescriptor} from '..'
-import {deserialize, serialize} from '../lib/serialize'
+const { compareDescriptors, describe, diffDescriptors, formatDescriptor } = require('..')
+const { deserialize, serialize } = require('../lib/serialize')
 
 test('serializes a descriptor into a buffer', t => {
-  const result = serialize(describe({foo: 'bar'}))
+  const result = serialize(describe({ foo: 'bar' }))
   t.true(Buffer.isBuffer(result))
 })
 
@@ -74,11 +74,11 @@ if (typeof BigInt === 'function') {
 }
 
 // Objects
-test('object with primitive property', useDeserialized, {foo: 'bar'})
-test('object with complex property', useDeserialized, {foo: {}})
-test('object with well known symbol key', useDeserialized, {[Symbol.unscopables]: 'bar'})
-test('object with registered symbol key', useDeserialized, {[Symbol.for('foo')]: 'bar'})
-test('object with arbitrary symbol key', useDeserialized, {[Symbol('foo')]: 'bar'})
+test('object with primitive property', useDeserialized, { foo: 'bar' })
+test('object with complex property', useDeserialized, { foo: {} })
+test('object with well known symbol key', useDeserialized, { [Symbol.unscopables]: 'bar' })
+test('object with registered symbol key', useDeserialized, { [Symbol.for('foo')]: 'bar' })
+test('object with arbitrary symbol key', useDeserialized, { [Symbol('foo')]: 'bar' })
 test('object with length property', useDeserialized, { length: 12345678 })
 test('object with negative length property', useDeserialized, { length: -12345678 })
 test('object with NaN length property', useDeserialized, { length: NaN })
@@ -88,8 +88,8 @@ test('object with fractional length property', useDeserialized, { length: 1.5 })
 test('symbol properties are reordered despite serialization', t => {
   const s1 = Symbol('s1')
   const s2 = Symbol('s2')
-  const original = describe({[s1]: 1, [s2]: 2})
-  const expected = describe({[s2]: 2, [s1]: 1})
+  const original = describe({ [s1]: 1, [s2]: 2 })
+  const expected = describe({ [s2]: 2, [s1]: 1 })
 
   t.true(compareDescriptors(deserialize(serialize(original)), expected))
   t.snapshot(diffDescriptors(deserialize(serialize(original)), expected))
@@ -107,15 +107,15 @@ test('iterator with primitive item', useDeserialized,
   Object.create({}, {
     [Symbol.iterator]: {
       enumerable: false,
-      * value () { return 'bar' }
-    }
+      * value () { return 'bar' },
+    },
   }))
 test('iterator with complex item', useDeserialized,
   Object.create({}, {
     [Symbol.iterator]: {
       enumerable: false,
-      * value () { return {} }
-    }
+      * value () { return {} },
+    },
   }))
 
 // Maps
@@ -153,7 +153,7 @@ test('arguments', useDeserialized, (function () { return arguments })('foo', {})
     ['Uint16Array', new Uint16Array(arrayBuffer)],
     ['Uint32Array', new Uint32Array(arrayBuffer)],
     ['Uint8Array', new Uint8Array(arrayBuffer)],
-    ['Uint8ClampedArray', new Uint8ClampedArray(arrayBuffer)]
+    ['Uint8ClampedArray', new Uint8ClampedArray(arrayBuffer)],
   ]) {
     test(tag, useDeserialized, value)
   }

@@ -1,7 +1,7 @@
-import test from 'ava'
+const test = require('ava')
 
-import {serialization, tree} from './fixtures/pointerSerialization'
-import {compareDescriptors, deserialize, describe} from '..'
+const { compareDescriptors, deserialize, describe } = require('..')
+const { serialization, tree } = require('./fixtures/pointerSerialization')
 
 test('pointer serialization equals the same tree', t => {
   t.true(compareDescriptors(deserialize(serialization), describe(tree)))

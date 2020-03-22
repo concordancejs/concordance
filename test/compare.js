@@ -1,9 +1,9 @@
-import test from 'ava'
+const test = require('ava')
 
-import {compare} from '../lib/compare'
+const { compare } = require('../lib/compare')
 
 test('compare functions by reference', t => {
-  function a () { return 1 + 2 }
+  function a () { return 1 + 2 } // eslint-disable-line unicorn/consistent-function-scoping
   const a_ = (() => {
     return function a () { return 1 + 2 } // eslint-disable-line no-shadow
   })()
@@ -31,12 +31,12 @@ test('objects compare even if symbol properties are out of order', t => {
 
 test('-0 is not equal to +0', t => {
   t.false(compare(-0, +0).pass)
-  t.false(compare({zero: -0}, {zero: +0}).pass)
+  t.false(compare({ zero: -0 }, { zero: +0 }).pass)
 })
 
 test('NaN is equal to NaN', t => {
   t.true(compare(NaN, NaN).pass)
-  t.true(compare({notANumber: NaN}, {notANumber: NaN}).pass)
+  t.true(compare({ notANumber: NaN }, { notANumber: NaN }).pass)
 })
 
 test('survives odd circular references', t => {

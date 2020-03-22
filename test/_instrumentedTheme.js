@@ -1,4 +1,4 @@
-import {normalize} from '../lib/themeUtils'
+const { normalize } = require('../lib/themeUtils')
 
 const unused = new Set()
 
@@ -15,7 +15,7 @@ const createAccessors = (object, path = '') => {
         get () {
           unused.delete(keyPath)
           return `%${keyPath}${value ? '#' + value : ''}%`
-        }
+        },
       })
     }
   }
@@ -25,12 +25,12 @@ const createAccessors = (object, path = '') => {
 const theme = {} // normalize() caches the result, so this is just a cache key
 
 Object.freeze = obj => obj // Stub out so accessors can be created
-const normalized = normalize({theme})
+const normalized = normalize({ theme })
 createAccessors(normalized)
 Object.freeze = freeze
 
-export default theme
-export {normalized as normalizedTheme}
-export function checkThemeUsage (t) {
+exports.theme = theme
+exports.normalizedTheme = normalized
+exports.checkThemeUsage = t => {
   t.deepEqual(unused, new Set(), 'All theme properties should be accessed at least once')
 }

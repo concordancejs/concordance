@@ -7,7 +7,7 @@ const concordance = require('../..')
 const foo = {}
 const tree = {
   foo,
-  bar: {foo}
+  bar: { foo },
 }
 
 const binFile = path.join(__dirname, path.basename(__filename, '.js') + '.bin')
