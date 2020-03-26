@@ -422,12 +422,12 @@ test('format with given plugin', t => {
             return customErrorPlugin.describe
           }
         }
-      }
-    }
+      },
+    },
   ]
 
-  const actual1 = _format(new customErrorPlugin.CustomError('plugin formatter', 'PLUGIN'), {plugins, theme})
+  const actual1 = _format(new customErrorPlugin.CustomError('plugin formatter', 'PLUGIN'), { plugins, theme })
   t.snapshot(actual1)
-  const actual2 = _format(new Error('error'), {plugins, theme})
+  const actual2 = _format(new Error('error'), { plugins, theme })
   t.snapshot(actual2)
 })

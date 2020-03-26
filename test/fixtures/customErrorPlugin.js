@@ -39,8 +39,8 @@ function describe () {
             return null
           }
           i++
-          return this.describeProperty('code', this.describeAny(this.value['code']))
-        }
+          return this.describeProperty('code', this.describeAny(this.value.code))
+        },
       }
     }
   }

@@ -22,8 +22,8 @@ const plugins = [
           return customErrorPlugin.describe
         }
       }
-    }
-  }
+    },
+  },
 ]
 
 const useDeserialized = (t, value, options) => {
@@ -184,7 +184,7 @@ test('global', useDeserialized, global)
 test('promise', useDeserialized, Promise.resolve())
 test('regexp', useDeserialized, /foo/gi)
 
-test('plugin', useDeserialized, new customErrorPlugin.CustomError('custom error', 'PLUGIN', 1), {plugins})
+test('plugin', useDeserialized, new customErrorPlugin.CustomError('custom error', 'PLUGIN', 1), { plugins })
 test('should fail when plugin for deserialization missing', t => {
   const deserializationPlugins = [
     {
@@ -199,12 +199,12 @@ test('should fail when plugin for deserialization missing', t => {
             return customErrorPlugin.describe
           }
         }
-      }
-    }
+      },
+    },
   ]
 
   t.throws(() => {
-    const serialized = serialize(describe(new customErrorPlugin.CustomError('custom error', 'PLUGIN', 1), {plugins}))
-    deserialize(serialized, {plugins: deserializationPlugins})
-  }, {name: 'MissingPluginError'})
+    const serialized = serialize(describe(new customErrorPlugin.CustomError('custom error', 'PLUGIN', 1), { plugins }))
+    deserialize(serialized, { plugins: deserializationPlugins })
+  }, { name: 'MissingPluginError' })
 })
