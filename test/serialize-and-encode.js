@@ -15,7 +15,7 @@ const plugins = [
     apiVersion: 1,
     serializerVersion: 1,
     register: props => {
-      customErrorPlugin.setDependencies(props)
+      customErrorPlugin.register(props)
       props.addDescriptor(1, customErrorPlugin.tag, customErrorPlugin.deserialize)
       return function (value, stringTag, ctor) {
         if (value.name === 'CustomError') {
@@ -192,7 +192,7 @@ test('should fail when plugin for deserialization missing', t => {
       apiVersion: 1,
       serializerVersion: 2,
       register: props => {
-        customErrorPlugin.setDependencies(props)
+        customErrorPlugin.register(props)
         props.addDescriptor(1, Symbol('CustomError_v2'), customErrorPlugin.deserialize)
         return function (value, stringTag, ctor) {
           if (value.name === 'CustomError') {

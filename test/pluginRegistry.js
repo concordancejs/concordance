@@ -55,20 +55,5 @@ test('registration should be successful', t => {
     },
   }
 
-  const id2deserialize = new Map()
-  id2deserialize.set(1, 'objectDeserializer')
-  id2deserialize.set(2, 'arrayDeserializer')
-  const tag2id = new Map()
-  tag2id.set('complexCustomObject', 1)
-  tag2id.set('complexCustomArray', 2)
-  const expected = {
-    id2deserialize,
-    serializerVersion: 1,
-    name: 'complex',
-    tag2id,
-    theme: {},
-    tryDescribeValue,
-  }
-
-  t.deepEqual(pluginRegistry.add(plugin), expected)
+  t.snapshot(pluginRegistry.add(plugin))
 })

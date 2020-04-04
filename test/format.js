@@ -416,7 +416,7 @@ test('format with given plugin', t => {
       name: 'CustomError',
       apiVersion: 1,
       register: props => {
-        customErrorPlugin.setDependencies(props)
+        customErrorPlugin.register(props)
         return function (value, stringTag, ctor) {
           if (value.name === 'CustomError') {
             return customErrorPlugin.describe

@@ -13,7 +13,7 @@ class CustomError extends Error {
 
 exports.CustomError = CustomError
 
-exports.setDependencies = function (dependencies) {
+exports.register = function (dependencies) {
   DescribedMixin = dependencies.DescribedMixin
   DeserializedMixin = dependencies.DeserializedMixin
   ObjectValue = dependencies.ObjectValue
