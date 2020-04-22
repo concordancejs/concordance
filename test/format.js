@@ -416,10 +416,10 @@ test('format with given plugin', t => {
       name: 'CustomError',
       apiVersion: 1,
       register: props => {
-        customErrorPlugin.register(props)
-        return function (value, stringTag, ctor) {
+        const { describe } = customErrorPlugin.factory(props)
+        return function (value) {
           if (value.name === 'CustomError') {
-            return customErrorPlugin.describe
+            return describe
           }
         }
       },
