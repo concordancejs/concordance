@@ -147,6 +147,9 @@ test('diffs diverging complex types', t => {
       map([Buffer.alloc(0)]),
       map([new Uint8Array()]))
     t.snapshot(actual4)
+
+    const actual5 = diff(map([1, 2]), map([1]))
+    t.snapshot(actual5)
   }
   test('diffs arrays', equalLength, mapArray)
   test('diffs arguments', equalLength, mapArguments)
