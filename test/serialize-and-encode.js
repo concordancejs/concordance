@@ -179,6 +179,24 @@ test('arguments', useDeserialized, (function () { return arguments })('foo', {})
 test('date', useDeserialized, new Date('1969-07-20T20:17:40Z'))
 test('error', useDeserialized, new Error('foo'))
 test('function', useDeserialized, function foo () {})
+test('compare functions with different names', t => {
+  function a () { return 1 + 2 } // eslint-disable-line unicorn/consistent-function-scoping
+  function b () { return 1 + 2 } // eslint-disable-line unicorn/consistent-function-scoping
+
+  const original = describe(a)
+  const deserialized = deserialize(serialize(original))
+  t.false(compareDescriptors(deserialized, describe(b)))
+  t.not(formatDescriptor(deserialized), formatDescriptor(describe(b)))
+})
+test('compare deserialized function with object', t => {
+  function a () { return 1 + 2 } // eslint-disable-line unicorn/consistent-function-scoping
+  const b = { bar: 'b' }
+
+  const original = describe(a)
+  const deserialized = deserialize(serialize(original))
+  t.false(compareDescriptors(deserialized, describe(b)))
+  t.not(formatDescriptor(deserialized), formatDescriptor(describe(b)))
+})
 test('generator function', useDeserialized, function * foo () {})
 test('global', useDeserialized, global)
 test('promise', useDeserialized, Promise.resolve())
