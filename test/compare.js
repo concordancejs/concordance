@@ -11,6 +11,13 @@ test('compare functions by reference', t => {
   t.false(compare(a, a_).pass)
 })
 
+test('compare function by names', t => {
+  function a () { return 1 + 2 } // eslint-disable-line unicorn/consistent-function-scoping
+  function b () { return 1 + 2 } // eslint-disable-line unicorn/consistent-function-scoping
+
+  t.false(compare(a, b).pass)
+})
+
 test('objects compare even if symbol properties are out of order', t => {
   const s1 = Symbol('s1')
   const s2 = Symbol('s2')
