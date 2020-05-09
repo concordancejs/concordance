@@ -485,3 +485,39 @@ test('inverted diffs', t => {
     baz: 'qux\ncorge\nquux',
   }, { invert: true }))
 })
+
+test('lists: render diffs with unlimited depth', t => {
+  const l1 = [
+    {
+      b: 'b',
+    },
+    {
+      d: 'bar',
+      e: 'g',
+    },
+  ]
+  const l2 = [
+    {
+      b: 'b',
+    },
+  ]
+  t.snapshot(_diff(l1, l2, { maxDepth: 1, renderDiffWithUnlimitedDepth: true, theme }))
+})
+
+test('objects: render diffs with unlimited depth', t => {
+  const o1 = {
+    a: {
+      b: 'b',
+    },
+    c: {
+      d: 'bar',
+      e: 'g',
+    },
+  }
+  const o2 = {
+    a: {
+      b: 'b',
+    },
+  }
+  t.snapshot(_diff(o1, o2, { maxDepth: 1, renderDiffWithUnlimitedDepth: true, theme }))
+})
