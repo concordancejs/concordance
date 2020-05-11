@@ -485,3 +485,43 @@ test('inverted diffs', t => {
     baz: 'qux\ncorge\nquux',
   }, { invert: true }))
 })
+
+test('lists: effectively resets depth when formatting differences', t => {
+  const l1 = [
+    {
+      b: 'b',
+    },
+    {
+      d: 'bar',
+      e: {
+        f: 'f',
+      },
+    },
+  ]
+  const l2 = [
+    {
+      b: 'b',
+    },
+  ]
+  t.snapshot(_diff(l1, l2, { maxDepth: 1, theme }))
+})
+
+test('objects: effectively resets depth when formatting differences', t => {
+  const o1 = {
+    a: {
+      b: 'b',
+    },
+    c: {
+      d: 'bar',
+      e: {
+        f: 'f',
+      },
+    },
+  }
+  const o2 = {
+    a: {
+      b: 'b',
+    },
+  }
+  t.snapshot(_diff(o1, o2, { maxDepth: 1, theme }))
+})
