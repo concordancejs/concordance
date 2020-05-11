@@ -486,7 +486,7 @@ test('inverted diffs', t => {
   }, { invert: true }))
 })
 
-test('lists: render diffs with unlimited depth', t => {
+test('lists: effectively resets depth when formatting differences', t => {
   const l1 = [
     {
       b: 'b',
@@ -506,7 +506,7 @@ test('lists: render diffs with unlimited depth', t => {
   t.snapshot(_diff(l1, l2, { maxDepth: 1, theme }))
 })
 
-test('objects: render diffs with unlimited depth', t => {
+test('objects: effectively resets depth when formatting differences', t => {
   const o1 = {
     a: {
       b: 'b',
