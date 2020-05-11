@@ -493,7 +493,9 @@ test('lists: render diffs with unlimited depth', t => {
     },
     {
       d: 'bar',
-      e: 'g',
+      e: {
+        f: 'f',
+      },
     },
   ]
   const l2 = [
@@ -501,7 +503,7 @@ test('lists: render diffs with unlimited depth', t => {
       b: 'b',
     },
   ]
-  t.snapshot(_diff(l1, l2, { maxDepth: 1, renderDiffWithUnlimitedDepth: true, theme }))
+  t.snapshot(_diff(l1, l2, { maxDepth: 1, theme }))
 })
 
 test('objects: render diffs with unlimited depth', t => {
@@ -511,7 +513,9 @@ test('objects: render diffs with unlimited depth', t => {
     },
     c: {
       d: 'bar',
-      e: 'g',
+      e: {
+        f: 'f',
+      },
     },
   }
   const o2 = {
@@ -519,5 +523,5 @@ test('objects: render diffs with unlimited depth', t => {
       b: 'b',
     },
   }
-  t.snapshot(_diff(o1, o2, { maxDepth: 1, renderDiffWithUnlimitedDepth: true, theme }))
+  t.snapshot(_diff(o1, o2, { maxDepth: 1, theme }))
 })
