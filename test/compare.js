@@ -53,3 +53,16 @@ test('survives odd circular references', t => {
   foo2.foo = foo
   t.false(compare(foo, foo2).pass)
 })
+
+test('arrays are also compared by property', t => {
+  const a1 = [1, 2, 3]
+  a1.p = 'a1'
+  const a2 = [1, 2, 3]
+  a2.p = 'a2'
+  t.false(compare(a1, a2).pass)
+
+  const a3 = [1, 2, 3]
+  const a4 = [1, 2, 3]
+  a4[-1] = -1
+  t.false(compare(a3, a4).pass)
+})
