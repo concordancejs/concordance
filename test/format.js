@@ -160,10 +160,13 @@ test('formats a simple, nested array', t => {
 })
 
 test('formats an array with additional properties', t => {
-  const arr = ['foo', 'bar']
-  arr.baz = 'qux'
-  const actual = format(arr)
-  t.snapshot(actual)
+  const arr1 = ['foo', 'bar']
+  arr1.baz = 'qux'
+  t.snapshot(format(arr1))
+
+  const arr2 = [1, 2, 3]
+  arr2[-1] = -1
+  t.snapshot(format(arr2))
 })
 
 test('formats a multiline string inside an array', t => {
