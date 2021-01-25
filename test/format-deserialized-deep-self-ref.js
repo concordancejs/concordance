@@ -17,7 +17,11 @@ test('formats deserialized self references beyond maxDepth', t => {
   const serializedActual = concordance.serialize(actualDescriptor)
   const deserializedActual = concordance.deserialize(serializedActual)
 
+  let formatted
+
   t.notThrows(() => {
-    concordance.formatDescriptor(deserializedActual, { maxDepth: 1 })
+    formatted = concordance.formatDescriptor(deserializedActual, { maxDepth: 1 })
   })
+
+  t.snapshot(formatted)
 })
