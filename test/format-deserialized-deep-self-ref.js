@@ -1,6 +1,6 @@
 const test = require('ava')
 
-const { describe, deserialize, formatDescriptor, serialize } = require('..')
+const { describe, deserialize, diffDescriptors, formatDescriptor, serialize } = require('..')
 
 test('formats deserialized self references beyond maxDepth (issue #66)', t => {
   const value = {}
@@ -24,4 +24,24 @@ test('formats deserialized self references beyond maxDepth (issue #66)', t => {
   })
 
   t.snapshot(formatted)
+})
+
+test('diffs deserialized self references beyond maxDepth', t => {
+  const value = {}
+  const descriptor = describe({
+    a: {
+      b: value,
+    },
+    c: value,
+  })
+  const serialized = serialize(descriptor)
+  const deserialized = deserialize(serialized)
+
+  let diff
+
+  t.notThrows(() => {
+    diff = diffDescriptors(deserialized, describe(undefined), { maxDepth: 1 })
+  })
+
+  t.snapshot(diff)
 })
