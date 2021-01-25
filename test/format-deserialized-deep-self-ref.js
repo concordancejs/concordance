@@ -2,13 +2,13 @@ const test = require('ava')
 
 const { describe, deserialize, formatDescriptor, serialize } = require('..')
 
-test('formats deserialized self references beyond maxDepth', t => {
+test('formats deserialized self references beyond maxDepth (issue #66)', t => {
   const value = {}
   const descriptor = describe({
-    // The nesting property's name must be lexically less than the shallow
-    // property's name, so that it comes first in the serialization and the
-    // shallow property's value's serialization is a pointer to the nesting
-    // property's contents
+    // To trigger issue #66, the nesting property's name must be lexically less
+    // than the shallow property's name, so that it comes first in the
+    // serialization and the shallow property's value's serialization is a
+    // pointer to the nesting property's contents
     a: {
       b: value,
     },
