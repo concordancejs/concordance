@@ -1,5 +1,6 @@
 const test = require('ava')
 
+const concordance = require('..')
 const { diff: _diff } = require('../lib/diff')
 
 const { theme, normalizedTheme, checkThemeUsage } = require('./_instrumentedTheme')
@@ -524,4 +525,25 @@ test('objects: effectively resets depth when formatting differences', t => {
     },
   }
   t.snapshot(_diff(o1, o2, { maxDepth: 1, theme }))
+})
+
+// See <https://github.com/concordancejs/concordance/issues/66>.
+test('diff pointers hidden behind maxDepth', t => {
+  const value = {}
+  const descriptor = concordance.describe({
+    // `value` is encoded in the serialization of `a.b`. `c` is encoded as a
+    // pointer to the encoded `value`.
+    a: {
+      b: value,
+    },
+    c: value,
+  })
+  const serialized = concordance.serialize(descriptor)
+
+  t.notThrows(() => {
+    // `maxDepth: 1` means that `a.b` is not normally deserialized, and so the
+    // `c` pointer cannot be resolved, unless the resolution logic first
+    // deserializes the descriptor in its entirety.
+    concordance.diffDescriptors(concordance.deserialize(serialized), concordance.describe(undefined), { maxDepth: 1 })
+  })
 })
