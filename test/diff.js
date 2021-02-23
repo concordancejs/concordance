@@ -487,6 +487,12 @@ test('inverted diffs', t => {
   }, { invert: true }))
 })
 
+test('inverts string diffs', t => {
+  t.snapshot(diff('foo', 'bar', { invert: true }))
+  t.snapshot(diff('foo bar baz', 'foo baz quux', { invert: true }))
+  t.snapshot(diff('foo\nbar\nbaz', 'foobarbaz', { invert: true }))
+})
+
 test('lists: effectively resets depth when formatting differences', t => {
   const l1 = [
     {
