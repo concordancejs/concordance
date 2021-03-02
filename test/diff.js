@@ -487,6 +487,25 @@ test('inverted diffs', t => {
   }, { invert: true }))
 })
 
+test('inverts string diffs', t => {
+  t.snapshot(diff('foo', 'bar', { invert: true }))
+  t.snapshot(diff('foo bar baz', 'foo baz quux', { invert: true }))
+  t.snapshot(diff('foo\nbar\nbaz', 'foobarbaz', { invert: true }))
+})
+
+test('inverts string diffs in containers', t => {
+  const actual = 'foo\nbar\nbaz'
+  const expected = 'foo\nbaz\nquux'
+
+  t.snapshot(diff({ a: actual }, { a: expected }, { invert: true }))
+  t.snapshot(diff([actual], [expected], { invert: true }))
+  t.snapshot(diff(new Map().set('a', actual), new Map().set('a', expected), { invert: true }))
+  t.snapshot(diff(new Set().add(actual), new Set().add(expected), { invert: true }))
+  t.snapshot(diff(new String(actual), new String(expected), { invert: true })) // eslint-disable-line unicorn/new-for-builtins, no-new-wrappers
+
+  t.snapshot(diff({ a: { b: actual } }, { a: { b: expected } }, { invert: true }))
+})
+
 test('lists: effectively resets depth when formatting differences', t => {
   const l1 = [
     {
