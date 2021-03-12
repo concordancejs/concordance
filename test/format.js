@@ -94,14 +94,14 @@ if (typeof BigInt === 'undefined') {
 }
 
 test('escapes singlequotes in one-line strings with the default theme', t => {
-  t.is(_format("'"), "'\\''")
-  t.is(_format("'\n"), "`'␊\n`")
+  t.snapshot(_format("'"), 'should be escaped')
+  t.snapshot(_format("'\n"), 'should not be escaped')
 })
 
 // Regression test for #36
 test('escapes backticks in multi-line strings with the default theme', t => {
-  t.is(_format('`'), "'`'")
-  t.is(_format('`\n'), '`\\`␊\n`')
+  t.snapshot(_format('`'), 'should not be escaped')
+  t.snapshot(_format('`\n'), 'should be escaped')
 })
 
 test('formats a simple object', t => {
