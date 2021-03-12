@@ -93,6 +93,17 @@ if (typeof BigInt === 'undefined') {
   test(escapesQuote, '`')
 }
 
+test('escapes singlequotes in one-line strings with the default theme', t => {
+  t.is(_format("'"), "'\\''")
+  t.is(_format("'\n"), "`'␊\n`")
+})
+
+// Regression test for #36
+test('escapes backticks in multi-line strings with the default theme', t => {
+  t.is(_format('`'), "'`'")
+  t.is(_format('`\n'), '`\\`␊\n`')
+})
+
 test('formats a simple object', t => {
   const obj = { foo: 'bar', baz: 'qux' }
   const actual = format(obj)
