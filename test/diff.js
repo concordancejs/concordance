@@ -574,3 +574,10 @@ test('diffs sparse arrays', t => {
   array[1] = undefined
   t.snapshot(diff(array, Array.from({ length: 3 })))
 })
+
+test('diffs sparse arraylike objects', t => {
+  t.snapshot(diff(
+    { length: 3, 0: 'a', 2: 'c' },
+    { length: 3, 0: 'a', 1: undefined, 2: 'c' },
+  ))
+})
