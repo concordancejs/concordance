@@ -82,7 +82,7 @@ test('compare arrays', t => {
   array2[1] = undefined
   array2[2] = 3
 
-  t.true(isEqual(array1, array2))
+  t.false(isEqual(array1, array2))
 
   array1 = [new Object(1), false, new Object('a'), /x/, new Date(2012, 4, 23), ['a', 'b', [new Object('c')]], { a: 1 }]
   array2 = [1, new Object(false), 'a', /x/, new Date(2012, 4, 23), ['a', new Object('b'), ['c']], { a: 1 }]
@@ -132,7 +132,7 @@ test('compare sparse arrays', t => {
   const array = new Array(1)
 
   t.true(isEqual(array, new Array(1)))
-  t.true(isEqual(array, [undefined]))
+  t.false(isEqual(array, [undefined]))
   t.false(isEqual(array, new Array(2)))
 })
 

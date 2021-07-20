@@ -66,3 +66,11 @@ test('arrays are also compared by property', t => {
   a4[-1] = -1
   t.false(compare(a3, a4).pass)
 })
+
+test('empty array slots do not equal undefined', t => {
+  t.false(compare(new Array(1), Array.from({ length: 1 })).pass)
+})
+
+test('empty arraylike slots do not equal undefined', t => {
+  t.false(compare({ length: 2, 0: 'a' }, { length: 2, 0: 'a', 1: undefined }).pass)
+})

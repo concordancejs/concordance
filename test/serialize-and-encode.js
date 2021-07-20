@@ -119,6 +119,7 @@ test('symbol properties are reordered despite serialization', t => {
 // Arrays
 test('array with primitive item', useDeserialized, ['bar'])
 test('array with complex item', useDeserialized, [{}])
+test('array with empty item', useDeserialized, new Array(1))
 
 // Iterators
 test('iterator with primitive item', useDeserialized,

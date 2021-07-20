@@ -566,3 +566,18 @@ test('diff pointers hidden behind maxDepth', t => {
     concordance.diffDescriptors(concordance.deserialize(serialized), concordance.describe(undefined), { maxDepth: 1 })
   })
 })
+
+test('diffs sparse arrays', t => {
+  t.snapshot(diff(new Array(3), Array.from({ length: 3 })))
+
+  const array = new Array(3)
+  array[1] = undefined
+  t.snapshot(diff(array, Array.from({ length: 3 })))
+})
+
+test('diffs sparse arraylike objects', t => {
+  t.snapshot(diff(
+    { length: 3, 0: 'a', 2: 'c' },
+    { length: 3, 0: 'a', 1: undefined, 2: 'c' },
+  ))
+})

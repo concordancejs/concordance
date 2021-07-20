@@ -467,3 +467,16 @@ test('format pointers hidden behind maxDepth', t => {
     concordance.formatDescriptor(concordance.deserialize(serialized), { maxDepth: 1 })
   })
 })
+
+test('formats sparse arrays', t => {
+  const array1 = new Array(3)
+  t.snapshot(format(array1))
+
+  const array2 = new Array(3)
+  array2[1] = undefined
+  t.snapshot(format(array2))
+})
+
+test('formats sparse arraylike objects', t => {
+  t.snapshot(format({ length: 4, 0: 'foo', 2: 'bar' }))
+})
