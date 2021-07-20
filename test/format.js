@@ -476,3 +476,7 @@ test('formats sparse arrays', t => {
   array2[1] = undefined
   t.snapshot(format(array2))
 })
+
+test('formats sparse arraylike objects', t => {
+  t.snapshot(format({ length: 4, 0: 'foo', 2: 'bar' }))
+})
