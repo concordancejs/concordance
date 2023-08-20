@@ -1,5 +1,4 @@
-'use strict'
-class CustomError extends Error {
+export class CustomError extends Error {
   constructor (message, code) {
     super(message)
     this.code = code
@@ -7,9 +6,7 @@ class CustomError extends Error {
   }
 }
 
-exports.CustomError = CustomError
-
-exports.factory = function ({ DescribedMixin, DeserializedMixin, ObjectValue }) {
+export const factory = function ({ DescribedMixin, DeserializedMixin, ObjectValue }) {
   const tag = Symbol.for('customError')
 
   class DescribedErrorValue extends DescribedMixin(ObjectValue) {
@@ -26,9 +23,9 @@ exports.factory = function ({ DescribedMixin, DeserializedMixin, ObjectValue }) 
         },
       }
     }
-  }
 
-  Object.defineProperty(DescribedErrorValue.prototype, 'tag', { value: tag })
+    tag = tag
+  }
 
   const DeserializedErrorValue = DeserializedMixin(ObjectValue)
   Object.defineProperty(DeserializedErrorValue.prototype, 'tag', { value: tag })

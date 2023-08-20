@@ -1,8 +1,8 @@
-const test = require('ava')
+import test from 'ava'
 
-const { compareDescriptors, describe, diffDescriptors, formatDescriptor } = require('..')
-const { deserialize, serialize } = require('../lib/serialize')
-const customErrorPlugin = require('./fixtures/customErrorPlugin')
+import { compareDescriptors, describe, diffDescriptors, formatDescriptor } from '../index.js'
+import { deserialize, serialize } from '../lib/serialize.js'
+import * as customErrorPlugin from './fixtures/customErrorPlugin.js'
 
 test('serializes a descriptor into a buffer', t => {
   const result = serialize(describe({ foo: 'bar' }))

@@ -1,7 +1,9 @@
-const test = require('ava')
-const proxyquire = require('proxyquire')
+import test from 'ava'
+import esmock from 'esmock'
 
-const pluginRegistry = proxyquire('../lib/pluginRegistry', { '../package.json': { version: '1.0.0' } })
+const pluginRegistry = await esmock('../lib/pluginRegistry', {
+  import: { JSON: { parse: () => ({ version: '1.0.0' }) } },
+})
 
 test('registration should fail when plugin name invalid', t => {
   t.throws(() => pluginRegistry.add({ name: { for: 'complex' } }), { name: 'PluginTypeError' })

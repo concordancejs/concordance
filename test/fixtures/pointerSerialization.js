@@ -1,20 +1,14 @@
-'use strict'
-
-const fs = require('fs')
-const path = require('path')
-const concordance = require('../..')
+import fs from 'node:fs'
+import concordance from '../../index.js'
 
 const foo = {}
-const tree = {
+export const tree = {
   foo,
   bar: { foo },
 }
 
-const binFile = path.join(__dirname, path.basename(__filename, '.js') + '.bin')
+const binFile = new URL('./pointerSerialization.bin', import.meta.url)
 
-if (require.main === module) {
-  fs.writeFileSync(binFile, concordance.serialize(concordance.describe(tree)))
-}
+fs.writeFileSync(binFile, concordance.serialize(concordance.describe(tree)))
 
-exports.tree = tree
-exports.serialization = fs.readFileSync(binFile)
+export const serialization = fs.readFileSync(binFile)

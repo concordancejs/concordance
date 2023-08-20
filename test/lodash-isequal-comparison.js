@@ -36,9 +36,9 @@ Tests adopted from https://github.com/lodash/lodash/blob/3967c1e1197b726463246b4
 
 /* eslint-disable unicorn/consistent-function-scoping */
 
-const vm = require('vm')
-const test = require('ava')
-const { compare } = require('../lib/compare')
+import vm from 'node:vm'
+import test from 'ava'
+import { compare } from '../lib/compare.js'
 
 const isEqual = (actual, expected) => compare(actual, expected).pass
 

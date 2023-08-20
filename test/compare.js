@@ -1,6 +1,5 @@
-const test = require('ava')
-
-const { compare } = require('../lib/compare')
+import test from 'ava'
+import {compare} from '../lib/compare.js'
 
 test('compare functions by reference', t => {
   function a () { return 1 + 2 } // eslint-disable-line unicorn/consistent-function-scoping

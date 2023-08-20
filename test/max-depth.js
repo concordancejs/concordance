@@ -1,5 +1,5 @@
-const test = require('ava')
-const { format, diff } = require('..')
+import test from 'ava'
+import { format, diff } from '../index.js'
 
 const deep = {
   one: {

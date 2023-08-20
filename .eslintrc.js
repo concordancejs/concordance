@@ -1,6 +1,5 @@
-'use strict'
-
-module.exports = {
+export default {
+  sourceType: 'module',
   plugins: ['@novemberborn/as-i-preach'],
   extends: ['plugin:@novemberborn/as-i-preach/nodejs'],
   overrides: [

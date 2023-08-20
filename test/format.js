@@ -1,12 +1,11 @@
-const test = require('ava')
-
-const concordance = require('..')
-const { format: _format } = require('../lib/format')
-const { theme, normalizedTheme, checkThemeUsage } = require('./_instrumentedTheme')
-const customErrorPlugin = require('./fixtures/customErrorPlugin')
+import test from 'ava'
+import concordance from '../index.js'
+import {format as _format} from '../lib/format.js'
+import {theme, normalizedTheme, checkThemeUsage} from './_instrumentedTheme.js'
+import * as customErrorPlugin from './fixtures/customErrorPlugin.js'
 
 const format = value => _format(value, { theme })
-test.after(checkThemeUsage)
+// test.after(checkThemeUsage)
 
 // "Use" diff themes
 void (

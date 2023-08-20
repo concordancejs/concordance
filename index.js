@@ -1,21 +1,23 @@
-'use strict'
+import {compare, compareDescriptors} from './lib/compare.js'
+import describe from './lib/describe.js'
+import {diff, diffDescriptors} from './lib/diff.js'
+import {format, formatDescriptor} from './lib/format.js'
+import {serialize, deserialize} from './lib/serialize.js'
 
-const compare = require('./lib/compare')
-const describe = require('./lib/describe')
-const diff = require('./lib/diff')
-const format = require('./lib/format')
-const serialize = require('./lib/serialize')
+export {compare, compareDescriptors} from './lib/compare.js'
+export {default as describe} from './lib/describe.js'
+export {diff, diffDescriptors} from './lib/diff.js'
+export {format, formatDescriptor} from './lib/format.js'
+export {serialize, deserialize} from './lib/serialize.js'
 
-exports.compare = compare.compare
-exports.compareDescriptors = compare.compareDescriptors
-
-exports.describe = describe
-
-exports.diff = diff.diff
-exports.diffDescriptors = diff.diffDescriptors
-
-exports.format = format.format
-exports.formatDescriptor = format.formatDescriptor
-
-exports.serialize = serialize.serialize
-exports.deserialize = serialize.deserialize
+export default {
+  compare,
+  compareDescriptors,
+  describe,
+  diff,
+  diffDescriptors,
+  format,
+  formatDescriptor,
+  serialize,
+  deserialize,
+}

@@ -1,9 +1,9 @@
-const test = require('ava')
+import test from 'ava'
 
-const concordance = require('..')
-const { diff: _diff } = require('../lib/diff')
+import concordance from '../index.js'
+import {diff as _diff} from '../lib/diff.js'
 
-const { theme, normalizedTheme, checkThemeUsage } = require('./_instrumentedTheme')
+import { theme, normalizedTheme, checkThemeUsage } from './_instrumentedTheme.js'
 
 const diff = (actual, expected, { invert } = {}) => _diff(actual, expected, { invert, theme })
 test.after(checkThemeUsage)
