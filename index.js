@@ -11,13 +11,13 @@ export {format, formatDescriptor} from './lib/format.js'
 export {serialize, deserialize} from './lib/serialize.js'
 
 export default {
-  compare,
-  compareDescriptors,
-  describe,
-  diff,
-  diffDescriptors,
-  format,
-  formatDescriptor,
-  serialize,
-  deserialize,
+	compare,
+	compareDescriptors,
+	describe,
+	diff,
+	diffDescriptors,
+	format,
+	formatDescriptor,
+	serialize,
+	deserialize,
 }

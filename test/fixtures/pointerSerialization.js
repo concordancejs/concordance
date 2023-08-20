@@ -3,8 +3,8 @@ import concordance from '../../index.js'
 
 const foo = {}
 export const tree = {
-  foo,
-  bar: { foo },
+	foo,
+	bar: { foo },
 }
 
 const binFile = new URL('./pointerSerialization.bin', import.meta.url)
