@@ -37,7 +37,7 @@
 	},
 	"devDependencies": {
 		"@types/node": "16.9",
-		"ava": "^3.15.0",
+		"ava": "^5.3.1",
 		"c8": "^8.0.1",
 		"esmock": "^2.3.8",
 		"xo": "^0.56.0"
@@ -66,8 +66,8 @@
 	},
 	"ava": {
 		"nodeArguments": [
-		"--loader=esmock",
-		"--no-warnings=ExperimentalWarning"
+			"--loader=esmock",
+			"--no-warnings=ExperimentalWarning"
 		]
 	}
 }

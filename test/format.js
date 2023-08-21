@@ -388,7 +388,7 @@ test('formats circular references', t => {
 		['Uint8ClampedArray', new Uint8ClampedArray(arrayBuffer)],
 	]) {
 		test(plain, value, tag);
-		test(withProperties, valueForProps || [...value], tag);
+		test(withProperties, valueForProps || value.slice(), tag); // eslint-disable-line unicorn/prefer-spread
 	}
 }
 
