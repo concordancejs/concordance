@@ -25,42 +25,44 @@ if (typeof BigInt === 'undefined') {
 	);
 }
 
-{
-	const diffsPrimitives = (t, lhs, rhs) => t.snapshot(diff(lhs, rhs));
-	diffsPrimitives.title = (_, lhs, rhs, lhsRepresentation = String(lhs), rhsRepresentation = String(rhs)) => `diffs primitives: ${lhsRepresentation} versus ${rhsRepresentation}`;
-	for (const [lhs, rhs] of [
-		[null, undefined],
-		[null, false],
-		[null, true],
-		[null, ''],
-		[null, 42],
-		[null, Symbol()], // eslint-disable-line symbol-description
-		[Symbol(), Symbol()], // eslint-disable-line symbol-description
-		[null, {}],
-	]) {
-		test(diffsPrimitives, lhs, rhs);
-	}
+const diffsPrimitives = test.macro({
+	exec: (t, lhs, rhs) => t.snapshot(diff(lhs, rhs)),
+	title: (_, lhs, rhs, lhsRepresentation = String(lhs), rhsRepresentation = String(rhs)) => `diffs primitives: ${lhsRepresentation} versus ${rhsRepresentation}`,
+});
 
-	if (typeof BigInt === 'function') {
-		test(diffsPrimitives, null, BigInt(42), 'null', '42n');
-	}
+for (const [lhs, rhs] of [
+	[null, undefined],
+	[null, false],
+	[null, true],
+	[null, ''],
+	[null, 42],
+	[null, Symbol()], // eslint-disable-line symbol-description
+	[Symbol(), Symbol()], // eslint-disable-line symbol-description
+	[null, {}],
+]) {
+	test(diffsPrimitives, lhs, rhs);
 }
 
-{
-	// eslint-disable-next-line no-new-object
-	const diffsBoxedPrimitives = (t, lhs, rhs) => t.snapshot(diff(new Object(lhs), new Object(rhs)));
-	diffsBoxedPrimitives.title = (_, lhs, rhs, lhsRepresentation = String(lhs), rhsRepresentation = String(rhs)) => `diffs primitives: ${lhsRepresentation} versus ${rhsRepresentation}`;
-	for (const [lhs, rhs] of [
-		[true, false],
-		[-42, 42],
-		['foo', 'bar'],
-	]) {
-		test(diffsBoxedPrimitives, lhs, rhs);
-	}
+if (typeof BigInt === 'function') {
+	test(diffsPrimitives, null, BigInt(42), 'null', '42n');
+}
 
-	if (typeof BigInt === 'function') {
-		test(diffsBoxedPrimitives, BigInt(-42), BigInt(42), '-42n', '42n');
-	}
+const diffsBoxedPrimitives = test.macro({
+	// eslint-disable-next-line no-new-object
+	exec: (t, lhs, rhs) => t.snapshot(diff(new Object(lhs), new Object(rhs))),
+	title: (_, lhs, rhs, lhsRepresentation = String(lhs), rhsRepresentation = String(rhs)) => `diffs primitives: ${lhsRepresentation} versus ${rhsRepresentation}`,
+});
+
+for (const [lhs, rhs] of [
+	[true, false],
+	[-42, 42],
+	['foo', 'bar'],
+]) {
+	test(diffsBoxedPrimitives, lhs, rhs);
+}
+
+if (typeof BigInt === 'function') {
+	test(diffsBoxedPrimitives, BigInt(-42), BigInt(42), '-42n', '42n');
 }
 
 test('diffs boxed primitives with extra properties', t => {

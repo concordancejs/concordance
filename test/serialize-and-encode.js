@@ -30,43 +30,44 @@ const plugins = [
 	},
 ];
 
-const useDeserialized = (t, value, options) => {
-	const original = describe(value, options);
+const useDeserialized = test.macro({
+	exec(t, value, options) {
+		const original = describe(value, options);
 
-	const buffer = serialize(original);
-	const deserialized = deserialize(buffer, options);
+		const buffer = serialize(original);
+		const deserialized = deserialize(buffer, options);
 
-	t.true(
-		compareDescriptors(deserialized, original),
-		'the deserialized descriptor equals the original',
-	);
+		t.true(
+			compareDescriptors(deserialized, original),
+			'the deserialized descriptor equals the original',
+		);
 
-	t.is(
-		formatDescriptor(deserialized),
-		formatDescriptor(original),
-		'the deserialized descriptor is formatted like the original',
-	);
+		t.is(
+			formatDescriptor(deserialized),
+			formatDescriptor(original),
+			'the deserialized descriptor is formatted like the original',
+		);
 
-	const redeserialized = deserialize(serialize(deserialized), options);
+		const redeserialized = deserialize(serialize(deserialized), options);
 
-	t.true(
-		compareDescriptors(redeserialized, original),
-		'after serializing and deserializing it again, the deserialized descriptor equals the original',
-	);
+		t.true(
+			compareDescriptors(redeserialized, original),
+			'after serializing and deserializing it again, the deserialized descriptor equals the original',
+		);
 
-	t.is(
-		formatDescriptor(redeserialized),
-		formatDescriptor(original),
-		'after serializing and deserializing it again, the deserialized descriptor is formatted like the original',
-	);
+		t.is(
+			formatDescriptor(redeserialized),
+			formatDescriptor(original),
+			'after serializing and deserializing it again, the deserialized descriptor is formatted like the original',
+		);
 
-	t.true(
-		compareDescriptors(redeserialized, deserialized),
-		'deserialized descriptors equal each other',
-	);
-};
-
-useDeserialized.title = (desc, value) => `deserialized ${desc || String(value)} is equivalent to the original`;
+		t.true(
+			compareDescriptors(redeserialized, deserialized),
+			'deserialized descriptors equal each other',
+		);
+	},
+	title: (desc, value) => `deserialized ${desc || String(value)} is equivalent to the original`,
+});
 
 // Primitives
 test(useDeserialized, true);

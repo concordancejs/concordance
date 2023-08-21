@@ -39,51 +39,51 @@ if (typeof BigInt === 'undefined') {
 	);
 }
 
-{
-	const formatsPrimitive = (t, value) => t.snapshot(format(value));
-	formatsPrimitive.title = (valueRepresentation, value) => {
+const formatsPrimitive = test.macro({
+	exec: (t, value) => t.snapshot(format(value)),
+	title(valueRepresentation, value) {
 		const string_ = Object.is(value, -0)
 			? '-0'
 			: String(value).replaceAll('\r', '\\r').replaceAll('\n', '\\n');
 		return `formats primitive: ${valueRepresentation || string_}`;
-	};
+	},
+});
 
-	for (const value of [
-		null,
-		undefined,
-		false,
-		true,
-		'',
-		'foo',
-		'\\ -- \' -- "',
-		'foo\nbar\\baz\'"',
-		'qux\r\nquux',
-		'qux\rquux',
-		42,
-		-42,
-		-0,
-		+0,
-		Number.POSITIVE_INFINITY,
-		Number.NEGATIVE_INFINITY,
-		Number.NaN,
-		Symbol(), // eslint-disable-line symbol-description
-		Symbol('foo'),
-		Symbol('foo\nbar'),
-		Symbol.for('bar'),
-		Symbol.for('bar\nbaz'),
-		Symbol.iterator,
-	]) {
-		test(formatsPrimitive, value);
-	}
-
-	if (typeof BigInt === 'function') {
-		test('42n', formatsPrimitive, BigInt(42));
-		test('-42n', formatsPrimitive, BigInt(-42));
-	}
+for (const value of [
+	null,
+	undefined,
+	false,
+	true,
+	'',
+	'foo',
+	'\\ -- \' -- "',
+	'foo\nbar\\baz\'"',
+	'qux\r\nquux',
+	'qux\rquux',
+	42,
+	-42,
+	-0,
+	+0,
+	Number.POSITIVE_INFINITY,
+	Number.NEGATIVE_INFINITY,
+	Number.NaN,
+	Symbol(), // eslint-disable-line symbol-description
+	Symbol('foo'),
+	Symbol('foo\nbar'),
+	Symbol.for('bar'),
+	Symbol.for('bar\nbaz'),
+	Symbol.iterator,
+]) {
+	test(formatsPrimitive, value);
 }
 
-{
-	const escapesQuote = (t, escapeQuote) => {
+if (typeof BigInt === 'function') {
+	test('42n', formatsPrimitive, BigInt(42));
+	test('-42n', formatsPrimitive, BigInt(-42));
+}
+
+const escapesQuote = test.macro({
+	exec(t, escapeQuote) {
 		const testTheme = {
 			string: {
 				line: {open: '<', close: '>', escapeQuote},
@@ -92,13 +92,13 @@ if (typeof BigInt === 'undefined') {
 		};
 		t.snapshot(_format(escapeQuote, {theme: testTheme}));
 		t.snapshot(_format(escapeQuote + '\n', {theme: testTheme}));
-	};
+	},
+	title: (_, quote) => `escapes ${quote} according to theme`,
+});
 
-	escapesQuote.title = (_, quote) => `escapes ${quote} according to theme`;
-	test(escapesQuote, '\'');
-	test(escapesQuote, '"');
-	test(escapesQuote, '`');
-}
+test(escapesQuote, '\'');
+test(escapesQuote, '"');
+test(escapesQuote, '`');
 
 test('escapes singlequotes in one-line strings with the default theme', t => {
 	t.snapshot(_format('\''), 'should be escaped');
@@ -136,29 +136,30 @@ test('formats registered symbols differently from normal symbols with same descr
 	t.true(format(Symbol('foo')) !== format(Symbol.for('foo')));
 });
 
-{
+const formatsBoxedPrimitive = test.macro({
 	// eslint-disable-next-line no-new-object
-	const formatsBoxedPrimitive = (t, value) => t.snapshot(format(new Object(value)));
-	formatsBoxedPrimitive.title = (valueRepresentation, value) => `formats boxed primitive: ${valueRepresentation || (Object.is(value, -0) ? '-0' : String(value))}`;
-	for (const value of [
-		false,
-		true,
-		42,
-		-42,
-		-0,
-		+0,
-		Number.POSITIVE_INFINITY,
-		Number.NEGATIVE_INFINITY,
-		Number.NaN,
-		'foo',
-	]) {
-		test(formatsBoxedPrimitive, value);
-	}
+	exec: (t, value) => t.snapshot(format(new Object(value))),
+	title: (valueRepresentation, value) => `formats boxed primitive: ${valueRepresentation || (Object.is(value, -0) ? '-0' : String(value))}`,
+});
 
-	if (typeof BigInt === 'function') {
-		test('42n', formatsBoxedPrimitive, BigInt(42));
-		test('-42n', formatsBoxedPrimitive, BigInt(-42));
-	}
+for (const value of [
+	false,
+	true,
+	42,
+	-42,
+	-0,
+	+0,
+	Number.POSITIVE_INFINITY,
+	Number.NEGATIVE_INFINITY,
+	Number.NaN,
+	'foo',
+]) {
+	test(formatsBoxedPrimitive, value);
+}
+
+if (typeof BigInt === 'function') {
+	test('42n', formatsBoxedPrimitive, BigInt(42));
+	test('-42n', formatsBoxedPrimitive, BigInt(-42));
 }
 
 test('formats boxed primitives with extra properties', t => {
@@ -355,41 +356,41 @@ test('formats circular references', t => {
 	t.snapshot(actual);
 });
 
-{
-	const plain = (t, value, _tag) => {
+const plain = test.macro({
+	exec(t, value, _tag) {
 		const actual = format(value);
 		t.snapshot(actual);
-	};
+	},
+	title: (_, __, tag) => `formats ${tag}`,
+});
 
-	plain.title = (_, __, tag) => `formats ${tag}`;
-
-	const withProperties = (t, value, _tag) => {
+const withProperties = test.macro({
+	exec(t, value, _tag) {
 		const actual = format(Object.assign(value, {foo: 'bar'}));
 		t.snapshot(actual);
-	};
+	},
+	title: (_, __, tag) => `formats ${tag} with additional properties`,
+});
 
-	withProperties.title = (_, __, tag) => `formats ${tag} with additional properties`;
+const buffer = Buffer.from('decafbad'.repeat(12), 'hex');
+const arrayBuffer = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
 
-	const buffer = Buffer.from('decafbad'.repeat(12), 'hex');
-	const arrayBuffer = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
-
-	for (const [tag, value, valueForProps] of [
-		['ArrayBuffer', arrayBuffer],
-		['Buffer @Uint8Array', buffer],
-		['DataView', new DataView(arrayBuffer), new DataView(arrayBuffer)],
-		['Float32Array', new Float32Array(arrayBuffer)],
-		['Float64Array', new Float64Array(arrayBuffer)],
-		['Int16Array', new Int16Array(arrayBuffer)],
-		['Int32Array', new Int32Array(arrayBuffer)],
-		['Int8Array', new Int8Array(arrayBuffer)],
-		['Uint16Array', new Uint16Array(arrayBuffer)],
-		['Uint32Array', new Uint32Array(arrayBuffer)],
-		['Uint8Array', new Uint8Array(arrayBuffer)],
-		['Uint8ClampedArray', new Uint8ClampedArray(arrayBuffer)],
-	]) {
-		test(plain, value, tag);
-		test(withProperties, valueForProps || value.slice(), tag); // eslint-disable-line unicorn/prefer-spread
-	}
+for (const [tag, value, valueForProps] of [
+	['ArrayBuffer', arrayBuffer],
+	['Buffer @Uint8Array', buffer],
+	['DataView', new DataView(arrayBuffer), new DataView(arrayBuffer)],
+	['Float32Array', new Float32Array(arrayBuffer)],
+	['Float64Array', new Float64Array(arrayBuffer)],
+	['Int16Array', new Int16Array(arrayBuffer)],
+	['Int32Array', new Int32Array(arrayBuffer)],
+	['Int8Array', new Int8Array(arrayBuffer)],
+	['Uint16Array', new Uint16Array(arrayBuffer)],
+	['Uint32Array', new Uint32Array(arrayBuffer)],
+	['Uint8Array', new Uint8Array(arrayBuffer)],
+	['Uint8ClampedArray', new Uint8ClampedArray(arrayBuffer)],
+]) {
+	test(plain, value, tag);
+	test(withProperties, valueForProps || value.slice(), tag); // eslint-disable-line unicorn/prefer-spread
 }
 
 test('formats dates', t => {
