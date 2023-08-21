@@ -14,7 +14,8 @@
 		"node": ">=16.9"
 	},
 	"scripts": {
-		"test": "xo && c8 ava"
+		"test": "xo && c8 npm run ava",
+		"ava": "cross-env NODE_OPTIONS='--loader=esmock --no-warnings=ExperimentalWarning' ava"
 	},
 	"repository": {
 		"type": "git",
@@ -39,6 +40,7 @@
 		"@types/node": "16.9",
 		"ava": "^5.3.1",
 		"c8": "^8.0.1",
+		"cross-env": "^7.0.3",
 		"esmock": "^2.3.8",
 		"xo": "^0.56.0"
 	},
