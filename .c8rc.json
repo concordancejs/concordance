@@ -2,8 +2,8 @@
 	"all": true,
 	"exclude": [
 		"{coverage,test}/**",
-		".eslintrc.js",
-		"index.d.ts"
+		".xo-config.cjs",
+		"lib/lodash"
 	],
 	"reporter": [
 		"html",

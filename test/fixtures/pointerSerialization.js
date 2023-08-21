@@ -1,14 +1,15 @@
-import fs from 'node:fs'
-import concordance from '../../index.js'
+import fs from 'node:fs';
 
-const foo = {}
+import concordance from '../../index.js';
+
+const foo = {};
 export const tree = {
 	foo,
-	bar: { foo },
-}
+	bar: {foo},
+};
 
-const binFile = new URL('./pointerSerialization.bin', import.meta.url)
+const binFile = new URL('pointerSerialization.bin', import.meta.url);
 
-fs.writeFileSync(binFile, concordance.serialize(concordance.describe(tree)))
+fs.writeFileSync(binFile, concordance.serialize(concordance.describe(tree)));
 
-export const serialization = fs.readFileSync(binFile)
+export const serialization = fs.readFileSync(binFile);

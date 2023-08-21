@@ -1,42 +1,43 @@
 export class CustomError extends Error {
-	constructor (message, code) {
-		super(message)
-		this.code = code
-		this.name = 'CustomError'
+	constructor(message, code) {
+		super(message);
+		this.code = code;
+		this.name = 'CustomError';
 	}
 }
 
-export const factory = function ({ DescribedMixin, DeserializedMixin, ObjectValue }) {
-	const tag = Symbol.for('customError')
+export const factory = function ({DescribedMixin, DeserializedMixin, ObjectValue}) {
+	const tag = Symbol.for('customError');
 
 	class DescribedErrorValue extends DescribedMixin(ObjectValue) {
-		createPropertyRecursor () {
-			let i = 0
+		createPropertyRecursor() {
+			let i = 0;
 			return {
 				size: 1,
 				next: () => {
 					if (i === 1) {
-						return null
+						return null;
 					}
-					i++
-					return this.describeProperty('code', this.describeAny(this.value.code))
+
+					i++;
+					return this.describeProperty('code', this.describeAny(this.value.code));
 				},
-			}
+			};
 		}
 
-		tag = tag
+		tag = tag;
 	}
 
-	const DeserializedErrorValue = DeserializedMixin(ObjectValue)
-	Object.defineProperty(DeserializedErrorValue.prototype, 'tag', { value: tag })
+	const DeserializedErrorValue = DeserializedMixin(ObjectValue);
+	Object.defineProperty(DeserializedErrorValue.prototype, 'tag', {value: tag});
 
 	return {
-		describe (props) {
-			return new DescribedErrorValue(props)
+		describe(props) {
+			return new DescribedErrorValue(props);
 		},
-		deserialize (state, recursor) {
-			return new DeserializedErrorValue(state, recursor)
+		deserialize(state, recursor) {
+			return new DeserializedErrorValue(state, recursor);
 		},
 		tag,
-	}
-}
+	};
+};
