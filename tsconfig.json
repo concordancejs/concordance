@@ -1,0 +1,12 @@
+{
+  "extends": "@sindresorhus/tsconfig",
+  "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "module": "nodenext",
+    "outDir": "dist",
+    "rewriteRelativeImportExtensions": true,
+    "erasableSyntaxOnly": true,
+    "types": ["node"],
+    "verbatimModuleSyntax": true
+  }
+}
