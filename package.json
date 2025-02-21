@@ -6,9 +6,9 @@
   "exports": "./dist/exports.js",
   "files": [
     "dist",
-    "!dist/*.test.js",
+    "!dist/**/test/**",
     "src",
-    "!src/*.test.ts"
+    "!src/**/test/**"
   ],
   "engines": {
     "node": ">=22.14 || >=23.8"
@@ -36,6 +36,7 @@
     "xo": "^0.60.0"
   },
   "dependencies": {
+    "cbor2": "npm:@concordance/cbor2@0.1.0",
     "never": "^1.1.0"
   },
   "overrides": {

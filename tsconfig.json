@@ -7,6 +7,8 @@
     "rewriteRelativeImportExtensions": true,
     "erasableSyntaxOnly": true,
     "types": ["node"],
+    "lib": ["esnext"],
+    "target": "es2024",
     "verbatimModuleSyntax": true
   }
 }

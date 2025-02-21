@@ -1,5 +1,7 @@
 {
   "all": true,
   "src": "src",
+  "include": "src",
+  "exclude": "src/**/test",
   "reporter": ["html", "lcov"]
 }

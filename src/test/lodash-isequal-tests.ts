@@ -36,27 +36,61 @@ Tests adopted from https://github.com/lodash/lodash/blob/3967c1e1197b726463246b4
 
 /* eslint-disable unicorn/consistent-function-scoping */
 
-const vm = require('vm')
-const test = require('ava')
-const { compare } = require('../lib/compare')
+import vm from 'node:vm'
+import test from 'ava'
 
-const isEqual = (actual, expected) => compare(actual, expected).pass
+import { compare } from '../compare.ts'
+
+const isEqual = (actual: unknown, expected: unknown) => compare(actual, expected).pass
 
 const realm = vm.runInNewContext('(function () { return this })()')
-const symbol1 = Symbol ? Symbol('a') : true
-const symbol2 = Symbol ? Symbol('b') : false
+const symbol1 = Symbol('a')
+const symbol2 = Symbol('b')
 
-test('compare primitives', t => {
-  const pairs = [
-    [1, 1, true], [1, new Object(1), false], [1, '1', false], [1, 2, false],
-    [-0, -0, true], [0, 0, true], [0, new Object(0), false], [new Object(0), new Object(0), true], [-0, 0, false], [0, '0', false], [0, null, false], // eslint-disable-line max-len
-    [NaN, NaN, true], [NaN, new Object(NaN), false], [new Object(NaN), new Object(NaN), true], [NaN, 'a', false], [NaN, Infinity, false], // eslint-disable-line max-len
-    ['a', 'a', true], ['a', new Object('a'), false], [new Object('a'), new Object('a'), true], ['a', 'b', false], ['a', ['a'], false], // eslint-disable-line max-len
-    [true, true, true], [true, new Object(true), false], [new Object(true), new Object(true), true], [true, 1, false], [true, 'a', false], // eslint-disable-line max-len
-    [false, false, true], [false, new Object(false), false], [new Object(false), new Object(false), true], [false, 0, false], [false, '', false], // eslint-disable-line max-len
-    [symbol1, symbol1, true], [symbol1, new Object(symbol1), false], [new Object(symbol1), new Object(symbol1), true], [symbol1, symbol2, false], // eslint-disable-line max-len
-    [null, null, true], [null, undefined, false], [null, {}, false], [null, '', false],
-    [undefined, undefined, true], [undefined, null, false], [undefined, '', false],
+test('compare primitives', (t) => {
+  const pairs: [any, any, any][] = [
+    [1, 1, true],
+    [1, new Object(1), false],
+    [1, '1', false],
+    [1, 2, false],
+    [-0, -0, true],
+    [0, 0, true],
+    [0, new Object(0), false],
+    [new Object(0), new Object(0), true],
+    [-0, 0, false],
+    [0, '0', false],
+    [0, null, false], // eslint-disable-line max-len
+    [NaN, NaN, true],
+    [NaN, new Object(NaN), false],
+    [new Object(NaN), new Object(NaN), true],
+    [NaN, 'a', false],
+    [NaN, Infinity, false], // eslint-disable-line max-len
+    ['a', 'a', true],
+    ['a', new Object('a'), false],
+    [new Object('a'), new Object('a'), true],
+    ['a', 'b', false],
+    ['a', ['a'], false], // eslint-disable-line max-len
+    [true, true, true],
+    [true, new Object(true), false],
+    [new Object(true), new Object(true), true],
+    [true, 1, false],
+    [true, 'a', false], // eslint-disable-line max-len
+    [false, false, true],
+    [false, new Object(false), false],
+    [new Object(false), new Object(false), true],
+    [false, 0, false],
+    [false, '', false], // eslint-disable-line max-len
+    [symbol1, symbol1, true],
+    [symbol1, new Object(symbol1), false],
+    [new Object(symbol1), new Object(symbol1), true],
+    [symbol1, symbol2, false], // eslint-disable-line max-len
+    [null, null, true],
+    [null, undefined, false],
+    [null, {}, false],
+    [null, '', false],
+    [undefined, undefined, true],
+    [undefined, null, false],
+    [undefined, '', false],
   ]
 
   for (const [lhs, rhs, result] of pairs) {
@@ -64,9 +98,9 @@ test('compare primitives', t => {
   }
 })
 
-test('compare arrays', t => {
-  let array1 = [true, null, 1, 'a', undefined]
-  let array2 = [true, null, 1, 'a', undefined]
+test('compare arrays', (t) => {
+  let array1: any[] = [true, null, 1, 'a', undefined]
+  let array2: any[] = [true, null, 1, 'a', undefined]
 
   t.true(isEqual(array1, array2))
 
@@ -100,35 +134,71 @@ test('compare arrays', t => {
   t.false(isEqual(array1, array2))
 })
 
-test('treat arrays with identical values but different non-index properties as unequal', t => {
-  let array1 = [1, 2, 3]
-  let array2 = [1, 2, 3]
+test('treat arrays with identical values but different non-index properties as unequal', (t) => {
+  let array1: any[] = [1, 2, 3]
+  let array2: any[] = [1, 2, 3]
 
-  array1.every = array1.filter = array1.forEach =
-  array1.indexOf = array1.lastIndexOf = array1.map =
-  array1.some = array1.reduce = array1.reduceRight = null
+  // @ts-expect-error Doing it anyway
+  array1.every =
+    // @ts-expect-error Doing it anyway
+    array1.filter =
+    // @ts-expect-error Doing it anyway
+    array1.forEach =
+    // @ts-expect-error Doing it anyway
+    array1.indexOf =
+    // @ts-expect-error Doing it anyway
+    array1.lastIndexOf =
+    // @ts-expect-error Doing it anyway
+    array1.map =
+    // @ts-expect-error Doing it anyway
+    array1.some =
+    // @ts-expect-error Doing it anyway
+    array1.reduce =
+    // @ts-expect-error Doing it anyway
+    array1.reduceRight =
+      null
 
-  array2.concat = array2.join = array2.pop =
-  array2.reverse = array2.shift = array2.slice =
-  array2.sort = array2.splice = array2.unshift = null
+  // @ts-expect-error Doing it anyway
+  array2.concat =
+    // @ts-expect-error Doing it anyway
+    array2.join =
+    // @ts-expect-error Doing it anyway
+    array2.pop =
+    // @ts-expect-error Doing it anyway
+    array2.reverse =
+    // @ts-expect-error Doing it anyway
+    array2.shift =
+    // @ts-expect-error Doing it anyway
+    array2.slice =
+    // @ts-expect-error Doing it anyway
+    array2.sort =
+    // @ts-expect-error Doing it anyway
+    array2.splice =
+    // @ts-expect-error Doing it anyway
+    array2.unshift =
+      null
 
   t.false(isEqual(array1, array2))
 
   array1 = [1, 2, 3]
+  // @ts-expect-error Doing it anyway
+
   array1.a = 1
 
   array2 = [1, 2, 3]
+  // @ts-expect-error Doing it anyway
   array2.b = 1
 
   t.false(isEqual(array1, array2))
 
+  // @ts-expect-error Doing it anyway
   array1 = /c/.exec('abcde')
   array2 = ['c']
 
   t.false(isEqual(array1, array2))
 })
 
-test('compare sparse arrays', t => {
+test('compare sparse arrays', (t) => {
   const array = new Array(1)
 
   t.true(isEqual(array, new Array(1)))
@@ -136,9 +206,9 @@ test('compare sparse arrays', t => {
   t.false(isEqual(array, new Array(2)))
 })
 
-test('compare plain objects', t => {
-  let object1 = { a: true, b: null, c: 1, d: 'a', e: undefined }
-  let object2 = { a: true, b: null, c: 1, d: 'a', e: undefined }
+test('compare plain objects', (t) => {
+  let object1: any = { a: true, b: null, c: 1, d: 'a', e: undefined }
+  let object2: any = { a: true, b: null, c: 1, d: 'a', e: undefined }
 
   t.true(isEqual(object1, object2))
 
@@ -163,14 +233,14 @@ test('compare plain objects', t => {
   t.false(isEqual(object1, object2))
 })
 
-test('compare objects regardless of key order', t => {
+test('compare objects regardless of key order', (t) => {
   const object1 = { a: 1, b: 2, c: 3 }
   const object2 = { c: 3, a: 1, b: 2 }
 
   t.true(isEqual(object1, object2))
 })
 
-test('compare nested objects', t => {
+test('compare nested objects', (t) => {
   const noop = () => {}
 
   const object1 = {
@@ -204,16 +274,20 @@ test('compare nested objects', t => {
   t.true(isEqual(object1, object2))
 })
 
-test('compare object instances', t => {
-  function Foo () {
-    this.a = 1
+test('compare object instances', (t) => {
+  class Foo {
+    a = 1
+    constructor() {
+      this.a = 1
+    }
   }
-  Foo.prototype.a = 1
 
-  function Bar () {
-    this.a = 1
+  class Bar {
+    a = 2
+    constructor() {
+      this.a = 1
+    }
   }
-  Bar.prototype.a = 2
 
   t.true(isEqual(new Foo(), new Foo()))
   t.false(isEqual(new Foo(), new Bar()))
@@ -221,7 +295,7 @@ test('compare object instances', t => {
   t.false(isEqual({ a: 2 }, new Bar()))
 })
 
-test('compare objects with constructor properties', t => {
+test('compare objects with constructor properties', (t) => {
   t.true(isEqual({ constructor: 1 }, { constructor: 1 }))
   t.false(isEqual({ constructor: 1 }, { constructor: '1' }))
   t.true(isEqual({ constructor: [1] }, { constructor: [1] }))
@@ -229,9 +303,9 @@ test('compare objects with constructor properties', t => {
   t.false(isEqual({ constructor: Object }, {}))
 })
 
-test('compare arrays with circular references', t => {
-  let array1 = []
-  let array2 = []
+test('compare arrays with circular references', (t) => {
+  let array1: any[] = []
+  let array2: any[] = []
 
   array1.push(array1)
   array2.push(array2)
@@ -255,8 +329,8 @@ test('compare arrays with circular references', t => {
   t.false(isEqual(array1, array2))
 })
 
-test('have transitive equivalence for circular references of arrays', t => {
-  const array1 = []
+test('have transitive equivalence for circular references of arrays', (t) => {
+  const array1: any[] = []
   const array2 = [array1]
   const array3 = [array2]
 
@@ -269,9 +343,9 @@ test('have transitive equivalence for circular references of arrays', t => {
   t.false(isEqual(array1, array3))
 })
 
-test('compare objects with circular references', t => {
-  let object1 = {}
-  let object2 = {}
+test('compare objects with circular references', (t) => {
+  let object1: any = {}
+  let object2: any = {}
 
   object1.a = object1
   object2.a = object2
@@ -295,8 +369,8 @@ test('compare objects with circular references', t => {
   t.false(isEqual(object1, object2))
 })
 
-test('have transitive equivalence for circular references of objects', t => {
-  const object1 = {}
+test('have transitive equivalence for circular references of objects', (t) => {
+  const object1: any = {}
   const object2 = { a: object1 }
   const object3 = { a: object2 }
 
@@ -309,12 +383,12 @@ test('have transitive equivalence for circular references of objects', t => {
   t.false(isEqual(object1, object3))
 })
 
-test('compare objects with multiple circular references', t => {
-  const array1 = [{}]
-  const array2 = [{}];
+test('compare objects with multiple circular references', (t) => {
+  const array1: any[] = [{}]
+  const array2: any[] = [{}]
 
-  (array1[0].a = array1).push(array1);
-  (array2[0].a = array2).push(array2)
+  ;(array1[0].a = array1).push(array1)
+  ;(array2[0].a = array2).push(array2)
 
   t.true(isEqual(array1, array2))
 
@@ -329,13 +403,13 @@ test('compare objects with multiple circular references', t => {
   t.false(isEqual(array1, array2))
 })
 
-test('compare objects with complex circular references', t => {
-  const object1 = {
+test('compare objects with complex circular references', (t) => {
+  const object1: any = {
     foo: { b: { c: { d: {} } } },
     bar: { a: 2 },
   }
 
-  const object2 = {
+  const object2: any = {
     foo: { b: { c: { d: {} } } },
     bar: { a: 2 },
   }
@@ -349,8 +423,8 @@ test('compare objects with complex circular references', t => {
   t.true(isEqual(object1, object2))
 })
 
-test('compare objects with shared property values', t => {
-  const object1 = {
+test('compare objects with shared property values', (t) => {
+  const object1: any = {
     a: [1, 2],
   }
 
@@ -364,10 +438,14 @@ test('compare objects with shared property values', t => {
   t.true(isEqual(object1, object2))
 })
 
-test('treat objects created by `Object.create(null)` like plain objects', t => {
-  function Foo () {
-    this.a = 1
+test('treat objects created by `Object.create(null)` like plain objects', (t) => {
+  class Foo {
+    a: number
+    constructor() {
+      this.a = 1
+    }
   }
+  // @ts-expect-error Doing it anyway
   Foo.prototype.constructor = null
 
   const object1 = Object.create(null)
@@ -379,7 +457,7 @@ test('treat objects created by `Object.create(null)` like plain objects', t => {
   t.false(isEqual(new Foo(), object2))
 })
 
-test('avoid common type coercions', t => {
+test('avoid common type coercions', (t) => {
   t.false(isEqual(true, new Object(false)))
   t.false(isEqual(new Object(false), new Object(0)))
   t.false(isEqual(false, new Object('')))
@@ -391,31 +469,41 @@ test('avoid common type coercions', t => {
   t.false(isEqual(36, '36'))
 })
 
-test('compare `arguments` objects', t => {
-  const args1 = (function () { return arguments }())
-  const args2 = (function () { return arguments }())
-  const args3 = (function () { return arguments }(1, 2))
+test('compare `arguments` objects', (t) => {
+  const args1 = (function () {
+    return arguments
+  })()
+  const args2 = (function () {
+    return arguments
+  })()
+  const args3 = (function () {
+    return arguments
+    // @ts-expect-error Doing it anyway
+  })(1, 2)
 
   t.true(isEqual(args1, args2))
   t.false(isEqual(args1, args3))
 })
 
-test('actual `arguments` objects may be compared to expected arrays', t => {
+test('actual `arguments` objects may be compared to expected arrays', (t) => {
   const array = [1, 2, 3]
 
-  const args = (function () { return arguments })(1, 2, 3)
+  const args = (function () {
+    return arguments
+    // @ts-expect-error Doing it anyway
+  })(1, 2, 3)
   t.true(isEqual(args, array))
   t.false(isEqual(array, args))
 })
 
-test('compare array buffers', t => {
+test('compare array buffers', (t) => {
   const buffer = new Int8Array([-1]).buffer
 
   t.true(isEqual(buffer, new Uint8Array([255]).buffer))
   t.false(isEqual(buffer, new ArrayBuffer(1)))
 })
 
-test('compare array views', t => {
+test('compare array views', (t) => {
   const arrayViews = [
     'Float32Array',
     'Float64Array',
@@ -432,7 +520,7 @@ test('compare array views', t => {
   const namespaces = [global, realm]
   for (const ns of namespaces) {
     arrayViews.forEach((type, viewIndex) => {
-      const otherType = arrayViews[(viewIndex + 1) % arrayViews.length]
+      const otherType = arrayViews[(viewIndex + 1) % arrayViews.length]!
       const CtorA = ns[type]
       const CtorB = ns[otherType]
       const bufferA = new ns.ArrayBuffer(8)
@@ -446,7 +534,7 @@ test('compare array views', t => {
   }
 })
 
-test('compare buffers', t => {
+test('compare buffers', (t) => {
   const buffer = Buffer.from([1])
 
   t.true(isEqual(buffer, Buffer.from([1])))
@@ -454,30 +542,28 @@ test('compare buffers', t => {
   t.false(isEqual(buffer, new Uint8Array([1])))
 })
 
-test('compare date objects', t => {
+test('compare date objects', (t) => {
   const date = new Date(2012, 4, 23)
 
   t.true(isEqual(date, new Date(2012, 4, 23)))
   t.true(isEqual(new Date('a'), new Date('b')))
   t.false(isEqual(date, new Date(2013, 3, 25)))
-  t.false(isEqual(date, { getTime () { return +date } }))
+  t.false(
+    isEqual(date, {
+      getTime() {
+        return +date
+      },
+    }),
+  )
 })
 
-test('compare error objects', t => {
-  const errorTypes = [
-    'Error',
-    'EvalError',
-    'RangeError',
-    'ReferenceError',
-    'SyntaxError',
-    'TypeError',
-    'URIError',
-  ]
+test('compare error objects', (t) => {
+  const errorTypes = ['Error', 'EvalError', 'RangeError', 'ReferenceError', 'SyntaxError', 'TypeError', 'URIError']
 
   errorTypes.forEach((type, index) => {
-    const otherType = errorTypes[++index % errorTypes.length]
-    const CtorA = global[type]
-    const CtorB = global[otherType]
+    const otherType = errorTypes[++index % errorTypes.length]!
+    const CtorA = (global as any)[type]
+    const CtorB = (global as any)[otherType]
 
     t.true(isEqual(new CtorA('a'), new CtorA('a')))
     t.false(isEqual(new CtorA('a'), new CtorB('a')))
@@ -485,15 +571,19 @@ test('compare error objects', t => {
   })
 })
 
-test('compare functions', t => {
-  function a () { return 1 + 2 }
-  function b () { return 1 + 2 }
+test('compare functions', (t) => {
+  function a() {
+    return 1 + 2
+  }
+  function b() {
+    return 1 + 2
+  }
 
   t.true(isEqual(a, a))
   t.false(isEqual(a, b))
 })
 
-test('compare maps', t => {
+test('compare maps', (t) => {
   const map1 = new Map()
   for (const map2 of [new Map(), new realm.Map()]) {
     map1.set('a', 1)
@@ -516,7 +606,7 @@ test('compare maps', t => {
   }
 })
 
-test('compare maps with circular references', t => {
+test('compare maps with circular references', (t) => {
   const map1 = new Map()
   const map2 = new Map()
 
@@ -529,7 +619,7 @@ test('compare maps with circular references', t => {
   t.false(isEqual(map1, map2))
 })
 
-test('compare promises by reference', t => {
+test('compare promises by reference', (t) => {
   const promise1 = Promise.resolve(1)
   for (const promise2 of [Promise.resolve(1), realm.Promise.resolve(1)]) {
     t.false(isEqual(promise1, promise2))
@@ -537,7 +627,7 @@ test('compare promises by reference', t => {
   }
 })
 
-test('compare regexes', t => {
+test('compare regexes', (t) => {
   t.true(isEqual(/x/gim, /x/gim))
   t.true(isEqual(/x/gim, /x/gim))
   t.false(isEqual(/x/gi, /x/g))
@@ -545,7 +635,7 @@ test('compare regexes', t => {
   t.false(isEqual(/x/g, { global: true, ignoreCase: false, multiline: false, source: 'x' }))
 })
 
-test('compare sets', t => {
+test('compare sets', (t) => {
   const set1 = new Set()
   for (const set2 of [new Set(), new realm.Set()]) {
     set1.add(1)
@@ -568,7 +658,7 @@ test('compare sets', t => {
   }
 })
 
-test('compare sets with circular references', t => {
+test('compare sets with circular references', (t) => {
   const set1 = new Set()
   const set2 = new Set()
 
@@ -581,9 +671,9 @@ test('compare sets with circular references', t => {
   t.false(isEqual(set1, set2))
 })
 
-test('compare symbol properties', t => {
-  const object1 = { a: 1 }
-  const object2 = { a: 1 }
+test('compare symbol properties', (t) => {
+  const object1: any = { a: 1 }
+  const object2: any = { a: 1 }
 
   object1[symbol1] = { a: { b: 2 } }
   object2[symbol1] = { a: { b: 2 } }
@@ -605,7 +695,7 @@ test('compare symbol properties', t => {
   t.false(isEqual(object1, object2))
 })
 
-test('return `true` for like-objects from different realms', t => {
+test('return `true` for like-objects from different realms', (t) => {
   const array = new realm.Array()
   array.push(1)
   t.true(isEqual([1], array))
@@ -617,9 +707,13 @@ test('return `true` for like-objects from different realms', t => {
   t.false(isEqual({ a: 2 }, object))
 })
 
-test('return `false` for objects with custom `toString` methods', t => {
-  let primitive
-  const object = { 'toString' () { return primitive } }
+test('return `false` for objects with custom `toString` methods', (t) => {
+  let primitive: any
+  const object = {
+    toString() {
+      return primitive
+    },
+  }
   for (const value of [true, null, 1, 'a', undefined]) {
     primitive = value
     t.false(isEqual(object, value))

@@ -1,14 +1,7 @@
-export function compare() {
-  // TODO: Implement
-}
-
-export function compareDescriptors() {
-  // TODO: Implement
-}
-
-export function describe() {
-  // TODO: Implement
-}
+export { compare, compareDescriptors } from './compare.ts'
+export { describe } from './describe.ts'
+export { serialize } from './serialize.ts'
+export { deserialize } from './deserialize.ts'
 
 export function diff() {
   // TODO: Implement
@@ -23,13 +16,5 @@ export function format() {
 }
 
 export function formatDescriptor() {
-  // TODO: Implement
-}
-
-export function serialize() {
-  // TODO: Implement
-}
-
-export function deserialize() {
   // TODO: Implement
 }
