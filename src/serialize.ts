@@ -81,9 +81,9 @@ export class Encoder {
   }
 
   annotations<T extends Partial<Record<string, boolean | number | string | BytesAccessor>>>(value: T): this {
-    const entries = Object.entries(value)
-      .filter((entry): entry is [string, Exclude<(typeof value)[string], undefined>] => entry[1] !== undefined)
-      .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+    const entries = Object.entries(value).filter(
+      (entry): entry is [string, Exclude<(typeof value)[string], undefined>] => entry[1] !== undefined,
+    )
     cbor.writeLength(entries, entries.length, 5, this.#writer, this.#options)
     for (const [k, v] of entries) {
       cbor.writeString(k, this.#writer, this.#options)

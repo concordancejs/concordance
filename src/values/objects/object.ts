@@ -38,7 +38,10 @@ type KnownAnnotations = {
   v?: boolean | number | string // "value of"
 }
 
-type Reserved<T> = { [K in keyof Required<T>]?: undefined }
+// This is a sentinel value used to indicate that the annotation is reserved for internal use. Because it's not
+// exported, calling code cannot assign it to the reserved properties.
+const reserved = Symbol('Sentinel value for reserved annotations')
+type Reserved<T> = { [K in keyof Required<T>]?: typeof reserved }
 
 export type SerializationAnnotations = Record<string, boolean | number | string | BytesAccessor> &
   Reserved<ObjectAnnotations> &
@@ -144,17 +147,23 @@ export class ObjectRepresentation implements ValueRepresentation {
         : SerializationAnnotations[K] | undefined
     }
 
+    // Pack annotations such that recurring values have a stable prefix, which can be used to optimize compression.
+    //
+    // Note that the encoder elides undefined values.
     const a = annotations.b ? undefined : this.#context.isArrayLike(this.#value) || undefined
-    encoder.staticType(staticType).annotations<Annotations>({
-      ...annotations,
-      a,
+    encoder.staticType(staticType).annotations({
       c: this.#context.constructorName(this.#value),
-      l: a && this.#context.length(this.#value),
+      t: this.#context.stringTag(this.#value),
       n: this.#context.isNullProto(this.#value) || undefined,
       o: this.#context.isObjectProto(this.#value) || undefined,
-      p: this.pointer,
-      t: this.#context.stringTag(this.#value),
-    })
+      a,
+      // Only insert annotations from the calling code here; they technically could override other properties but the
+      // types disallow that. Calling code should take care to order annotations so contribute to the stable
+      // prefix.
+      ...annotations,
+      p: this.pointer, // Different for most values, so the stable prefix ends after the `p` property.
+      l: a && this.#context.length(this.#value),
+    } as Annotations)
     return partialRequiringTerminator
   }
 }
