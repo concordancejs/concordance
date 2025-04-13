@@ -36,4 +36,8 @@ export class BoxedPrimitiveRepresentation extends ObjectRepresentation {
     this.#primitive.serialize(encoder)
     return partialRequiringTerminator
   }
+
+  override *iterateArrayLike() {
+    // No-op
+  }
 }
