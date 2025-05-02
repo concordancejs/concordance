@@ -304,6 +304,10 @@ export class DescriptionContext implements Context {
         return new ExternalRepresentation(this, value)
       }
 
+      if (typesUtils.isModuleNamespaceObject(value)) {
+        return new ModuleNamespaceObjectRepresentation(this, value)
+      }
+
       return new ObjectRepresentation(this, value)
     }
 
@@ -351,10 +355,6 @@ export class DescriptionContext implements Context {
 
     if (typesUtils.isCryptoKey(value)) {
       return new CryptoKeyRepresentation(this, value)
-    }
-
-    if (typesUtils.isModuleNamespaceObject(value)) {
-      return new ModuleNamespaceObjectRepresentation(this, value)
     }
 
     if (typesUtils.isBoxedPrimitive(value)) {
