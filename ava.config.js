@@ -1,5 +1,5 @@
 const config = {
-  files: ['src/**/test/**/*.ts', '!src/**/fixtures/**'],
+  files: ['src/**/test/**/*.ts', '!src/**/{fixtures,helpers}/**'],
   extensions: {
     ts: 'module',
   },
