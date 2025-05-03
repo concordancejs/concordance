@@ -7,7 +7,7 @@ import { ArrayBufferViewRepresentation } from '../array-buffer-view.ts'
 import { comparable, strictlyEqual, unequal } from '../../../comparison.ts'
 import { staticTypeTable } from '../../../serialization-types.ts'
 import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
-import { NamedPropertyGroup } from '../../../accessors/property.ts'
+import { NamedPropertyGroup, NamedPropertyAccessor } from '../../../accessors/property.ts'
 import type { BytesAccessor } from '../../../accessors/bytes.ts'
 
 // Deserialize method test
@@ -152,9 +152,28 @@ test('iterateProperties yields properties for ArrayBuffer instances', (t) => {
   t.true(namedGroup instanceof NamedPropertyGroup)
 
   // ArrayBuffer has 'maxByteLength' and 'resizable' properties
-  // (not 'growable' which is only on SharedArrayBuffer)
   const properties = [...namedGroup!]
   t.is(properties.length, 2)
+
+  // Create property accessors for expected properties
+  const maxByteLengthValue = context.represent(buffer.maxByteLength ?? Number.MAX_SAFE_INTEGER)
+  const resizableValue = context.represent(buffer.resizable ?? false)
+
+  const maxByteLengthAccessor = new NamedPropertyAccessor('maxByteLength', maxByteLengthValue)
+  const resizableAccessor = new NamedPropertyAccessor('resizable', resizableValue)
+
+  // Find the expected properties
+  const maxByteLengthProperty = properties.find((prop) => {
+    return maxByteLengthAccessor.compare(prop) === strictlyEqual
+  })
+
+  const resizableProperty = properties.find((prop) => {
+    return resizableAccessor.compare(prop) === strictlyEqual
+  })
+
+  // Verify that both expected properties were found
+  t.truthy(maxByteLengthProperty, 'maxByteLength property should be present')
+  t.truthy(resizableProperty, 'resizable property should be present')
 })
 
 test('iterateProperties yields properties for SharedArrayBuffer instances', (t) => {
@@ -168,9 +187,29 @@ test('iterateProperties yields properties for SharedArrayBuffer instances', (t) 
   const [namedGroup] = propertyGroups
   t.true(namedGroup instanceof NamedPropertyGroup)
 
-  // SharedArrayBuffer has 'maxByteLength' and 'growable' but not 'resizable'
+  // SharedArrayBuffer has 'maxByteLength' and 'growable' properties
   const properties = [...namedGroup!]
   t.is(properties.length, 2)
+
+  // Create property accessors for expected properties
+  const maxByteLengthValue = context.represent(buffer.maxByteLength ?? Number.MAX_SAFE_INTEGER)
+  const growableValue = context.represent(buffer.growable ?? false)
+
+  const maxByteLengthAccessor = new NamedPropertyAccessor('maxByteLength', maxByteLengthValue)
+  const growableAccessor = new NamedPropertyAccessor('growable', growableValue)
+
+  // Find the expected properties
+  const maxByteLengthProperty = properties.find((prop) => {
+    return maxByteLengthAccessor.compare(prop) === strictlyEqual
+  })
+
+  const growableProperty = properties.find((prop) => {
+    return growableAccessor.compare(prop) === strictlyEqual
+  })
+
+  // Verify that both expected properties were found
+  t.truthy(maxByteLengthProperty, 'maxByteLength property should be present')
+  t.truthy(growableProperty, 'growable property should be present')
 })
 
 // Serialization tests
