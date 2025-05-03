@@ -19,7 +19,7 @@ export type ObjectAnnotations = {
   n?: true // Has null prototype
   o?: true // Has object prototype
   p: number // Pointer
-  t?: string // String tag
+  t?: true | string // String tag, undefined if not set, `true` if same as constructor name
 }
 
 type UnpackedAnnotations = {
@@ -69,7 +69,7 @@ export class ObjectRepresentation implements ValueRepresentation {
       isNullProto,
       isObjectProto,
       pointer,
-      stringTag,
+      stringTag: stringTag === true ? constructorName : stringTag,
     }
   }
 
@@ -151,9 +151,15 @@ export class ObjectRepresentation implements ValueRepresentation {
     //
     // Note that the encoder elides undefined values.
     const a = annotations.b ? undefined : this.#context.isArrayLike(this.#value) || undefined
+    const c = this.#context.constructorName(this.#value)
+    let t: true | string | undefined = this.#context.stringTag(this.#value)
+    if (t === c) {
+      t = true
+    }
+
     encoder.staticType(staticType).annotations({
-      c: this.#context.constructorName(this.#value),
-      t: this.#context.stringTag(this.#value),
+      c,
+      t,
       n: this.#context.isNullProto(this.#value) || undefined,
       o: this.#context.isObjectProto(this.#value) || undefined,
       a,
