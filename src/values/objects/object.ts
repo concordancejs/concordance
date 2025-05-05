@@ -14,12 +14,13 @@ import type { Decoder, DeserializationContext } from '../../deserialize.ts'
 
 export type ObjectAnnotations = {
   a?: true // Is array like
-  c?: string // Constructor name
+  c?: string // Constructor name; elided in favor of `q` if equal to the string tag
   l?: number // Length of array-like
   n?: true // Has null prototype
   o?: true // Has object prototype
   p: number // Pointer
-  t?: true | string // String tag, undefined if not set, `true` if same as constructor name
+  q?: string // Constructor name *and* string tag
+  t?: string // String tag, undefined if not set; elided in favor of `q` if equal to the constructor name
 }
 
 type UnpackedAnnotations = {
@@ -60,16 +61,17 @@ export class ObjectRepresentation implements ValueRepresentation {
       n: isNullProto = false,
       o: isObjectProto = false,
       p: pointer,
+      q: constructorNameAndStringTag,
       t: stringTag,
     } = annotations
     return {
       isArrayLike,
-      constructorName,
+      constructorName: constructorNameAndStringTag ?? constructorName,
       length,
       isNullProto,
       isObjectProto,
       pointer,
-      stringTag: stringTag === true ? constructorName : stringTag,
+      stringTag: constructorNameAndStringTag ?? stringTag,
     }
   }
 
@@ -152,14 +154,13 @@ export class ObjectRepresentation implements ValueRepresentation {
     // Note that the encoder elides undefined values.
     const a = annotations.b ? undefined : this.#context.isArrayLike(this.#value) || undefined
     const c = this.#context.constructorName(this.#value)
-    let t: true | string | undefined = this.#context.stringTag(this.#value)
-    if (t === c) {
-      t = true
-    }
+    const t = this.#context.stringTag(this.#value)
+    const q = c === t ? c : undefined
 
     encoder.staticType(staticType).annotations({
-      c,
-      t,
+      c: q === undefined ? c : undefined,
+      t: q === undefined ? t : undefined,
+      q,
       n: this.#context.isNullProto(this.#value) || undefined,
       o: this.#context.isObjectProto(this.#value) || undefined,
       a,
