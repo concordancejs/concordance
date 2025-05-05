@@ -27,7 +27,12 @@ export class ExternalRepresentation implements ValueRepresentation {
 
   compare(other: ValueRepresentation): Comparison {
     if (!(#value in other)) return unequal
-    return this.#value === other.#value ? strictlyEqual : possiblyEqual
+    if (this.#context.deserialized || other.#context.deserialized) {
+      // If either context is deserialized, we can't compare them
+      return possiblyEqual
+    }
+
+    return this.#value === other.#value ? strictlyEqual : unequal
   }
 
   serializeShallow(encoder: Encoder): ShallowSerializationResult {
