@@ -47,31 +47,31 @@ export class SymbolPropertyAccessor implements ValueRepresentation {
   ): [SymbolPropertyAccessor[], SymbolPropertyAccessor[]] {
     const lhsOrdered: SymbolPropertyAccessor[] = []
     const rhsOrdered: SymbolPropertyAccessor[] = []
+    const lhsNonIntersecting: SymbolPropertyAccessor[] = []
 
-    const rhsRemaining = new Set(rhs)
+    const rhsNonIntersecting = new Set(rhs)
     for (const lhsProperty of lhs) {
       let intersected = false
-      for (const rhsProperty of rhsRemaining) {
+      for (const rhsProperty of rhsNonIntersecting) {
         const comparison = lhsProperty.#key.compare(rhsProperty.#key)
         if (comparison === strictlyEqual || comparison === possiblyEqual) {
-          lhsOrdered.unshift(lhsProperty)
-          rhsOrdered.unshift(rhsProperty)
-          rhsRemaining.delete(rhsProperty)
+          lhsOrdered.push(lhsProperty)
+          rhsOrdered.push(rhsProperty)
+          rhsNonIntersecting.delete(rhsProperty)
           intersected = true
           break
         }
       }
 
       if (!intersected) {
-        lhsOrdered.push(lhsProperty)
+        lhsNonIntersecting.push(lhsProperty)
       }
     }
 
-    for (const rhsProperty of rhsRemaining) {
-      rhsOrdered.push(rhsProperty)
-    }
-
-    return [lhsOrdered, rhsOrdered]
+    return [
+      [...lhsOrdered, ...lhsNonIntersecting],
+      [...rhsOrdered, ...rhsNonIntersecting],
+    ]
   }
 
   readonly #context: Context
