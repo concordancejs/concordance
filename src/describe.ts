@@ -42,7 +42,7 @@ export function isPrimitive(value: unknown): value is string | number | bigint |
   return value === null || (typeof value !== 'object' && typeof value !== 'function')
 }
 
-function representPrimitive(context: DescriptionContext, value: unknown): ValueRepresentation | undefined {
+function representPrimitive(context: DescriptionContext, value: unknown): ValueRepresentation {
   if (value === null) return new NullRepresentation()
   if (value === undefined) return new UndefinedRepresentation()
   if (value === true || value === false) return new BooleanRepresentation(value)
@@ -65,7 +65,7 @@ function representPrimitive(context: DescriptionContext, value: unknown): ValueR
     }
 
     default: {
-      return undefined
+      return never()
     }
   }
 }
@@ -268,7 +268,7 @@ export class DescriptionContext implements Context {
 
   represent(value: unknown): ValueRepresentation {
     if (isPrimitive(value)) {
-      return representPrimitive(this, value) ?? never()
+      return representPrimitive(this, value)
     }
 
     if (this.#pointers.has(value)) {
@@ -280,7 +280,6 @@ export class DescriptionContext implements Context {
     return representation
   }
 
-  // eslint-disable-next-line complexity
   #representObject(value: object): ValueRepresentation {
     if (Array.isArray(value)) {
       return new ArrayRepresentation(this, value)
@@ -358,7 +357,7 @@ export class DescriptionContext implements Context {
     }
 
     if (typesUtils.isBoxedPrimitive(value)) {
-      return new BoxedPrimitiveRepresentation(this, value, representPrimitive(this, value.valueOf()) ?? never())
+      return new BoxedPrimitiveRepresentation(this, value, representPrimitive(this, value.valueOf()))
     }
 
     // Fall back to generic object representation, perhaps because the object is from another realm.
