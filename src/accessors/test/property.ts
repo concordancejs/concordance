@@ -8,7 +8,8 @@ import { strictlyEqual, unequal, comparable, comparableAfterAlignment, type Comp
 import { finished, partial, partialStoreAsByteArray, type SerializationResult } from '../../serialization-result.ts'
 import { DescriptionContext } from '../../describe.ts'
 import { Encoder } from '../../serialize.ts'
-import { Decoder, DeserializationContext } from '../../deserialize.ts'
+import { Decoder } from '../../decoder.ts'
+import { DeserializationContext } from '../../deserialization-context.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
 import type { ValueRepresentation } from '../../value.js'
 

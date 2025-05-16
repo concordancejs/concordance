@@ -10,7 +10,8 @@ import type { BytesAccessor } from '../../accessors/bytes.ts'
 import type { Encoder } from '../../serialize.ts'
 import { staticTypeTable, type StaticType } from '../../serialization-types.ts'
 import { partialRequiringTerminator, type SerializationResult } from '../../serialization-result.ts'
-import type { Decoder, DeserializationContext } from '../../deserialize.ts'
+import type { Decoder } from '../../decoder.ts'
+import type { DeserializationContext } from '../../deserialization-context.ts'
 
 export type ObjectAnnotations = {
   a?: true // Is array like

@@ -6,8 +6,9 @@ import { BooleanRepresentation } from '../../values/primitives/boolean.ts'
 import { strictlyEqual, possiblyEqual, unequal } from '../../comparison.ts'
 import { partial } from '../../serialization-result.ts'
 import { Encoder } from '../../serialize.ts'
-import { Decoder, DeserializationContext } from '../../deserialize.ts'
 import { DescriptionContext } from '../../describe.ts'
+import { Decoder } from '../../decoder.ts'
+import { DeserializationContext } from '../../deserialization-context.ts'
 
 // Test constructor and basic properties
 test('constructor sets key and value, which iterator yields in order', (t) => {

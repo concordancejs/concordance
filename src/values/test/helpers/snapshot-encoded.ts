@@ -1,5 +1,5 @@
 import type { ExecutionContext } from 'ava'
-import { Decoder } from '../../../deserialize.ts'
+import { Decoder } from '../../../decoder.ts'
 import type { Encoder } from '../../../serialize.ts'
 
 export function snapshotEncoded(t: ExecutionContext, encoder: Encoder, name?: string) {

@@ -1,7 +1,7 @@
 import test from 'ava'
 import { StringRepresentation } from '../string.ts'
 import { Encoder } from '../../../serialize.ts'
-import { Decoder } from '../../../deserialize.ts'
+import { Decoder } from '../../../decoder.ts'
 import { strictlyEqual, unequal } from '../../../comparison.ts'
 import { NumberRepresentation } from '../number.ts'
 import { finished } from '../../../serialization-result.ts'

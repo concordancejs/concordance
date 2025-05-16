@@ -5,7 +5,8 @@ import type { Context } from '../../context.js'
 import type { Encoder } from '../../serialize.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
 import { type ShallowSerializationResult, finished } from '../../serialization-result.ts'
-import type { Decoder, DeserializationContext } from '../../deserialize.ts'
+import type { Decoder } from '../../decoder.ts'
+import type { DeserializationContext } from '../../deserialization-context.ts'
 
 export class ExternalRepresentation implements ValueRepresentation {
   static deserialize(context: DeserializationContext, decoder: Decoder): ExternalRepresentation {
