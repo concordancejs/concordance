@@ -16,7 +16,7 @@ import { IteratorValueAccessor } from '../accessors/iterator-value.ts'
 import { BytesAccessor } from '../accessors/bytes.ts'
 import type { SerializationResult } from '../serialization-result.ts'
 import type { ValueRepresentation } from '../value.ts'
-import { DescriptionContext } from '../describe.ts'
+import { DescriptionContext } from '../description-context.ts'
 import { SymbolRepresentation } from '../values/primitives/symbol.ts'
 
 const cborOptions = {

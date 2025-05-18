@@ -1,7 +1,7 @@
 import test from 'ava'
 import { Stack } from '../stack.ts'
 import { ObjectRepresentation } from '../values/objects/object.ts'
-import { DescriptionContext } from '../describe.ts'
+import { DescriptionContext } from '../description-context.ts'
 
 const representation = new ObjectRepresentation(new DescriptionContext(), {})
 

@@ -6,7 +6,7 @@ import { BooleanRepresentation } from '../../values/primitives/boolean.ts'
 import { strictlyEqual, possiblyEqual, unequal } from '../../comparison.ts'
 import { partial } from '../../serialization-result.ts'
 import { Encoder } from '../../serialize.ts'
-import { DescriptionContext } from '../../describe.ts'
+import { DescriptionContext } from '../../description-context.ts'
 import { Decoder } from '../../decoder.ts'
 import { DeserializationContext } from '../../deserialization-context.ts'
 

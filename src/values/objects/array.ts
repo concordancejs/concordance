@@ -1,7 +1,7 @@
 import never from 'never'
 import { ElementAccessor, SparseValueRepresentation } from '../../accessors/element.ts'
 import { strictlyEqual, unequal } from '../../comparison.ts'
-import { DescriptionContext } from '../../describe.ts' // eslint-disable-line import/no-cycle
+import { DescriptionContext } from '../../description-context.ts' // eslint-disable-line import/no-cycle
 import type { Decoder } from '../../decoder.ts'
 import { DeserializationContext } from '../../deserialization-context.ts' // eslint-disable-line import/no-cycle
 import type { Encoder } from '../../serialize.ts'

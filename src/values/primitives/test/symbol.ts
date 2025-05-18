@@ -7,7 +7,7 @@ import { strictlyEqual, unequal, possiblyEqual } from '../../../comparison.ts'
 import { StringRepresentation } from '../string.ts'
 import { finished } from '../../../serialization-result.ts'
 import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
-import { DescriptionContext } from '../../../describe.ts'
+import { DescriptionContext } from '../../../description-context.ts'
 
 test('compare returns strictlyEqual for same symbol instance', (t) => {
   const symbol = Symbol('test')

@@ -1,5 +1,5 @@
 import test from 'ava'
-import { DescriptionContext } from '../../../describe.ts'
+import { DescriptionContext } from '../../../description-context.ts'
 import { Encoder } from '../../../serialize.ts'
 import { Decoder } from '../../../decoder.ts'
 import { DeserializationContext } from '../../../deserialization-context.ts'

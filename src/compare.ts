@@ -1,5 +1,6 @@
 import { comparable, comparableAfterAlignment, deeplyEqual, unequal, type Comparison } from './comparison.ts'
-import { describe, isPrimitive } from './describe.ts'
+import { describe } from './describe.ts'
+import { isPrimitive } from './primitives.ts'
 import { Stack } from './stack.ts'
 import type { ValueRepresentation } from './value.js'
 
