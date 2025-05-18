@@ -2,6 +2,6 @@
   "all": true,
   "src": "src",
   "include": "src",
-  "exclude": "src/**/test",
+  "exclude": ["src/**/test", "**/*.d.ts"],
   "reporter": ["html", "lcov"]
 }
