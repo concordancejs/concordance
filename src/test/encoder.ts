@@ -1,6 +1,5 @@
 import test from 'ava'
-import { decode } from 'cbor2'
-import { Sequence } from 'cbor2/decoder'
+import * as cbor from 'cbor2'
 import { Encoder } from '../encoder.ts'
 import { BytesAccessor } from '../accessors/bytes.ts'
 import { staticTypeTable } from '../serialization-types.ts'
@@ -17,11 +16,11 @@ const cborOptions = {
 }
 
 // Helper to decode a single CBOR value
-const decodeCbor = (bytes: Uint8Array): unknown => decode(bytes, cborOptions)
+const decodeCbor = (bytes: Uint8Array): unknown => cbor.decode(bytes, cborOptions)
 
 // Helper to decode multiple CBOR values when needed
 function decodeAllCbor(bytes: Uint8Array): unknown[] {
-  return Array.from(new Sequence(bytes, cborOptions), (tuple) => tuple[2] as unknown)
+  return Array.from(new cbor.SequenceEvents(bytes, cborOptions), (mtAiValue) => mtAiValue[2] as unknown)
 }
 
 // -----------------------------------------------------------------------------

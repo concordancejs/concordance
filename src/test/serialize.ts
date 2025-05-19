@@ -1,6 +1,5 @@
 import test from 'ava'
-import { decode } from 'cbor2'
-import { Sequence } from 'cbor2/decoder'
+import * as cbor from 'cbor2'
 import { Encoder } from '../encoder.ts'
 import { serialize } from '../serialize.ts'
 import { finished, partial, partialRequiringTerminator, partialStoreAsByteArray } from '../serialization-result.ts'
@@ -31,11 +30,11 @@ const cborOptions = {
 }
 
 // Helper to decode a single CBOR value
-const decodeCbor = (bytes: Uint8Array): unknown => decode(bytes, cborOptions)
+const decodeCbor = (bytes: Uint8Array): unknown => cbor.decode(bytes, cborOptions)
 
 // Helper to decode multiple CBOR values when needed
 function decodeAllCbor(bytes: Uint8Array): unknown[] {
-  return Array.from(new Sequence(bytes, cborOptions), (tuple) => tuple[2] as unknown)
+  return Array.from(new cbor.SequenceEvents(bytes, cborOptions), (mtAiValue) => mtAiValue[2] as unknown)
 }
 
 // Mock ValueRepresentation for testing
@@ -405,5 +404,5 @@ test('serialize handles partialStoreAsByteArray serialization results', (t) => {
   // The third value should be a Uint8Array
   const byteArray = values[2] as Uint8Array
   t.true(byteArray instanceof Uint8Array)
-  t.is(decode(byteArray), '123')
+  t.is(cbor.decode(byteArray), '123')
 })

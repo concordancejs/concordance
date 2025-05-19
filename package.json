@@ -38,7 +38,7 @@
     "xo": "^0.60.0"
   },
   "dependencies": {
-    "cbor2": "npm:@concordance/cbor2@0.1.0",
+    "cbor2": "^2.0.0",
     "never": "^1.1.0"
   },
   "overrides": {

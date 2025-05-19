@@ -1,12 +1,11 @@
-import type { DecodeOptions as Cbor2DecodeOptions } from 'cbor2'
-import { Sequence, type Tuple } from 'cbor2/decoder'
+import * as cbor from 'cbor2'
 import never from 'never'
 import { type AspectType, type StaticType, isValidAspectType, isValidStaticType } from './serialization-types.ts'
 import { BytesAccessor } from './accessors/bytes.ts'
 
 export class Decoder {
-  readonly #sequence: Sequence
-  readonly #options: Cbor2DecodeOptions = {
+  readonly #sequence: cbor.SequenceEvents
+  readonly #options: cbor.DecodeOptions = {
     cde: false,
     dcbor: false,
     rejectBigInts: false,
@@ -17,10 +16,10 @@ export class Decoder {
   }
 
   constructor(bytes: Uint8Array) {
-    this.#sequence = new Sequence(bytes, this.#options)
+    this.#sequence = new cbor.SequenceEvents(bytes, this.#options)
   }
 
-  *[Symbol.iterator](): IterableIterator<Tuple> {
+  *[Symbol.iterator](): IterableIterator<cbor.MtAiValue> {
     yield* this.#sequence
   }
 

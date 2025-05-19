@@ -1,12 +1,20 @@
-import * as cbor from 'cbor2/encoder'
+import type * as cbor from 'cbor2'
 import { Writer } from 'cbor2/writer'
-import type { RequiredEncodeOptions } from 'cbor2'
+import {
+  writeBigInt,
+  writeFloat,
+  writeInt,
+  writeLength,
+  writeString,
+  writeUint8Array,
+  writeUnknown,
+} from 'cbor2/encoder'
 import type { BytesAccessor } from './accessors/bytes.ts'
 import { type StaticType, staticTypeTable } from './serialization-types.ts'
 
 export class Encoder {
   readonly #writer = new Writer()
-  readonly #options: RequiredEncodeOptions = {
+  readonly #options: cbor.RequiredEncodeOptions = {
     chunkSize: 4096,
     avoidInts: false,
     cde: false,
@@ -26,6 +34,8 @@ export class Encoder {
     simplifyNegativeZero: false,
     sortKeys: null,
     stringNormalization: null,
+    wtf8: false,
+    types: null,
   }
 
   get bytes(): Uint8Array {
@@ -33,42 +43,42 @@ export class Encoder {
   }
 
   staticType(type: StaticType): this {
-    cbor.writeInt(type, this.#writer)
+    writeInt(type, this.#writer)
     return this
   }
 
   int(value: number): this {
-    cbor.writeInt(value, this.#writer)
+    writeInt(value, this.#writer)
     return this
   }
 
   bigInt(value: bigint): this {
-    cbor.writeBigInt(value, this.#writer, this.#options)
+    writeBigInt(value, this.#writer, this.#options)
     return this
   }
 
   boolean(value: boolean): this {
-    cbor.writeUnknown(value, this.#writer, this.#options)
+    writeUnknown(value, this.#writer, this.#options)
     return this
   }
 
   number(value: number): this {
     if (Object.is(value, -0) || !Number.isSafeInteger(value)) {
-      cbor.writeFloat(value, this.#writer, this.#options)
+      writeFloat(value, this.#writer, this.#options)
     } else {
-      cbor.writeInt(value, this.#writer)
+      writeInt(value, this.#writer)
     }
 
     return this
   }
 
   string(value: string): this {
-    cbor.writeString(value, this.#writer, this.#options)
+    writeString(value, this.#writer, this.#options)
     return this
   }
 
   uint8Array(value: Uint8Array): this {
-    cbor.writeUint8Array(value, this.#writer)
+    writeUint8Array(value, this.#writer)
     return this
   }
 
@@ -76,13 +86,13 @@ export class Encoder {
     const entries = Object.entries(value).filter(
       (entry): entry is [string, Exclude<(typeof value)[string], undefined>] => entry[1] !== undefined,
     )
-    cbor.writeLength(entries, entries.length, 5, this.#writer, this.#options)
+    writeLength(entries, entries.length, 5, this.#writer, this.#options)
     for (const [k, v] of entries) {
-      cbor.writeString(k, this.#writer, this.#options)
+      writeString(k, this.#writer, this.#options)
       if (typeof v === 'object') {
         v.serialize(this)
       } else {
-        cbor.writeUnknown(v, this.#writer, this.#options)
+        writeUnknown(v, this.#writer, this.#options)
       }
     }
 
@@ -90,7 +100,7 @@ export class Encoder {
   }
 
   terminator(): this {
-    cbor.writeInt(staticTypeTable.terminator, this.#writer)
+    writeInt(staticTypeTable.terminator, this.#writer)
     return this
   }
 }
