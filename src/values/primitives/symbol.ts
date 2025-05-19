@@ -1,7 +1,7 @@
 import { type Comparison, possiblyEqual, strictlyEqual, unequal } from '../../comparison.ts'
 import type { Decoder } from '../../decoder.ts'
 import type { DeserializationContext } from '../../deserialization-context.ts'
-import type { Encoder } from '../../serialize.ts'
+import type { Encoder } from '../../encoder.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
 import { type ShallowSerializationResult, finished } from '../../serialization-result.ts'
 import type { Context } from '../../context.js'

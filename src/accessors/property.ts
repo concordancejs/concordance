@@ -8,7 +8,7 @@ import {
   possiblyEqual,
 } from '../comparison.ts'
 import { DeserializationContext } from '../deserialization-context.ts' // eslint-disable-line import/no-cycle
-import type { Encoder } from '../serialize.ts'
+import type { Encoder } from '../encoder.ts'
 import { partialStoreAsByteArray, type SerializationResult, partial } from '../serialization-result.ts'
 import type { ValueRepresentation } from '../value.js'
 import type { Context } from '../context.js'

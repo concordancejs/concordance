@@ -1,7 +1,7 @@
 import test from 'ava'
 import { BytesAccessor } from '../bytes.ts'
 import { strictlyEqual, unequal } from '../../comparison.ts'
-import { Encoder } from '../../serialize.ts'
+import { Encoder } from '../../encoder.ts'
 import { finished } from '../../serialization-result.ts'
 
 // Test constructor and basic properties

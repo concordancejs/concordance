@@ -1,6 +1,6 @@
 import test from 'ava'
 import { NullRepresentation } from '../null.ts'
-import { Encoder } from '../../../serialize.ts'
+import { Encoder } from '../../../encoder.ts'
 import { strictlyEqual, unequal } from '../../../comparison.ts'
 import { StringRepresentation } from '../string.ts'
 import { finished } from '../../../serialization-result.ts'

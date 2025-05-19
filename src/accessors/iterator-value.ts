@@ -1,6 +1,6 @@
 import { unequal } from '../comparison.ts'
 import { partial, type SerializationResult } from '../serialization-result.ts'
-import type { Encoder } from '../serialize.ts'
+import type { Encoder } from '../encoder.ts'
 import type { ValueRepresentation } from '../value.js'
 
 export class IteratorValueAccessor implements ValueRepresentation {

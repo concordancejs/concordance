@@ -1,6 +1,7 @@
 import test, { type AssertionError, type ExecutionContext, type ThrowsExpectation } from 'ava'
 import { staticTypeTable, type StaticType } from '../serialization-types.ts'
-import { Encoder, serialize } from '../serialize.ts'
+import { Encoder } from '../encoder.ts'
+import { serialize } from '../serialize.ts'
 import { describe } from '../describe.ts'
 import { DescriptionContext } from '../description-context.ts'
 import { ElementAccessor, SparseValueRepresentation } from '../accessors/element.ts'

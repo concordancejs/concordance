@@ -1,6 +1,6 @@
 import type { ExecutionContext } from 'ava'
 import { Decoder } from '../../../decoder.ts'
-import type { Encoder } from '../../../serialize.ts'
+import type { Encoder } from '../../../encoder.ts'
 
 export function snapshotEncoded(t: ExecutionContext, encoder: Encoder, name?: string) {
   const suffix = name ? ' (' + name + ')' : ''

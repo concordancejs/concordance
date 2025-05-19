@@ -1,7 +1,7 @@
 import type { Context } from '../../context.js'
 import type { ValueRepresentation } from '../../value.js'
 import { strictlyEqual, unequal } from '../../comparison.ts'
-import type { Encoder } from '../../serialize.ts'
+import type { Encoder } from '../../encoder.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
 import type { Decoder } from '../../decoder.ts'
 import type { DeserializationContext } from '../../deserialization-context.ts'

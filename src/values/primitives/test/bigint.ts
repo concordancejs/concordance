@@ -1,6 +1,6 @@
 import test from 'ava'
 import { BigIntRepresentation } from '../bigint.ts'
-import { Encoder } from '../../../serialize.ts'
+import { Encoder } from '../../../encoder.ts'
 import { Decoder } from '../../../decoder.ts'
 import { strictlyEqual, unequal } from '../../../comparison.ts'
 import { StringRepresentation } from '../string.ts'

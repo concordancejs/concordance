@@ -1,5 +1,5 @@
 import { strictlyEqual, unequal } from '../../comparison.ts'
-import type { Encoder } from '../../serialize.ts'
+import type { Encoder } from '../../encoder.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
 import { type ShallowSerializationResult, finished } from '../../serialization-result.ts'
 import type { ValueRepresentation } from '../../value.js'

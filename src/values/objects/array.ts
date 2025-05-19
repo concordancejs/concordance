@@ -4,7 +4,7 @@ import { strictlyEqual, unequal } from '../../comparison.ts'
 import { DescriptionContext } from '../../description-context.ts' // eslint-disable-line import/no-cycle
 import type { Decoder } from '../../decoder.ts'
 import { DeserializationContext } from '../../deserialization-context.ts' // eslint-disable-line import/no-cycle
-import type { Encoder } from '../../serialize.ts'
+import type { Encoder } from '../../encoder.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
 import type { Context } from '../../context.js'
 import type { ValueRepresentation } from '../../value.js'

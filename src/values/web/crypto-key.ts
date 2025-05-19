@@ -1,7 +1,7 @@
 import { possiblyEqual, unequal } from '../../comparison.ts'
 import type { Decoder } from '../../decoder.ts'
 import type { DeserializationContext } from '../../deserialization-context.ts'
-import type { Encoder } from '../../serialize.ts'
+import type { Encoder } from '../../encoder.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
 import type { ValueRepresentation } from '../../value.js'
 import { ObjectRepresentation, type ObjectAnnotations } from '../objects/object.ts'

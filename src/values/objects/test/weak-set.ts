@@ -1,6 +1,6 @@
 import test from 'ava'
 import { DescriptionContext } from '../../../description-context.ts'
-import { Encoder } from '../../../serialize.ts'
+import { Encoder } from '../../../encoder.ts'
 import { Decoder } from '../../../decoder.ts'
 import { DeserializationContext } from '../../../deserialization-context.ts'
 import { WeakSetRepresentation } from '../weak-set.ts'
