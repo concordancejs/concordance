@@ -1,5 +1,6 @@
 import * as cbor from 'cbor2'
 import never from 'never'
+import { Wtf8Decoder } from '@cto.af/wtf8'
 import { type AspectType, type StaticType, isValidAspectType, isValidStaticType } from './serialization-types.ts'
 import { BytesAccessor } from './accessors/bytes.ts'
 
@@ -120,6 +121,11 @@ export class Decoder {
     const [majorType, additionalInformation, value] = this.#sequence.read() ?? never()
     if (majorType === 3 && additionalInformation !== 31) {
       return value as string
+    }
+
+    if (majorType === 6 && value === 273) {
+      const bytes = this.uint8Array()
+      return new Wtf8Decoder().decode(bytes)
     }
 
     return never(

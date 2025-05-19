@@ -34,7 +34,7 @@ export class Encoder {
     simplifyNegativeZero: false,
     sortKeys: null,
     stringNormalization: null,
-    wtf8: false,
+    wtf8: true,
     types: null,
   }
 

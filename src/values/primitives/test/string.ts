@@ -112,8 +112,7 @@ test('can serialize and deserialize strings with surrogate pairs', (t) => {
   t.is([...stringWithSurrogatePairs].length, 43) // Length in Unicode code points
 })
 
-// TODO: Investigate how to correctly serialize lone surrogates.
-test.failing('can handle strings with lone surrogate halves', (t) => {
+test('can handle strings with lone surrogate halves', (t) => {
   // Create strings with high surrogate alone and low surrogate alone
   const highSurrogateAlone = '\uD834abc' // High surrogate without its pair
   const lowSurrogateAlone = 'abc\uDD1E' // Low surrogate without its pair
