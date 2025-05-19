@@ -39,7 +39,7 @@ test('deserialize creates an ArgumentsRepresentation from decoder data', (t) => 
 
 // Compare method tests - focusing on the overridden behavior
 test('compare returns comparable when comparing arguments object to array with same length and elements', (t) => {
-  const context = new DescriptionContext()
+  const context = new DescriptionContext({ flags: { compareArgumentsToArrays: true } })
   const argsObj = getArgumentsObject('a', 'b', 'c')
   const array = ['a', 'b', 'c']
 
@@ -50,13 +50,39 @@ test('compare returns comparable when comparing arguments object to array with s
 })
 
 test('compare returns unequal when comparing arguments object to array with different length', (t) => {
-  const context = new DescriptionContext()
+  const context = new DescriptionContext({ flags: { compareArgumentsToArrays: true } })
   const argsObj = getArgumentsObject('a', 'b', 'c')
   const array = ['a', 'b']
 
   const argsRep = context.represent(argsObj) as ArgumentsRepresentation
   const arrayRep = context.represent(array) as ArrayRepresentation
 
+  t.is(argsRep.compare(arrayRep), unequal)
+})
+
+test('compare returns unequal when comparing arguments object to array with default flags (compareArgumentsToArrays disabled)', (t) => {
+  // Use default flags (no explicit configuration provided)
+  const context = new DescriptionContext()
+  const argsObj = getArgumentsObject('a', 'b', 'c')
+  const array = ['a', 'b', 'c']
+
+  const argsRep = context.represent(argsObj) as ArgumentsRepresentation
+  const arrayRep = context.represent(array) as ArrayRepresentation
+
+  // With default flags (compareArgumentsToArrays: false), comparing arguments to array should return unequal
+  t.is(argsRep.compare(arrayRep), unequal)
+})
+
+test('compare returns unequal when comparing arguments object to array with explicitly disabled compareArgumentsToArrays flag', (t) => {
+  // Explicitly disable the flag
+  const context = new DescriptionContext({ flags: { compareArgumentsToArrays: false } })
+  const argsObj = getArgumentsObject('a', 'b', 'c')
+  const array = ['a', 'b', 'c']
+
+  const argsRep = context.represent(argsObj) as ArgumentsRepresentation
+  const arrayRep = context.represent(array) as ArrayRepresentation
+
+  // Should return unequal since the flag is explicitly disabled
   t.is(argsRep.compare(arrayRep), unequal)
 })
 

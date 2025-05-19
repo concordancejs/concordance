@@ -1,12 +1,17 @@
 import { comparable, comparableAfterAlignment, deeplyEqual, unequal, type Comparison } from './comparison.ts'
 import { describe } from './describe.ts'
+import type { Flags } from './flags.ts'
 import { isPrimitive } from './primitives.ts'
 import { Stack } from './stack.ts'
 import type { ValueRepresentation } from './value.js'
 
+export type CompareOptions = {
+  flags?: Partial<Flags>
+}
+
 export type Result = { pass: boolean; actual?: ValueRepresentation; expected?: ValueRepresentation }
 
-export function compare(actual: unknown, expected: unknown): Result {
+export function compare(actual: unknown, expected: unknown, options?: CompareOptions): Result {
   if (Object.is(actual, expected)) {
     return { pass: true }
   }
@@ -17,8 +22,8 @@ export function compare(actual: unknown, expected: unknown): Result {
     return { pass: false }
   }
 
-  const lhs = describe(actual)
-  const rhs = describe(expected)
+  const lhs = describe(actual, options)
+  const rhs = describe(expected, options)
   const pass = compareDescriptors(lhs, rhs)
   return { pass, actual: lhs, expected: rhs }
 }

@@ -1,7 +1,7 @@
 import typesUtils from 'node:util/types'
 import never from 'never'
 import type { ValueRepresentation } from './value.js'
-import type { Context } from './context.js'
+import type { Context, ContextOptions } from './context.js'
 import { ArgumentsRepresentation } from './values/objects/arguments.ts' // eslint-disable-line import/no-cycle
 import { type SymbolRepresentation } from './values/primitives/symbol.ts'
 import { BoxedPrimitiveRepresentation } from './values/objects/boxed.ts'
@@ -32,6 +32,7 @@ import { BytesAccessor } from './accessors/bytes.ts'
 import { IteratorValueAccessor } from './accessors/iterator-value.ts'
 import { MapEntryAccessor } from './accessors/map-entry.ts'
 import { isPrimitive, representPrimitive } from './primitives.ts'
+import { normalizeFlags, type Flags } from './flags.ts'
 
 type Pointer = { value: ValueRepresentation; index: number }
 
@@ -69,10 +70,19 @@ export class DescriptionContext implements Context {
     return #pointers in context
   }
 
+  readonly #flags: Readonly<Flags>
   readonly #pointers = new PointerMap()
+
+  constructor(options?: ContextOptions) {
+    this.#flags = normalizeFlags(options?.flags)
+  }
 
   get deserialized() {
     return false
+  }
+
+  get flags() {
+    return this.#flags
   }
 
   pointer(representation: ValueRepresentation) {

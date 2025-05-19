@@ -4,6 +4,7 @@ import { Decoder } from './decoder.ts'
 import { DeserializationContext } from './deserialization-context.ts'
 import type { ValueRepresentation } from './value.d.ts'
 import { version as expectedVersion } from './serialization-types.ts'
+import type { Flags } from './flags.ts'
 
 export class UnsupportedVersion extends Error {
   readonly serializerVersion: number
@@ -18,7 +19,11 @@ export class UnsupportedVersion extends Error {
   }
 }
 
-export function deserialize(bytes: Uint8Array): ValueRepresentation {
+export type DeserializeOptions = {
+  flags?: Partial<Flags>
+}
+
+export function deserialize(bytes: Uint8Array, options?: DeserializeOptions): ValueRepresentation {
   assert(bytes.length > 0, 'Bytes must not be empty')
 
   const decoder = new Decoder(bytes)
@@ -29,5 +34,5 @@ export function deserialize(bytes: Uint8Array): ValueRepresentation {
     throw new UnsupportedVersion(bytes[0]!)
   }
 
-  return new DeserializationContext(decoder).next() ?? never('No value was deserialized')
+  return new DeserializationContext(decoder, options).next() ?? never('No value was deserialized')
 }

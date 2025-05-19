@@ -26,7 +26,7 @@ export class ArgumentsRepresentation extends ObjectRepresentation {
   override compare(other: ValueRepresentation) {
     // Allow comparing arguments objects to arrays, this is useful in deep-equal tests where it's hard to recreate an
     // arguments object.
-    if (ArrayRepresentation.is(other)) {
+    if (this.#context.flags.compareArgumentsToArrays && ArrayRepresentation.is(other)) {
       if (this.#context.length(this.#value) !== other.length) return unequal
 
       return comparable

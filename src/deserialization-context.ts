@@ -2,7 +2,7 @@ import assert from 'node:assert'
 import never from 'never'
 import { type AspectType, staticTypeTable } from './serialization-types.ts'
 import type { ValueRepresentation } from './value.js'
-import type { Context } from './context.js'
+import type { Context, ContextOptions } from './context.js'
 import { BigIntRepresentation } from './values/primitives/bigint.ts'
 import { BooleanRepresentation } from './values/primitives/boolean.ts'
 import { NullRepresentation } from './values/primitives/null.ts'
@@ -40,6 +40,7 @@ import {
 import { MapEntryAccessor } from './accessors/map-entry.ts' // eslint-disable-line import/no-cycle
 import { IteratorValueAccessor } from './accessors/iterator-value.ts'
 import { Decoder } from './decoder.ts'
+import { normalizeFlags, type Flags } from './flags.ts'
 
 class PointerMap extends Map<number, ValueRepresentation> {
   readonly #byRepresentation = new WeakMap<ValueRepresentation, number>()
@@ -139,15 +140,21 @@ export class DeserializationContext implements Context {
   }
 
   readonly #decoder: Decoder
+  readonly #flags: Readonly<Flags>
   readonly #iterationStates = new WeakMap<object, IterationState>()
   readonly #pointers = new PointerMap()
 
-  constructor(decoder: Decoder) {
+  constructor(decoder: Decoder, options?: ContextOptions) {
+    this.#flags = normalizeFlags(options?.flags)
     this.#decoder = decoder
   }
 
   get deserialized() {
     return true
+  }
+
+  get flags() {
+    return this.#flags
   }
 
   // eslint-disable-next-line complexity
