@@ -77,7 +77,12 @@ export class Decoder {
       return value as bigint
     }
 
-    // TODO: Handle tagged bignums.
+    // Decode bignums; major type 6 and tag 2 for positive values, 3 for negative.
+    if (majorType === 6 && (value === 2 || value === 3)) {
+      const bytes = this.uint8Array()
+      const bigint = bytes.reduce((accumulator, byte) => (accumulator << 8n) | BigInt(byte), 0n) // eslint-disable-line no-bitwise
+      return value === 2 ? bigint : -1n - bigint
+    }
 
     return never(`Expected a bigint, got major type ${majorType} with additional information ${additionalInformation}`)
   }

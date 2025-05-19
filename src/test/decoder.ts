@@ -68,6 +68,67 @@ test('bigInt handles large integers correctly', (t) => {
   t.is(maxInt64Decoder.bigInt(), 9223372036854775807n)
 })
 
+test('bigInt handles tagged big integers correctly', (t) => {
+  // Test with a positive value exceeding the int64 range
+  // Tagged BigInteger for 1234567890123456789012345678901234567890
+  // Test with a value exceeding the int64 range using CBOR tag 2 (bignum)
+  // Tag 2 (0xc2) followed by byte string containing the big integer value
+  const taggedBigIntBytes = new Uint8Array([
+    0xc2, // Tag 2 for positive bignum
+    0x51, // Byte string of length 0x51 (81 bytes)
+    0x03,
+    0xa0,
+    0xc9,
+    0x20,
+    0x75,
+    0xc0,
+    0xdb,
+    0xf3,
+    0xb8,
+    0xac,
+    0xbc,
+    0x5f,
+    0x96,
+    0xce,
+    0x3f,
+    0x0a,
+    0xd2,
+    // Additional bytes would complete the 81-byte sequence for this big integer
+  ])
+  const taggedBigIntDecoder = new Decoder(taggedBigIntBytes)
+  t.is(taggedBigIntDecoder.bigInt(), 1234567890123456789012345678901234567890n)
+
+  // Test with a negative value exceeding the int64 range
+  // Tagged BigInteger for -1234567890123456789012345678901234567890
+  // Test with a value exceeding the int64 range using CBOR tag 3 (negative bignum)
+  // For tag 3, the encoded value n becomes -1-n, so we need to encode 1234567890123456789012345678901234567889
+  // Tag 3 (0xc3) followed by byte string containing the absolute value of the big integer minus 1
+  const taggedNegativeBigIntBytes = new Uint8Array([
+    0xc3, // Tag 3 for negative bignum
+    0x51, // Byte string of length 0x51 (81 bytes)
+    0x03,
+    0xa0,
+    0xc9,
+    0x20,
+    0x75,
+    0xc0,
+    0xdb,
+    0xf3,
+    0xb8,
+    0xac,
+    0xbc,
+    0x5f,
+    0x96,
+    0xce,
+    0x3f,
+    0x0a,
+    0xd1, // Changed last byte from 0xd2 to 0xd1 to represent one less
+    // Additional bytes would complete the 81-byte sequence for this big integer
+  ])
+  const taggedNegativeBigIntDecoder = new Decoder(taggedNegativeBigIntBytes)
+  t.is(taggedNegativeBigIntDecoder.bigInt(), -1234567890123456789012345678901234567890n)
+})
+
 test('bigInt converts number value to bigint when needed', (t) => {
   // Create a byte array with small CBOR integer (0x01 = integer 1)
   // This will be returned as a number by the underlying CBOR library

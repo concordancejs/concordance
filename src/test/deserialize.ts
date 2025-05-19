@@ -81,7 +81,8 @@ test('undefined', serde, undefined)
 
 // BigInt
 test('bigint', serde, BigInt(42))
-test.failing('large bigint', serde, 1234567890123456789012345678901234567890n)
+test('large bigint', serde, 1234567890123456789012345678901234567890n)
+test('large negative bigint', serde, -1234567890123456789012345678901234567890n)
 
 // Edge case number values (consolidating duplicate tests)
 test('NaN', serde, NaN)
