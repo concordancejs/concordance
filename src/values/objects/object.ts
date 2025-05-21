@@ -98,8 +98,9 @@ export class ObjectRepresentation implements ValueRepresentation {
 
     // Allow either value to have a null prototype so such objects can be compared against literals.
     if (
-      (this.#context.isNullProto(this.#value) && other.#context.isObjectProto(other.#value)) ||
-      (this.#context.isObjectProto(this.#value) && other.#context.isNullProto(other.#value))
+      this.#context.flags.compareNullProtoToObjectProto &&
+      ((this.#context.isNullProto(this.#value) && other.#context.isObjectProto(other.#value)) ||
+        (this.#context.isObjectProto(this.#value) && other.#context.isNullProto(other.#value)))
     ) {
       return comparable
     }

@@ -42,7 +42,7 @@ import test from 'ava'
 import { compare } from '../compare.ts'
 
 const isEqual = (actual: unknown, expected: unknown) =>
-  compare(actual, expected, { flags: { compareArgumentsToArrays: true } }).pass
+  compare(actual, expected, { flags: { compareArgumentsToArrays: true, compareNullProtoToObjectProto: true } }).pass
 
 const realm = vm.runInNewContext('(function () { return this })()')
 const symbol1 = Symbol('a')

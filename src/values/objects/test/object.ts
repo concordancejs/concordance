@@ -76,16 +76,28 @@ test('compare returns unequal for non-ObjectRepresentation values', (t) => {
   t.is(a.compare(new NullRepresentation()), unequal)
 })
 
-test('compare returns unequal when one object has a null prototype and the other does not', (t) => {
+test('compare returns unequal by default when one object has a null prototype and the other does not', (t) => {
   const context = new DescriptionContext()
   const nullProtoObj = Object.create(null)
-
   const regularObj = {}
 
   const a = context.represent(nullProtoObj) as ObjectRepresentation
   const b = context.represent(regularObj) as ObjectRepresentation
 
-  t.not(a.compare(b), unequal)
+  t.is(a.compare(b), unequal)
+  t.is(b.compare(a), unequal)
+})
+
+test('compare returns comparable when compareNullProtoToObjectProto flag is true', (t) => {
+  const context = new DescriptionContext({ flags: { compareNullProtoToObjectProto: true } })
+  const nullProtoObj = Object.create(null)
+  const regularObj = {}
+
+  const a = context.represent(nullProtoObj) as ObjectRepresentation
+  const b = context.represent(regularObj) as ObjectRepresentation
+
+  t.is(a.compare(b), comparable)
+  t.is(b.compare(a), comparable)
 })
 
 test('compare returns unequal for objects with different string tags', (t) => {

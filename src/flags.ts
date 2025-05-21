@@ -3,11 +3,13 @@
 // across releases.
 const flags = {
   compareArgumentsToArrays: false,
+  compareNullProtoToObjectProto: false,
 }
 
 // Holds the disabled state of all flags. This is used in `deriveFlags()` to default flags to their disabled state.
 const disabledFlags: Flags = {
   compareArgumentsToArrays: false,
+  compareNullProtoToObjectProto: false,
 }
 
 export type Flags = typeof flags
