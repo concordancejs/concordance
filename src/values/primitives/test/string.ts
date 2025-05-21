@@ -38,23 +38,10 @@ test('serializeShallow correctly encodes a string', (t) => {
   snapshotEncoded(t, encoder)
 })
 
-test('serialize calls serializeShallow', (t) => {
-  const representation = new StringRepresentation('test string')
-  const encoder = new Encoder()
-
-  const result = representation.serialize(encoder)
-
-  t.is(result, finished)
-
-  const encoder2 = new Encoder()
-  representation.serializeShallow(encoder2)
-  t.deepEqual(encoder.bytes, encoder2.bytes)
-})
-
 test('can serialize and deserialize regular strings', (t) => {
   const original = new StringRepresentation('hello world')
   const encoder = new Encoder()
-  original.serialize(encoder)
+  original.serializeShallow(encoder)
 
   snapshotEncoded(t, encoder)
 
@@ -65,7 +52,7 @@ test('can serialize and deserialize regular strings', (t) => {
 test('can serialize and deserialize empty strings', (t) => {
   const original = new StringRepresentation('')
   const encoder = new Encoder()
-  original.serialize(encoder)
+  original.serializeShallow(encoder)
 
   snapshotEncoded(t, encoder)
 
@@ -76,7 +63,7 @@ test('can serialize and deserialize empty strings', (t) => {
 test('can serialize and deserialize strings with special characters', (t) => {
   const original = new StringRepresentation('特殊文字 🚀 \n\t\r')
   const encoder = new Encoder()
-  original.serialize(encoder)
+  original.serializeShallow(encoder)
 
   snapshotEncoded(t, encoder)
 
@@ -88,7 +75,7 @@ test('can serialize and deserialize very long strings', (t) => {
   const longString = 'a'.repeat(10000)
   const original = new StringRepresentation(longString)
   const encoder = new Encoder()
-  original.serialize(encoder)
+  original.serializeShallow(encoder)
 
   const deserialized = StringRepresentation.deserialize(new Decoder(encoder.bytes.subarray(1)))
   t.is(original.compare(deserialized), strictlyEqual)
@@ -100,7 +87,7 @@ test('can serialize and deserialize strings with surrogate pairs', (t) => {
   const stringWithSurrogatePairs = '𝄞 musical G clef and 𝌆 tai xuan jing symbol'
   const original = new StringRepresentation(stringWithSurrogatePairs)
   const encoder = new Encoder()
-  original.serialize(encoder)
+  original.serializeShallow(encoder)
 
   snapshotEncoded(t, encoder)
 
@@ -121,7 +108,7 @@ test('can handle strings with lone surrogate halves', (t) => {
   // Test high surrogate alone
   let original = new StringRepresentation(highSurrogateAlone)
   let encoder = new Encoder()
-  original.serialize(encoder)
+  original.serializeShallow(encoder)
   snapshotEncoded(t, encoder, 'high surrogate alone')
   let deserialized = StringRepresentation.deserialize(new Decoder(encoder.bytes.subarray(1)))
   t.is(original.compare(deserialized), strictlyEqual)
@@ -129,7 +116,7 @@ test('can handle strings with lone surrogate halves', (t) => {
   // Test low surrogate alone
   original = new StringRepresentation(lowSurrogateAlone)
   encoder = new Encoder()
-  original.serialize(encoder)
+  original.serializeShallow(encoder)
   snapshotEncoded(t, encoder, 'low surrogate alone')
   deserialized = StringRepresentation.deserialize(new Decoder(encoder.bytes.subarray(1)))
   t.is(original.compare(deserialized), strictlyEqual)
@@ -137,7 +124,7 @@ test('can handle strings with lone surrogate halves', (t) => {
   // Test both halves but separated
   original = new StringRepresentation(bothHalvesSeparated)
   encoder = new Encoder()
-  original.serialize(encoder)
+  original.serializeShallow(encoder)
   snapshotEncoded(t, encoder, 'both halves separated')
   deserialized = StringRepresentation.deserialize(new Decoder(encoder.bytes.subarray(1)))
   t.is(original.compare(deserialized), strictlyEqual)

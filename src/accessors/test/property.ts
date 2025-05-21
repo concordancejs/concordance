@@ -5,7 +5,7 @@ import { StringRepresentation } from '../../values/primitives/string.ts'
 import { NumberRepresentation } from '../../values/primitives/number.ts'
 import { SymbolRepresentation } from '../../values/primitives/symbol.ts'
 import { strictlyEqual, unequal, comparable, comparableAfterAlignment, type Comparison } from '../../comparison.ts'
-import { finished, partial, partialStoreAsByteArray, type SerializationResult } from '../../serialization-result.ts'
+import { finished, partial, partialStoreAsByteArray } from '../../serialization-result.ts'
 import { DescriptionContext } from '../../description-context.ts'
 import { Encoder } from '../../encoder.ts'
 import { Decoder } from '../../decoder.ts'
@@ -74,7 +74,6 @@ test('NamedPropertyAccessor - serialize encodes key as string and delegates to v
   // Create a mock value with serializeShallow
   const mockValue = {
     compare: (): Comparison => strictlyEqual,
-    serialize: (): SerializationResult => partial,
     serializeShallow: (encoder: Encoder): typeof finished => {
       encoder.uint8Array(new Uint8Array([42]))
       return finished
@@ -141,7 +140,7 @@ test('SymbolPropertyAccessor - lazy loads value from DeserializationContext when
   // Create a serialized value
   const encoder = new Encoder()
   const valueToDeserialize = new NumberRepresentation(42)
-  valueToDeserialize.serialize(encoder)
+  valueToDeserialize.serializeShallow(encoder)
 
   // Set up a deserialization context with this serialized data
   const decoder = new Decoder(encoder.bytes)

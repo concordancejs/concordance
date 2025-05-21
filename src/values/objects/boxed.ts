@@ -6,20 +6,20 @@ import type { Encoder } from '../../encoder.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
 import { partialRequiringTerminator, type SerializationResult } from '../../serialization-result.ts'
 import type { Context } from '../../context.js'
-import type { ValueRepresentation } from '../../value.js'
+import type { PrimitiveRepresentation, ValueRepresentation } from '../../value.js'
 import { ObjectRepresentation, type ObjectAnnotations } from './object.ts'
 
 export class BoxedPrimitiveRepresentation extends ObjectRepresentation {
   static override deserialize(context: DeserializationContext, decoder: Decoder): BoxedPrimitiveRepresentation {
     const objectAnnotations = decoder.annotations<ObjectAnnotations>()
-    const primitive = context.next() ?? never('No primitive value')
+    const primitive = (context.next() ?? never('No primitive value')) as PrimitiveRepresentation
     return new this(context, this.unpackAnnotations(objectAnnotations), primitive)
   }
 
-  readonly #primitive: ValueRepresentation
+  readonly #primitive: PrimitiveRepresentation
   readonly #value: object
 
-  constructor(context: Context, value: object, primitive: ValueRepresentation) {
+  constructor(context: Context, value: object, primitive: PrimitiveRepresentation) {
     super(context, value)
     this.#primitive = primitive
     this.#value = value
@@ -34,7 +34,7 @@ export class BoxedPrimitiveRepresentation extends ObjectRepresentation {
 
   override serialize(encoder: Encoder): SerializationResult {
     super.serialize(encoder, staticTypeTable.boxedPrimitive)
-    this.#primitive.serialize(encoder)
+    this.#primitive.serializeShallow(encoder)
     return partialRequiringTerminator
   }
 

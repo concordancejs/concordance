@@ -38,23 +38,10 @@ test('serializeShallow correctly encodes a bigint', (t) => {
   snapshotEncoded(t, encoder)
 })
 
-test('serialize calls serializeShallow', (t) => {
-  const representation = new BigIntRepresentation(123n)
-  const encoder = new Encoder()
-
-  const result = representation.serialize(encoder)
-
-  t.is(result, finished)
-
-  const encoder2 = new Encoder()
-  representation.serializeShallow(encoder2)
-  t.deepEqual(encoder.bytes, encoder2.bytes)
-})
-
 test('can serialize and deserialize positive bigints', (t) => {
   const original = new BigIntRepresentation(9007199254740993n) // Number larger than MAX_SAFE_INTEGER
   const encoder = new Encoder()
-  original.serialize(encoder)
+  original.serializeShallow(encoder)
 
   snapshotEncoded(t, encoder)
 
@@ -65,7 +52,7 @@ test('can serialize and deserialize positive bigints', (t) => {
 test('can serialize and deserialize negative bigints', (t) => {
   const original = new BigIntRepresentation(-9007199254740993n)
   const encoder = new Encoder()
-  original.serialize(encoder)
+  original.serializeShallow(encoder)
 
   snapshotEncoded(t, encoder)
 
@@ -76,7 +63,7 @@ test('can serialize and deserialize negative bigints', (t) => {
 test('can handle zero as bigint', (t) => {
   const original = new BigIntRepresentation(0n)
   const encoder = new Encoder()
-  original.serialize(encoder)
+  original.serializeShallow(encoder)
 
   snapshotEncoded(t, encoder)
 

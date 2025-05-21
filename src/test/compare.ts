@@ -6,7 +6,7 @@ import type { Comparison } from '../comparison.ts'
 import type { ValueRepresentation } from '../value.ts'
 
 // Mock ValueRepresentation implementation
-class MockValueRepresentation implements ValueRepresentation {
+class MockValueRepresentation {
   #compareResult: Comparison
   children: ValueRepresentation[]
   #aligned = false

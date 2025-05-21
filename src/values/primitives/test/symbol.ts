@@ -45,7 +45,7 @@ test('compare returns unequal for differently described symbols after serializat
   const b = new SymbolRepresentation(context, symbol2 as unknown as object)
 
   const encoder = new Encoder()
-  a.serialize(encoder)
+  a.serializeShallow(encoder)
   const decoder = new Decoder(encoder.bytes.subarray(1))
   const deserializationContext = new DeserializationContext(decoder)
   const deserializedA = SymbolRepresentation.deserialize(deserializationContext, decoder)
@@ -60,7 +60,7 @@ test('compare returns strictlyEqual for same registered symbol key after seriali
   const original = new SymbolRepresentation(originalContext, symbol as unknown as object)
 
   const encoder = new Encoder()
-  original.serialize(encoder)
+  original.serializeShallow(encoder)
 
   // Deserialize
   const decoder = new Decoder(encoder.bytes.subarray(1))
@@ -78,7 +78,7 @@ test('compare returns strictlyEqual for same well-known symbol after serializati
   const original = new SymbolRepresentation(originalContext, symbol as unknown as object)
 
   const encoder = new Encoder()
-  original.serialize(encoder)
+  original.serializeShallow(encoder)
 
   // Deserialize
   const decoder = new Decoder(encoder.bytes.subarray(1))
@@ -96,7 +96,7 @@ test('compare returns possiblyEqual for regular symbols with same string represe
   const original = new SymbolRepresentation(originalContext, symbol as unknown as object)
 
   const encoder = new Encoder()
-  original.serialize(encoder)
+  original.serializeShallow(encoder)
 
   // Deserialize
   const decoder = new Decoder(encoder.bytes.subarray(1))
@@ -125,7 +125,7 @@ test('serialize calls serializeShallow', (t) => {
   const representation = new SymbolRepresentation(context, symbol as unknown as object)
   const encoder = new Encoder()
 
-  const result = representation.serialize(encoder)
+  const result = representation.serializeShallow(encoder)
 
   t.is(result, finished)
 

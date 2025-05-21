@@ -2,10 +2,10 @@ import never from 'never'
 import { possiblyEqual, strictlyEqual, unequal } from '../comparison.ts'
 import { DeserializationContext } from '../deserialization-context.ts' // eslint-disable-line import/no-cycle
 import { type SerializationResult, partial } from '../serialization-result.ts'
-import type { ValueRepresentation } from '../value.js'
+import type { AccessorRepresentation, CommonRepresentation, DeepFunctionality, ValueRepresentation } from '../value.js'
 import type { Context } from '../context.js'
 
-export class MapEntryAccessor implements ValueRepresentation {
+export class MapEntryAccessor implements CommonRepresentation, DeepFunctionality {
   static is(value: object): value is MapEntryAccessor {
     return #value in value
   }
@@ -46,3 +46,7 @@ export class MapEntryAccessor implements ValueRepresentation {
     return partial
   }
 }
+
+void (MapEntryAccessor satisfies new (
+  ...arguments_: ConstructorParameters<typeof MapEntryAccessor>
+) => AccessorRepresentation)

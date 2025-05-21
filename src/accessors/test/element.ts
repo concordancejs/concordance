@@ -29,18 +29,18 @@ test('SparseValueRepresentation - compare returns unequal for other values', (t)
   t.is(sparse.compare(str), unequal)
 })
 
-test('SparseValueRepresentation - serialize encodes as undefined', (t) => {
+test('SparseValueRepresentation - serializeShallow encodes as undefined', (t) => {
   const sparse = new SparseValueRepresentation()
 
   const encoder = new Encoder()
-  const result = sparse.serialize(encoder)
+  const result = sparse.serializeShallow(encoder)
 
   t.is(result, finished)
 
   // Reset the encoder and encode a real undefined
   const encoder2 = new Encoder()
   const undef = new UndefinedRepresentation()
-  undef.serialize(encoder2)
+  undef.serializeShallow(encoder2)
 
   // Both should encode identically
   t.deepEqual(encoder.bytes, encoder2.bytes)

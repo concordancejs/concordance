@@ -47,16 +47,3 @@ test('serializeShallow correctly encodes an undefined value', (t) => {
   t.is(result, finished)
   snapshotEncoded(t, encoder)
 })
-
-test('serialize calls serializeShallow', (t) => {
-  const representation = new UndefinedRepresentation()
-  const encoder = new Encoder()
-
-  const result = representation.serialize(encoder)
-
-  t.is(result, finished)
-
-  const encoder2 = new Encoder()
-  representation.serializeShallow(encoder2)
-  t.deepEqual(encoder.bytes, encoder2.bytes)
-})

@@ -1,5 +1,5 @@
 import never from 'never'
-import type { ValueRepresentation } from '../../value.js'
+import type { CommonRepresentation, DeepFunctionality, ValueRepresentation } from '../../value.d.ts'
 import type { ElementAccessor } from '../../accessors/element.ts'
 import type { IteratorValueAccessor } from '../../accessors/iterator-value.ts'
 import type { PropertyGroup } from '../../accessors/property.ts'
@@ -49,7 +49,7 @@ export type SerializationAnnotations = Record<string, boolean | number | string 
   Reserved<ObjectAnnotations> &
   KnownAnnotations
 
-export class ObjectRepresentation implements ValueRepresentation {
+export class ObjectRepresentation implements CommonRepresentation, DeepFunctionality {
   static is(value: object): value is ObjectRepresentation {
     return #value in value
   }
@@ -176,3 +176,7 @@ export class ObjectRepresentation implements ValueRepresentation {
     return partialRequiringTerminator
   }
 }
+
+void (ObjectRepresentation satisfies new (
+  ...arguments_: ConstructorParameters<typeof ObjectRepresentation>
+) => ValueRepresentation)

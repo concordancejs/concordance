@@ -134,7 +134,8 @@ test('iterateArrayLike handles sparse arrays', (t) => {
     // We can't check directly due to the private fields, but we can check indirectly by serializing
     const encoder = new Encoder()
     for (const value of element) {
-      value.serialize(encoder)
+      value.serialize?.(encoder)
+      value.serializeShallow?.(encoder)
     }
     const decoder = new Decoder(encoder.bytes)
     t.is(decoder.staticType(), staticTypeTable.undefined)

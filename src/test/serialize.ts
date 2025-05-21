@@ -38,7 +38,7 @@ function decodeAllCbor(bytes: Uint8Array): unknown[] {
 }
 
 // Mock ValueRepresentation for testing
-class MockValueRepresentation implements ValueRepresentation {
+class MockValueRepresentation {
   pointer?: number
   #serializeResult: SerializationResult
   #serializeImpl?: (encoder: Encoder) => SerializationResult

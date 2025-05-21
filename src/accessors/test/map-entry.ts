@@ -9,6 +9,7 @@ import { Encoder } from '../../encoder.ts'
 import { DescriptionContext } from '../../description-context.ts'
 import { Decoder } from '../../decoder.ts'
 import { DeserializationContext } from '../../deserialization-context.ts'
+import type { SymbolRepresentation } from '../../values/primitives/symbol.ts'
 
 // Test constructor and basic properties
 test('constructor sets key and value, which iterator yields in order', (t) => {
@@ -52,7 +53,7 @@ test('lazy loads value from DeserializationContext when not provided', (t) => {
   // Create a serialized value
   const encoder = new Encoder()
   const valueToDeserialize = new BooleanRepresentation(true)
-  valueToDeserialize.serialize(encoder)
+  valueToDeserialize.serializeShallow(encoder)
 
   // Set up a deserialization context with this serialized data
   const decoder = new Decoder(encoder.bytes)
@@ -153,11 +154,11 @@ test('compare handles possiblyEqual keys correctly', (t) => {
   const originalContext = new DescriptionContext()
   // Create a symbol with description
   const symbol1 = Symbol('test')
-  const key1 = originalContext.represent(symbol1)
+  const key1 = originalContext.represent(symbol1) as SymbolRepresentation
 
   // Serialize the symbol representation
   const encoder = new Encoder()
-  key1.serialize(encoder)
+  key1.serializeShallow(encoder)
 
   // Deserialize to a new context
   const decoder = new Decoder(encoder.bytes)

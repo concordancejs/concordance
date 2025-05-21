@@ -38,23 +38,10 @@ test('serializeShallow correctly encodes a boolean', (t) => {
   snapshotEncoded(t, encoder)
 })
 
-test('serialize calls serializeShallow', (t) => {
-  const representation = new BooleanRepresentation(false)
-  const encoder = new Encoder()
-
-  const result = representation.serialize(encoder)
-
-  t.is(result, finished)
-
-  const encoder2 = new Encoder()
-  representation.serializeShallow(encoder2)
-  t.deepEqual(encoder.bytes, encoder2.bytes)
-})
-
 test('can serialize and deserialize true', (t) => {
   const original = new BooleanRepresentation(true)
   const encoder = new Encoder()
-  original.serialize(encoder)
+  original.serializeShallow(encoder)
 
   snapshotEncoded(t, encoder)
 
@@ -65,7 +52,7 @@ test('can serialize and deserialize true', (t) => {
 test('can serialize and deserialize false', (t) => {
   const original = new BooleanRepresentation(false)
   const encoder = new Encoder()
-  original.serialize(encoder)
+  original.serializeShallow(encoder)
 
   snapshotEncoded(t, encoder)
 

@@ -1,6 +1,6 @@
 import never from 'never'
 import { type Comparison, possiblyEqual, strictlyEqual, unequal } from '../../comparison.ts'
-import type { ValueRepresentation } from '../../value.js'
+import type { CommonRepresentation, ShallowFunctionality, ValueRepresentation } from '../../value.js'
 import type { Context } from '../../context.js'
 import type { Encoder } from '../../encoder.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
@@ -8,7 +8,7 @@ import { type ShallowSerializationResult, finished } from '../../serialization-r
 import type { Decoder } from '../../decoder.ts'
 import type { DeserializationContext } from '../../deserialization-context.ts'
 
-export class ExternalRepresentation implements ValueRepresentation {
+export class ExternalRepresentation implements CommonRepresentation, ShallowFunctionality {
   static deserialize(context: DeserializationContext, decoder: Decoder): ExternalRepresentation {
     const { p: pointer } = decoder.annotations<{ p: number }>()
     return new this(context, { pointer })
@@ -42,8 +42,8 @@ export class ExternalRepresentation implements ValueRepresentation {
     })
     return finished
   }
-
-  serialize(encoder: Encoder) {
-    return this.serializeShallow(encoder)
-  }
 }
+
+void (ExternalRepresentation satisfies new (
+  ...arguments_: ConstructorParameters<typeof ExternalRepresentation>
+) => ValueRepresentation)

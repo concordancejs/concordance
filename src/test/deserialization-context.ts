@@ -1584,7 +1584,8 @@ const typeDeserializationMacro = test.macro<[string, unknown, Comparison]>({
 
     // Serialize it
     const encoder = new Encoder()
-    original.serialize(encoder)
+    original.serialize?.(encoder)
+    original.serializeShallow?.(encoder)
 
     // Deserialize it
     const decoder = new Decoder(encoder.bytes)
@@ -1706,7 +1707,8 @@ test('DeserializationContext correctly deserializes crypto key', async (t) => {
   const original = originalContext.represent(cryptoKey)
 
   const encoder = new Encoder()
-  original.serialize(encoder)
+  original.serialize?.(encoder)
+  original.serializeShallow?.(encoder)
 
   const decoder = new Decoder(encoder.bytes)
   const deserializationContext = new DeserializationContext(decoder)
@@ -1729,7 +1731,8 @@ test('DeserializationContext correctly deserializes external value', async (t) =
   const original = originalContext.represent(externalValue)
 
   const encoder = new Encoder()
-  original.serialize(encoder)
+  original.serialize?.(encoder)
+  original.serializeShallow?.(encoder)
 
   const decoder = new Decoder(encoder.bytes)
   const deserializationContext = new DeserializationContext(decoder)

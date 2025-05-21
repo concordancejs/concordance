@@ -1,9 +1,9 @@
 import { unequal } from '../comparison.ts'
 import { partial, type SerializationResult } from '../serialization-result.ts'
 import type { Encoder } from '../encoder.ts'
-import type { ValueRepresentation } from '../value.js'
+import type { AccessorRepresentation, CommonRepresentation, DeepFunctionality, ValueRepresentation } from '../value.js'
 
-export class IteratorValueAccessor implements ValueRepresentation {
+export class IteratorValueAccessor implements CommonRepresentation, DeepFunctionality {
   static is(value: object): value is IteratorValueAccessor {
     return #value in value
   }
@@ -30,3 +30,7 @@ export class IteratorValueAccessor implements ValueRepresentation {
     return this.#value.serializeShallow?.(encoder) ?? partial
   }
 }
+
+void (IteratorValueAccessor satisfies new (
+  ...arguments_: ConstructorParameters<typeof IteratorValueAccessor>
+) => AccessorRepresentation)

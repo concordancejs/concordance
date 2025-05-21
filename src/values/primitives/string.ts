@@ -3,9 +3,15 @@ import type { Decoder } from '../../decoder.ts'
 import type { Encoder } from '../../encoder.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
 import { type ShallowSerializationResult, finished } from '../../serialization-result.ts'
-import type { ValueRepresentation } from '../../value.js'
+import type {
+  CommonRepresentation,
+  PrimitiveRepresentation,
+  ShallowFunctionality,
+  ValueRepresentation,
+} from '../../value.js'
+import type { Formatter } from '../../formatter.ts'
 
-export class StringRepresentation implements ValueRepresentation {
+export class StringRepresentation implements CommonRepresentation, ShallowFunctionality {
   static deserialize(decoder: Decoder): StringRepresentation {
     return new this(decoder.string())
   }
@@ -24,8 +30,8 @@ export class StringRepresentation implements ValueRepresentation {
     encoder.staticType(staticTypeTable.string).string(this.#value)
     return finished
   }
-
-  serialize(encoder: Encoder) {
-    return this.serializeShallow(encoder)
-  }
 }
+
+void (StringRepresentation satisfies new (
+  ...arguments_: ConstructorParameters<typeof StringRepresentation>
+) => PrimitiveRepresentation)

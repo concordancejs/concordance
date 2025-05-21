@@ -5,14 +5,14 @@ import { BigIntRepresentation } from './values/primitives/bigint.ts'
 import { NumberRepresentation } from './values/primitives/number.ts'
 import { StringRepresentation } from './values/primitives/string.ts'
 import { SymbolRepresentation } from './values/primitives/symbol.ts'
-import type { ValueRepresentation } from './value.d.ts'
+import type { PrimitiveRepresentation } from './value.d.ts'
 import type { DescriptionContext } from './description-context.ts'
 
 export function isPrimitive(value: unknown): value is string | number | bigint | boolean | symbol | undefined | null {
   return value === null || (typeof value !== 'object' && typeof value !== 'function')
 }
 
-export function representPrimitive(context: DescriptionContext, value: unknown): ValueRepresentation {
+export function representPrimitive(context: DescriptionContext, value: unknown): PrimitiveRepresentation {
   if (value === null) return new NullRepresentation()
   if (value === undefined) return new UndefinedRepresentation()
   if (value === true || value === false) return new BooleanRepresentation(value)

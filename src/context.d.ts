@@ -9,8 +9,7 @@ export type ContextOptions = {
   flags?: Partial<Flags>
 }
 
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-export interface Context {
+export type Context = {
   readonly deserialized: boolean
   readonly flags: Readonly<Flags>
   constructorName(value: object): string | undefined

@@ -3,9 +3,14 @@ import type { Decoder } from '../../decoder.ts'
 import type { Encoder } from '../../encoder.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
 import { type ShallowSerializationResult, finished } from '../../serialization-result.ts'
-import type { ValueRepresentation } from '../../value.js'
+import type {
+  CommonRepresentation,
+  PrimitiveRepresentation,
+  ShallowFunctionality,
+  ValueRepresentation,
+} from '../../value.d.ts'
 
-export class BooleanRepresentation implements ValueRepresentation {
+export class BooleanRepresentation implements CommonRepresentation, ShallowFunctionality {
   static deserialize(decoder: Decoder): BooleanRepresentation {
     return new this(decoder.boolean())
   }
@@ -24,8 +29,8 @@ export class BooleanRepresentation implements ValueRepresentation {
     encoder.staticType(staticTypeTable.boolean).boolean(this.#value)
     return finished
   }
-
-  serialize(encoder: Encoder) {
-    return this.serializeShallow(encoder)
-  }
 }
+
+void (BooleanRepresentation satisfies new (
+  ...arguments_: ConstructorParameters<typeof BooleanRepresentation>
+) => PrimitiveRepresentation)

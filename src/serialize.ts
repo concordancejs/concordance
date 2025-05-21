@@ -58,7 +58,7 @@ export function serialize(value: ValueRepresentation): Uint8Array {
         seen.add(pointer)
       }
 
-      const result = value.serialize(encoder)
+      const result = value.serializeShallow?.(encoder) ?? value.serialize?.(encoder) ?? never()
       switch (result) {
         case finished: {
           break

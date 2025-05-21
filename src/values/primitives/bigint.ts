@@ -3,9 +3,14 @@ import type { Decoder } from '../../decoder.ts'
 import type { Encoder } from '../../encoder.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
 import { type ShallowSerializationResult, finished } from '../../serialization-result.ts'
-import type { ValueRepresentation } from '../../value.d.ts'
+import type {
+  CommonRepresentation,
+  PrimitiveRepresentation,
+  ShallowFunctionality,
+  ValueRepresentation,
+} from '../../value.d.ts'
 
-export class BigIntRepresentation implements ValueRepresentation {
+export class BigIntRepresentation implements CommonRepresentation, ShallowFunctionality {
   static deserialize(decoder: Decoder): BigIntRepresentation {
     return new this(decoder.bigInt())
   }
@@ -24,8 +29,8 @@ export class BigIntRepresentation implements ValueRepresentation {
     encoder.staticType(staticTypeTable.bigint).bigInt(this.#value)
     return finished
   }
-
-  serialize(encoder: Encoder) {
-    return this.serializeShallow(encoder)
-  }
 }
+
+void (BigIntRepresentation satisfies new (
+  ...arguments_: ConstructorParameters<typeof BigIntRepresentation>
+) => PrimitiveRepresentation)

@@ -18,7 +18,7 @@ test('deserialize creates a working ExternalRepresentation', (t) => {
   const original = originalContext.represent(externalValue) as ExternalRepresentation
 
   const encoder = new Encoder()
-  original.serialize(encoder)
+  original.serializeShallow(encoder)
 
   const decoder = new Decoder(encoder.bytes)
   decoder.staticType() // Consume the type
@@ -72,7 +72,7 @@ test('compare returns possiblyEqual when either context is deserialized', (t) =>
 
   // Create a serialized version
   const encoder = new Encoder()
-  original.serialize(encoder)
+  original.serializeShallow(encoder)
 
   // Deserialize to get a representation with the deserialization context
   const decoder = new Decoder(encoder.bytes)
@@ -100,7 +100,7 @@ test('serializeShallow uses the external static type', (t) => {
   const externalRep = context.represent(externalValue) as ExternalRepresentation
 
   const encoder = new Encoder()
-  externalRep.serialize(encoder)
+  externalRep.serializeShallow(encoder)
 
   // Check the overall structure with a snapshot
   snapshotEncoded(t, encoder, 'external serialization')

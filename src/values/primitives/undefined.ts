@@ -2,9 +2,14 @@ import { type Comparison, strictlyEqual, unequal } from '../../comparison.ts'
 import type { Encoder } from '../../encoder.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
 import { type ShallowSerializationResult, finished } from '../../serialization-result.ts'
-import type { ValueRepresentation } from '../../value.js'
+import type {
+  CommonRepresentation,
+  PrimitiveRepresentation,
+  ShallowFunctionality,
+  ValueRepresentation,
+} from '../../value.d.ts'
 
-export class UndefinedRepresentation implements ValueRepresentation {
+export class UndefinedRepresentation implements CommonRepresentation, ShallowFunctionality {
   static is(other: ValueRepresentation): other is UndefinedRepresentation {
     return #undefined in other
   }
@@ -19,8 +24,8 @@ export class UndefinedRepresentation implements ValueRepresentation {
     encoder.staticType(staticTypeTable.undefined)
     return finished
   }
-
-  serialize(encoder: Encoder) {
-    return this.serializeShallow(encoder)
-  }
 }
+
+void (UndefinedRepresentation satisfies new (
+  ...arguments_: ConstructorParameters<typeof UndefinedRepresentation>
+) => PrimitiveRepresentation)

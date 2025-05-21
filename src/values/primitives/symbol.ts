@@ -5,11 +5,16 @@ import type { Encoder } from '../../encoder.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
 import { type ShallowSerializationResult, finished } from '../../serialization-result.ts'
 import type { Context } from '../../context.js'
-import type { ValueRepresentation } from '../../value.js'
+import type {
+  CommonRepresentation,
+  PrimitiveRepresentation,
+  ShallowFunctionality,
+  ValueRepresentation,
+} from '../../value.d.ts'
 
 type Annotations = { k?: string; s?: string; w?: string }
 
-export class SymbolRepresentation implements ValueRepresentation {
+export class SymbolRepresentation implements CommonRepresentation, ShallowFunctionality {
   static deserialize(context: DeserializationContext, decoder: Decoder): SymbolRepresentation {
     const { k: key, s: string, w: wellKnown } = decoder.annotations<Annotations>()
     return new this(context, { key, string, wellKnown })
@@ -46,8 +51,8 @@ export class SymbolRepresentation implements ValueRepresentation {
     encoder.annotations({ k, s, w })
     return finished
   }
-
-  serialize(encoder: Encoder) {
-    return this.serializeShallow(encoder)
-  }
 }
+
+void (SymbolRepresentation satisfies new (
+  ...arguments_: ConstructorParameters<typeof SymbolRepresentation>
+) => PrimitiveRepresentation)

@@ -10,11 +10,11 @@ import {
 import { DeserializationContext } from '../deserialization-context.ts' // eslint-disable-line import/no-cycle
 import type { Encoder } from '../encoder.ts'
 import { partialStoreAsByteArray, type SerializationResult, partial } from '../serialization-result.ts'
-import type { ValueRepresentation } from '../value.js'
+import type { AccessorRepresentation, CommonRepresentation, DeepFunctionality, ValueRepresentation } from '../value.js'
 import type { Context } from '../context.js'
 import type { SymbolRepresentation } from '../values/primitives/symbol.ts'
 
-export class NamedPropertyAccessor implements ValueRepresentation {
+export class NamedPropertyAccessor implements CommonRepresentation, DeepFunctionality {
   readonly #key: string
   readonly #value: ValueRepresentation
 
@@ -40,7 +40,11 @@ export class NamedPropertyAccessor implements ValueRepresentation {
   }
 }
 
-export class SymbolPropertyAccessor implements ValueRepresentation {
+void (NamedPropertyAccessor satisfies new (
+  ...arguments_: ConstructorParameters<typeof NamedPropertyAccessor>
+) => AccessorRepresentation)
+
+export class SymbolPropertyAccessor implements CommonRepresentation, DeepFunctionality {
   static orderByIntersection(
     lhs: SymbolPropertyAccessor[],
     rhs: SymbolPropertyAccessor[],
@@ -105,14 +109,18 @@ export class SymbolPropertyAccessor implements ValueRepresentation {
   }
 
   serialize(encoder: Encoder): SerializationResult {
-    this.#key.serialize(encoder)
+    this.#key.serializeShallow(encoder)
     return partialStoreAsByteArray
   }
 }
 
+void (SymbolPropertyAccessor satisfies new (
+  ...arguments_: ConstructorParameters<typeof SymbolPropertyAccessor>
+) => AccessorRepresentation)
+
 export type PropertyGroup = NamedPropertyGroup | SymbolPropertyGroup
 
-export class NamedPropertyGroup implements ValueRepresentation {
+export class NamedPropertyGroup implements CommonRepresentation, DeepFunctionality {
   static is(value: object): value is NamedPropertyGroup {
     return #properties in value
   }
@@ -142,7 +150,11 @@ export class NamedPropertyGroup implements ValueRepresentation {
   }
 }
 
-export class SymbolPropertyGroup implements ValueRepresentation {
+void (NamedPropertyGroup satisfies new (
+  ...arguments_: ConstructorParameters<typeof NamedPropertyGroup>
+) => AccessorRepresentation)
+
+export class SymbolPropertyGroup implements CommonRepresentation, DeepFunctionality {
   static is(value: object): value is NamedPropertyGroup {
     return #properties in value
   }
@@ -175,3 +187,7 @@ export class SymbolPropertyGroup implements ValueRepresentation {
     return partial
   }
 }
+
+void (SymbolPropertyGroup satisfies new (
+  ...arguments_: ConstructorParameters<typeof SymbolPropertyGroup>
+) => AccessorRepresentation)

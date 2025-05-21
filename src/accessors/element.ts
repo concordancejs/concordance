@@ -1,11 +1,23 @@
 import { deeplyEqual, strictlyEqual, unequal } from '../comparison.ts'
 import type { Encoder } from '../encoder.ts'
 import { staticTypeTable } from '../serialization-types.ts'
-import { type SerializationResult, finished, partial } from '../serialization-result.ts'
-import type { ValueRepresentation } from '../value.js'
+import {
+  type SerializationResult,
+  type ShallowSerializationResult,
+  finished,
+  partial,
+} from '../serialization-result.ts'
+import type {
+  AccessorRepresentation,
+  CommonRepresentation,
+  DeepFunctionality,
+  PrimitiveRepresentation,
+  ShallowFunctionality,
+  ValueRepresentation,
+} from '../value.js'
 import { UndefinedRepresentation } from '../values/primitives/undefined.ts'
 
-export class SparseValueRepresentation implements ValueRepresentation {
+export class SparseValueRepresentation implements CommonRepresentation, ShallowFunctionality {
   readonly #sparse: undefined
 
   compare(other: ValueRepresentation) {
@@ -15,13 +27,17 @@ export class SparseValueRepresentation implements ValueRepresentation {
     return unequal
   }
 
-  serialize(encoder: Encoder): SerializationResult {
+  serializeShallow(encoder: Encoder): ShallowSerializationResult {
     encoder.staticType(staticTypeTable.undefined)
     return finished
   }
 }
 
-export class ElementAccessor implements ValueRepresentation {
+void (SparseValueRepresentation satisfies new (
+  ...arguments_: ConstructorParameters<typeof SparseValueRepresentation>
+) => PrimitiveRepresentation)
+
+export class ElementAccessor implements CommonRepresentation, DeepFunctionality {
   static is(value: object): value is ElementAccessor {
     return #value in value
   }
@@ -48,3 +64,7 @@ export class ElementAccessor implements ValueRepresentation {
     return this.#value.serializeShallow?.(encoder) ?? partial
   }
 }
+
+void (ElementAccessor satisfies new (
+  ...arguments_: ConstructorParameters<typeof ElementAccessor>
+) => AccessorRepresentation)
