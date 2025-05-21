@@ -8,6 +8,8 @@ import { ArrayRepresentation } from '../array.ts'
 import { strictlyEqual, comparable, unequal } from '../../../comparison.ts'
 import { staticTypeTable } from '../../../serialization-types.ts'
 import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
+import { Formatter } from '../../../formatter.ts'
+import { deriveTheme } from '../../../theme.ts'
 
 // Helper function to create an arguments object
 function getArgumentsObject(...args: unknown[]) {
@@ -155,4 +157,47 @@ test('serialize uses arguments static type', (t) => {
   // Ensure the correct static type was used
   const decoder = new Decoder(encoder.bytes)
   t.is(decoder.staticType(), staticTypeTable.arguments)
+})
+
+// finalFormat tests
+test('finalFormat uses array brackets and no disambiguation hint by default', (t) => {
+  const context = new DescriptionContext()
+  const argsObj = getArgumentsObject('a', 'b', 'c')
+  const argsRep = context.represent(argsObj) as ArgumentsRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  argsRep.finalFormat(formatter)
+
+  const rendered = formatter.render()
+
+  // Should use array brackets
+  t.true(rendered.includes('['))
+  t.true(rendered.includes(']'))
+
+  // Should not include disambiguation hint by default
+  t.false(rendered.includes('arguments object'))
+
+  // Snapshot the exact rendering
+  t.snapshot(rendered, 'arguments object default format')
+})
+
+test('finalFormat shows disambiguation hint when options.disambiguationHint is true', (t) => {
+  const context = new DescriptionContext()
+  const argsObj = getArgumentsObject('a', 'b', 'c')
+  const argsRep = context.represent(argsObj) as ArgumentsRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  argsRep.finalFormat(formatter, { disambiguationHint: true })
+
+  const rendered = formatter.render()
+
+  // Should use array brackets
+  t.true(rendered.includes('['))
+  t.true(rendered.includes(']'))
+
+  // Should include the disambiguation hint when options.disambiguationHint is true
+  t.true(rendered.includes('`arguments` object'))
+
+  // Snapshot the exact rendering
+  t.snapshot(rendered, 'arguments object with disambiguation hint')
 })

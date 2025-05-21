@@ -8,6 +8,8 @@ import { StringRepresentation } from '../string.ts'
 import { finished } from '../../../serialization-result.ts'
 import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
 import { DescriptionContext } from '../../../description-context.ts'
+import { Formatter } from '../../../formatter.ts'
+import { deriveTheme } from '../../../theme.ts'
 
 test('compare returns strictlyEqual for same symbol instance', (t) => {
   const symbol = Symbol('test')
@@ -172,4 +174,111 @@ test('serialization handles symbols without description', (t) => {
 
   representation.serializeShallow(encoder)
   snapshotEncoded(t, encoder)
+})
+
+test('formatShallow correctly formats a well-known symbol', (t) => {
+  const symbol = Symbol.iterator
+  const context = new DescriptionContext()
+  const representation = new SymbolRepresentation(context, symbol as unknown as object)
+  const formatter = new Formatter(deriveTheme())
+
+  representation.formatShallow(formatter)
+  formatter.close()
+
+  const rendered = formatter.render()
+  t.snapshot(rendered)
+  t.true(rendered.includes('Symbol.iterator'))
+})
+
+test('formatShallow correctly formats a registered symbol', (t) => {
+  const symbol = Symbol.for('test-key')
+  const context = new DescriptionContext()
+  const representation = new SymbolRepresentation(context, symbol as unknown as object)
+  const formatter = new Formatter(deriveTheme())
+
+  representation.formatShallow(formatter)
+  formatter.close()
+
+  const rendered = formatter.render()
+  t.snapshot(rendered)
+  t.true(rendered.includes('Symbol.for(test-key)'))
+})
+
+test('formatShallow correctly encodes special characters in registered symbol keys', (t) => {
+  // Create a symbol with characters that need encoding: control chars, backslashes, etc.
+  const symbol = Symbol.for('special\nkey\twith\r\ncontrol\0chars\\and"quotes')
+  const context = new DescriptionContext()
+  const representation = new SymbolRepresentation(context, symbol as unknown as object)
+  const formatter = new Formatter(deriveTheme())
+
+  representation.formatShallow(formatter)
+  formatter.close()
+
+  const rendered = formatter.render()
+  t.snapshot(rendered)
+
+  // Check that encoding happened correctly - should encode newlines, tabs, null bytes, and backslashes
+  t.true(rendered.includes('\\n'))
+  t.true(rendered.includes('\\t'))
+  t.true(rendered.includes('\\r\\n'))
+  t.true(rendered.includes('\\0'))
+  t.true(rendered.includes('\\\\'))
+
+  // The whole pattern should be encoded properly
+  t.true(rendered.includes('Symbol.for(special\\nkey\\twith\\r\\ncontrol\\0chars\\\\and\\"quotes)'))
+})
+
+test('formatShallow correctly formats a symbol with description', (t) => {
+  const symbol = Symbol('custom-description')
+  const context = new DescriptionContext()
+  const representation = new SymbolRepresentation(context, symbol as unknown as object)
+  const formatter = new Formatter(deriveTheme())
+
+  representation.formatShallow(formatter)
+  formatter.close()
+
+  const rendered = formatter.render()
+  t.snapshot(rendered)
+  t.true(rendered.includes('Symbol(') && rendered.includes('custom-description'))
+})
+
+test('formatShallow correctly encodes special characters in symbol descriptions', (t) => {
+  // Create a symbol with a description containing characters that would need encoding
+  const symbol = Symbol('description\nwith\tspecial\r\ncontrol\0chars\\and"quotes')
+  const context = new DescriptionContext()
+  const representation = new SymbolRepresentation(context, symbol as unknown as object)
+  const formatter = new Formatter(deriveTheme())
+
+  representation.formatShallow(formatter)
+  formatter.close()
+
+  const rendered = formatter.render()
+  t.snapshot(rendered)
+
+  // Check that encoding happened correctly - special characters should be escaped
+  t.true(rendered.includes('\\n'), 'Should encode newlines')
+  t.true(rendered.includes('\\t'), 'Should encode tabs')
+  t.true(rendered.includes('\\r'), 'Should encode carriage returns')
+  t.true(rendered.includes('\\0'), 'Should encode null bytes')
+  t.true(rendered.includes('\\\\'), 'Should encode backslashes')
+
+  // With the updated implementation, the description should be properly encoded
+  // and not contain raw special characters
+  t.false(rendered.includes('\n'), 'Should not contain raw newline characters')
+  t.false(rendered.includes('\t'), 'Should not contain raw tab characters')
+  t.false(rendered.includes('\r'), 'Should not contain raw carriage return characters')
+})
+
+test('formatShallow correctly formats a symbol without description', (t) => {
+  const symbol = Symbol()
+  const context = new DescriptionContext()
+  const representation = new SymbolRepresentation(context, symbol as unknown as object)
+  const formatter = new Formatter(deriveTheme())
+
+  representation.formatShallow(formatter)
+  formatter.close()
+
+  const rendered = formatter.render()
+  t.snapshot(rendered)
+  t.true(rendered.includes('Symbol()'))
 })

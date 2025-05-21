@@ -4,7 +4,8 @@ import type { DeserializationContext } from '../../deserialization-context.ts'
 import type { Encoder } from '../../encoder.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
 import type { Context } from '../../context.js'
-import type { ValueRepresentation } from '../../value.js'
+import type { FinalFormatOptions, ValueRepresentation } from '../../value.js'
+import type { Formatter } from '../../formatter.ts'
 import { ArrayRepresentation } from './array.ts' // eslint-disable-line import/no-cycle
 import { ObjectRepresentation, type ObjectAnnotations } from './object.ts'
 
@@ -41,6 +42,13 @@ export class ArgumentsRepresentation extends ObjectRepresentation {
 
   override *iterateIterable() {
     // Not used for arguments objects. Override to make a no-op.
+  }
+
+  override finalFormat(formatter: Formatter, options?: FinalFormatOptions) {
+    super.finalFormat(formatter, {
+      array: true,
+      disambiguationHint: options?.disambiguationHint === true ? '`arguments` object' : undefined,
+    })
   }
 
   override serialize(encoder: Encoder) {

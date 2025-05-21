@@ -6,6 +6,8 @@ import { DeserializationContext } from '../../../deserialization-context.ts'
 import { WeakSetRepresentation } from '../weak-set.ts'
 import { possiblyEqual, strictlyEqual, unequal } from '../../../comparison.ts'
 import { staticTypeTable } from '../../../serialization-types.ts'
+import { Formatter } from '../../../formatter.ts'
+import { deriveTheme } from '../../../theme.ts'
 import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
 
 // Deserialize method test
@@ -100,4 +102,47 @@ test('serialize uses weakSet static type', (t) => {
   // Verify the static type
   const decoder = new Decoder(encoder.bytes)
   t.is(decoder.staticType(), staticTypeTable.weakSet)
+})
+
+// finalFormat tests
+test('finalFormat passes object brackets and does not include disambiguation hint by default', (t) => {
+  const context = new DescriptionContext()
+  const weakSet = new WeakSet()
+  const weakSetRep = context.represent(weakSet) as WeakSetRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  weakSetRep.finalFormat(formatter)
+
+  const rendered = formatter.render()
+
+  // Should use object brackets
+  t.true(rendered.includes('{'))
+  t.true(rendered.includes('}'))
+
+  // Should not include explicit disambiguation hint by default
+  t.false(rendered.includes('// WeakSet'))
+
+  // Snapshot the exact rendering
+  t.snapshot(rendered, 'weak set object default format')
+})
+
+test('finalFormat passes object brackets and shows disambiguation hint when options.disambiguationHint is true', (t) => {
+  const context = new DescriptionContext()
+  const weakSet = new WeakSet()
+  const weakSetRep = context.represent(weakSet) as WeakSetRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  weakSetRep.finalFormat(formatter, { disambiguationHint: true })
+
+  const rendered = formatter.render()
+
+  // Should use object brackets
+  t.true(rendered.includes('{'))
+  t.true(rendered.includes('}'))
+
+  // Should include disambiguation hint when requested
+  t.true(rendered.includes('// WeakSet'))
+
+  // Snapshot the exact rendering
+  t.snapshot(rendered, 'weak set object with disambiguation hint')
 })

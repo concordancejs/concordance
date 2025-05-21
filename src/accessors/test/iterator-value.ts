@@ -6,6 +6,8 @@ import { Encoder } from '../../encoder.ts'
 import { strictlyEqual, unequal } from '../../comparison.ts'
 import { partial, finished } from '../../serialization-result.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
+import { Formatter } from '../../formatter.ts'
+import { deriveTheme } from '../../theme.ts'
 
 // Test constructor and basic properties
 test('constructor sets index and value, which iterator yields', (t) => {
@@ -159,4 +161,22 @@ test('handles nested iterator values', (t) => {
 
   // Deep comparison should work
   t.is(outer.compare(outer2), strictlyEqual)
+})
+
+// Test finalFormat
+test('finalFormat appends theme.iteratorValue.after to formatter', (t) => {
+  const value = new StringRepresentation('test')
+  const iteratorValue = new IteratorValueAccessor(5, value)
+
+  const theme = deriveTheme()
+  const formatter = new Formatter(theme)
+
+  // Call finalFormat
+  iteratorValue.finalFormat(formatter)
+
+  // Render the formatter's content
+  const rendered = formatter.render()
+
+  // Should contain the theme's iteratorValue.after value
+  t.is(rendered, theme.iteratorValue.after)
 })

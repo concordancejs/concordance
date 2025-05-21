@@ -8,6 +8,8 @@ import { comparable, strictlyEqual, unequal } from '../../../comparison.ts'
 import { staticTypeTable } from '../../../serialization-types.ts'
 import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
 import { ElementAccessor } from '../../../accessors/element.ts'
+import { Formatter } from '../../../formatter.ts'
+import { deriveTheme } from '../../../theme.ts'
 
 // Static methods tests
 test('is method correctly identifies ArrayRepresentation instances', (t) => {
@@ -188,4 +190,47 @@ test('serializing and deserializing an array preserves its structure', (t) => {
 
   // The deserialized representation should have the same length
   t.is((deserialized as ArrayRepresentation).length, array.length)
+})
+
+// finalFormat tests
+test('finalFormat uses array brackets and no disambiguation hint by default', (t) => {
+  const context = new DescriptionContext()
+  const array = [1, 2, 3]
+  const arrayRep = context.represent(array) as ArrayRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  arrayRep.finalFormat(formatter)
+
+  const rendered = formatter.render()
+
+  // Should use array brackets
+  t.true(rendered.includes('['))
+  t.true(rendered.includes(']'))
+
+  // Should not include disambiguation hint by default
+  t.false(rendered.includes('Array'))
+
+  // Snapshot the exact rendering
+  t.snapshot(rendered, 'array default format')
+})
+
+test('finalFormat shows disambiguation hint when options.disambiguationHint is true', (t) => {
+  const context = new DescriptionContext()
+  const array = [1, 2, 3]
+  const arrayRep = context.represent(array) as ArrayRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  arrayRep.finalFormat(formatter, { disambiguationHint: true })
+
+  const rendered = formatter.render()
+
+  // Should use array brackets
+  t.true(rendered.includes('['))
+  t.true(rendered.includes(']'))
+
+  // Should include the disambiguation hint when options.disambiguationHint is true
+  t.true(rendered.includes('Array'))
+
+  // Snapshot the exact rendering
+  t.snapshot(rendered, 'array with disambiguation hint')
 })

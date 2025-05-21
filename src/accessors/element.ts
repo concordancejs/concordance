@@ -16,6 +16,7 @@ import type {
   ValueRepresentation,
 } from '../value.js'
 import { UndefinedRepresentation } from '../values/primitives/undefined.ts'
+import type { Formatter } from '../formatter.ts'
 
 export class SparseValueRepresentation implements CommonRepresentation, ShallowFunctionality {
   readonly #sparse: undefined
@@ -25,6 +26,10 @@ export class SparseValueRepresentation implements CommonRepresentation, ShallowF
     // Allow sparse values to be equal to undefined.
     if (UndefinedRepresentation.is(other)) return deeplyEqual
     return unequal
+  }
+
+  formatShallow(formatter: Formatter): void {
+    formatter.append(formatter.theme.array.sparse)
   }
 
   serializeShallow(encoder: Encoder): ShallowSerializationResult {
@@ -58,6 +63,10 @@ export class ElementAccessor implements CommonRepresentation, DeepFunctionality 
     if (!(#value in other)) return unequal
     if (this.#index !== other.#index) return unequal
     return this.#value.compare(other.#value)
+  }
+
+  finalFormat(formatter: Formatter): void {
+    formatter.append(formatter.theme.element.after).close()
   }
 
   serialize(encoder: Encoder): SerializationResult {

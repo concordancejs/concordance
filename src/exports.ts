@@ -3,6 +3,7 @@ export { describe, type DescribeOptions } from './describe.ts'
 export { serialize } from './serialize.ts'
 export { deserialize, type DeserializeOptions } from './deserialize.ts'
 export { deriveFlags, type Flags } from './flags.ts'
+export { type Theme, deriveTheme } from './theme.ts'
 
 export function diff() {
   // TODO: Implement

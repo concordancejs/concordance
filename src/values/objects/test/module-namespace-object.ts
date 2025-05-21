@@ -6,6 +6,8 @@ import { DeserializationContext } from '../../../deserialization-context.ts'
 import { ModuleNamespaceObjectRepresentation } from '../module-namespace-object.ts'
 import { comparable, strictlyEqual, unequal } from '../../../comparison.ts'
 import { staticTypeTable } from '../../../serialization-types.ts'
+import { Formatter } from '../../../formatter.ts'
+import { deriveTheme } from '../../../theme.ts'
 
 // Import a module namespace for testing
 import * as moduleNamespace from './fixtures/module-fixture.ts'
@@ -111,4 +113,90 @@ test('serializing and deserializing a module namespace object preserves its stru
 
   // The original and deserialized representations should be comparable
   t.is(original.compare(deserialized), comparable)
+})
+
+// finalFormat tests
+test('finalFormat uses object brackets and includes disambiguation hint', (t) => {
+  const context = new DescriptionContext()
+  const moduleRep = context.represent(moduleNamespace) as ModuleNamespaceObjectRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  moduleRep.finalFormat(formatter)
+
+  const rendered = formatter.render()
+
+  // Should use object brackets
+  t.true(rendered.includes('{'))
+  t.true(rendered.includes('}'))
+
+  // Should always include explicit disambiguation hint
+  t.true(rendered.includes('// Module Namespace Object'))
+
+  // Snapshot the exact rendering
+  t.snapshot(rendered, 'module namespace object format')
+})
+
+test('finalFormat works with non-empty formatter', (t) => {
+  const context = new DescriptionContext()
+  const moduleRep = context.represent(moduleNamespace) as ModuleNamespaceObjectRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  // Add some content to make the formatter non-empty
+  formatter.append('some property content')
+  moduleRep.finalFormat(formatter)
+
+  const rendered = formatter.render()
+
+  // Should include the property content
+  t.true(rendered.includes('some property content'))
+
+  // Should always include disambiguation hint
+  t.true(rendered.includes('// Module Namespace Object'))
+
+  // Snapshot the exact rendering
+  t.snapshot(rendered, 'module namespace object with content')
+})
+
+test('finalFormat handles maxDepthReached', (t) => {
+  const context = new DescriptionContext()
+  const moduleRep = context.represent(moduleNamespace) as ModuleNamespaceObjectRepresentation
+
+  // Create a formatter with maxDepth already reached
+  const formatter = new Formatter(deriveTheme(), 10, 5)
+  moduleRep.finalFormat(formatter)
+
+  const rendered = formatter.render()
+
+  // Should include max depth indicator
+  t.true(rendered.includes(formatter.theme.maxDepth))
+
+  // Should always include disambiguation hint
+  t.true(rendered.includes('// Module Namespace Object'))
+
+  // Snapshot the exact rendering
+  t.snapshot(rendered, 'module namespace object with max depth')
+})
+
+test('finalFormat handles maxDepthReached with non-empty formatter', (t) => {
+  const context = new DescriptionContext()
+  const moduleRep = context.represent(moduleNamespace) as ModuleNamespaceObjectRepresentation
+
+  // Create formatter with max depth already reached and content
+  const formatter = new Formatter(deriveTheme(), 10, 5)
+  formatter.append('some property content')
+  moduleRep.finalFormat(formatter)
+
+  const rendered = formatter.render()
+
+  // Should include the property content
+  t.true(rendered.includes('some property content'))
+
+  // Should include max depth indicator
+  t.true(rendered.includes(formatter.theme.maxDepth))
+
+  // Should always include disambiguation hint
+  t.true(rendered.includes('// Module Namespace Object'))
+
+  // Snapshot the exact rendering
+  t.snapshot(rendered, 'module namespace object with content and max depth')
 })

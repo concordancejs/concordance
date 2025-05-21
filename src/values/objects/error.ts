@@ -1,7 +1,9 @@
 import type { Decoder } from '../../decoder.ts'
 import type { DeserializationContext } from '../../deserialization-context.ts'
 import type { Encoder } from '../../encoder.ts'
+import type { Formatter } from '../../formatter.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
+import type { FinalFormatOptions } from '../../value.js'
 import { ObjectRepresentation, type ObjectAnnotations } from './object.ts'
 
 export class ErrorRepresentation extends ObjectRepresentation {
@@ -12,6 +14,12 @@ export class ErrorRepresentation extends ObjectRepresentation {
 
   override *iterateProperties() {
     yield* super.iterateProperties('name', 'cause', 'message')
+  }
+
+  override finalFormat(formatter: Formatter, options?: FinalFormatOptions) {
+    super.finalFormat(formatter, {
+      disambiguationHint: options?.disambiguationHint === true ? 'Error' : undefined,
+    })
   }
 
   override serialize(encoder: Encoder) {

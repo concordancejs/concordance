@@ -1,5 +1,5 @@
 import never from 'never'
-import type { CommonRepresentation, DeepFunctionality, ValueRepresentation } from '../../value.d.ts'
+import type { FinalFormatOptions, CommonRepresentation, DeepFunctionality, ValueRepresentation } from '../../value.d.ts'
 import type { ElementAccessor } from '../../accessors/element.ts'
 import type { IteratorValueAccessor } from '../../accessors/iterator-value.ts'
 import type { PropertyGroup } from '../../accessors/property.ts'
@@ -12,6 +12,7 @@ import { staticTypeTable, type StaticType } from '../../serialization-types.ts'
 import { partialRequiringTerminator, type SerializationResult } from '../../serialization-result.ts'
 import type { Decoder } from '../../decoder.ts'
 import type { DeserializationContext } from '../../deserialization-context.ts'
+import { Formatter } from '../../formatter.ts'
 
 export type ObjectAnnotations = {
   a?: true // Is array like
@@ -138,6 +139,77 @@ export class ObjectRepresentation implements CommonRepresentation, DeepFunctiona
     }
 
     yield* this.#context.iterateValues(this.#value)
+  }
+
+  // eslint-disable-next-line complexity
+  finalFormat(formatter: Formatter, options?: FinalFormatOptions): void {
+    const constructorName = this.#context.constructorName(this.#value)
+    const { empty, maxDepthReached } = formatter
+    const stringTag = this.#context.stringTag(this.#value)
+    const isNullProto = this.#context.isNullProto(this.#value)
+    const asArray = options?.array === true || this.#context.isArrayLike(this.#value)
+
+    const includeConstructorName =
+      constructorName !== undefined &&
+      ((asArray && constructorName !== 'Array') || (!asArray && constructorName !== 'Object'))
+
+    if (!includeConstructorName && stringTag !== undefined) {
+      if (stringTag === '') {
+        formatter.prefix(formatter.theme.object.stringTag.empty)
+      } else {
+        formatter.prefixWrapped('object.stringTag', formatter.encodeTypicalIdentifier(stringTag))
+      }
+
+      formatter.prefix(' ')
+    } else if (includeConstructorName) {
+      if (constructorName === '') {
+        formatter.prefix(formatter.theme.object.constructorName.empty)
+      } else {
+        formatter.prefixWrapped('object.constructorName', formatter.encodeTypicalIdentifier(constructorName))
+      }
+
+      formatter.prefix(' ')
+
+      if (stringTag !== undefined && stringTag !== constructorName) {
+        if (stringTag === '') {
+          formatter.prefix(formatter.theme.object.secondaryStringTag.empty)
+        } else {
+          formatter.prefixWrapped('object.secondaryStringTag', formatter.encodeTypicalIdentifier(stringTag))
+        }
+
+        formatter.prefix(' ')
+      }
+    }
+
+    if (isNullProto) {
+      formatter.prefix(formatter.theme.object.nullPrototype, ' ')
+    }
+
+    const bracketKey = asArray ? 'array.bracket' : 'object.bracket'
+    if (empty && !maxDepthReached) {
+      formatter.prefixWrapped(bracketKey)
+    } else {
+      formatter.prefix(formatter.theme[bracketKey].open)
+      if (maxDepthReached) {
+        if (empty) {
+          formatter.prefix(` ${formatter.theme.maxDepth} `, formatter.theme[bracketKey].close)
+        } else {
+          formatter.append(formatter.theme.maxDepth)
+        }
+      }
+    }
+
+    // Regular objects do not require a disambiguation hint, so ignore the `true` value.
+    if (typeof options?.disambiguationHint === 'string') {
+      formatter.prefix(' ')
+      formatter.prefixWrapped('disambiguationHint', options.disambiguationHint)
+    }
+
+    if (empty) {
+      formatter.close()
+    } else {
+      formatter.prefix(Formatter.lineMarker).append(Formatter.lineMarker).close(formatter.theme[bracketKey].close)
+    }
   }
 
   serialize(

@@ -13,6 +13,7 @@ import { partialStoreAsByteArray, type SerializationResult, partial } from '../s
 import type { AccessorRepresentation, CommonRepresentation, DeepFunctionality, ValueRepresentation } from '../value.js'
 import type { Context } from '../context.js'
 import type { SymbolRepresentation } from '../values/primitives/symbol.ts'
+import type { Formatter } from '../formatter.ts'
 
 export class NamedPropertyAccessor implements CommonRepresentation, DeepFunctionality {
   readonly #key: string
@@ -32,6 +33,25 @@ export class NamedPropertyAccessor implements CommonRepresentation, DeepFunction
     if (this.#key !== other.#key) return unequal
 
     return this.#value.compare(other.#value)
+  }
+
+  preformat(formatter: Formatter) {
+    // Format the key as an identifier if it matches the identifier pattern, or is an integer.
+    if (/^[$_\p{ID_Start}][$\u200C\u200D\p{ID_Continue}]*$/u.test(this.#key) || /^\d+$/.test(this.#key)) {
+      formatter.append(this.#key)
+    } else {
+      // Otherwise, use string formatting for non-identifier keys
+      formatter.append(formatter.theme.property.keyBracket.open)
+      formatter.appendWrapped('string.line', formatter.encodeTypicalSimpleString(this.#key))
+      formatter.append(formatter.theme.property.keyBracket.close)
+    }
+
+    formatter.append(formatter.theme.property.afterKey)
+  }
+
+  finalFormat(formatter: Formatter) {
+    formatter.append(formatter.theme.property.afterValue)
+    formatter.close()
   }
 
   serialize(encoder: Encoder): SerializationResult {
@@ -106,6 +126,17 @@ export class SymbolPropertyAccessor implements CommonRepresentation, DeepFunctio
     if (comparison !== strictlyEqual && comparison !== possiblyEqual) return unequal
 
     return this.#value.compare(other.#value)
+  }
+
+  preformat(formatter: Formatter) {
+    formatter.append(formatter.theme.property.keyBracket.open)
+    this.#key.formatShallow(formatter)
+    formatter.append(formatter.theme.property.keyBracket.close, formatter.theme.property.afterKey)
+  }
+
+  finalFormat(formatter: Formatter) {
+    formatter.append(formatter.theme.property.afterValue)
+    formatter.close()
   }
 
   serialize(encoder: Encoder): SerializationResult {

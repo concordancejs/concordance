@@ -5,6 +5,8 @@ import { strictlyEqual, unequal } from '../../../comparison.ts'
 import { StringRepresentation } from '../string.ts'
 import { finished } from '../../../serialization-result.ts'
 import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
+import { Formatter } from '../../../formatter.ts'
+import { deriveTheme } from '../../../theme.ts'
 
 test('compare returns strictlyEqual for NullRepresentation instances', (t) => {
   const a = new NullRepresentation()
@@ -28,4 +30,16 @@ test('serializeShallow correctly encodes a null value', (t) => {
 
   t.is(result, finished)
   snapshotEncoded(t, encoder)
+})
+
+test('formatShallow correctly formats null', (t) => {
+  const representation = new NullRepresentation()
+  const formatter = new Formatter(deriveTheme())
+
+  representation.formatShallow(formatter)
+  formatter.close()
+
+  const rendered = formatter.render()
+  t.snapshot(rendered)
+  t.true(rendered.includes('null'))
 })

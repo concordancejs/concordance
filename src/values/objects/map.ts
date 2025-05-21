@@ -1,10 +1,11 @@
 import type { Context } from '../../context.js'
-import type { ValueRepresentation } from '../../value.js'
+import type { FinalFormatOptions, ValueRepresentation } from '../../value.js'
 import { strictlyEqual, unequal } from '../../comparison.ts'
 import type { Encoder } from '../../encoder.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
 import type { Decoder } from '../../decoder.ts'
 import type { DeserializationContext } from '../../deserialization-context.ts'
+import type { Formatter } from '../../formatter.ts'
 import { ObjectRepresentation, type ObjectAnnotations } from './object.ts'
 
 export class MapRepresentation extends ObjectRepresentation {
@@ -32,6 +33,12 @@ export class MapRepresentation extends ObjectRepresentation {
 
   override *iterateIterable() {
     yield* this.#context.iterateMapEntries(this.#value)
+  }
+
+  override finalFormat(formatter: Formatter, options?: FinalFormatOptions) {
+    super.finalFormat(formatter, {
+      disambiguationHint: options?.disambiguationHint === true ? 'Map' : undefined,
+    })
   }
 
   override serialize(encoder: Encoder) {

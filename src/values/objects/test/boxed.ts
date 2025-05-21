@@ -7,6 +7,8 @@ import { BoxedPrimitiveRepresentation as BoxedRepresentation } from '../boxed.ts
 import { comparable, strictlyEqual, unequal } from '../../../comparison.ts'
 import { staticTypeTable } from '../../../serialization-types.ts'
 import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
+import { Formatter } from '../../../formatter.ts'
+import { deriveTheme } from '../../../theme.ts'
 
 // Helper function to create boxed primitives of different types
 function createBoxedValues() {
@@ -184,4 +186,113 @@ test('serializing and deserializing different boxed primitive types', (t) => {
     // The original and deserialized representations should be comparable
     t.is(original.compare(deserialized), comparable, `Failed for boxed ${type}`)
   }
+})
+
+// Formatting tests
+test('preformat formats the primitive value', (t) => {
+  const context = new DescriptionContext()
+  const boxed = new Number(42)
+  const boxedRep = context.represent(boxed) as BoxedRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  boxedRep.preformat(formatter)
+
+  // Need to close the formatter before rendering
+  formatter.close()
+  const rendered = formatter.render()
+
+  // Should contain the primitive value
+  t.true(rendered.includes('42'))
+
+  // Snapshot the exact rendering
+  t.snapshot(rendered, 'boxed number preformat')
+})
+
+test('preformat formats different boxed primitive types correctly', (t) => {
+  const context = new DescriptionContext()
+  const values = createBoxedValues()
+
+  // Test each type of boxed primitive
+  for (const [type, value] of Object.entries(values)) {
+    const boxedRep = context.represent(value) as BoxedRepresentation
+
+    const formatter = new Formatter(deriveTheme())
+    boxedRep.preformat(formatter)
+
+    // Need to close the formatter before rendering
+    formatter.close()
+    const rendered = formatter.render()
+
+    // Should contain a representation of the primitive value
+    t.true(rendered.length > 0)
+
+    // Snapshot with type name to differentiate
+    t.snapshot(rendered, `boxed ${type} preformat`)
+  }
+})
+
+test('finalFormat uses object brackets and no disambiguation hint by default', (t) => {
+  const context = new DescriptionContext()
+  const boxed = new Number(42)
+  const boxedRep = context.represent(boxed) as BoxedRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  boxedRep.finalFormat(formatter)
+
+  const rendered = formatter.render()
+
+  // Should use object brackets
+  t.true(rendered.includes('{'))
+  t.true(rendered.includes('}'))
+
+  // Should not include disambiguation hint by default
+  t.false(rendered.includes('Boxed primitive'))
+
+  // Snapshot the exact rendering
+  t.snapshot(rendered, 'boxed primitive default format')
+})
+
+test('finalFormat shows disambiguation hint when options.disambiguationHint is true', (t) => {
+  const context = new DescriptionContext()
+  const boxed = new Number(42)
+  const boxedRep = context.represent(boxed) as BoxedRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  boxedRep.finalFormat(formatter, { disambiguationHint: true })
+
+  const rendered = formatter.render()
+
+  // Should use object brackets
+  t.true(rendered.includes('{'))
+  t.true(rendered.includes('}'))
+
+  // Should include the disambiguation hint when options.disambiguationHint is true
+  t.true(rendered.includes('Boxed primitive'))
+
+  // Snapshot the exact rendering
+  t.snapshot(rendered, 'boxed primitive with disambiguation hint')
+})
+
+test('integration of preformat and finalFormat produces correct output', (t) => {
+  const context = new DescriptionContext()
+  const boxed = new Number(42)
+  const boxedRep = context.represent(boxed) as BoxedRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+
+  // First preformat the primitive value
+  boxedRep.preformat(formatter)
+
+  // Then do the final formatting
+  boxedRep.finalFormat(formatter)
+
+  const rendered = formatter.render()
+
+  // Should contain both the primitive value and object brackets
+  t.true(rendered.includes('{'))
+  t.true(rendered.includes('}'))
+  t.true(rendered.includes('42'))
+
+  // Snapshot the complete rendering
+  t.snapshot(rendered, 'complete boxed primitive rendering')
 })

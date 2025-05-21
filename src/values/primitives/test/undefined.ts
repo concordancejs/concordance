@@ -6,6 +6,8 @@ import { StringRepresentation } from '../string.ts'
 import { NullRepresentation } from '../null.ts'
 import { finished } from '../../../serialization-result.ts'
 import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
+import { Formatter } from '../../../formatter.ts'
+import { deriveTheme } from '../../../theme.ts'
 
 test('compare returns strictlyEqual for UndefinedRepresentation instances', (t) => {
   const a = new UndefinedRepresentation()
@@ -46,4 +48,16 @@ test('serializeShallow correctly encodes an undefined value', (t) => {
 
   t.is(result, finished)
   snapshotEncoded(t, encoder)
+})
+
+test('formatShallow correctly formats undefined', (t) => {
+  const representation = new UndefinedRepresentation()
+  const formatter = new Formatter(deriveTheme())
+
+  representation.formatShallow(formatter)
+  formatter.close()
+
+  const rendered = formatter.render()
+  t.snapshot(rendered)
+  t.true(rendered.includes('undefined'))
 })

@@ -6,6 +6,8 @@ import { strictlyEqual, unequal } from '../../../comparison.ts'
 import { StringRepresentation } from '../string.ts'
 import { finished } from '../../../serialization-result.ts'
 import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
+import { Formatter } from '../../../formatter.ts'
+import { deriveTheme } from '../../../theme.ts'
 
 test('compare returns strictlyEqual for same numbers', (t) => {
   const a = new NumberRepresentation(42)
@@ -91,5 +93,50 @@ test('can handle special number values', (t) => {
 
     const deserialized = NumberRepresentation.deserialize(new Decoder(encoder.bytes.subarray(1)))
     t.is(original.compare(deserialized), strictlyEqual, `Failed for ${value}`)
+  }
+})
+
+test('formatShallow correctly formats regular number', (t) => {
+  const representation = new NumberRepresentation(42)
+  const formatter = new Formatter(deriveTheme())
+
+  representation.formatShallow(formatter)
+  formatter.close()
+
+  const rendered = formatter.render()
+  t.snapshot(rendered)
+  t.true(rendered.includes('42'))
+})
+
+test('formatShallow correctly formats negative number', (t) => {
+  const representation = new NumberRepresentation(-42.5)
+  const formatter = new Formatter(deriveTheme())
+
+  representation.formatShallow(formatter)
+  formatter.close()
+
+  const rendered = formatter.render()
+  t.snapshot(rendered)
+  t.true(rendered.includes('-42.5'))
+})
+
+test('formatShallow correctly formats special values', (t) => {
+  const specialValues = [
+    { value: Infinity, expected: 'Infinity' },
+    { value: -Infinity, expected: '-Infinity' },
+    { value: NaN, expected: 'NaN' },
+    { value: -0, expected: '-0' },
+  ]
+
+  for (const { value, expected } of specialValues) {
+    const representation = new NumberRepresentation(value)
+    const formatter = new Formatter(deriveTheme())
+
+    representation.formatShallow(formatter)
+    formatter.close()
+
+    const rendered = formatter.render()
+    t.snapshot(rendered, `Snapshot for ${expected}`)
+    t.true(rendered.includes(expected), `Should include ${expected}`)
   }
 })

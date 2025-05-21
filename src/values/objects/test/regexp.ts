@@ -1,3 +1,4 @@
+import { mock } from 'node:test'
 import test from 'ava'
 import { DescriptionContext } from '../../../description-context.ts'
 import { Encoder } from '../../../encoder.ts'
@@ -9,6 +10,8 @@ import { staticTypeTable } from '../../../serialization-types.ts'
 import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
 import { NamedPropertyGroup } from '../../../accessors/property.ts'
 import { NamedPropertyAccessor } from '../../../accessors/property.ts'
+import { Formatter } from '../../../formatter.ts'
+import { deriveTheme } from '../../../theme.ts'
 
 // Deserialize method test
 test('deserialize creates a comparable RegExpRepresentation', (t) => {
@@ -122,4 +125,166 @@ test('serializing and deserializing a RegExp preserves its structure', (t) => {
 
   // The original and deserialized representations should be comparable
   t.is(original.compare(deserialized), comparable)
+})
+
+// preformat test
+test('preformat performs setup only', (t) => {
+  const context = new DescriptionContext()
+  const regexp = /test/i
+  const regexpRep = context.represent(regexp) as RegExpRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  regexpRep.preformat()
+
+  t.true(formatter.empty)
+})
+
+// Helper function to set up a RegExpRepresentation for testing
+function injectProperties(context: DescriptionContext, regexp: RegExp, representation: RegExpRepresentation) {
+  const { mock: notifyNextExplicitlyNamedPropertyAccess } = mock.method(
+    context,
+    'notifyNextExplicitlyNamedPropertyAccess',
+  )
+
+  // First call preformat to set up the internal state
+  representation.preformat()
+
+  // Create mock properties for flags and source
+  const flagsValue = context.represent(regexp.flags)
+  const flagsProperty = new NamedPropertyAccessor('flags', flagsValue)
+  const sourceValue = context.represent(regexp.source)
+  const sourceProperty = new NamedPropertyAccessor('source', sourceValue)
+
+  // Inject the flags and source properties into the internal state
+  // Get the callbacks from the notifyNextExplicitlyNamedPropertyAccess calls and invoke them
+  const flagsCallback = notifyNextExplicitlyNamedPropertyAccess.calls[0]!.arguments[2]
+  const sourceCallback = notifyNextExplicitlyNamedPropertyAccess.calls[1]!.arguments[2]
+
+  flagsCallback(flagsProperty, flagsValue)
+  sourceCallback(sourceProperty, sourceValue)
+
+  return {
+    flagsProperty,
+    sourceProperty,
+  }
+}
+
+// shouldFormatNamedProperty test
+test('shouldFormatNamedProperty returns false for flags and source properties', (t) => {
+  const context = new DescriptionContext()
+  const regexp = /test/i
+  const regexpRep = context.represent(regexp) as RegExpRepresentation
+  const { flagsProperty, sourceProperty } = injectProperties(context, regexp, regexpRep)
+
+  t.false(regexpRep.shouldFormatNamedProperty(flagsProperty), 'Flags property should not be formatted separately')
+  t.false(regexpRep.shouldFormatNamedProperty(sourceProperty), 'Source property should not be formatted separately')
+  t.true(
+    regexpRep.shouldFormatNamedProperty(new NamedPropertyAccessor('other', context.represent('value'))),
+    'Other property should be formatted separately',
+  )
+})
+
+// finalFormat tests
+test('finalFormat renders regexp literal notation by default', (t) => {
+  const context = new DescriptionContext()
+  const regexp = /test/i
+  const regexpRep = context.represent(regexp) as RegExpRepresentation
+  injectProperties(context, regexp, regexpRep)
+
+  const formatter = new Formatter(deriveTheme())
+
+  // Call finalFormat to render the regexp
+  regexpRep.finalFormat(formatter)
+
+  const rendered = formatter.render()
+
+  // Should include the regexp literal format with source and flags
+  t.true(rendered.includes('/test/i'), 'Regexp should be rendered in literal notation')
+
+  // Should not include object brackets for a simple regexp
+  t.false(rendered.includes('{'), 'Simple regexp should not include opening brace')
+  t.false(rendered.includes('}'), 'Simple regexp should not include closing brace')
+
+  // Should not include disambiguation hint by default
+  t.false(rendered.includes('// RegExp'), 'Should not include disambiguation hint by default')
+
+  // Snapshot the exact rendering
+  t.snapshot(rendered, 'regexp literal default format')
+})
+
+test('finalFormat includes disambiguation hint when options.disambiguationHint is true, but only if there are shenanigans', (t) => {
+  const context = new DescriptionContext()
+  const regexp = /test/i
+  Object.defineProperties(regexp, { [Symbol.toStringTag]: { value: 'Shenanigans' } })
+  const regexpRep = context.represent(regexp) as RegExpRepresentation
+  injectProperties(context, regexp, regexpRep)
+
+  const formatter = new Formatter(deriveTheme())
+
+  // Call finalFormat with disambiguation hint option
+  regexpRep.finalFormat(formatter, { disambiguationHint: true })
+
+  const rendered = formatter.render()
+
+  // Should include regexp literal notation
+  t.true(rendered.includes('/test/i'), 'Regexp should be rendered in literal notation')
+
+  // Should include disambiguation hint when requested
+  t.true(rendered.includes('// RegExp'), 'Should include disambiguation hint when requested')
+
+  // Snapshot the exact rendering
+  t.snapshot(rendered, 'regexp literal with disambiguation hint')
+})
+
+test('finalFormat renders object notation for regexp with additional properties', (t) => {
+  const context = new DescriptionContext()
+  const regexp = /test/i
+  const regexpRep = context.represent(regexp) as RegExpRepresentation
+  injectProperties(context, regexp, regexpRep)
+
+  const formatter = new Formatter(deriveTheme())
+
+  // Add an additional property to the regexp
+  formatter.append('additional properties here')
+  regexpRep.finalFormat(formatter)
+
+  const rendered = formatter.render()
+
+  // Should include the regexp literal format with source and flags
+  t.true(rendered.includes('/test/i'), 'Regexp should be rendered in literal notation')
+
+  // Should include object brackets for a regexp with additional properties
+  t.true(rendered.includes('{'), 'Regexp with properties should include opening brace')
+  t.true(rendered.includes('}'), 'Regexp with properties should include closing brace')
+
+  // Snapshot the exact rendering
+  t.snapshot(rendered, 'regexp with additional properties')
+})
+
+test('finalFormat renders object notation for regexp with custom constructor name', (t) => {
+  const context = new DescriptionContext()
+  const regexp = /test/i
+  const regexpRep = context.represent(regexp) as RegExpRepresentation
+  injectProperties(context, regexp, regexpRep)
+  mock.method(context, 'constructorName', () => 'CustomRegExp')
+
+  const formatter = new Formatter(deriveTheme())
+
+  // Call finalFormat
+  regexpRep.finalFormat(formatter)
+
+  const rendered = formatter.render()
+
+  // Should include the regexp literal notation
+  t.true(rendered.includes('/test/i'), 'Regexp should be rendered in literal notation')
+
+  // Should include custom constructor name
+  t.true(rendered.includes('CustomRegExp'), 'Should include custom constructor name')
+
+  // Should include object brackets due to shenanigans
+  t.true(rendered.includes('{'), 'Regexp with custom constructor should include opening brace')
+  t.true(rendered.includes('}'), 'Regexp with custom constructor should include closing brace')
+
+  // Snapshot the exact rendering
+  t.snapshot(rendered, 'regexp with custom constructor name')
 })

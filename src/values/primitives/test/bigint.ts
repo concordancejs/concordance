@@ -6,6 +6,8 @@ import { strictlyEqual, unequal } from '../../../comparison.ts'
 import { StringRepresentation } from '../string.ts'
 import { finished } from '../../../serialization-result.ts'
 import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
+import { Formatter } from '../../../formatter.ts'
+import { deriveTheme } from '../../../theme.ts'
 
 test('compare returns strictlyEqual for same bigints', (t) => {
   const a = new BigIntRepresentation(42n)
@@ -69,4 +71,53 @@ test('can handle zero as bigint', (t) => {
 
   const deserialized = BigIntRepresentation.deserialize(new Decoder(encoder.bytes.subarray(1)))
   t.is(original.compare(deserialized), strictlyEqual)
+})
+
+test('formatShallow correctly formats positive bigint', (t) => {
+  const representation = new BigIntRepresentation(42n)
+  const formatter = new Formatter(deriveTheme())
+
+  representation.formatShallow(formatter)
+  formatter.close()
+
+  const rendered = formatter.render()
+  t.snapshot(rendered)
+  t.true(rendered.includes('42n'))
+})
+
+test('formatShallow correctly formats negative bigint', (t) => {
+  const representation = new BigIntRepresentation(-42n)
+  const formatter = new Formatter(deriveTheme())
+
+  representation.formatShallow(formatter)
+  formatter.close()
+
+  const rendered = formatter.render()
+  t.snapshot(rendered)
+  t.true(rendered.includes('-42n'))
+})
+
+test('formatShallow correctly formats zero as bigint', (t) => {
+  const representation = new BigIntRepresentation(0n)
+  const formatter = new Formatter(deriveTheme())
+
+  representation.formatShallow(formatter)
+  formatter.close()
+
+  const rendered = formatter.render()
+  t.snapshot(rendered)
+  t.true(rendered.includes('0n'))
+})
+
+test('formatShallow correctly formats very large bigint', (t) => {
+  // Create a bigint larger than MAX_SAFE_INTEGER
+  const representation = new BigIntRepresentation(9007199254740993n)
+  const formatter = new Formatter(deriveTheme())
+
+  representation.formatShallow(formatter)
+  formatter.close()
+
+  const rendered = formatter.render()
+  t.snapshot(rendered)
+  t.true(rendered.includes('9007199254740993n'))
 })

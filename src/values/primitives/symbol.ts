@@ -11,6 +11,7 @@ import type {
   ShallowFunctionality,
   ValueRepresentation,
 } from '../../value.d.ts'
+import type { Formatter } from '../../formatter.ts'
 
 type Annotations = { k?: string; s?: string; w?: string }
 
@@ -43,6 +44,17 @@ export class SymbolRepresentation implements CommonRepresentation, ShallowFuncti
     if (wellKnown !== undefined && wellKnown === otherWellKnown) return strictlyEqual
     if (string !== undefined && string === otherString) return possiblyEqual
     return unequal
+  }
+
+  formatShallow(formatter: Formatter): void {
+    const { key, wellKnown, string } = this.#context.describeSymbol(this.#value)
+    if (wellKnown !== undefined) {
+      formatter.appendWrapped('symbol', `Symbol.${wellKnown}`)
+    } else if (key === undefined) {
+      formatter.appendWrapped('symbol', formatter.encodeTypicalSimpleString(string))
+    } else {
+      formatter.appendWrapped('symbol', `Symbol.for(${formatter.encodeTypicalSimpleString(key)})`)
+    }
   }
 
   serializeShallow(encoder: Encoder): ShallowSerializationResult {

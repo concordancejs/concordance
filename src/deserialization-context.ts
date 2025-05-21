@@ -2,7 +2,7 @@ import assert from 'node:assert'
 import never from 'never'
 import { type AspectType, staticTypeTable } from './serialization-types.ts'
 import type { ValueRepresentation } from './value.js'
-import type { Context, ContextOptions } from './context.js'
+import type { Context, ContextOptions, DescribedSymbol, PropertyAccessCallback } from './context.js'
 import { BigIntRepresentation } from './values/primitives/bigint.ts'
 import { BooleanRepresentation } from './values/primitives/boolean.ts'
 import { NullRepresentation } from './values/primitives/null.ts'
@@ -53,9 +53,14 @@ class PointerMap extends Map<number, ValueRepresentation> {
 
 class IterationState {
   #elementAccessors: ElementAccessor[] | undefined
+  #explicitlyNamedProperties: string[] | undefined
   #mapEntryAccessors: MapEntryAccessor[] | undefined
   #namedPropertyGroup: NamedPropertyGroup | undefined
-  #namedPropertyAccessors: NamedPropertyAccessor[] | undefined
+  #namedPropertyAccessors:
+    | Array<{ name: string; accessor: NamedPropertyAccessor; value: ValueRepresentation }>
+    | undefined
+
+  #namedPropertyNotifiers: Map<string, { callback: PropertyAccessCallback; invoked: boolean }> | undefined
   #symbolPropertyGroup: SymbolPropertyGroup | undefined
   #valueAccessors: IteratorValueAccessor[] | undefined
   #lastAspect?: AspectType
@@ -70,7 +75,7 @@ class IterationState {
   }
 
   get namedPropertyAccessors() {
-    return this.#namedPropertyAccessors
+    return this.#namedPropertyAccessors?.map(({ accessor }) => accessor)
   }
 
   get namedPropertyGroup(): NamedPropertyGroup | undefined {
@@ -121,10 +126,60 @@ class IterationState {
     return accessor
   }
 
-  addNamedPropertyAccessor(accessor: NamedPropertyAccessor): NamedPropertyAccessor {
+  supportExplicitlyNamedPropertyNotifications(names: string[]) {
+    this.#explicitlyNamedProperties = names
+  }
+
+  notifyForCachedNamedProperties() {
+    if (!this.#namedPropertyAccessors || !this.#namedPropertyNotifiers || !this.#explicitlyNamedProperties) {
+      return
+    }
+
+    for (const { name, accessor, value } of this.#namedPropertyAccessors) {
+      if (this.#explicitlyNamedProperties.includes(name)) {
+        const notifier = this.#namedPropertyNotifiers.get(name)
+        if (notifier?.invoked === false) {
+          const { callback } = notifier
+          callback(accessor, value)
+          notifier.invoked = true
+        }
+      }
+    }
+  }
+
+  addNamedPropertyAccessor(
+    name: string,
+    accessor: NamedPropertyAccessor,
+    value: ValueRepresentation,
+    notify = true,
+  ): NamedPropertyAccessor {
     this.#namedPropertyAccessors ??= []
-    this.#namedPropertyAccessors.push(accessor)
+    this.#namedPropertyAccessors.push({ name, accessor, value })
+    if (notify && this.#namedPropertyNotifiers && this.#explicitlyNamedProperties?.includes(name)) {
+      const notifier = this.#namedPropertyNotifiers.get(name)
+      if (notifier?.invoked === false) {
+        const { callback } = notifier
+        callback(accessor, value)
+        notifier.invoked = true
+      }
+    }
+
     return accessor
+  }
+
+  addNamedPropertyNotifier(name: string, callback: PropertyAccessCallback): void {
+    this.#namedPropertyNotifiers ??= new Map<string, { callback: PropertyAccessCallback; invoked: boolean }>()
+
+    // Throw error if a notifier is already registered for this property
+    if (this.#namedPropertyNotifiers.has(name)) {
+      throw new Error(`A notifier is already registered for property '${name}'`)
+    }
+
+    this.#namedPropertyNotifiers.set(name, { callback, invoked: false })
+  }
+
+  resetNamedPropertyNotifiers() {
+    this.#namedPropertyNotifiers?.clear()
   }
 
   addValueAccessor(accessor: IteratorValueAccessor): IteratorValueAccessor {
@@ -316,8 +371,8 @@ export class DeserializationContext implements Context {
     return (value as { constructorName?: string }).constructorName
   }
 
-  describeSymbol(value: object): { key?: string; wellKnown?: string; string?: string } {
-    return value as { key?: string; wellKnown?: string; string?: string }
+  describeSymbol(value: object): DescribedSymbol {
+    return value as DescribedSymbol
   }
 
   isArrayLike(value: object): boolean {
@@ -384,6 +439,7 @@ export class DeserializationContext implements Context {
   *iterateNamedProperties(value: NamedPropertyGroup): IterableIterator<NamedPropertyAccessor> {
     const state = this.#iterationStates.get(value) ?? never('Unknown named property group')
     if (state.namedPropertyAccessors) {
+      state.notifyForCachedNamedProperties()
       yield* state.namedPropertyAccessors
     }
 
@@ -416,7 +472,7 @@ export class DeserializationContext implements Context {
           assert(this.#decoder.hasNext(), 'Expected property name')
           const key = this.#decoder.string()
           const value = this.next() ?? never('Expected value after property name')
-          yield state.addNamedPropertyAccessor(new NamedPropertyAccessor(key, value))
+          yield state.addNamedPropertyAccessor(key, new NamedPropertyAccessor(key, value), value)
           break
         }
 
@@ -510,8 +566,9 @@ export class DeserializationContext implements Context {
     } while (!state.terminated && state.lastAspect === staticTypeTable.iteratorValueAspect && !endedAspect)
   }
 
-  namedProperties(value: object): NamedPropertyGroup {
+  namedProperties(value: object, ...include: string[]): NamedPropertyGroup {
     const state = this.#iterationStates.get(value) ?? new IterationState()
+    state.supportExplicitlyNamedPropertyNotifications(include)
     this.#iterationStates.set(value, state)
 
     if (state.terminated) {
@@ -551,8 +608,10 @@ export class DeserializationContext implements Context {
           assert(this.#decoder.hasNext(), 'Expected property name')
           const key = this.#decoder.string()
           const value = this.next() ?? never('Expected value after property name')
+          // Instantiate the first property accessor and add it to the state.
+          // This also means the named property group will be created in a non-empty state.
           const firstProperty = new NamedPropertyAccessor(key, value)
-          state.addNamedPropertyAccessor(firstProperty)
+          state.addNamedPropertyAccessor(key, firstProperty, value, false)
           state.namedPropertyGroup = new NamedPropertyGroup(this, [firstProperty])
           break
         }
@@ -571,6 +630,18 @@ export class DeserializationContext implements Context {
     state.namedPropertyGroup ??= new NamedPropertyGroup(this, [])
     this.#iterationStates.set(state.namedPropertyGroup, state)
     return state.namedPropertyGroup
+  }
+
+  notifyNextExplicitlyNamedPropertyAccess(value: object, name: string, callback: PropertyAccessCallback) {
+    const state = this.#iterationStates.get(value) ?? new IterationState()
+    this.#iterationStates.set(value, state)
+
+    state.addNamedPropertyNotifier(name, callback)
+  }
+
+  resetPropertyAccessNotifiers(value: object) {
+    const state = this.#iterationStates.get(value)
+    state?.resetNamedPropertyNotifiers()
   }
 
   symbolProperties(value: object): SymbolPropertyGroup {

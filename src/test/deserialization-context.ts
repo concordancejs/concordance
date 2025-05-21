@@ -1,3 +1,4 @@
+import { mock } from 'node:test'
 import test, { type AssertionError, type ExecutionContext, type ThrowsExpectation } from 'ava'
 import { staticTypeTable, type StaticType } from '../serialization-types.ts'
 import { Encoder } from '../encoder.ts'
@@ -15,6 +16,7 @@ import * as testModuleNamespace from '../values/objects/test/fixtures/module-fix
 import { Decoder } from '../decoder.ts'
 import { DeserializationContext } from '../deserialization-context.ts'
 import type { ValueRepresentation } from '../value.js'
+import { StringRepresentation } from '../values/primitives/string.ts'
 import { deriveFlags } from '../flags.ts'
 
 // -----------------------------------------------------------------------------
@@ -490,9 +492,8 @@ for (const aspect of [
         .annotations({ p: 1 })
         // Start with a different aspect (should not be picked up by elementAspect iteration)
         .staticType(staticTypeTable[aspect])
-        .string('prop')
-        .staticType(staticTypeTable.number)
-        .number(42)
+        .staticType(staticTypeTable.string)
+        .string('someValue')
         // Then add an element aspect after (should be the first element)
         .staticType(staticTypeTable.elementAspect)
         .staticType(staticTypeTable.number)
@@ -1751,4 +1752,130 @@ test('DeserializationContext correctly deserializes external value', async (t) =
     possiblyEqual,
     'External value should have possiblyEqual representation after serialization/deserialization',
   )
+})
+
+// -----------------------------------------------------------------------------
+// Named Property Notification tests
+// -----------------------------------------------------------------------------
+
+test('notifyNextExplicitlyNamedPropertyAccess - basic functionality and argument validation', (t) => {
+  const serialized = serialize(describe({ name: 'test', value: 42 }))
+  const decoder = new Decoder(serialized.slice(1)) // Skip the initial byte
+  const context = new DeserializationContext(decoder)
+  const representation = context.next() as ValueRepresentation
+  const callback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
+
+  // Register the callback
+  context.notifyNextExplicitlyNamedPropertyAccess(representation, 'name', callback)
+
+  // Regular property enumeration should not trigger callbacks
+  Array.from(context.namedProperties(representation))
+  t.is(callback.mock.callCount(), 0, 'Callbacks should not be called for regular property access')
+
+  // Access property explicitly to trigger callback
+  const properties = Array.from(context.namedProperties(representation, 'name'))
+  t.is(callback.mock.callCount(), 1, 'Callback should be called once')
+
+  // Verify callback arguments
+  const [accessor, value] = callback.mock.calls[0]!.arguments
+  t.is(accessor, properties[0]!, 'Correct accessor passed to callback')
+  t.is(value.compare(new StringRepresentation('test')), strictlyEqual, 'Correct value passed to callback')
+})
+
+test('notifyNextExplicitlyNamedPropertyAccess - non-existent properties', (t) => {
+  const nonExistentSerialized = serialize(describe({ existing: true }))
+  const nonExistentDecoder = new Decoder(nonExistentSerialized.slice(1))
+  const nonExistentContext = new DeserializationContext(nonExistentDecoder)
+  const nonExistentRepresentation = nonExistentContext.next() as ValueRepresentation
+  const nonExistentCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
+
+  nonExistentContext.notifyNextExplicitlyNamedPropertyAccess(
+    nonExistentRepresentation,
+    'nonExistent',
+    nonExistentCallback,
+  )
+  Array.from(nonExistentContext.namedProperties(nonExistentRepresentation, 'nonExistent'))
+
+  t.is(nonExistentCallback.mock.callCount(), 0, 'Callback not called for non-existent property')
+})
+
+test('notifyNextExplicitlyNamedPropertyAccess - duplicate registration', (t) => {
+  const serialized = serialize(describe({ key: 'value', count: 123, extra: true }))
+  const decoder = new Decoder(serialized.slice(1)) // Skip the initial byte
+  const context = new DeserializationContext(decoder)
+  const representation = context.next() as ValueRepresentation
+
+  // Test duplicate registration error
+  const callback1 = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
+  const callback2 = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
+  context.notifyNextExplicitlyNamedPropertyAccess(representation, 'key', callback1)
+
+  t.throws(() => context.notifyNextExplicitlyNamedPropertyAccess(representation, 'key', callback2), {
+    message: "A notifier is already registered for property 'key'",
+  })
+
+  // Can still register for different properties
+  t.notThrows(() => context.notifyNextExplicitlyNamedPropertyAccess(representation, 'count', callback2))
+
+  // Access properties to verify callbacks work
+  Array.from(context.namedProperties(representation, 'key', 'count'))
+  t.is(callback1.mock.callCount(), 1, 'First callback called once for key')
+  t.is(callback2.mock.callCount(), 1, 'Second callback called once for count')
+})
+
+test('notifyNextExplicitlyNamedPropertyAccess - callback invocation tracking', (t) => {
+  const trackingSerialized = serialize(describe({ prop1: 'value1', prop2: 'value2' }))
+  const trackingDecoder = new Decoder(trackingSerialized.slice(1))
+  const trackingContext = new DeserializationContext(trackingDecoder)
+  const trackingRepresentation = trackingContext.next() as ValueRepresentation
+  const trackingCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
+
+  trackingContext.notifyNextExplicitlyNamedPropertyAccess(trackingRepresentation, 'prop1', trackingCallback)
+  trackingContext.notifyNextExplicitlyNamedPropertyAccess(trackingRepresentation, 'prop2', trackingCallback)
+
+  // First access
+  Array.from(trackingContext.namedProperties(trackingRepresentation, 'prop1'))
+  t.is(trackingCallback.mock.callCount(), 1, 'Callback called for first property')
+
+  // Second access to same property - should NOT trigger again
+  Array.from(trackingContext.namedProperties(trackingRepresentation, 'prop1'))
+  t.is(trackingCallback.mock.callCount(), 1, 'Callback should not be called again for cached property')
+
+  // Access to different property
+  Array.from(trackingContext.namedProperties(trackingRepresentation, 'prop2'))
+  t.is(trackingCallback.mock.callCount(), 2, 'Callback called for second property')
+})
+
+test('resetPropertyAccessNotifiers - cleanup and re-registration', (t) => {
+  const serialized = serialize(describe({ name: 'test', value: 42 }))
+  const decoder = new Decoder(serialized.slice(1)) // Skip the initial byte
+  const context = new DeserializationContext(decoder)
+  const representation = context.next() as ValueRepresentation
+
+  const nameCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
+  const valueCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
+
+  // Register callbacks and verify they work
+  context.notifyNextExplicitlyNamedPropertyAccess(representation, 'name', nameCallback)
+  context.notifyNextExplicitlyNamedPropertyAccess(representation, 'value', valueCallback)
+
+  Array.from(context.namedProperties(representation, 'name', 'value'))
+  t.is(nameCallback.mock.callCount(), 1, 'Name callback should be called before reset')
+  t.is(valueCallback.mock.callCount(), 1, 'Value callback should be called before reset')
+
+  // Reset notifiers
+  context.resetPropertyAccessNotifiers(representation)
+
+  // Should be able to register new callbacks for the same properties
+  const newNameCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
+  t.notThrows(
+    () => context.notifyNextExplicitlyNamedPropertyAccess(representation, 'name', newNameCallback),
+    'Should be able to register new callback after reset',
+  )
+
+  // Verify new callback works and old callbacks are not called again
+  Array.from(context.namedProperties(representation, 'name'))
+  t.is(newNameCallback.mock.callCount(), 1, 'New callback should be called after reset')
+  t.is(nameCallback.mock.callCount(), 1, 'Old name callback should not be called after reset')
+  t.is(valueCallback.mock.callCount(), 1, 'Old value callback should not be called after reset')
 })

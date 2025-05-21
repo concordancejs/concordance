@@ -4,6 +4,7 @@ import { DeserializationContext } from '../deserialization-context.ts' // eslint
 import { type SerializationResult, partial } from '../serialization-result.ts'
 import type { AccessorRepresentation, CommonRepresentation, DeepFunctionality, ValueRepresentation } from '../value.js'
 import type { Context } from '../context.js'
+import type { Formatter } from '../formatter.ts'
 
 export class MapEntryAccessor implements CommonRepresentation, DeepFunctionality {
   static is(value: object): value is MapEntryAccessor {
@@ -40,6 +41,16 @@ export class MapEntryAccessor implements CommonRepresentation, DeepFunctionality
     if (keyComparison !== strictlyEqual && keyComparison !== possiblyEqual) return keyComparison
 
     return this.#value.compare(other.#value)
+  }
+
+  formatAfterIteration(formatter: Formatter, value: ValueRepresentation): void {
+    if (value === this.#key) {
+      formatter.append(formatter.theme.mapEntry.afterKey)
+    }
+  }
+
+  finalFormat(formatter: Formatter): void {
+    formatter.append(formatter.theme.mapEntry.afterValue).close()
   }
 
   serialize(): SerializationResult {

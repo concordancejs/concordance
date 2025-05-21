@@ -9,6 +9,7 @@ import type {
   ShallowFunctionality,
   ValueRepresentation,
 } from '../../value.d.ts'
+import type { Formatter } from '../../formatter.ts'
 
 export class BigIntRepresentation implements CommonRepresentation, ShallowFunctionality {
   static deserialize(decoder: Decoder): BigIntRepresentation {
@@ -23,6 +24,10 @@ export class BigIntRepresentation implements CommonRepresentation, ShallowFuncti
 
   compare(other: ValueRepresentation) {
     return #value in other && Object.is(this.#value, other.#value) ? strictlyEqual : unequal
+  }
+
+  formatShallow(formatter: Formatter): void {
+    formatter.append(formatter.wrap('bigInt', `${this.#value}n`))
   }
 
   serializeShallow(encoder: Encoder): ShallowSerializationResult {

@@ -1,4 +1,5 @@
 import test from 'ava'
+import { mock } from 'node:test'
 import { DescriptionContext } from '../description-context.ts'
 import { StringRepresentation } from '../values/primitives/string.ts'
 import { NumberRepresentation } from '../values/primitives/number.ts'
@@ -31,6 +32,7 @@ import { MapEntryAccessor } from '../accessors/map-entry.ts'
 import { NamedPropertyAccessor } from '../accessors/property.ts'
 import { strictlyEqual } from '../comparison.ts'
 import { BytesAccessor } from '../accessors/bytes.ts'
+import type { ValueRepresentation } from '../value.js'
 import { deriveFlags } from '../flags.ts'
 
 // -----------------------------------------------------------------------------
@@ -734,4 +736,152 @@ test('representBytes creates correct BytesAccessor for buffer types', (t) => {
 
   // Compare accessors
   t.is(dataViewBytesAccessor.compare(referenceDataViewAccessor), strictlyEqual)
+})
+
+// -----------------------------------------------------------------------------
+// Named Property Notification system tests
+// -----------------------------------------------------------------------------
+
+test('notifyNextExplicitlyNamedPropertyAccess - basic functionality and argument validation', (t) => {
+  const context = new DescriptionContext()
+  const obj = { name: 'test', value: 42 }
+
+  // Create a mock callback
+  const callback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
+
+  // Register the callback
+  context.notifyNextExplicitlyNamedPropertyAccess(obj, 'name', callback)
+
+  // Should not trigger callbacks for normal property enumeration
+  context.namedProperties(obj)
+  t.is(callback.mock.callCount(), 0, 'Callbacks should not be called for regular property access')
+
+  // Should trigger callbacks when explicitly including properties
+  const propertyGroup = context.namedProperties(obj, 'name')
+  t.is(callback.mock.callCount(), 1, 'Callback should be called once for explicitly named property')
+
+  // Verify callback arguments are correct
+  const [accessor, value] = callback.mock.calls[0]!.arguments
+  const expectedAccessor = Array.from(propertyGroup)[0]!
+  t.is(accessor, expectedAccessor, 'Accessor passed to callback should be the exact same instance')
+  t.true(StringRepresentation.is(value), 'Value should be a StringRepresentation')
+})
+
+test('notifyNextExplicitlyNamedPropertyAccess - non-existent properties', (t) => {
+  const context = new DescriptionContext()
+  const nonExistentCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
+  const objWithMissingProp = { existing: true }
+
+  context.notifyNextExplicitlyNamedPropertyAccess(objWithMissingProp, 'nonExistent', nonExistentCallback)
+  context.namedProperties(objWithMissingProp, 'nonExistent')
+
+  t.is(nonExistentCallback.mock.callCount(), 0, 'Callback should not be called for non-existent properties')
+})
+
+test('notifyNextExplicitlyNamedPropertyAccess - non-enumerable properties', (t) => {
+  const context = new DescriptionContext()
+  const nonEnumObj = {}
+  Object.defineProperty(nonEnumObj, 'hidden', { value: 'secret', enumerable: false })
+  const hiddenCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
+
+  context.notifyNextExplicitlyNamedPropertyAccess(nonEnumObj, 'hidden', hiddenCallback)
+
+  context.namedProperties(nonEnumObj)
+  t.is(hiddenCallback.mock.callCount(), 0, 'Callback should not be called without explicit inclusion')
+
+  context.namedProperties(nonEnumObj, 'hidden')
+  t.is(hiddenCallback.mock.callCount(), 1, 'Callback should be called for explicitly included non-enumerable property')
+})
+
+test('notifyNextExplicitlyNamedPropertyAccess - duplicate registration', (t) => {
+  const context = new DescriptionContext()
+  const obj = { key: 'value', count: 123 }
+
+  const firstCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
+  const secondCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
+
+  // Register first callback
+  context.notifyNextExplicitlyNamedPropertyAccess(obj, 'key', firstCallback)
+
+  // Registering a second callback for the same property should throw an error
+  t.throws(() => context.notifyNextExplicitlyNamedPropertyAccess(obj, 'key', secondCallback), {
+    message: "A notifier is already registered for property 'key'",
+  })
+
+  // Can still register for different properties on the same object
+  t.notThrows(() => context.notifyNextExplicitlyNamedPropertyAccess(obj, 'count', secondCallback))
+
+  // Verify both callbacks work for their respective properties
+  context.namedProperties(obj, 'key', 'count')
+  t.is(firstCallback.mock.callCount(), 1, 'First callback should be called for key')
+  t.is(secondCallback.mock.callCount(), 1, 'Second callback should be called for count')
+})
+
+test('notifyNextExplicitlyNamedPropertyAccess - isolation', (t) => {
+  const context = new DescriptionContext()
+  const obj1 = { name: 'first', value: 'test' }
+  const obj2 = { name: 'second' }
+
+  // Test isolation between different objects
+  const obj1NameCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
+  const obj1ValueCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
+  const obj2Callback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
+
+  context.notifyNextExplicitlyNamedPropertyAccess(obj1, 'name', obj1NameCallback)
+  context.notifyNextExplicitlyNamedPropertyAccess(obj1, 'value', obj1ValueCallback)
+  context.notifyNextExplicitlyNamedPropertyAccess(obj2, 'name', obj2Callback)
+
+  // Access properties to verify isolation
+  context.namedProperties(obj1, 'name')
+  context.namedProperties(obj2, 'name')
+
+  t.is(obj1NameCallback.mock.callCount(), 1, 'obj1 name callback should be called')
+  t.is(obj1ValueCallback.mock.callCount(), 0, 'obj1 value callback should not be called')
+  t.is(obj2Callback.mock.callCount(), 1, 'obj2 callback should be called')
+})
+
+test('notifyNextExplicitlyNamedPropertyAccess - callback invocation tracking', (t) => {
+  const context = new DescriptionContext()
+  const trackingObj = { name: 'tracking' }
+  const trackingCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
+
+  context.notifyNextExplicitlyNamedPropertyAccess(trackingObj, 'name', trackingCallback)
+
+  context.namedProperties(trackingObj, 'name')
+  t.is(trackingCallback.mock.callCount(), 1, 'Callback should be called once on first access')
+
+  context.namedProperties(trackingObj, 'name')
+  t.is(trackingCallback.mock.callCount(), 1, 'Callback should not be called again on second access')
+})
+
+test('resetPropertyAccessNotifiers - cleanup and re-registration', (t) => {
+  const context = new DescriptionContext()
+  const obj = { name: 'test', value: 42 }
+
+  const nameCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
+  const valueCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
+
+  // Register callbacks and verify they work
+  context.notifyNextExplicitlyNamedPropertyAccess(obj, 'name', nameCallback)
+  context.notifyNextExplicitlyNamedPropertyAccess(obj, 'value', valueCallback)
+
+  context.namedProperties(obj, 'name', 'value')
+  t.is(nameCallback.mock.callCount(), 1, 'Name callback should be called before reset')
+  t.is(valueCallback.mock.callCount(), 1, 'Value callback should be called before reset')
+
+  // Reset notifiers
+  context.resetPropertyAccessNotifiers(obj)
+
+  // Should be able to register new callbacks for the same properties
+  const newNameCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
+  t.notThrows(
+    () => context.notifyNextExplicitlyNamedPropertyAccess(obj, 'name', newNameCallback),
+    'Should be able to register new callback after reset',
+  )
+
+  // Verify new callback works and old callbacks are not called again
+  context.namedProperties(obj, 'name')
+  t.is(newNameCallback.mock.callCount(), 1, 'New callback should be called after reset')
+  t.is(nameCallback.mock.callCount(), 1, 'Old name callback should not be called after reset')
+  t.is(valueCallback.mock.callCount(), 1, 'Old value callback should not be called after reset')
 })

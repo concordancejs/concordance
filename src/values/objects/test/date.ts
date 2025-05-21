@@ -7,6 +7,8 @@ import { DateRepresentation } from '../date.ts'
 import { comparable, strictlyEqual, unequal } from '../../../comparison.ts'
 import { staticTypeTable } from '../../../serialization-types.ts'
 import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
+import { Formatter } from '../../../formatter.ts'
+import { deriveTheme } from '../../../theme.ts'
 
 // Use the first commit timestamp for testing
 const FIRST_COMMIT_DATE = new Date('2017-02-17T16:58:13Z')
@@ -165,4 +167,117 @@ test('serializing and deserializing a Date preserves its timestamp', (t) => {
     // The original and deserialized representations should be comparable
     t.is(original.compare(deserialized), comparable, `Failed for date: ${date}`)
   }
+})
+
+// Formatting tests
+test('preformat formats valid dates correctly', (t) => {
+  const context = new DescriptionContext()
+  const date = new Date('2023-04-15T12:30:45.678Z')
+  const dateRep = context.represent(date) as DateRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  dateRep.preformat(formatter)
+
+  // Need to close the formatter before rendering
+  formatter.close()
+  const rendered = formatter.render()
+
+  // Should contain the formatted date
+  t.true(rendered.includes('2023-04-15'))
+  t.true(rendered.includes('12:30:45'))
+  t.true(rendered.includes('678ms UTC'))
+
+  // Snapshot the exact rendering
+  t.snapshot(rendered, 'valid date preformat')
+})
+
+test('preformat formats invalid dates correctly', (t) => {
+  const context = new DescriptionContext()
+  const invalidDate = new Date('invalid')
+  const dateRep = context.represent(invalidDate) as DateRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+
+  // Get the actual invalid date text from the theme
+  const invalidDateText = formatter.theme.date.invalid
+
+  dateRep.preformat(formatter)
+
+  // Need to close the formatter before rendering
+  formatter.close()
+  const rendered = formatter.render()
+
+  // Should contain the invalid date indicator from the theme
+  t.true(rendered.includes(invalidDateText))
+
+  // Snapshot the exact rendering
+  t.snapshot(rendered, 'invalid date preformat')
+})
+
+test('finalFormat uses object brackets by default', (t) => {
+  const context = new DescriptionContext()
+  const date = new Date('2023-04-15T12:30:45.678Z')
+  const dateRep = context.represent(date) as DateRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  dateRep.finalFormat(formatter)
+
+  const rendered = formatter.render()
+
+  // Should use object brackets
+  t.true(rendered.includes('{'))
+  t.true(rendered.includes('}'))
+
+  // Should not include explicit disambiguation hint by default
+  // (The constructor name "Date" will still appear as part of the default object formatting)
+  t.false(rendered.includes('// Date'))
+
+  // Snapshot the exact rendering
+  t.snapshot(rendered, 'date default format')
+})
+
+test('finalFormat shows disambiguation hint when options.disambiguationHint is true', (t) => {
+  const context = new DescriptionContext()
+  const date = new Date('2023-04-15T12:30:45.678Z')
+  const dateRep = context.represent(date) as DateRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  dateRep.finalFormat(formatter, { disambiguationHint: true })
+
+  const rendered = formatter.render()
+
+  // Should use object brackets
+  t.true(rendered.includes('{'))
+  t.true(rendered.includes('}'))
+
+  // Should include the disambiguation hint when options.disambiguationHint is true
+  t.true(rendered.includes('// Date'))
+
+  // Snapshot the exact rendering
+  t.snapshot(rendered, 'date with disambiguation hint')
+})
+
+test('integration of preformat and finalFormat produces correct output', (t) => {
+  const context = new DescriptionContext()
+  const date = new Date('2023-04-15T12:30:45.678Z')
+  const dateRep = context.represent(date) as DateRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+
+  // First preformat the date value
+  dateRep.preformat(formatter)
+
+  // Then do the final formatting
+  dateRep.finalFormat(formatter)
+
+  const rendered = formatter.render()
+
+  // Should contain both the date value and object brackets
+  t.true(rendered.includes('{'))
+  t.true(rendered.includes('}'))
+  t.true(rendered.includes('2023-04-15'))
+  t.true(rendered.includes('12:30:45'))
+
+  // Snapshot the complete rendering
+  t.snapshot(rendered, 'complete date rendering')
 })

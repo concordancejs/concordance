@@ -1,14 +1,15 @@
 import type { Context } from '../../context.js'
-import type { ValueRepresentation } from '../../value.js'
+import type { DeepFunctionality, FinalFormatOptions, ValueRepresentation } from '../../value.js'
 import { strictlyEqual, unequal } from '../../comparison.ts'
 import type { Encoder } from '../../encoder.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
 import type { Decoder } from '../../decoder.ts'
 import type { DeserializationContext } from '../../deserialization-context.ts'
 import type { BytesAccessor } from '../../accessors/bytes.ts'
+import type { Formatter } from '../../formatter.ts'
 import { ObjectRepresentation, type ObjectAnnotations } from './object.ts'
 
-export class ArrayBufferRepresentation extends ObjectRepresentation {
+export class ArrayBufferRepresentation extends ObjectRepresentation implements DeepFunctionality {
   static override deserialize(context: DeserializationContext, decoder: Decoder): ArrayBufferRepresentation {
     const { b: bytes, ...objectAnnotations } = decoder.annotations<ObjectAnnotations & { b: BytesAccessor }>()
     return new this(context, {
@@ -51,6 +52,17 @@ export class ArrayBufferRepresentation extends ObjectRepresentation {
     // For ArrayBuffers, this yields maxByteLength and resizable.
     // For SharedArrayBuffers, this yields maxByteLength and growable.
     yield* super.iterateProperties('maxByteLength', 'growable', 'resizable')
+  }
+
+  preformat(formatter: Formatter) {
+    this.#bytes.formatShallow(formatter)
+  }
+
+  override finalFormat(formatter: Formatter, options?: FinalFormatOptions) {
+    super.finalFormat(formatter, {
+      array: true,
+      disambiguationHint: options?.disambiguationHint === true ? 'ArrayBuffer' : undefined,
+    })
   }
 
   override serialize(encoder: Encoder) {

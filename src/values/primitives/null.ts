@@ -8,12 +8,17 @@ import type {
   ShallowFunctionality,
   ValueRepresentation,
 } from '../../value.d.ts'
+import type { Formatter } from '../../formatter.ts'
 
 export class NullRepresentation implements CommonRepresentation, ShallowFunctionality {
   readonly #null: undefined
 
   compare(other: ValueRepresentation) {
     return #null in other ? strictlyEqual : unequal
+  }
+
+  formatShallow(formatter: Formatter): void {
+    formatter.append(formatter.wrap('null', 'null'))
   }
 
   serializeShallow(encoder: Encoder): ShallowSerializationResult {

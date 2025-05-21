@@ -6,6 +6,8 @@ import { Encoder } from '../../encoder.ts'
 import { strictlyEqual, unequal, deeplyEqual } from '../../comparison.ts'
 import { partial, finished } from '../../serialization-result.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
+import { deriveTheme } from '../../theme.ts'
+import { Formatter } from '../../formatter.ts'
 
 // SparseValueRepresentation Tests
 test('SparseValueRepresentation - compare returns strictlyEqual for other sparse values', (t) => {
@@ -27,6 +29,15 @@ test('SparseValueRepresentation - compare returns unequal for other values', (t)
   const str = new StringRepresentation('test')
 
   t.is(sparse.compare(str), unequal)
+})
+
+test('SparseValueRepresentation - formatShallow formats as sparse', (t) => {
+  const sparse = new SparseValueRepresentation()
+  const theme = deriveTheme()
+  const formatter = new Formatter(theme)
+  sparse.formatShallow(formatter)
+  const rendered = formatter.close().render()
+  t.is(rendered, theme.array.sparse)
 })
 
 test('SparseValueRepresentation - serializeShallow encodes as undefined', (t) => {
@@ -177,4 +188,21 @@ test('ElementAccessor - handles complex nesting', (t) => {
 
   // Deep comparison should work
   t.is(outer.compare(outer2), strictlyEqual)
+})
+
+test('ElementAccessor - finalFormat appends theme.element.after to formatter', (t) => {
+  const value = new StringRepresentation('test')
+  const element = new ElementAccessor(5, value)
+
+  const theme = deriveTheme()
+  const formatter = new Formatter(theme)
+
+  // Call finalFormat
+  element.finalFormat(formatter)
+
+  // Render the formatter's content
+  const rendered = formatter.render()
+
+  // Should contain the theme's element.after value
+  t.is(rendered, theme.element.after)
 })

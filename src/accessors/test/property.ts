@@ -9,6 +9,8 @@ import { finished, partial, partialStoreAsByteArray } from '../../serialization-
 import { DescriptionContext } from '../../description-context.ts'
 import { Encoder } from '../../encoder.ts'
 import { Decoder } from '../../decoder.ts'
+import { deriveTheme } from '../../theme.ts'
+import { Formatter } from '../../formatter.ts'
 import { DeserializationContext } from '../../deserialization-context.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
 import type { ValueRepresentation } from '../../value.js'
@@ -74,6 +76,7 @@ test('NamedPropertyAccessor - serialize encodes key as string and delegates to v
   // Create a mock value with serializeShallow
   const mockValue = {
     compare: (): Comparison => strictlyEqual,
+    formatShallow: () => {},
     serializeShallow: (encoder: Encoder): typeof finished => {
       encoder.uint8Array(new Uint8Array([42]))
       return finished
@@ -100,6 +103,7 @@ test('NamedPropertyAccessor - serialize returns partial when value has no serial
   // Create a value without serializeShallow
   const mockValue = {
     compare: () => strictlyEqual,
+    finalFormat: () => {},
     serialize: () => partial,
   } satisfies ValueRepresentation
 
@@ -109,6 +113,43 @@ test('NamedPropertyAccessor - serialize returns partial when value has no serial
   const result = property.serialize(encoder)
 
   t.is(result, partial)
+})
+
+test('NamedPropertyAccessor - preformat formats different types of keys appropriately', (t) => {
+  const theme = deriveTheme()
+
+  // Test with identifier-like key
+  const identifierKey = 'validIdentifier'
+  const identifierFormatter = new Formatter(theme)
+  new NamedPropertyAccessor(identifierKey, new StringRepresentation('value')).preformat(identifierFormatter)
+  t.snapshot(identifierFormatter.close().render(), 'Identifier-like key formatting')
+
+  // Test with numeric string key
+  const numericKey = '123'
+  const numericFormatter = new Formatter(theme)
+  new NamedPropertyAccessor(numericKey, new StringRepresentation('value')).preformat(numericFormatter)
+  t.snapshot(numericFormatter.close().render(), 'Numeric string key formatting')
+
+  // Test with non-identifier key
+  const nonIdentifierKey = 'invalid-identifier'
+  const nonIdentifierFormatter = new Formatter(theme)
+  new NamedPropertyAccessor(nonIdentifierKey, new StringRepresentation('value')).preformat(nonIdentifierFormatter)
+  t.snapshot(nonIdentifierFormatter.close().render(), 'Non-identifier key formatting')
+})
+
+test('NamedPropertyAccessor - finalFormat appends theme.property.afterValue and closes formatter', (t) => {
+  const key = 'key'
+  const value = new StringRepresentation('value')
+  const property = new NamedPropertyAccessor(key, value)
+
+  const theme = deriveTheme()
+  const formatter = new Formatter(theme)
+
+  // Call finalFormat
+  property.finalFormat(formatter)
+
+  // Check the formatter output
+  t.is(formatter.render(), theme.property.afterValue)
 })
 
 // SymbolPropertyAccessor Tests
@@ -230,6 +271,40 @@ test('SymbolPropertyAccessor - serialize encodes key and returns partialStoreAsB
   const result = property.serialize(encoder)
 
   t.is(result, partialStoreAsByteArray)
+})
+
+test('SymbolPropertyAccessor - preformat formats symbol key correctly', (t) => {
+  const context = new DescriptionContext()
+  const symbol = Symbol('testSymbol')
+  const key = context.represent(symbol) as SymbolRepresentation
+  const value = new StringRepresentation('value')
+  const property = new SymbolPropertyAccessor(context, key, value)
+
+  const theme = deriveTheme()
+  const formatter = new Formatter(theme)
+
+  // Call preformat
+  property.preformat(formatter)
+
+  // Use snapshot to verify formatting
+  t.snapshot(formatter.close().render(), 'Symbol property key formatting')
+})
+
+test('SymbolPropertyAccessor - finalFormat appends theme.property.afterValue and closes formatter', (t) => {
+  const context = new DescriptionContext()
+  const symbol = Symbol('testSymbol')
+  const key = context.represent(symbol) as SymbolRepresentation
+  const value = new StringRepresentation('value')
+  const property = new SymbolPropertyAccessor(context, key, value)
+
+  const theme = deriveTheme()
+  const formatter = new Formatter(theme)
+
+  // Call finalFormat
+  property.finalFormat(formatter)
+
+  // Check the formatter output
+  t.is(formatter.render(), theme.property.afterValue)
 })
 
 // For the SymbolPropertyAccessor.orderByIntersection test

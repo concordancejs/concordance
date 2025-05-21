@@ -1,5 +1,6 @@
 import { strictlyEqual, unequal } from '../comparison.ts'
 import type { Encoder } from '../encoder.ts'
+import { Formatter } from '../formatter.ts'
 import { type ShallowSerializationResult, finished } from '../serialization-result.ts'
 import type {
   BytesAccessorRepresentation,
@@ -30,6 +31,46 @@ export class BytesAccessor implements CommonRepresentation, ShallowFunctionality
     }
 
     return strictlyEqual
+  }
+
+  formatShallow(formatter: Formatter): void {
+    if (this.#byteLength === 0) {
+      formatter.append(formatter.theme.bytes.empty)
+      return
+    }
+
+    // Display 4-byte words, 8 per line
+    const view = new DataView(this.#bytes.buffer, this.#bytes.byteOffset, this.#byteLength)
+    for (let offset = 0; offset < view.byteLength; offset += 4) {
+      let value
+      switch (view.byteLength - offset) {
+        case 1: {
+          value = view.getUint8(offset).toString(16).padStart(2, '0')
+          break
+        }
+
+        case 2: {
+          value = view.getUint16(offset).toString(16).padStart(4, '0')
+          break
+        }
+
+        case 3: {
+          value = (view.getUint8(offset) * 2 ** 16 + view.getUint16(offset + 1)).toString(16).padStart(6, '0')
+          break
+        }
+
+        default: {
+          value = view.getUint32(offset).toString(16).padStart(8, '0')
+          break
+        }
+      }
+
+      if (offset > 0) {
+        formatter.append(offset % 32 === 0 ? Formatter.lineMarker : ' ')
+      }
+
+      formatter.appendWrapped('bytes', value)
+    }
   }
 
   serializeShallow(encoder: Encoder): ShallowSerializationResult {

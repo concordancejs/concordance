@@ -67,6 +67,10 @@ class MockValueRepresentation {
     throw new Error('Not implemented for serialization tests')
   }
 
+  finalFormat(): never {
+    throw new Error('Not implemented for serialization tests')
+  }
+
   *[Symbol.iterator]() {
     yield* this.children
   }

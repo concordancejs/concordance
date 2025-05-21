@@ -9,6 +9,7 @@ import type {
   ShallowFunctionality,
   ValueRepresentation,
 } from '../../value.d.ts'
+import type { Formatter } from '../../formatter.ts'
 
 export class BooleanRepresentation implements CommonRepresentation, ShallowFunctionality {
   static deserialize(decoder: Decoder): BooleanRepresentation {
@@ -23,6 +24,10 @@ export class BooleanRepresentation implements CommonRepresentation, ShallowFunct
 
   compare(other: ValueRepresentation): Comparison {
     return #value in other && this.#value === other.#value ? strictlyEqual : unequal
+  }
+
+  formatShallow(formatter: Formatter): void {
+    formatter.append(formatter.wrap('boolean', this.#value ? 'true' : 'false'))
   }
 
   serializeShallow(encoder: Encoder): ShallowSerializationResult {

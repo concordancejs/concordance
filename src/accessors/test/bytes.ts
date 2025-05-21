@@ -3,6 +3,8 @@ import { BytesAccessor } from '../bytes.ts'
 import { strictlyEqual, unequal } from '../../comparison.ts'
 import { Encoder } from '../../encoder.ts'
 import { finished } from '../../serialization-result.ts'
+import { deriveTheme } from '../../theme.ts'
+import { Formatter } from '../../formatter.ts'
 
 // Test constructor and basic properties
 test('constructs with correct byte length', (t) => {
@@ -186,4 +188,173 @@ test('handles zero-length buffers', (t) => {
   const accessor2 = new BytesAccessor(buffer2, 0, 0)
 
   t.is(accessor.compare(accessor2), strictlyEqual)
+})
+
+const testTheme = deriveTheme()
+
+test('formatShallow formats empty buffer', (t) => {
+  const buffer = new ArrayBuffer(0)
+  const accessor = new BytesAccessor(buffer, 0, 0)
+
+  const formatter = new Formatter(testTheme)
+  accessor.formatShallow(formatter)
+  formatter.close()
+
+  // Empty buffer should result in empty output
+  t.snapshot(formatter.render())
+})
+
+test('formatShallow formats single byte', (t) => {
+  const buffer = new ArrayBuffer(1)
+  const view = new Uint8Array(buffer)
+  view[0] = 0xaf // 175 in decimal
+
+  const accessor = new BytesAccessor(buffer, 0, 1)
+
+  const formatter = new Formatter(testTheme)
+  accessor.formatShallow(formatter)
+  formatter.close()
+
+  // Should be wrapped in 'bytes' theme formatting
+  t.snapshot(formatter.render())
+})
+
+test('formatShallow formats two bytes', (t) => {
+  const buffer = new ArrayBuffer(2)
+  const view = new Uint8Array(buffer)
+  view[0] = 0xab // 171 in decimal
+  view[1] = 0xcd // 205 in decimal
+
+  const accessor = new BytesAccessor(buffer, 0, 2)
+
+  const formatter = new Formatter(testTheme)
+  accessor.formatShallow(formatter)
+  formatter.close()
+
+  // Two bytes should be represented as a single 16-bit value
+  t.snapshot(formatter.render())
+})
+
+test('formatShallow formats three bytes', (t) => {
+  const buffer = new ArrayBuffer(3)
+  const view = new Uint8Array(buffer)
+  view[0] = 0x12
+  view[1] = 0x34
+  view[2] = 0x56
+
+  const accessor = new BytesAccessor(buffer, 0, 3)
+
+  const formatter = new Formatter(testTheme)
+  accessor.formatShallow(formatter)
+  formatter.close()
+
+  // Three bytes should be represented as a 24-bit value
+  t.snapshot(formatter.render())
+})
+
+test('formatShallow formats four bytes', (t) => {
+  const buffer = new ArrayBuffer(4)
+  const view = new Uint8Array(buffer)
+  view[0] = 0xde
+  view[1] = 0xad
+  view[2] = 0xbe
+  view[3] = 0xef
+
+  const accessor = new BytesAccessor(buffer, 0, 4)
+
+  const formatter = new Formatter(testTheme)
+  accessor.formatShallow(formatter)
+  formatter.close()
+
+  // Four bytes should be represented as a 32-bit value
+  t.snapshot(formatter.render())
+})
+
+test('formatShallow formats more than four bytes with spaces between chunks', (t) => {
+  const buffer = new ArrayBuffer(8)
+  const view = new Uint8Array(buffer)
+  // First 4 bytes
+  view[0] = 0xde
+  view[1] = 0xad
+  view[2] = 0xbe
+  view[3] = 0xef
+  // Next 4 bytes
+  view[4] = 0xca
+  view[5] = 0xfe
+  view[6] = 0xba
+  view[7] = 0xbe
+
+  const accessor = new BytesAccessor(buffer, 0, 8)
+
+  const formatter = new Formatter(testTheme)
+  accessor.formatShallow(formatter)
+  formatter.close()
+
+  // Should have a space between 4-byte chunks
+  t.snapshot(formatter.render())
+})
+
+test('formatShallow formats with line breaks for large buffers', (t) => {
+  // Create a 36-byte buffer (9 words, which should span two lines)
+  const buffer = new ArrayBuffer(36)
+  const view = new Uint8Array(buffer)
+
+  // Fill with incrementing pattern
+  for (let i = 0; i < 36; i++) {
+    view[i] = i % 256
+  }
+
+  const accessor = new BytesAccessor(buffer, 0, 36)
+
+  const formatter = new Formatter(testTheme, 0)
+  accessor.formatShallow(formatter)
+  formatter.close()
+
+  // We expect 8 words on the first line, then a line break, then 1 word
+  const rendered = formatter.render()
+
+  // With snapshot testing we'll see if the line breaks are correctly placed
+  t.snapshot(rendered)
+})
+
+test('formatShallow respects buffer offsets', (t) => {
+  const buffer = new ArrayBuffer(10)
+  const view = new Uint8Array(buffer)
+
+  // Fill with data
+  for (let i = 0; i < 10; i++) {
+    view[i] = i + 10
+  }
+
+  // Create accessor for bytes 3-7 (5 bytes)
+  // Should format values: 13 14 15 16 17
+  const accessor = new BytesAccessor(buffer, 3, 5)
+
+  const formatter = new Formatter(testTheme)
+  accessor.formatShallow(formatter)
+  formatter.close()
+
+  // Let the snapshot verify the formatted output
+  t.snapshot(formatter.render())
+})
+
+test('formatShallow handles non-aligned buffer length and offsets correctly', (t) => {
+  const buffer = new ArrayBuffer(10)
+  const view = new Uint8Array(buffer)
+
+  // Fill with data
+  for (let i = 0; i < 10; i++) {
+    view[i] = i + 10
+  }
+
+  // Create accessor for bytes 2-6 (starting at odd offset, 5 bytes total)
+  // Should format values: 12 13 14 15 16
+  const accessor = new BytesAccessor(buffer, 2, 5)
+
+  const formatter = new Formatter(testTheme)
+  accessor.formatShallow(formatter)
+  formatter.close()
+
+  // Let the snapshot verify the formatted output
+  t.snapshot(formatter.render())
 })

@@ -7,6 +7,7 @@ import { staticTypeTable } from '../../serialization-types.ts'
 import { type ShallowSerializationResult, finished } from '../../serialization-result.ts'
 import type { Decoder } from '../../decoder.ts'
 import type { DeserializationContext } from '../../deserialization-context.ts'
+import type { Formatter } from '../../formatter.ts'
 
 export class ExternalRepresentation implements CommonRepresentation, ShallowFunctionality {
   static deserialize(context: DeserializationContext, decoder: Decoder): ExternalRepresentation {
@@ -34,6 +35,10 @@ export class ExternalRepresentation implements CommonRepresentation, ShallowFunc
     }
 
     return this.#value === other.#value ? strictlyEqual : unequal
+  }
+
+  formatShallow(formatter: Formatter): void {
+    formatter.append(formatter.theme.external)
   }
 
   serializeShallow(encoder: Encoder): ShallowSerializationResult {

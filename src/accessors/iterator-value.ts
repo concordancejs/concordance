@@ -2,6 +2,7 @@ import { unequal } from '../comparison.ts'
 import { partial, type SerializationResult } from '../serialization-result.ts'
 import type { Encoder } from '../encoder.ts'
 import type { AccessorRepresentation, CommonRepresentation, DeepFunctionality, ValueRepresentation } from '../value.js'
+import type { Formatter } from '../formatter.ts'
 
 export class IteratorValueAccessor implements CommonRepresentation, DeepFunctionality {
   static is(value: object): value is IteratorValueAccessor {
@@ -24,6 +25,10 @@ export class IteratorValueAccessor implements CommonRepresentation, DeepFunction
     if (!(#value in other)) return unequal
     if (this.#index !== other.#index) return unequal
     return this.#value.compare(other.#value)
+  }
+
+  finalFormat(formatter: Formatter): void {
+    formatter.append(formatter.theme.iteratorValue.after).close()
   }
 
   serialize(encoder: Encoder): SerializationResult {

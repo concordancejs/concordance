@@ -8,6 +8,7 @@ import type {
   ShallowFunctionality,
   ValueRepresentation,
 } from '../../value.d.ts'
+import type { Formatter } from '../../formatter.ts'
 
 export class UndefinedRepresentation implements CommonRepresentation, ShallowFunctionality {
   static is(other: ValueRepresentation): other is UndefinedRepresentation {
@@ -18,6 +19,10 @@ export class UndefinedRepresentation implements CommonRepresentation, ShallowFun
 
   compare(other: ValueRepresentation): Comparison {
     return #undefined in other ? strictlyEqual : unequal
+  }
+
+  formatShallow(formatter: Formatter): void {
+    formatter.append(formatter.wrap('undefined', 'undefined'))
   }
 
   serializeShallow(encoder: Encoder): ShallowSerializationResult {

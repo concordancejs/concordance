@@ -10,6 +10,8 @@ import { DescriptionContext } from '../../description-context.ts'
 import { Decoder } from '../../decoder.ts'
 import { DeserializationContext } from '../../deserialization-context.ts'
 import type { SymbolRepresentation } from '../../values/primitives/symbol.ts'
+import { Formatter } from '../../formatter.ts'
+import { deriveTheme } from '../../theme.ts'
 
 // Test constructor and basic properties
 test('constructor sets key and value, which iterator yields in order', (t) => {
@@ -195,4 +197,60 @@ test('serialize always returns partial', (t) => {
   const mapEntry = new MapEntryAccessor(context, key, value)
 
   t.is(mapEntry.serialize(), partial)
+})
+
+// Test formatAfterIteration
+test('formatAfterIteration adds mapEntry.afterKey to formatter when value is the key', (t) => {
+  const context = new DescriptionContext()
+  const key = new StringRepresentation('key')
+  const value = new StringRepresentation('value')
+  const mapEntry = new MapEntryAccessor(context, key, value)
+
+  // Create formatter to test with
+  const theme = deriveTheme()
+  const formatter = new Formatter(theme)
+
+  // Call formatAfterIteration with key
+  mapEntry.formatAfterIteration(formatter, key)
+
+  // Formatter should have the theme's mapEntry.afterKey appended
+  const rendered = formatter.close().render()
+  t.is(rendered, theme.mapEntry.afterKey)
+})
+
+test('formatAfterIteration does not append anything when value is not the key', (t) => {
+  const context = new DescriptionContext()
+  const key = new StringRepresentation('key')
+  const value = new StringRepresentation('value')
+  const mapEntry = new MapEntryAccessor(context, key, value)
+
+  // Create formatter to test with
+  const theme = deriveTheme()
+  const formatter = new Formatter(theme)
+
+  // Call formatAfterIteration with value (not key)
+  mapEntry.formatAfterIteration(formatter, value)
+
+  // Formatter should be empty
+  const rendered = formatter.close().render()
+  t.is(rendered, '')
+})
+
+// Test finalFormat
+test('finalFormat appends mapEntry.afterValue to formatter', (t) => {
+  const context = new DescriptionContext()
+  const key = new StringRepresentation('key')
+  const value = new StringRepresentation('value')
+  const mapEntry = new MapEntryAccessor(context, key, value)
+
+  // Create formatter with a mock to verify close() is called
+  const theme = deriveTheme()
+  const formatter = new Formatter(theme)
+
+  // Call finalFormat
+  mapEntry.finalFormat(formatter)
+
+  // Check that mapEntry.afterValue was appended
+  const rendered = formatter.render()
+  t.is(rendered, theme.mapEntry.afterValue)
 })

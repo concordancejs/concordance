@@ -31,6 +31,10 @@ class MockValueRepresentation {
     return this.#compareResult
   }
 
+  finalFormat(): never {
+    throw new Error('finalFormat should not be called on MockValueRepresentation')
+  }
+
   serialize(): SerializationResult {
     return finished
   }

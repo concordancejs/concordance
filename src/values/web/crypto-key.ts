@@ -2,8 +2,9 @@ import { possiblyEqual, unequal } from '../../comparison.ts'
 import type { Decoder } from '../../decoder.ts'
 import type { DeserializationContext } from '../../deserialization-context.ts'
 import type { Encoder } from '../../encoder.ts'
+import type { Formatter } from '../../formatter.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
-import type { ValueRepresentation } from '../../value.js'
+import type { FinalFormatOptions, ValueRepresentation } from '../../value.js'
 import { ObjectRepresentation, type ObjectAnnotations } from '../objects/object.ts'
 
 export class CryptoKeyRepresentation extends ObjectRepresentation {
@@ -19,6 +20,12 @@ export class CryptoKeyRepresentation extends ObjectRepresentation {
 
   override *iterateProperties() {
     yield* super.iterateProperties('type', 'extractable', 'algorithm', 'usages')
+  }
+
+  override finalFormat(formatter: Formatter, options?: FinalFormatOptions) {
+    super.finalFormat(formatter, {
+      disambiguationHint: options?.disambiguationHint === true ? 'CryptoKey' : undefined,
+    })
   }
 
   override serialize(encoder: Encoder) {

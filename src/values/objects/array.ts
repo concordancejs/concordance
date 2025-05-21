@@ -7,7 +7,8 @@ import { DeserializationContext } from '../../deserialization-context.ts' // esl
 import type { Encoder } from '../../encoder.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
 import type { Context } from '../../context.js'
-import type { ValueRepresentation } from '../../value.js'
+import type { FinalFormatOptions, ValueRepresentation } from '../../value.js'
+import type { Formatter } from '../../formatter.ts'
 import { ObjectRepresentation, type ObjectAnnotations } from './object.ts'
 
 export class ArrayRepresentation extends ObjectRepresentation {
@@ -66,6 +67,13 @@ export class ArrayRepresentation extends ObjectRepresentation {
 
   override *iterateIterable() {
     // No-op
+  }
+
+  override finalFormat(formatter: Formatter, options?: FinalFormatOptions) {
+    super.finalFormat(formatter, {
+      array: true,
+      disambiguationHint: options?.disambiguationHint === true ? 'Array' : undefined,
+    })
   }
 
   override serialize(encoder: Encoder) {

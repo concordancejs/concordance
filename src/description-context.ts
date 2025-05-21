@@ -1,7 +1,7 @@
 import typesUtils from 'node:util/types'
 import never from 'never'
 import type { ValueRepresentation } from './value.js'
-import type { Context, ContextOptions } from './context.js'
+import type { Context, ContextOptions, DescribedSymbol, PropertyAccessCallback } from './context.js'
 import { ArgumentsRepresentation } from './values/objects/arguments.ts' // eslint-disable-line import/no-cycle
 import { type SymbolRepresentation } from './values/primitives/symbol.ts'
 import { BoxedPrimitiveRepresentation } from './values/objects/boxed.ts'
@@ -71,6 +71,11 @@ export class DescriptionContext implements Context {
   }
 
   readonly #flags: Readonly<Flags>
+  readonly #namedPropertyNotifiers = new Map<
+    object,
+    Map<string, { callback: PropertyAccessCallback; invoked: boolean }>
+  >()
+
   readonly #pointers = new PointerMap()
 
   constructor(options?: ContextOptions) {
@@ -155,10 +160,43 @@ export class DescriptionContext implements Context {
       .concat(include.filter((name) => Reflect.has(value, name))) // eslint-disable-line unicorn/prefer-spread
       .sort()
 
-    return new NamedPropertyGroup(
-      this,
-      nameCandidates.map((name) => this.representProperty(value, name)),
-    )
+    const properties: NamedPropertyAccessor[] = []
+    const objectNotifiers = this.#namedPropertyNotifiers.get(value)
+    for (const name of nameCandidates) {
+      const propertyValue = this.represent((value as Record<string, unknown>)[name])
+      const accessor = new NamedPropertyAccessor(name, propertyValue)
+      properties.push(accessor)
+      if (objectNotifiers && include.includes(name)) {
+        const notifier = objectNotifiers.get(name)
+        if (notifier?.invoked === false) {
+          const { callback } = notifier
+          callback(accessor, propertyValue)
+          notifier.invoked = true
+        }
+      }
+    }
+
+    return new NamedPropertyGroup(this, properties)
+  }
+
+  notifyNextExplicitlyNamedPropertyAccess(value: object, name: string, callback: PropertyAccessCallback) {
+    const objectNotifiers =
+      this.#namedPropertyNotifiers.get(value) ??
+      new Map<string, { callback: PropertyAccessCallback; invoked: boolean }>()
+    if (!this.#namedPropertyNotifiers.has(value)) {
+      this.#namedPropertyNotifiers.set(value, objectNotifiers)
+    }
+
+    // Throw error if a notifier is already registered for this property
+    if (objectNotifiers.has(name)) {
+      throw new Error(`A notifier is already registered for property '${name}'`)
+    }
+
+    objectNotifiers.set(name, { callback, invoked: false })
+  }
+
+  resetPropertyAccessNotifiers(value: object) {
+    this.#namedPropertyNotifiers.delete(value)
   }
 
   symbolProperties(value: object) {
@@ -214,20 +252,26 @@ export class DescriptionContext implements Context {
     return elements
   }
 
-  representProperty(value: object, key: string) {
-    return new NamedPropertyAccessor(key, this.represent((value as Record<string, unknown>)[key]))
-  }
-
   valueOf(value: object) {
     return value.valueOf() as unknown
   }
 
-  describeSymbol(value: object) {
+  describeSymbol(value: object): DescribedSymbol {
     const symbol = value as unknown as symbol
     const key = Symbol.keyFor(symbol)
+    if (key !== undefined) {
+      // This is a registered symbol.
+      return { key, wellKnown: undefined, string: undefined }
+    }
+
     const wellKnown = wellKnownSymbols.get(symbol)
-    const string = (key ?? wellKnown) ? undefined : symbol.toString()
-    return { key, wellKnown, string }
+    if (wellKnown !== undefined) {
+      // This is a well-known symbol.
+      return { key: undefined, wellKnown, string: undefined }
+    }
+
+    // This is a custom symbol, not registered and not well-known.
+    return { key: undefined, wellKnown: undefined, string: symbol.toString() }
   }
 
   representBytes(value: object) {

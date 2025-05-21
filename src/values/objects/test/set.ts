@@ -6,6 +6,8 @@ import { DeserializationContext } from '../../../deserialization-context.ts'
 import { SetRepresentation } from '../set.ts'
 import { comparable, strictlyEqual, unequal } from '../../../comparison.ts'
 import { staticTypeTable } from '../../../serialization-types.ts'
+import { Formatter } from '../../../formatter.ts'
+import { deriveTheme } from '../../../theme.ts'
 import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
 
 // Deserialize method test
@@ -254,4 +256,47 @@ test('handles empty sets correctly', (t) => {
   const anotherEmptySetRep = context.represent(anotherEmptySet) as SetRepresentation
 
   t.is(emptySetRep.compare(anotherEmptySetRep), comparable)
+})
+
+// finalFormat tests
+test('finalFormat passes object brackets and does not include disambiguation hint by default', (t) => {
+  const context = new DescriptionContext()
+  const set = new Set(['value1', 'value2'])
+  const setRep = context.represent(set) as SetRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  setRep.finalFormat(formatter)
+
+  const rendered = formatter.render()
+
+  // Should use object brackets
+  t.true(rendered.includes('{'))
+  t.true(rendered.includes('}'))
+
+  // Should not include explicit disambiguation hint by default
+  t.false(rendered.includes('// Set'))
+
+  // Snapshot the exact rendering
+  t.snapshot(rendered, 'set object default format')
+})
+
+test('finalFormat passes object brackets and shows disambiguation hint when options.disambiguationHint is true', (t) => {
+  const context = new DescriptionContext()
+  const set = new Set(['value1', 'value2'])
+  const setRep = context.represent(set) as SetRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  setRep.finalFormat(formatter, { disambiguationHint: true })
+
+  const rendered = formatter.render()
+
+  // Should use object brackets
+  t.true(rendered.includes('{'))
+  t.true(rendered.includes('}'))
+
+  // Should include disambiguation hint when requested
+  t.true(rendered.includes('// Set'))
+
+  // Snapshot the exact rendering
+  t.snapshot(rendered, 'set object with disambiguation hint')
 })

@@ -7,6 +7,8 @@ import { ExternalRepresentation } from '../external.ts'
 import { possiblyEqual, strictlyEqual, unequal } from '../../../comparison.ts'
 import { staticTypeTable } from '../../../serialization-types.ts'
 import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
+import { deriveTheme } from '../../../theme.ts'
+import { Formatter } from '../../../formatter.ts'
 
 // @ts-expect-error ts2307: Suppress error about missing import
 const refNapi = await (import('ref-napi') as Promise<{ default: { instance: object } }>)
@@ -92,6 +94,19 @@ test('compare returns possiblyEqual when either context is deserialized', (t) =>
     possiblyEqual,
     'Deserialized comparing with original should return possiblyEqual',
   )
+})
+
+// Formatting tests
+test('formatShallow applies the correct theme for external values', (t) => {
+  const context = new DescriptionContext()
+  const externalRep = context.represent(externalValue) as ExternalRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  externalRep.formatShallow(formatter)
+  const rendered = formatter.close().render()
+
+  // Check if the theme was applied correctly
+  t.is(rendered, formatter.theme.external)
 })
 
 // Serialization tests

@@ -9,11 +9,13 @@ export type ContextOptions = {
   flags?: Partial<Flags>
 }
 
+export type PropertyAccessCallback = (property: NamedPropertyAccessor, value: ValueRepresentation) => void
+
 export type Context = {
   readonly deserialized: boolean
   readonly flags: Readonly<Flags>
   constructorName(value: object): string | undefined
-  describeSymbol(value: object): { key?: string; wellKnown?: string; string?: string }
+  describeSymbol(value: object): DescribedSymbol
   isArrayLike(value: object): boolean
   isNullProto(value: object): boolean
   isObjectProto(value: object): boolean
@@ -22,10 +24,17 @@ export type Context = {
   iterateValues(value: object): Iterable<IteratorValueAccessor>
   length(value: object): number
   namedProperties(value: object, ...include: string[]): NamedPropertyGroup
+  notifyNextExplicitlyNamedPropertyAccess(value: object, name: string, callback: PropertyAccessCallback): void
   pointer(representation: ValueRepresentation, value: object): number | undefined
   representBytes(value: object): BytesAccessor
+  resetPropertyAccessNotifiers(value: object): void
   size(value: object): number
   stringTag(value: object): string | undefined
   symbolProperties(value: object): SymbolPropertyGroup
   valueOf(value: object): unknown
 }
+
+export type DescribedSymbol =
+  | { key: string; wellKnown: undefined; string: undefined }
+  | { key: undefined; wellKnown: string; string: undefined }
+  | { key: undefined; wellKnown: undefined; string: string }

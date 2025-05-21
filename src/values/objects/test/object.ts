@@ -11,6 +11,8 @@ import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
 import never from 'never'
 import { staticTypeTable } from '../../../serialization-types.ts'
 import { BytesAccessor } from '../../../accessors/bytes.ts'
+import { Formatter } from '../../../formatter.ts'
+import { deriveTheme } from '../../../theme.ts'
 
 // Static method tests
 test('static is method correctly identifies ObjectRepresentation instances', (t) => {
@@ -387,4 +389,399 @@ test('compare returns comparable for deserialized objects with same structure', 
 
   // The deserialized representation should be comparable to the original but not strictly equal
   t.is(representation.compare(deserialized), comparable)
+})
+
+// finalFormat tests
+test('finalFormat prefixes & appends correctly for basic object', (t) => {
+  const context = new DescriptionContext()
+  const obj = {}
+  const representation = context.represent(obj) as ObjectRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  representation.finalFormat(formatter)
+
+  const rendered = formatter.render()
+  t.snapshot(rendered)
+})
+
+test('finalFormat prefixes & appends correctly for object with stringTag', (t) => {
+  const context = new DescriptionContext()
+  const obj = {}
+  Object.defineProperty(obj, Symbol.toStringTag, {
+    value: 'CustomTag',
+    enumerable: false,
+  })
+  const representation = context.represent(obj) as ObjectRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  representation.finalFormat(formatter)
+
+  const rendered = formatter.render()
+  t.snapshot(rendered)
+})
+
+test('finalFormat prefixes & appends correctly for object with constructor name', (t) => {
+  const context = new DescriptionContext()
+  class TestClass {}
+  const obj = new TestClass()
+  const representation = context.represent(obj) as ObjectRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  representation.finalFormat(formatter)
+
+  const rendered = formatter.render()
+  t.snapshot(rendered)
+})
+
+test('finalFormat prefixes & appends correctly for null prototype object', (t) => {
+  const context = new DescriptionContext()
+  const obj = Object.create(null)
+  const representation = context.represent(obj) as ObjectRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  representation.finalFormat(formatter)
+
+  const rendered = formatter.render()
+  t.snapshot(rendered)
+})
+
+test('finalFormat prefixes & appends correctly when max depth reached', (t) => {
+  const context = new DescriptionContext()
+  const obj = {}
+  const representation = context.represent(obj) as ObjectRepresentation
+
+  const formatter = new Formatter(deriveTheme(), 10, 5) // depth > maxDepth
+  representation.finalFormat(formatter)
+
+  const rendered = formatter.render()
+  t.snapshot(rendered)
+})
+
+test('finalFormat prefixes & appends correctly when max depth reached and formatter is not empty', (t) => {
+  const context = new DescriptionContext()
+  const obj = {}
+  const representation = context.represent(obj) as ObjectRepresentation
+
+  const formatter = new Formatter(deriveTheme(), 10, 5) // depth > maxDepth
+  // Add some content to make the formatter non-empty
+  formatter.append('test content')
+  representation.finalFormat(formatter)
+
+  const rendered = formatter.render()
+  t.snapshot(rendered)
+})
+
+test('finalFormat prefixes & appends correctly for object with undefined constructor name but defined string tag', (t) => {
+  const context = new DescriptionContext()
+  // Create an object with no constructor name but with a string tag
+  const obj = {}
+  // Delete constructor property to simulate undefined constructor name
+  Object.defineProperty(obj, 'constructor', { value: undefined })
+  // Add a string tag
+  Object.defineProperty(obj, Symbol.toStringTag, {
+    value: 'CustomTag',
+    enumerable: false,
+  })
+  const representation = context.represent(obj) as ObjectRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  representation.finalFormat(formatter)
+
+  const rendered = formatter.render()
+  t.snapshot(rendered)
+})
+
+test('finalFormat prefixes & appends correctly for object with undefined constructor name and empty string tag', (t) => {
+  const context = new DescriptionContext()
+  // Create an object with no constructor name but with an empty string tag
+  const obj = {}
+  // Delete constructor property to simulate undefined constructor name
+  Object.defineProperty(obj, 'constructor', { value: undefined })
+  // Add an empty string tag
+  Object.defineProperty(obj, Symbol.toStringTag, {
+    value: '',
+    enumerable: false,
+  })
+  const representation = context.represent(obj) as ObjectRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  representation.finalFormat(formatter)
+
+  const rendered = formatter.render()
+  t.snapshot(rendered)
+})
+
+test('finalFormat prefixes & appends correctly for object with non-Object constructor name and matching string tag', (t) => {
+  const context = new DescriptionContext()
+  // Create a class with a matching string tag
+  class TestClass {
+    static get [Symbol.toStringTag]() {
+      return 'TestClass'
+    }
+  }
+  // Ensure the string tag is the same as the constructor name
+  const obj = new TestClass()
+  const representation = context.represent(obj) as ObjectRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  representation.finalFormat(formatter)
+
+  const rendered = formatter.render()
+  t.snapshot(rendered)
+})
+
+test('finalFormat prefixes & appends correctly for object with non-Object constructor name and different string tag', (t) => {
+  const context = new DescriptionContext()
+  // Create a class with a different string tag
+  class TestClass {}
+  const obj = new TestClass()
+  // Add a different string tag
+  Object.defineProperty(obj, Symbol.toStringTag, {
+    value: 'DifferentTag',
+    enumerable: false,
+  })
+  const representation = context.represent(obj) as ObjectRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  representation.finalFormat(formatter)
+
+  const rendered = formatter.render()
+  t.snapshot(rendered)
+})
+
+test('finalFormat prefixes & appends correctly for object with non-Object constructor name and empty string tag', (t) => {
+  const context = new DescriptionContext()
+  // Create a class with custom constructor name
+  class TestClass {}
+  const obj = new TestClass()
+  // Add an empty string tag
+  Object.defineProperty(obj, Symbol.toStringTag, {
+    value: '',
+    enumerable: false,
+  })
+  const representation = context.represent(obj) as ObjectRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  representation.finalFormat(formatter)
+
+  const rendered = formatter.render()
+  t.snapshot(rendered)
+})
+
+test('finalFormat prefixes & appends correctly for object with empty string constructor name', (t) => {
+  const context = new DescriptionContext()
+
+  // Create an object with empty string constructor name
+  const EmptyNameClass = Function('return function() {}')()
+  const obj = new EmptyNameClass()
+
+  const representation = context.represent(obj) as ObjectRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  representation.finalFormat(formatter)
+
+  const rendered = formatter.render()
+  t.snapshot(rendered)
+})
+
+// Add another test for empty string constructor name but with a string tag
+test('finalFormat prefixes & appends correctly for object with empty string constructor name and string tag', (t) => {
+  const context = new DescriptionContext()
+
+  // Create an object with empty string constructor name
+  const EmptyNameClass = Function('return function() {}')()
+  const obj = new EmptyNameClass()
+
+  // Add a string tag
+  Object.defineProperty(obj, Symbol.toStringTag, {
+    value: 'CustomTag',
+    enumerable: false,
+  })
+
+  const representation = context.represent(obj) as ObjectRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  representation.finalFormat(formatter)
+
+  const rendered = formatter.render()
+  t.snapshot(rendered)
+})
+
+test('finalFormat prefixes & appends correctly with non-empty formatter', (t) => {
+  const context = new DescriptionContext()
+  const obj = {}
+  const representation = context.represent(obj) as ObjectRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+
+  // Add some content to the formatter to make it non-empty
+  formatter.append('some content')
+
+  representation.finalFormat(formatter)
+
+  const rendered = formatter.render()
+  t.snapshot(rendered)
+})
+
+test('finalFormat encodes identifier-like strings correctly', (t) => {
+  class TestClass {
+    get [Symbol.toStringTag]() {
+      return 'String\nTag🎉'
+    }
+  }
+
+  Object.defineProperty(TestClass, 'name', { value: 'Test\nClass🎉' })
+
+  {
+    const context = new DescriptionContext()
+    const obj = new TestClass()
+    const representation = context.represent(obj) as ObjectRepresentation
+    const formatter = new Formatter(deriveTheme())
+    representation.finalFormat(formatter)
+    const rendered = formatter.render()
+    t.snapshot(rendered, 'Constructor name and string tag with newlines and emojis')
+
+    t.true(rendered.includes('String\\nTag\\u{1f389}')) // Encoded string tag
+    t.true(rendered.includes('Test\\nClass\\u{1f389}')) // Encoded constructor name
+  }
+
+  Object.defineProperty(TestClass, 'name', { value: undefined }) // Reset name to undefined
+  {
+    const context = new DescriptionContext()
+    const obj = new TestClass()
+    const representation = context.represent(obj) as ObjectRepresentation
+    const formatter = new Formatter(deriveTheme())
+    representation.finalFormat(formatter)
+    const rendered = formatter.render()
+    t.snapshot(rendered, 'String tag with newlines and emojis but no constructor name')
+    t.true(rendered.includes('String\\nTag\\u{1f389}')) // Encoded string tag
+  }
+})
+
+test('finalFormat uses array brackets when options.array is true', (t) => {
+  const context = new DescriptionContext()
+  const obj = { a: 1, b: 2 } // Regular object, not array-like
+  const representation = context.represent(obj) as ObjectRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  representation.finalFormat(formatter, { array: true })
+
+  const rendered = formatter.render()
+  t.snapshot(rendered)
+  t.true(rendered.includes('['), 'Should use array opening bracket')
+  t.true(rendered.includes(']'), 'Should use array closing bracket')
+})
+
+test('finalFormat uses array brackets when object is array-like', (t) => {
+  const context = new DescriptionContext()
+  const arrayLike = {
+    0: 'first',
+    1: 'second',
+    length: 2,
+  }
+  const representation = context.represent(arrayLike) as ObjectRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  representation.finalFormat(formatter)
+
+  const rendered = formatter.render()
+  t.snapshot(rendered)
+  t.true(rendered.includes('['), 'Should use array opening bracket')
+  t.true(rendered.includes(']'), 'Should use array closing bracket')
+})
+
+test('finalFormat uses array brackets with maxDepthReached when options.array is true', (t) => {
+  const context = new DescriptionContext()
+  const obj = { a: 1, b: 2 }
+  const representation = context.represent(obj) as ObjectRepresentation
+
+  const formatter = new Formatter(deriveTheme(), 10, 5) // depth > maxDepth
+  representation.finalFormat(formatter, { array: true })
+
+  const rendered = formatter.render()
+  t.snapshot(rendered)
+  t.true(rendered.includes('['), 'Should use array opening bracket with maxDepth')
+  t.true(rendered.includes(']'), 'Should use array closing bracket with maxDepth')
+})
+
+test('finalFormat uses array brackets with empty formatter when options.array is true', (t) => {
+  const context = new DescriptionContext()
+  const obj = {} // Empty object
+  const representation = context.represent(obj) as ObjectRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  // formatter is empty by default
+  representation.finalFormat(formatter, { array: true })
+
+  const rendered = formatter.render()
+  t.snapshot(rendered)
+  t.true(rendered.includes('[]'), 'Should use empty array brackets')
+  t.false(rendered.includes('{}'), 'Should not use empty object brackets')
+})
+
+test('finalFormat does not render Array constructor name when options.array is true', (t) => {
+  // Create a "fake" Array class by defining a custom class and setting its name to 'Array'
+  class Fake {}
+  // Set name property to 'Array' to simulate Array constructor name
+  Object.defineProperty(Fake, 'name', { value: 'Array' })
+
+  const fakeArray = new Fake()
+
+  const context = new DescriptionContext()
+  const representation = context.represent(fakeArray) as ObjectRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  representation.finalFormat(formatter, { array: true })
+
+  const rendered = formatter.render()
+  t.snapshot(rendered)
+
+  // Should use array brackets
+  t.true(rendered.includes('['), 'Should use array opening bracket')
+  t.true(rendered.includes(']'), 'Should use array closing bracket')
+
+  // Should NOT include "Array" constructor name in output
+  t.false(rendered.includes('Array'), 'Should not include Array constructor name')
+})
+
+test('finalFormat renders disambiguationHint when provided', (t) => {
+  {
+    const context = new DescriptionContext()
+    const empty = {}
+    const representation = context.represent(empty) as ObjectRepresentation
+
+    const formatter = new Formatter(deriveTheme())
+    representation.finalFormat(formatter, { disambiguationHint: 'Test Hint' })
+
+    const rendered = formatter.render()
+    t.snapshot(rendered, 'Empty object with disambiguation hint')
+    t.true(rendered.includes('Test Hint'), 'Should include disambiguation hint in output')
+  }
+
+  {
+    const context = new DescriptionContext()
+    const obj = {}
+    const representation = context.represent(obj) as ObjectRepresentation
+
+    const formatter = new Formatter(deriveTheme(), 10, 5)
+    representation.finalFormat(formatter, { disambiguationHint: 'Test Hint' })
+
+    const rendered = formatter.render()
+    t.snapshot(rendered, 'Object with max depth and disambiguation hint')
+    t.true(rendered.includes('Test Hint'), 'Should include disambiguation hint in max depth output')
+  }
+
+  {
+    const context = new DescriptionContext()
+    const obj = {}
+    const representation = context.represent(obj) as ObjectRepresentation
+
+    const formatter = new Formatter(deriveTheme())
+    formatter.append('some content') // Make formatter non-empty
+    representation.finalFormat(formatter, { disambiguationHint: 'Test Hint' })
+
+    const rendered = formatter.render()
+    t.snapshot(rendered, 'Object with non-empty formatter and disambiguation hint')
+    t.true(rendered.includes('Test Hint'), 'Should include disambiguation hint in non-empty output')
+  }
 })

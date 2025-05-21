@@ -8,6 +8,8 @@ import { comparable, strictlyEqual, unequal } from '../../../comparison.ts'
 import { staticTypeTable } from '../../../serialization-types.ts'
 import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
 import { NamedPropertyGroup, NamedPropertyAccessor } from '../../../accessors/property.ts'
+import { Formatter } from '../../../formatter.ts'
+import { deriveTheme } from '../../../theme.ts'
 
 // Deserialize method test
 test('deserialize creates a comparable ErrorRepresentation', (t) => {
@@ -235,4 +237,73 @@ test('serialize uses error static type', (t) => {
   // Verify the static type
   const decoder = new Decoder(encoder.bytes)
   t.is(decoder.staticType(), staticTypeTable.error)
+})
+
+// finalFormat tests
+test('finalFormat uses object brackets by default', (t) => {
+  const context = new DescriptionContext()
+  const error = new Error('Test error')
+  const errorRep = context.represent(error) as ErrorRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  errorRep.finalFormat(formatter)
+
+  const rendered = formatter.render()
+
+  // Should use object brackets
+  t.true(rendered.includes('{'))
+  t.true(rendered.includes('}'))
+
+  // Should not include explicit disambiguation hint by default
+  // (The constructor name "Error" will still appear as part of the default object formatting)
+  t.false(rendered.includes('// Error'))
+
+  // Snapshot the exact rendering
+  t.snapshot(rendered, 'error default format')
+})
+
+test('finalFormat shows disambiguation hint when options.disambiguationHint is true', (t) => {
+  const context = new DescriptionContext()
+  const error = new Error('Test error')
+  const errorRep = context.represent(error) as ErrorRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  errorRep.finalFormat(formatter, { disambiguationHint: true })
+
+  const rendered = formatter.render()
+
+  // Should use object brackets
+  t.true(rendered.includes('{'))
+  t.true(rendered.includes('}'))
+
+  // Should include the disambiguation hint when options.disambiguationHint is true
+  t.true(rendered.includes('// Error'))
+
+  // Snapshot the exact rendering
+  t.snapshot(rendered, 'error with disambiguation hint')
+})
+
+test('finalFormat handles custom error types', (t) => {
+  const context = new DescriptionContext()
+
+  class CustomError extends Error {
+    constructor(message: string) {
+      super(message)
+      this.name = 'CustomError'
+    }
+  }
+
+  const error = new CustomError('Custom error message')
+  const errorRep = context.represent(error) as ErrorRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  errorRep.finalFormat(formatter)
+
+  const rendered = formatter.render()
+
+  // Should include the custom constructor name
+  t.true(rendered.includes('CustomError'))
+
+  // Snapshot the rendering
+  t.snapshot(rendered, 'custom error format')
 })

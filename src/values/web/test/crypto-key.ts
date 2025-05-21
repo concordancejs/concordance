@@ -9,6 +9,8 @@ import { staticTypeTable } from '../../../serialization-types.ts'
 import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
 import { NamedPropertyAccessor } from '../../../accessors/property.ts'
 import { NamedPropertyGroup } from '../../../accessors/property.ts'
+import { Formatter } from '../../../formatter.ts'
+import { deriveTheme } from '../../../theme.ts'
 
 // Helper to create CryptoKey objects for testing
 async function generateCryptoKey() {
@@ -164,4 +166,48 @@ test('serializing and deserializing a CryptoKey preserves its structure', async 
 
   // The original and deserialized representations should be comparable
   t.is(original.compare(deserialized), possiblyEqual)
+})
+
+// finalFormat tests
+test('finalFormat uses object brackets by default', async (t) => {
+  const context = new DescriptionContext()
+  const cryptoKey = await generateCryptoKey()
+  const cryptoKeyRep = context.represent(cryptoKey) as CryptoKeyRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  cryptoKeyRep.finalFormat(formatter)
+
+  const rendered = formatter.render()
+
+  // Should use object brackets
+  t.true(rendered.includes('{'))
+  t.true(rendered.includes('}'))
+
+  // Should not include explicit disambiguation hint by default
+  // (The constructor name "CryptoKey" will still appear as part of the default object formatting)
+  t.false(rendered.includes('// CryptoKey'))
+
+  // Snapshot the exact rendering
+  t.snapshot(rendered, 'cryptoKey default format')
+})
+
+test('finalFormat shows disambiguation hint when options.disambiguationHint is true', async (t) => {
+  const context = new DescriptionContext()
+  const cryptoKey = await generateCryptoKey()
+  const cryptoKeyRep = context.represent(cryptoKey) as CryptoKeyRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  cryptoKeyRep.finalFormat(formatter, { disambiguationHint: true })
+
+  const rendered = formatter.render()
+
+  // Should use object brackets
+  t.true(rendered.includes('{'))
+  t.true(rendered.includes('}'))
+
+  // Should include the disambiguation hint when options.disambiguationHint is true
+  t.true(rendered.includes('// CryptoKey'))
+
+  // Snapshot the exact rendering
+  t.snapshot(rendered, 'cryptoKey with disambiguation hint')
 })

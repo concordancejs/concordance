@@ -8,6 +8,8 @@ import { strictlyEqual, unequal, comparable } from '../../../comparison.ts'
 import { staticTypeTable } from '../../../serialization-types.ts'
 import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
 import { BytesAccessor } from '../../../accessors/bytes.ts'
+import { Formatter } from '../../../formatter.ts'
+import { deriveTheme } from '../../../theme.ts'
 
 // Compare method tests
 test('compare returns strictlyEqual when comparing the same array buffer view instance', (t) => {
@@ -167,4 +169,113 @@ test('serialize uses arrayBufferView static type and includes bytes annotation',
   // Check that the bytes annotation is included
   const annotations = decoder.annotations<{ b: BytesAccessor }>()
   t.truthy(annotations.b, 'Bytes annotation "b" should exist')
+})
+
+// Formatter tests
+test('preformat appends formatted bytes', (t) => {
+  const context = new DescriptionContext()
+  const view = new Uint8Array([0xde, 0xad, 0xbe, 0xef])
+  const viewRep = context.represent(view) as ArrayBufferViewRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  viewRep.preformat(formatter)
+
+  const rendered = formatter.close().render()
+  t.true(rendered.includes('deadbeef'), 'Should contain formatted bytes')
+  t.snapshot(rendered, 'bytes formatter content')
+})
+
+test('finalFormat uses array brackets and no disambiguation hint by default', (t) => {
+  const context = new DescriptionContext()
+  const view = new Uint8Array([0xde, 0xad, 0xbe, 0xef])
+  const viewRep = context.represent(view) as ArrayBufferViewRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  viewRep.finalFormat(formatter)
+
+  const rendered = formatter.render()
+
+  // Should use array brackets
+  t.true(rendered.includes('['))
+  t.true(rendered.includes(']'))
+
+  // Should not include disambiguation hint by default
+  t.false(rendered.includes('ArrayBufferView'))
+
+  // Snapshot the exact rendering
+  t.snapshot(rendered, 'array buffer view default format')
+})
+
+test('finalFormat shows disambiguation hint when options.disambiguationHint is true', (t) => {
+  const context = new DescriptionContext()
+  const view = new Uint8Array([0xde, 0xad, 0xbe, 0xef])
+  const viewRep = context.represent(view) as ArrayBufferViewRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  viewRep.finalFormat(formatter, { disambiguationHint: true })
+
+  const rendered = formatter.render()
+
+  // Should use array brackets
+  t.true(rendered.includes('['))
+  t.true(rendered.includes(']'))
+
+  // Should include the disambiguation hint when options.disambiguationHint is true
+  t.true(rendered.includes('ArrayBufferView'))
+
+  // Snapshot the exact rendering
+  t.snapshot(rendered, 'array buffer view with disambiguation hint')
+})
+
+test('integration of preformat and finalFormat produces correct output', (t) => {
+  const context = new DescriptionContext()
+  const view = new Uint8Array([0xde, 0xad, 0xbe, 0xef])
+  const viewRep = context.represent(view) as ArrayBufferViewRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+
+  viewRep.preformat(formatter)
+  viewRep.finalFormat(formatter)
+
+  const rendered = formatter.render()
+
+  // Should contain both bytes and array brackets
+  t.true(rendered.includes('['))
+  t.true(rendered.includes(']'))
+  t.true(rendered.includes('deadbeef')) // Should contain byte values
+
+  // Snapshot the complete rendering
+  t.snapshot(rendered, 'complete array buffer view rendering')
+})
+
+test('preformat followed by finalFormat handles different typed array types correctly', (t) => {
+  const context = new DescriptionContext()
+  const views = [
+    new Uint8Array([1, 2, 3, 4]),
+    new Int8Array([1, 2, -3, -4]),
+    new Uint16Array([1, 2, 3, 4]),
+    new Int16Array([1, 2, -3, -4]),
+    new Uint32Array([1, 2]),
+    new Float32Array([1.1, 2.2]),
+    new Float64Array([1.1, 2.2]),
+  ]
+
+  for (const view of views) {
+    const viewRep = context.represent(view) as ArrayBufferViewRepresentation
+
+    const formatter = new Formatter(deriveTheme())
+
+    viewRep.preformat(formatter)
+    viewRep.finalFormat(formatter)
+
+    const rendered = formatter.render()
+
+    // Should include constructor name and brackets
+    t.true(rendered.includes(view.constructor.name))
+    t.true(rendered.includes('['))
+    t.true(rendered.includes(']'))
+
+    // Snapshot with constructor name to differentiate
+    t.snapshot(rendered, `${view.constructor.name} rendering`)
+  }
 })

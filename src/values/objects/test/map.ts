@@ -8,6 +8,8 @@ import { comparable, strictlyEqual, unequal } from '../../../comparison.ts'
 import { staticTypeTable } from '../../../serialization-types.ts'
 import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
 import { MapEntryAccessor } from '../../../accessors/map-entry.ts'
+import { Formatter } from '../../../formatter.ts'
+import { deriveTheme } from '../../../theme.ts'
 
 // Deserialize method test
 test('deserialize creates a comparable MapRepresentation', (t) => {
@@ -302,4 +304,54 @@ test('handles empty maps correctly', (t) => {
   const anotherEmptyMapRep = context.represent(anotherEmptyMap) as MapRepresentation
 
   t.is(emptyMapRep.compare(anotherEmptyMapRep), comparable)
+})
+
+// finalFormat tests
+test('finalFormat uses object brackets by default', (t) => {
+  const context = new DescriptionContext()
+  const map = new Map([
+    ['key1', 'value1'],
+    ['key2', 'value2'],
+  ])
+  const mapRep = context.represent(map) as MapRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  mapRep.finalFormat(formatter)
+
+  const rendered = formatter.render()
+
+  // Should use object brackets
+  t.true(rendered.includes('{'))
+  t.true(rendered.includes('}'))
+
+  // Should not include explicit disambiguation hint by default
+  // (The constructor name "Map" will still appear as part of the default object formatting)
+  t.false(rendered.includes('// Map'))
+
+  // Snapshot the exact rendering
+  t.snapshot(rendered, 'map default format')
+})
+
+test('finalFormat shows disambiguation hint when options.disambiguationHint is true', (t) => {
+  const context = new DescriptionContext()
+  const map = new Map([
+    ['key1', 'value1'],
+    ['key2', 'value2'],
+  ])
+  const mapRep = context.represent(map) as MapRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  mapRep.finalFormat(formatter, { disambiguationHint: true })
+
+  const rendered = formatter.render()
+
+  // Should use object brackets
+  t.true(rendered.includes('{'))
+  t.true(rendered.includes('}'))
+
+  // Should include the disambiguation hint when options.disambiguationHint is true
+  t.true(rendered.includes('// Map'))
+
+  // Snapshot the exact rendering
+  t.snapshot(rendered, 'map with disambiguation hint')
 })

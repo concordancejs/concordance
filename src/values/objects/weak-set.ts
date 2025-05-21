@@ -4,7 +4,8 @@ import type { DeserializationContext } from '../../deserialization-context.ts'
 import type { Encoder } from '../../encoder.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
 import type { Context } from '../../context.js'
-import type { ValueRepresentation } from '../../value.js'
+import type { FinalFormatOptions, ValueRepresentation } from '../../value.js'
+import type { Formatter } from '../../formatter.ts'
 import { ObjectRepresentation, type ObjectAnnotations } from './object.ts'
 
 export class WeakSetRepresentation extends ObjectRepresentation {
@@ -24,6 +25,12 @@ export class WeakSetRepresentation extends ObjectRepresentation {
     if (!(#value in other)) return unequal
     if (this.#value === other.#value) return strictlyEqual
     return super.compare(other) ? possiblyEqual : unequal
+  }
+
+  override finalFormat(formatter: Formatter, options?: FinalFormatOptions) {
+    super.finalFormat(formatter, {
+      disambiguationHint: options?.disambiguationHint === true ? 'WeakSet' : undefined,
+    })
   }
 
   override serialize(encoder: Encoder) {
