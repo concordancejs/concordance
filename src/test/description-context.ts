@@ -174,12 +174,12 @@ test('constructorName handles edge cases correctly', (t) => {
   // Test with empty name
   const EmptyNameClass = Function('return function() {}')()
   const emptyNameInstance = new EmptyNameClass()
-  t.is(context.constructorName(emptyNameInstance), undefined)
+  t.is(context.constructorName(emptyNameInstance), '')
 
   // Test with explicitly empty name
   const ExplicitEmptyNameClass = Function('return function() { this.constructor.name = "" }')()
   const explicitEmptyNameInstance = new ExplicitEmptyNameClass()
-  t.is(context.constructorName(explicitEmptyNameInstance), undefined)
+  t.is(context.constructorName(explicitEmptyNameInstance), '')
 
   // Test with non-function constructor
   const noConstructorObject = Object.create(null)

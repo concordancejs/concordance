@@ -105,7 +105,7 @@ export class DescriptionContext implements Context {
   constructorName(value: object) {
     if (typeof value.constructor === 'function') {
       const name = value.constructor?.name
-      if (typeof name === 'string' && name !== '') return name
+      return typeof name === 'string' ? name : undefined
     }
 
     return undefined

@@ -129,6 +129,24 @@ test('compare returns unequal for objects with different constructor names', (t)
   t.is(a.compare(b), unequal)
 })
 
+test('compare returns unequal when comparing objects with empty string vs undefined constructor names', (t) => {
+  const context = new DescriptionContext()
+
+  // Create an object with empty string constructor name
+  const EmptyNameClass = Function('return function() {}')()
+  const objWithEmptyConstructorName = new EmptyNameClass()
+
+  // Create an object with undefined constructor name
+  const objWithUndefinedConstructorName = Object.create(null)
+  objWithUndefinedConstructorName.constructor = undefined
+
+  const a = context.represent(objWithEmptyConstructorName) as ObjectRepresentation
+  const b = context.represent(objWithUndefinedConstructorName) as ObjectRepresentation
+
+  // They should be treated as unequal since empty string and undefined are different
+  t.is(a.compare(b), unequal)
+})
+
 // Array-like objects tests
 test('iterateArrayLike yields elements for array-like objects', (t) => {
   const arrayLike = {
