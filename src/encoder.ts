@@ -90,7 +90,7 @@ export class Encoder {
     for (const [k, v] of entries) {
       writeString(k, this.#writer, this.#options)
       if (typeof v === 'object') {
-        v.serialize(this)
+        v.serializeShallow(this)
       } else {
         writeUnknown(v, this.#writer, this.#options)
       }

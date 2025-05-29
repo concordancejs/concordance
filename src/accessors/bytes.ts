@@ -1,9 +1,14 @@
 import { strictlyEqual, unequal } from '../comparison.ts'
 import type { Encoder } from '../encoder.ts'
-import { type SerializationResult, finished } from '../serialization-result.ts'
-import type { AccessorRepresentation, CommonRepresentation, DeepFunctionality, ValueRepresentation } from '../value.js'
+import { type ShallowSerializationResult, finished } from '../serialization-result.ts'
+import type {
+  BytesAccessorRepresentation,
+  CommonRepresentation,
+  ShallowFunctionality,
+  ValueRepresentation,
+} from '../value.js'
 
-export class BytesAccessor implements CommonRepresentation, DeepFunctionality {
+export class BytesAccessor implements CommonRepresentation, ShallowFunctionality {
   static is(value: object): value is BytesAccessor {
     return #bytes in value
   }
@@ -27,7 +32,7 @@ export class BytesAccessor implements CommonRepresentation, DeepFunctionality {
     return strictlyEqual
   }
 
-  serialize(encoder: Encoder): SerializationResult {
+  serializeShallow(encoder: Encoder): ShallowSerializationResult {
     encoder.uint8Array(this.#bytes)
     return finished
   }
@@ -35,4 +40,4 @@ export class BytesAccessor implements CommonRepresentation, DeepFunctionality {
 
 void (BytesAccessor satisfies new (
   ...arguments_: ConstructorParameters<typeof BytesAccessor>
-) => AccessorRepresentation)
+) => BytesAccessorRepresentation)

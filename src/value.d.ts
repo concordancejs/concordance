@@ -31,3 +31,4 @@ type Deep = CommonRepresentation &
 export type ValueRepresentation = CommonRepresentation & (Shallow | Deep)
 export type PrimitiveRepresentation = ValueRepresentation & Shallow
 export type AccessorRepresentation = ValueRepresentation & Deep
+export type BytesAccessorRepresentation = ValueRepresentation & Shallow

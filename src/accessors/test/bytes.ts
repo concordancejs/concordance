@@ -11,7 +11,7 @@ test('constructs with correct byte length', (t) => {
 
   // Access private field indirectly by serializing and checking length
   const encoder = new Encoder()
-  accessor.serialize(encoder)
+  accessor.serializeShallow(encoder)
 
   // Expect 4 bytes to be written, plus 1 byte to mark the CBOR ByteString
   t.is(encoder.bytes.length, 5)
@@ -31,7 +31,7 @@ test('constructs view with correct offset and length', (t) => {
 
   // Serialize and check that we got bytes 3, 4, 5, 6
   const encoder = new Encoder()
-  accessor.serialize(encoder)
+  accessor.serializeShallow(encoder)
 
   t.deepEqual(Array.from(encoder.bytes).slice(1), [3, 4, 5, 6])
 })
@@ -129,7 +129,7 @@ test('serialize correctly writes bytes to encoder', (t) => {
   const accessor = new BytesAccessor(buffer, 0, 4)
 
   const encoder = new Encoder()
-  const result = accessor.serialize(encoder)
+  const result = accessor.serializeShallow(encoder)
 
   // Check result type
   t.is(result, finished)
@@ -147,7 +147,7 @@ test('serialize respects offset and length', (t) => {
   const accessor = new BytesAccessor(buffer, 2, 4)
 
   const encoder = new Encoder()
-  accessor.serialize(encoder)
+  accessor.serializeShallow(encoder)
 
   // Check we got exactly the right bytes
   t.deepEqual(Array.from(encoder.bytes).slice(1), [30, 40, 50, 60])
@@ -163,7 +163,7 @@ test('serialize works with other ArrayBufferLike types', (t) => {
     const accessor = new BytesAccessor(buffer, 0, 4)
 
     const encoder = new Encoder()
-    accessor.serialize(encoder)
+    accessor.serializeShallow(encoder)
 
     t.deepEqual(Array.from(encoder.bytes).slice(1), [1, 2, 3, 4])
   } else {
@@ -177,7 +177,7 @@ test('handles zero-length buffers', (t) => {
   const accessor = new BytesAccessor(buffer, 0, 0)
 
   const encoder = new Encoder()
-  accessor.serialize(encoder)
+  accessor.serializeShallow(encoder)
 
   t.is(encoder.bytes.length, 1) // Empty buffer should serialize to an empty CBOR ByteString
 
