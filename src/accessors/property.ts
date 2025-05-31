@@ -120,7 +120,7 @@ void (SymbolPropertyAccessor satisfies new (
 
 export type PropertyGroup = NamedPropertyGroup | SymbolPropertyGroup
 
-export class NamedPropertyGroup implements CommonRepresentation, DeepFunctionality {
+export class NamedPropertyGroup implements CommonRepresentation {
   static is(value: object): value is NamedPropertyGroup {
     return #properties in value
   }
@@ -141,20 +141,12 @@ export class NamedPropertyGroup implements CommonRepresentation, DeepFunctionali
     yield* DeserializationContext.is(this.#context) ? this.#context.iterateNamedProperties(this) : this.#properties
   }
 
-  compare(other: ValueRepresentation): Comparison {
+  compare(other: ValueRepresentation | PropertyGroup): Comparison {
     return #properties in other ? comparable : unequal
-  }
-
-  serialize(): SerializationResult {
-    return partial
   }
 }
 
-void (NamedPropertyGroup satisfies new (
-  ...arguments_: ConstructorParameters<typeof NamedPropertyGroup>
-) => AccessorRepresentation)
-
-export class SymbolPropertyGroup implements CommonRepresentation, DeepFunctionality {
+export class SymbolPropertyGroup implements CommonRepresentation {
   static is(value: object): value is NamedPropertyGroup {
     return #properties in value
   }
@@ -169,25 +161,17 @@ export class SymbolPropertyGroup implements CommonRepresentation, DeepFunctional
     return this.#properties.length === 0
   }
 
-  align(other: SymbolPropertyGroup): void {
+  align(other: SymbolPropertyGroup) {
     const [aligned, otherAligned] = SymbolPropertyAccessor.orderByIntersection(this.#properties, other.#properties)
     this.#properties = aligned
     other.#properties = otherAligned
   }
 
-  compare(other: ValueRepresentation): Comparison {
+  compare(other: ValueRepresentation | PropertyGroup): Comparison {
     return #properties in other ? comparableAfterAlignment : unequal
   }
 
   *[Symbol.iterator]() {
     yield* this.#properties
   }
-
-  serialize(): SerializationResult {
-    return partial
-  }
 }
-
-void (SymbolPropertyGroup satisfies new (
-  ...arguments_: ConstructorParameters<typeof SymbolPropertyGroup>
-) => AccessorRepresentation)

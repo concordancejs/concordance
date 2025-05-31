@@ -10,6 +10,7 @@ import {
   NamedPropertyGroup,
   SymbolPropertyAccessor,
   SymbolPropertyGroup,
+  type PropertyGroup,
 } from '../accessors/property.ts'
 import { MapEntryAccessor } from '../accessors/map-entry.ts'
 import { IteratorValueAccessor } from '../accessors/iterator-value.ts'
@@ -42,14 +43,14 @@ class MockValueRepresentation {
   pointer?: number
   #serializeResult: SerializationResult
   #serializeImpl?: (encoder: Encoder) => SerializationResult
-  children: ValueRepresentation[]
+  children: Array<ValueRepresentation | PropertyGroup>
 
   constructor(
     options: {
       pointer?: number
       serializeResult?: SerializationResult
       serializeImpl?: (encoder: Encoder) => SerializationResult
-      children?: ValueRepresentation[]
+      children?: Array<ValueRepresentation | PropertyGroup>
     } = {},
   ) {
     this.pointer = options.pointer

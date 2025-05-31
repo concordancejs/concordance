@@ -1,4 +1,4 @@
-import type { NamedPropertyAccessor } from './accessors/property.ts'
+import type { NamedPropertyAccessor, PropertyGroup } from './accessors/property.ts'
 import type { Comparison } from './comparison.ts'
 import type { Encoder } from './encoder.ts'
 import type { ShallowSerializationResult, SerializationResult } from './serialization-result.ts'
@@ -15,7 +15,7 @@ export type ShallowFunctionality = {
 export type DeepFunctionality = {
   align?(other: ValueRepresentation): void
   serialize(encoder: Encoder): SerializationResult
-  [Symbol.iterator]?(): IterableIterator<ValueRepresentation>
+  [Symbol.iterator]?(): IterableIterator<ValueRepresentation | PropertyGroup>
 }
 
 type Shallow = CommonRepresentation &

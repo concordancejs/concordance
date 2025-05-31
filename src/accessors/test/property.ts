@@ -332,13 +332,6 @@ test('NamedPropertyGroup - compare returns unequal for non-NamedPropertyGroup', 
   t.is(group.compare(new StringRepresentation('')), unequal)
 })
 
-test('NamedPropertyGroup - serialize returns partial', (t) => {
-  const context = new DescriptionContext()
-  const group = new NamedPropertyGroup(context, [])
-
-  t.is(group.serialize(), partial)
-})
-
 test('NamedPropertyGroup - iterator loads properties from DeserializationContext when deserialized', (t) => {
   // Create properties to test with
   const prop1 = new NamedPropertyAccessor('prop1', new StringRepresentation('value1'))
@@ -507,10 +500,4 @@ test('SymbolPropertyGroup - compare returns unequal for non-SymbolPropertyGroup'
   const group = new SymbolPropertyGroup([])
 
   t.is(group.compare(new StringRepresentation('')), unequal)
-})
-
-test('SymbolPropertyGroup - serialize returns partial', (t) => {
-  const group = new SymbolPropertyGroup([])
-
-  t.is(group.serialize(), partial)
 })

@@ -111,7 +111,7 @@ export class ObjectRepresentation implements CommonRepresentation, DeepFunctiona
     return comparable
   }
 
-  *[Symbol.iterator](): IterableIterator<ValueRepresentation> {
+  *[Symbol.iterator](): IterableIterator<ValueRepresentation | PropertyGroup> {
     yield* this.iterateArrayLike()
     yield* this.iterateProperties()
     yield* this.iterateIterable()
