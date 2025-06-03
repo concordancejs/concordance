@@ -15,6 +15,7 @@ import * as testModuleNamespace from '../values/objects/test/fixtures/module-fix
 import { Decoder } from '../decoder.ts'
 import { DeserializationContext } from '../deserialization-context.ts'
 import type { ValueRepresentation } from '../value.js'
+import { deriveFlags } from '../flags.ts'
 
 // -----------------------------------------------------------------------------
 // Basic Instance and Property Tests
@@ -33,6 +34,13 @@ test('deserialized property returns true', (t) => {
   const context = new DeserializationContext(decoder)
 
   t.true(context.deserialized)
+})
+
+test('flags returns flags', (t) => {
+  const decoder = new Decoder(new Uint8Array([]))
+  const flags = deriveFlags()
+  const context = new DeserializationContext(decoder, { flags })
+  t.deepEqual(context.flags, flags, 'Flags should match the provided flags')
 })
 
 test('next returns undefined for empty buffer', (t) => {

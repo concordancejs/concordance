@@ -31,6 +31,7 @@ import { MapEntryAccessor } from '../accessors/map-entry.ts'
 import { NamedPropertyAccessor } from '../accessors/property.ts'
 import { strictlyEqual } from '../comparison.ts'
 import { BytesAccessor } from '../accessors/bytes.ts'
+import { deriveFlags } from '../flags.ts'
 
 // -----------------------------------------------------------------------------
 // Core functionality
@@ -45,6 +46,12 @@ test('is identifies context instances correctly', (t) => {
 test('deserialized returns false', (t) => {
   const context = new DescriptionContext()
   t.false(context.deserialized)
+})
+
+test('flags returns flags', (t) => {
+  const flags = deriveFlags()
+  const context = new DescriptionContext({ flags })
+  t.deepEqual(context.flags, flags, 'Flags should match the provided flags')
 })
 
 test('represent() returns consistent representations for the same object', (t) => {
