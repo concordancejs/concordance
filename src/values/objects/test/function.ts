@@ -1,6 +1,6 @@
 import { mock } from 'node:test'
 import test from 'ava'
-import { DescriptionContext } from '../../../description-context.ts'
+import { RealValueContext } from '../../../real-value-context.ts'
 import { Encoder } from '../../../encoder.ts'
 import { Decoder } from '../../../decoder.ts'
 import { DeserializationContext } from '../../../deserialization-context.ts'
@@ -28,7 +28,7 @@ const arrowFunction = () => 'arrow'
 
 // Deserialize method test
 test('deserialize creates a comparable FunctionRepresentation', (t) => {
-  const originalContext = new DescriptionContext()
+  const originalContext = new RealValueContext()
   const func = namedFunction
   const original = originalContext.represent(func) as FunctionRepresentation
 
@@ -46,7 +46,7 @@ test('deserialize creates a comparable FunctionRepresentation', (t) => {
 
 // Compare method tests
 test('compare returns strictlyEqual when comparing the same function instance', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const func = namedFunction
 
   const funcRep1 = context.represent(func) as FunctionRepresentation
@@ -56,7 +56,7 @@ test('compare returns strictlyEqual when comparing the same function instance', 
 })
 
 test('compare returns unequal when comparing to non-FunctionRepresentation', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const func = namedFunction
   const object = {}
 
@@ -67,7 +67,7 @@ test('compare returns unequal when comparing to non-FunctionRepresentation', (t)
 })
 
 test('compare returns unequal when comparing different non-deserialized function instances', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Two different function instances that do the same thing
   function func1() {
@@ -86,7 +86,7 @@ test('compare returns unequal when comparing different non-deserialized function
 })
 
 test('compare returns comparable when at least one function is deserialized', (t) => {
-  const originalContext = new DescriptionContext()
+  const originalContext = new RealValueContext()
   const func = namedFunction
   const original = originalContext.represent(func) as FunctionRepresentation
 
@@ -99,7 +99,7 @@ test('compare returns comparable when at least one function is deserialized', (t
   const deserialized = FunctionRepresentation.deserialize(deserializationContext, decoder)
 
   // Create a new representation of the same function
-  const newContext = new DescriptionContext()
+  const newContext = new RealValueContext()
   const sameFunc = namedFunction
   const newRep = newContext.represent(sameFunc) as FunctionRepresentation
 
@@ -109,7 +109,7 @@ test('compare returns comparable when at least one function is deserialized', (t
 
 // IterateArrayLike and iterateIterable tests
 test('iterateArrayLike yields no elements for functions', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const func = namedFunction
   const funcRep = context.represent(func) as FunctionRepresentation
 
@@ -119,7 +119,7 @@ test('iterateArrayLike yields no elements for functions', (t) => {
 })
 
 test('iterateIterable yields no elements for functions', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const func = namedFunction
   const funcRep = context.represent(func) as FunctionRepresentation
 
@@ -130,7 +130,7 @@ test('iterateIterable yields no elements for functions', (t) => {
 
 // IterateProperties test
 test('iterateProperties yields the name property for functions', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const func = namedFunction
   const funcRep = context.represent(func) as FunctionRepresentation
 
@@ -159,7 +159,7 @@ test('iterateProperties yields the name property for functions', (t) => {
 
 // Test different function types (named, anonymous, arrow)
 test('iterateProperties works correctly with different function types', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Named function
   const namedRep = context.represent(namedFunction) as FunctionRepresentation
@@ -215,7 +215,7 @@ test('iterateProperties works correctly with different function types', (t) => {
 
 // Serialization test
 test('serialize uses function static type', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const func = namedFunction
   const funcRep = context.represent(func) as FunctionRepresentation
 
@@ -231,7 +231,7 @@ test('serialize uses function static type', (t) => {
 })
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-function injectNameProperty(context: DescriptionContext, funcRep: FunctionRepresentation, func: Function) {
+function injectNameProperty(context: RealValueContext, funcRep: FunctionRepresentation, func: Function) {
   const { mock: notifyNextExplicitlyNamedPropertyAccess } = mock.method(
     context,
     'notifyNextExplicitlyNamedPropertyAccess',
@@ -254,7 +254,7 @@ function injectNameProperty(context: DescriptionContext, funcRep: FunctionRepres
 
 // Preformat test
 test('preformat performs setup only', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const func = namedFunction
   const funcRep = context.represent(func) as FunctionRepresentation
 
@@ -266,7 +266,7 @@ test('preformat performs setup only', (t) => {
 
 // ShouldFormatNamedProperty test
 test('shouldFormatNamedProperty returns false for name property', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const func = namedFunction
   const funcRep = context.represent(func) as FunctionRepresentation
 
@@ -281,7 +281,7 @@ test('shouldFormatNamedProperty returns false for name property', (t) => {
 
 // FinalFormat tests
 test('finalFormat renders function notation correctly', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const func = namedFunction
   const funcRep = context.represent(func) as FunctionRepresentation
   const formatter = new Formatter(deriveTheme())
@@ -307,7 +307,7 @@ test('finalFormat renders function notation correctly', (t) => {
 })
 
 test('finalFormat includes disambiguation hint when options.disambiguationHint is true', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const func = namedFunction
   const funcRep = context.represent(func) as FunctionRepresentation
   const formatter = new Formatter(deriveTheme())
@@ -330,7 +330,7 @@ test('finalFormat includes disambiguation hint when options.disambiguationHint i
 })
 
 test('finalFormat includes stringTag when present', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Create a local function with the same name
   function namedFunctionWithTag() {
@@ -361,7 +361,7 @@ test('finalFormat includes stringTag when present', (t) => {
 })
 
 test('finalFormat renders with custom constructor name', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const func = namedFunction
   mock.method(context, 'constructorName', () => 'CustomConstructor')
 
@@ -386,7 +386,7 @@ test('finalFormat renders with custom constructor name', (t) => {
 })
 
 test('finalFormat handles empty string tag', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Create a local function with the same name
   function namedFunctionWithEmptyTag() {
@@ -417,7 +417,7 @@ test('finalFormat handles empty string tag', (t) => {
 })
 
 test('finalFormat handles max depth reached', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const func = namedFunction
   const funcRep = context.represent(func) as FunctionRepresentation
 
@@ -442,7 +442,7 @@ test('finalFormat handles max depth reached', (t) => {
 })
 
 test('finalFormat handles non-empty formatter', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const func = namedFunction
   const funcRep = context.represent(func) as FunctionRepresentation
   const formatter = new Formatter(deriveTheme())
@@ -466,7 +466,7 @@ test('finalFormat handles non-empty formatter', (t) => {
 })
 
 test('finalFormat handles undefined constructor name', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const func = namedFunction
   // Mock constructorName to return undefined
   mock.method(context, 'constructorName', () => undefined)
@@ -492,7 +492,7 @@ test('finalFormat handles undefined constructor name', (t) => {
 })
 
 test('finalFormat handles empty constructor name', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const func = namedFunction
   // Mock constructorName to return an empty string
   mock.method(context, 'constructorName', () => '')

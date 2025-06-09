@@ -1,6 +1,6 @@
 /* eslint-disable prefer-rest-params */
 import test from 'ava'
-import { DescriptionContext } from '../../../description-context.ts'
+import { RealValueContext } from '../../../real-value-context.ts'
 import { Encoder } from '../../../encoder.ts'
 import { Decoder } from '../../../decoder.ts'
 import { DeserializationContext } from '../../../deserialization-context.ts'
@@ -25,7 +25,7 @@ function getArgumentsObject(...args: unknown[]) {
 
 // Deserialize method test
 test('deserialize creates an ArgumentsRepresentation from decoder data', (t) => {
-  const originalContext = new DescriptionContext()
+  const originalContext = new RealValueContext()
   const argsObject = getArgumentsObject('a', 'b', 'c')
   const original = originalContext.represent(argsObject) as ArgumentsRepresentation
 
@@ -42,7 +42,7 @@ test('deserialize creates an ArgumentsRepresentation from decoder data', (t) => 
 
 // Compare method tests - focusing on the overridden behavior
 test('compare returns comparable when comparing arguments object to array with same length and elements', (t) => {
-  const context = new DescriptionContext({ flags: { compareArgumentsToArrays: true } })
+  const context = new RealValueContext({ flags: { compareArgumentsToArrays: true } })
   const argsObject = getArgumentsObject('a', 'b', 'c')
   const array = ['a', 'b', 'c']
 
@@ -53,7 +53,7 @@ test('compare returns comparable when comparing arguments object to array with s
 })
 
 test('compare returns unequal when comparing arguments object to array with different length', (t) => {
-  const context = new DescriptionContext({ flags: { compareArgumentsToArrays: true } })
+  const context = new RealValueContext({ flags: { compareArgumentsToArrays: true } })
   const argsObject = getArgumentsObject('a', 'b', 'c')
   const array = ['a', 'b']
 
@@ -65,7 +65,7 @@ test('compare returns unequal when comparing arguments object to array with diff
 
 test('compare returns unequal when comparing arguments object to array with default flags (compareArgumentsToArrays disabled)', (t) => {
   // Use default flags (no explicit configuration provided)
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const argsObject = getArgumentsObject('a', 'b', 'c')
   const array = ['a', 'b', 'c']
 
@@ -78,7 +78,7 @@ test('compare returns unequal when comparing arguments object to array with defa
 
 test('compare returns unequal when comparing arguments object to array with explicitly disabled compareArgumentsToArrays flag', (t) => {
   // Explicitly disable the flag
-  const context = new DescriptionContext({ flags: { compareArgumentsToArrays: false } })
+  const context = new RealValueContext({ flags: { compareArgumentsToArrays: false } })
   const argsObject = getArgumentsObject('a', 'b', 'c')
   const array = ['a', 'b', 'c']
 
@@ -90,7 +90,7 @@ test('compare returns unequal when comparing arguments object to array with expl
 })
 
 test('compare returns unequal when comparing to non-ArgumentsRepresentation and non-ArrayRepresentation', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const argsObject = getArgumentsObject('a', 'b')
   // eslint-disable-next-line @typescript-eslint/naming-convention
   const object = { 0: 'a', 1: 'b', length: 2 } // Array-like but not an actual array
@@ -102,7 +102,7 @@ test('compare returns unequal when comparing to non-ArgumentsRepresentation and 
 })
 
 test('compare returns strictlyEqual when comparing to same instance', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const argsObject = getArgumentsObject('a', 'b')
 
   const argsRep1 = context.represent(argsObject) as ArgumentsRepresentation
@@ -112,7 +112,7 @@ test('compare returns strictlyEqual when comparing to same instance', (t) => {
 })
 
 test('compare returns unequal when comparing different arguments objects with different lengths', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const argsObject1 = getArgumentsObject('a', 'b', 'c')
   const argsObject2 = getArgumentsObject('a', 'b')
 
@@ -123,7 +123,7 @@ test('compare returns unequal when comparing different arguments objects with di
 })
 
 test('compare returns comparable when comparing different arguments objects with same length', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const argsObject1 = getArgumentsObject('a', 'b')
   const argsObject2 = getArgumentsObject('c', 'd') // Different values but same length
 
@@ -135,7 +135,7 @@ test('compare returns comparable when comparing different arguments objects with
 
 // IterateIterable method test - should be a no-op
 test('iterateIterable yields nothing for arguments objects', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const argsObject = getArgumentsObject('a', 'b', 'c')
   const argsRep = context.represent(argsObject) as ArgumentsRepresentation
 
@@ -146,7 +146,7 @@ test('iterateIterable yields nothing for arguments objects', (t) => {
 
 // Serialization test
 test('serialize uses arguments static type', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const argsObject = getArgumentsObject('a', 'b', 'c')
   const argsRep = context.represent(argsObject) as ArgumentsRepresentation
 
@@ -163,7 +163,7 @@ test('serialize uses arguments static type', (t) => {
 
 // FinalFormat tests
 test('finalFormat uses array brackets and no disambiguation hint by default', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const argsObject = getArgumentsObject('a', 'b', 'c')
   const argsRep = context.represent(argsObject) as ArgumentsRepresentation
 
@@ -184,7 +184,7 @@ test('finalFormat uses array brackets and no disambiguation hint by default', (t
 })
 
 test('finalFormat shows disambiguation hint when options.disambiguationHint is true', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const argsObject = getArgumentsObject('a', 'b', 'c')
   const argsRep = context.represent(argsObject) as ArgumentsRepresentation
 

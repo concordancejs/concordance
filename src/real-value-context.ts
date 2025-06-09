@@ -65,8 +65,8 @@ const wellKnownSymbols = new Map<symbol, string>(
     .filter((entry): entry is [symbol, string] => typeof entry[0] === 'symbol'),
 )
 
-export class DescriptionContext implements Context {
-  static is(context: Context): context is DescriptionContext {
+export class RealValueContext implements Context {
+  static is(context: Context): context is RealValueContext {
     return #pointers in context
   }
 

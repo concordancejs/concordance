@@ -1,5 +1,5 @@
 import test from 'ava'
-import { DescriptionContext } from '../../../description-context.ts'
+import { RealValueContext } from '../../../real-value-context.ts'
 import { Encoder } from '../../../encoder.ts'
 import { Decoder } from '../../../decoder.ts'
 import { DeserializationContext } from '../../../deserialization-context.ts'
@@ -13,7 +13,7 @@ import { deriveTheme } from '../../../theme.ts'
 
 // Static methods tests
 test('is method correctly identifies ArrayRepresentation instances', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const array = [1, 2, 3]
   const arrayRep = context.represent(array) as ArrayRepresentation
   const objectRep = context.represent({})
@@ -24,7 +24,7 @@ test('is method correctly identifies ArrayRepresentation instances', (t) => {
 
 // Deserialize method test
 test('deserialize creates a comparable ArrayRepresentation', (t) => {
-  const originalContext = new DescriptionContext()
+  const originalContext = new RealValueContext()
   const array = [1, 2, 3]
   const original = originalContext.represent(array) as ArrayRepresentation
 
@@ -42,7 +42,7 @@ test('deserialize creates a comparable ArrayRepresentation', (t) => {
 
 // Compare method tests
 test('compare returns strictlyEqual when comparing the same array instance', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const array = [1, 2, 3]
 
   const arrayRep1 = context.represent(array) as ArrayRepresentation
@@ -52,7 +52,7 @@ test('compare returns strictlyEqual when comparing the same array instance', (t)
 })
 
 test('compare returns unequal when comparing to non-ArrayRepresentation', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const array = [1, 2, 3]
   const object = {}
 
@@ -63,7 +63,7 @@ test('compare returns unequal when comparing to non-ArrayRepresentation', (t) =>
 })
 
 test('compare returns unequal when comparing arrays with different lengths', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const array1 = [1, 2, 3]
   const array2 = [1, 2, 3, 4]
 
@@ -74,7 +74,7 @@ test('compare returns unequal when comparing arrays with different lengths', (t)
 })
 
 test('compare returns comparable when comparing different array instances with same content', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const array1 = [1, 2, 3]
   const array2 = [1, 2, 3]
 
@@ -87,7 +87,7 @@ test('compare returns comparable when comparing different array instances with s
 
 // Length property test
 test('length property returns correct array length', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const array = [1, 2, 3]
   const emptyArray: any[] = []
 
@@ -100,7 +100,7 @@ test('length property returns correct array length', (t) => {
 
 // IterateArrayLike tests
 test('iterateArrayLike yields elements for dense arrays', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const array = [1, 2, 3]
   const arrayRep = context.represent(array) as ArrayRepresentation
 
@@ -113,7 +113,7 @@ test('iterateArrayLike yields elements for dense arrays', (t) => {
 })
 
 test('iterateArrayLike handles sparse arrays', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   // Create a sparse array with holes
   const sparseArray: any[] = []
   sparseArray[0] = 1
@@ -147,7 +147,7 @@ test('iterateArrayLike handles sparse arrays', (t) => {
 
 // IterateIterable test
 test('iterateIterable yields no elements for arrays', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const array = [1, 2, 3]
   const arrayRep = context.represent(array) as ArrayRepresentation
 
@@ -158,7 +158,7 @@ test('iterateIterable yields no elements for arrays', (t) => {
 
 // Serialization test
 test('serialize uses array static type', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const array = [1, 2, 3]
   const arrayRep = context.represent(array) as ArrayRepresentation
 
@@ -174,7 +174,7 @@ test('serialize uses array static type', (t) => {
 })
 
 test('serializing and deserializing an array preserves its structure', (t) => {
-  const originalContext = new DescriptionContext()
+  const originalContext = new RealValueContext()
   const array = [1, null, 'string', true, { key: 'value' }]
   const original = originalContext.represent(array) as ArrayRepresentation
 
@@ -195,7 +195,7 @@ test('serializing and deserializing an array preserves its structure', (t) => {
 
 // FinalFormat tests
 test('finalFormat uses array brackets and no disambiguation hint by default', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const array = [1, 2, 3]
   const arrayRep = context.represent(array) as ArrayRepresentation
 
@@ -216,7 +216,7 @@ test('finalFormat uses array brackets and no disambiguation hint by default', (t
 })
 
 test('finalFormat shows disambiguation hint when options.disambiguationHint is true', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const array = [1, 2, 3]
   const arrayRep = context.represent(array) as ArrayRepresentation
 

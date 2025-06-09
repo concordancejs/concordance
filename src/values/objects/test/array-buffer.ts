@@ -1,5 +1,5 @@
 import test from 'ava'
-import { DescriptionContext } from '../../../description-context.ts'
+import { RealValueContext } from '../../../real-value-context.ts'
 import { Encoder } from '../../../encoder.ts'
 import { Decoder } from '../../../decoder.ts'
 import { DeserializationContext } from '../../../deserialization-context.ts'
@@ -15,7 +15,7 @@ import { deriveTheme } from '../../../theme.ts'
 
 // Deserialize method test
 test('deserialize creates a comparable ArrayBufferRepresentation', (t) => {
-  const originalContext = new DescriptionContext()
+  const originalContext = new RealValueContext()
   const buffer = new ArrayBuffer(4)
   new Uint8Array(buffer).set([1, 2, 3, 4])
   const original = originalContext.represent(buffer) as ArrayBufferRepresentation
@@ -34,7 +34,7 @@ test('deserialize creates a comparable ArrayBufferRepresentation', (t) => {
 
 // Compare method tests
 test('compare returns strictlyEqual when comparing the same array buffer instance', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const buffer = new ArrayBuffer(4)
 
   const bufferRep1 = context.represent(buffer) as ArrayBufferRepresentation
@@ -44,7 +44,7 @@ test('compare returns strictlyEqual when comparing the same array buffer instanc
 })
 
 test('compare returns unequal when comparing to non-ArrayBufferRepresentation', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const buffer = new ArrayBuffer(4)
   const object = {}
 
@@ -55,7 +55,7 @@ test('compare returns unequal when comparing to non-ArrayBufferRepresentation', 
 })
 
 test('compare returns unequal when comparing array buffers with different content', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const buffer1 = new ArrayBuffer(4)
   new Uint8Array(buffer1).set([1, 2, 3, 4])
   const buffer2 = new ArrayBuffer(4)
@@ -68,7 +68,7 @@ test('compare returns unequal when comparing array buffers with different conten
 })
 
 test('compare returns comparable when comparing different array buffer instances with same content', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const buffer1 = new ArrayBuffer(4)
   new Uint8Array(buffer1).set([1, 2, 3, 4])
   const buffer2 = new ArrayBuffer(4)
@@ -82,7 +82,7 @@ test('compare returns comparable when comparing different array buffer instances
 })
 
 test('compare returns unequal when comparing array buffer to array buffer view', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const buffer = new ArrayBuffer(4)
   new Uint8Array(buffer).set([1, 2, 3, 4])
   const view = new Uint8Array(buffer)
@@ -94,7 +94,7 @@ test('compare returns unequal when comparing array buffer to array buffer view',
 })
 
 test('compare correctly handles empty array buffers', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const emptyBuffer1 = new ArrayBuffer(0)
   const emptyBuffer2 = new ArrayBuffer(0)
   const nonEmptyBuffer = new ArrayBuffer(1)
@@ -123,7 +123,7 @@ test('compare correctly handles empty array buffers', (t) => {
 
 // IterateArrayLike and iterateIterable tests
 test('iterateArrayLike yields no elements for array buffers', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const buffer = new ArrayBuffer(4)
   const bufferRep = context.represent(buffer) as ArrayBufferRepresentation
 
@@ -133,7 +133,7 @@ test('iterateArrayLike yields no elements for array buffers', (t) => {
 })
 
 test('iterateIterable yields no elements for array buffers', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const buffer = new ArrayBuffer(4)
   const bufferRep = context.represent(buffer) as ArrayBufferRepresentation
 
@@ -144,7 +144,7 @@ test('iterateIterable yields no elements for array buffers', (t) => {
 
 // IterateProperties test
 test('iterateProperties yields properties for ArrayBuffer instances', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const buffer = new ArrayBuffer(4)
   const bufferRep = context.represent(buffer) as ArrayBufferRepresentation
 
@@ -180,7 +180,7 @@ test('iterateProperties yields properties for ArrayBuffer instances', (t) => {
 })
 
 test('iterateProperties yields properties for SharedArrayBuffer instances', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const buffer = new SharedArrayBuffer(4)
   const bufferRep = context.represent(buffer) as ArrayBufferRepresentation
 
@@ -217,7 +217,7 @@ test('iterateProperties yields properties for SharedArrayBuffer instances', (t) 
 
 // Serialization tests
 test('serialize uses arrayBuffer static type and includes bytes annotation', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const buffer = new ArrayBuffer(4)
   const bytes = new Uint8Array(buffer)
   bytes.set([0xde, 0xad, 0xbe, 0xef])
@@ -238,7 +238,7 @@ test('serialize uses arrayBuffer static type and includes bytes annotation', (t)
 
 // Formatter tests
 test('preformat appends formatted bytes', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const view = new Uint8Array([0xde, 0xad, 0xbe, 0xef])
   const bufferRep = context.represent(view.buffer) as ArrayBufferRepresentation
 
@@ -251,7 +251,7 @@ test('preformat appends formatted bytes', (t) => {
 })
 
 test('finalFormat uses array brackets and no disambiguation hint by default', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const view = new Uint8Array([0xde, 0xad, 0xbe, 0xef])
   const bufferRep = context.represent(view.buffer) as ArrayBufferRepresentation
 
@@ -272,7 +272,7 @@ test('finalFormat uses array brackets and no disambiguation hint by default', (t
 })
 
 test('finalFormat shows disambiguation hint when options.disambiguationHint is true', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const view = new Uint8Array([0xde, 0xad, 0xbe, 0xef])
   const bufferRep = context.represent(view.buffer) as ArrayBufferRepresentation
 
@@ -293,7 +293,7 @@ test('finalFormat shows disambiguation hint when options.disambiguationHint is t
 })
 
 test('integration of preformat and finalFormat produces correct output', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const view = new Uint8Array([0xde, 0xad, 0xbe, 0xef])
   const bufferRep = context.represent(view.buffer) as ArrayBufferRepresentation
 
@@ -314,7 +314,7 @@ test('integration of preformat and finalFormat produces correct output', (t) => 
 })
 
 test('preformat followed by finalFormat handles different buffer types correctly', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const shared = new SharedArrayBuffer(4)
   const uint8 = new Uint8Array(shared)
   uint8.set([0xde, 0xad, 0xbe, 0xef])

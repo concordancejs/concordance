@@ -2,13 +2,13 @@ import { Buffer } from 'node:buffer'
 import test from 'ava'
 import { UnsupportedVersion, deserialize } from '../deserialize.ts'
 import { serialize } from '../serialize.ts'
-import { describe } from '../describe.ts'
-import { compareDescriptors } from '../compare.ts'
+import { representValue } from '../represent.ts'
+import { compareRepresentations } from '../compare.ts'
 import { version } from '../serialization-types.ts'
 
 test('deserialize throws for incorrect version', (t) => {
   // Create a byte array with wrong version
-  const wrongVersionBuffer = new Uint8Array([3, ...serialize(describe(42)).slice(1)])
+  const wrongVersionBuffer = new Uint8Array([3, ...serialize(representValue(42)).slice(1)])
 
   const error = t.throws(() => deserialize(wrongVersionBuffer), {
     instanceOf: UnsupportedVersion,
@@ -17,7 +17,7 @@ test('deserialize throws for incorrect version', (t) => {
   t.is(error?.serializerVersion, 3)
 
   // Create a byte array where the first byte is not a CBOR integer
-  const invalidBuffer = new Uint8Array([0xff, ...serialize(describe(42)).slice(1)])
+  const invalidBuffer = new Uint8Array([0xff, ...serialize(representValue(42)).slice(1)])
   const error2 = t.throws(() => deserialize(invalidBuffer), {
     instanceOf: UnsupportedVersion,
     name: 'UnsupportedVersion',
@@ -42,17 +42,17 @@ test('deserialize throws when no value is deserialized', (t) => {
 const serde = test.macro({
   title: (desc, value) => `deserialized ${(desc ?? '') || String(value)} is equivalent to the original`,
   exec(t, value: unknown) {
-    const original = describe(value)
+    const original = representValue(value)
     const serialized = serialize(original)
     const deserialized = deserialize(serialized)
-    t.true(compareDescriptors(deserialized, original), 'the deserialized descriptor equals the original')
+    t.true(compareRepresentations(deserialized, original), 'the deserialized representation equals the original')
 
     const redeserialized = deserialize(serialize(deserialized))
     t.true(
-      compareDescriptors(redeserialized, original),
-      'after serializing and deserializing it again, the deserialized descriptor equals the original',
+      compareRepresentations(redeserialized, original),
+      'after serializing and deserializing it again, the deserialized representation equals the original',
     )
-    t.true(compareDescriptors(redeserialized, deserialized), 'deserialized descriptors equal each other')
+    t.true(compareRepresentations(redeserialized, deserialized), 'deserialized representations equal each other')
   },
 })
 
@@ -121,10 +121,10 @@ test('object with pointer to itself', (t) => {
   const object: Record<string, unknown> = {}
   object['self'] = object
 
-  const serialized = serialize(describe(object))
+  const serialized = serialize(representValue(object))
   const deserialized = deserialize(serialized)
 
-  t.true(compareDescriptors(deserialized, describe(object)))
+  t.true(compareRepresentations(deserialized, representValue(object)))
 })
 
 // Test binary data
@@ -142,11 +142,11 @@ test('binary data types are preserved', (t) => {
   ]
 
   for (const [name, value] of testCases) {
-    const serialized = serialize(describe(value))
+    const serialized = serialize(representValue(value))
     const deserialized = deserialize(serialized)
 
     t.true(
-      compareDescriptors(deserialized, describe(value)),
+      compareRepresentations(deserialized, representValue(value)),
       `${name} should be preserved during serialization/deserialization`,
     )
   }
@@ -156,11 +156,11 @@ test('binary data types are preserved', (t) => {
 test('symbol properties are reordered despite serialization', (t) => {
   const s1 = Symbol('s1')
   const s2 = Symbol('s2')
-  const original = describe({ [s1]: 1, [s2]: 2 })
-  const expected = describe({ [s2]: 2, [s1]: 1 })
+  const original = representValue({ [s1]: 1, [s2]: 2 })
+  const expected = representValue({ [s2]: 2, [s1]: 1 })
 
-  t.true(compareDescriptors(deserialize(serialize(original)), expected))
-  t.true(compareDescriptors(deserialize(serialize(original)), deserialize(serialize(expected))))
+  t.true(compareRepresentations(deserialize(serialize(original)), expected))
+  t.true(compareRepresentations(deserialize(serialize(original)), deserialize(serialize(expected))))
 })
 
 // Test function representation

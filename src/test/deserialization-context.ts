@@ -4,8 +4,8 @@ import test, { type AssertionError, type ExecutionContext, type ThrowsExpectatio
 import { staticTypeTable, type StaticType } from '../serialization-types.ts'
 import { Encoder } from '../encoder.ts'
 import { serialize } from '../serialize.ts'
-import { describe } from '../describe.ts'
-import { DescriptionContext } from '../description-context.ts'
+import { representValue } from '../represent.ts'
+import { RealValueContext } from '../real-value-context.ts'
 import { ElementAccessor, SparseValueRepresentation } from '../accessors/element.ts'
 import { IteratorValueAccessor } from '../accessors/iterator-value.ts'
 import { NamedPropertyAccessor, type NamedPropertyGroup, SymbolPropertyAccessor } from '../accessors/property.ts'
@@ -245,7 +245,7 @@ const iteration = test.macro<[IterationMethod, IterationOptions, IterationAssert
   exec(t, method, options, assert) {
     let bytes
     if ('value' in options) {
-      bytes = serialize(describe(options.value)).slice(1)
+      bytes = serialize(representValue(options.value)).slice(1)
     } else {
       // Set up encoder with test data
       const encoder = new Encoder()
@@ -338,11 +338,11 @@ test(
     expectedCount: 3,
   },
   (t, elements) => {
-    // Create expected element accessors using the describe function
+    // Create expected element accessors
     const expectedElements = [
-      new ElementAccessor(0, describe(1)),
-      new ElementAccessor(1, describe(2)),
-      new ElementAccessor(2, describe(3)),
+      new ElementAccessor(0, representValue(1)),
+      new ElementAccessor(1, representValue(2)),
+      new ElementAccessor(2, representValue(3)),
     ]
 
     for (const element of elements) {
@@ -551,9 +551,9 @@ test(
   (t, properties) => {
     // Create expected properties for comparison
     const expectedProperties = [
-      new NamedPropertyAccessor('a', describe(1)),
-      new NamedPropertyAccessor('b', describe(2)),
-      new NamedPropertyAccessor('c', describe(3)),
+      new NamedPropertyAccessor('a', representValue(1)),
+      new NamedPropertyAccessor('b', representValue(2)),
+      new NamedPropertyAccessor('c', representValue(3)),
     ]
 
     for (const [i, property] of properties.entries()) {
@@ -593,7 +593,7 @@ test(
 
 test('namedProperties returns cached NamedPropertyGroup instance on subsequent calls', (t) => {
   const object = { a: 1, b: 2 }
-  const serialized = serialize(describe(object))
+  const serialized = serialize(representValue(object))
   const decoder = new Decoder(serialized.slice(1))
   const context = new DeserializationContext(decoder)
 
@@ -894,20 +894,20 @@ test('throws when property name is not a string', iteration, 'namedProperties', 
       expectedCount: 2,
     },
     (t, properties) => {
-      // Create a description context for the expected accessors
-      const descriptionContext = new DescriptionContext()
+      // Create a context for the expected accessors
+      const valueContext = new RealValueContext()
 
       // Create expected properties for comparison - using the proper constructor signature
       const expectedProperties = [
         new SymbolPropertyAccessor(
-          descriptionContext,
-          describe(sym1) as SymbolRepresentation,
-          describe('symbol value 1'),
+          valueContext,
+          representValue(sym1) as SymbolRepresentation,
+          representValue('symbol value 1'),
         ),
         new SymbolPropertyAccessor(
-          descriptionContext,
-          describe(sym2) as SymbolRepresentation,
-          describe('symbol value 2'),
+          valueContext,
+          representValue(sym2) as SymbolRepresentation,
+          representValue('symbol value 2'),
         ),
       ]
 
@@ -1169,12 +1169,12 @@ test(
   },
   (t, entries) => {
     // Create a context for creating new accessors
-    const descriptionContext = new DescriptionContext()
+    const context = new RealValueContext()
 
     // Create expected entries
     const expectedEntries = [
-      new MapEntryAccessor(descriptionContext, describe('key1'), describe('value1')),
-      new MapEntryAccessor(descriptionContext, describe('key2'), describe('value2')),
+      new MapEntryAccessor(context, representValue('key1'), representValue('value1')),
+      new MapEntryAccessor(context, representValue('key2'), representValue('value2')),
     ]
 
     for (const [i, entry] of entries.entries()) {
@@ -1393,8 +1393,8 @@ test(
   (t, values) => {
     // Create expected accessors
     const expectedValues = [
-      new IteratorValueAccessor(0, describe('value1')),
-      new IteratorValueAccessor(1, describe('value2')),
+      new IteratorValueAccessor(0, representValue('value1')),
+      new IteratorValueAccessor(1, representValue('value2')),
     ]
 
     for (const [i, value] of values.entries()) {
@@ -1591,7 +1591,7 @@ const typeDeserializationMacro = test.macro<[string, unknown, Comparison]>({
   },
   exec(t, _, value, expectedEquality) {
     // Create the original representation
-    const originalContext = new DescriptionContext()
+    const originalContext = new RealValueContext()
     const original = originalContext.represent(value)
 
     // Serialize it
@@ -1717,7 +1717,7 @@ test('DeserializationContext correctly deserializes crypto key', async (t) => {
   )
 
   // Now use the same pattern as in the macro
-  const originalContext = new DescriptionContext()
+  const originalContext = new RealValueContext()
   const original = originalContext.represent(cryptoKey)
 
   const encoder = new Encoder()
@@ -1741,7 +1741,7 @@ test('DeserializationContext correctly deserializes external value', async (t) =
   const externalValue = refNapi.default.instance
 
   // Now proceed with the same pattern as the macro
-  const originalContext = new DescriptionContext()
+  const originalContext = new RealValueContext()
   const original = originalContext.represent(externalValue)
 
   const encoder = new Encoder()
@@ -1764,7 +1764,7 @@ test('DeserializationContext correctly deserializes external value', async (t) =
 // -----------------------------------------------------------------------------
 
 test('notifyNextExplicitlyNamedPropertyAccess - basic functionality and argument validation', (t) => {
-  const serialized = serialize(describe({ name: 'test', value: 42 }))
+  const serialized = serialize(representValue({ name: 'test', value: 42 }))
   const decoder = new Decoder(serialized.slice(1)) // Skip the initial byte
   const context = new DeserializationContext(decoder)
   const representation = context.next()!
@@ -1790,7 +1790,7 @@ test('notifyNextExplicitlyNamedPropertyAccess - basic functionality and argument
 })
 
 test('notifyNextExplicitlyNamedPropertyAccess - non-existent properties', (t) => {
-  const nonExistentSerialized = serialize(describe({ existing: true }))
+  const nonExistentSerialized = serialize(representValue({ existing: true }))
   const nonExistentDecoder = new Decoder(nonExistentSerialized.slice(1))
   const nonExistentContext = new DeserializationContext(nonExistentDecoder)
   const nonExistentRepresentation = nonExistentContext.next()!
@@ -1809,7 +1809,7 @@ test('notifyNextExplicitlyNamedPropertyAccess - non-existent properties', (t) =>
 })
 
 test('notifyNextExplicitlyNamedPropertyAccess - duplicate registration', (t) => {
-  const serialized = serialize(describe({ key: 'value', count: 123, extra: true }))
+  const serialized = serialize(representValue({ key: 'value', count: 123, extra: true }))
   const decoder = new Decoder(serialized.slice(1)) // Skip the initial byte
   const context = new DeserializationContext(decoder)
   const representation = context.next()!
@@ -1844,7 +1844,7 @@ test('notifyNextExplicitlyNamedPropertyAccess - duplicate registration', (t) => 
 })
 
 test('notifyNextExplicitlyNamedPropertyAccess - callback invocation tracking', (t) => {
-  const trackingSerialized = serialize(describe({ prop1: 'value1', prop2: 'value2' }))
+  const trackingSerialized = serialize(representValue({ prop1: 'value1', prop2: 'value2' }))
   const trackingDecoder = new Decoder(trackingSerialized.slice(1))
   const trackingContext = new DeserializationContext(trackingDecoder)
   const trackingRepresentation = trackingContext.next()!
@@ -1869,7 +1869,7 @@ test('notifyNextExplicitlyNamedPropertyAccess - callback invocation tracking', (
 })
 
 test('resetPropertyAccessNotifiers - cleanup and re-registration', (t) => {
-  const serialized = serialize(describe({ name: 'test', value: 42 }))
+  const serialized = serialize(representValue({ name: 'test', value: 42 }))
   const decoder = new Decoder(serialized.slice(1)) // Skip the initial byte
   const context = new DeserializationContext(decoder)
   const representation = context.next()!

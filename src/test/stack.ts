@@ -1,9 +1,9 @@
 import test from 'ava'
 import { Stack } from '../stack.ts'
 import { ObjectRepresentation } from '../values/objects/object.ts'
-import { DescriptionContext } from '../description-context.ts'
+import { RealValueContext } from '../real-value-context.ts'
 
-const representation = new ObjectRepresentation(new DescriptionContext(), {})
+const representation = new ObjectRepresentation(new RealValueContext(), {})
 
 test('initializes empty', (t) => {
   const stack = new Stack()
@@ -46,17 +46,17 @@ test('includes tests whether representation is in the stack', (t) => {
   const stack = new Stack()
   stack.push(representation)
   t.true(stack.includes(representation))
-  t.false(stack.includes(new ObjectRepresentation(new DescriptionContext(), {})))
+  t.false(stack.includes(new ObjectRepresentation(new RealValueContext(), {})))
 })
 
 test('indexOf returns correct index for representations in the stack', (t) => {
   const stack = new Stack()
   stack.push(representation)
-  const second = new ObjectRepresentation(new DescriptionContext(), {})
+  const second = new ObjectRepresentation(new RealValueContext(), {})
   stack.push(second)
   t.is(stack.indexOf(representation), 1)
   t.is(stack.indexOf(second), 2)
-  t.is(stack.indexOf(new ObjectRepresentation(new DescriptionContext(), {})), -1)
+  t.is(stack.indexOf(new ObjectRepresentation(new RealValueContext(), {})), -1)
 })
 
 test('pop removes representation', (t) => {
@@ -71,7 +71,7 @@ test('iterateNext returns next value from iterator', (t) => {
   const stack = new Stack()
   const arrayLike = { 0: 'foo', 1: 'bar' } // eslint-disable-line @typescript-eslint/naming-convention
   Object.defineProperty(arrayLike, 'length', { value: 2, enumerable: false })
-  stack.push(new ObjectRepresentation(new DescriptionContext(), arrayLike))
+  stack.push(new ObjectRepresentation(new RealValueContext(), arrayLike))
 
   const next1 = stack.iterateNext()
   if (next1.done) {

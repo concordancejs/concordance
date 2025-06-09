@@ -1,5 +1,5 @@
 import test from 'ava'
-import { DescriptionContext } from '../../../description-context.ts'
+import { RealValueContext } from '../../../real-value-context.ts'
 import { Encoder } from '../../../encoder.ts'
 import { Decoder } from '../../../decoder.ts'
 import { DeserializationContext } from '../../../deserialization-context.ts'
@@ -16,7 +16,7 @@ const externalValue = refNapi.default.instance
 
 // Deserialize method test
 test('deserialize creates a working ExternalRepresentation', (t) => {
-  const originalContext = new DescriptionContext()
+  const originalContext = new RealValueContext()
   const original = originalContext.represent(externalValue) as ExternalRepresentation
 
   const encoder = new Encoder()
@@ -33,7 +33,7 @@ test('deserialize creates a working ExternalRepresentation', (t) => {
 
 // Compare method tests
 test('compare returns strictlyEqual when comparing the same external value instance', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   const rep1 = context.represent(externalValue) as ExternalRepresentation
   const rep2 = context.represent(externalValue) as ExternalRepresentation
@@ -42,7 +42,7 @@ test('compare returns strictlyEqual when comparing the same external value insta
 })
 
 test('compare returns unequal when comparing to non-ExternalRepresentation', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const regularObject = {}
 
   const externalRep = context.represent(externalValue) as ExternalRepresentation
@@ -52,7 +52,7 @@ test('compare returns unequal when comparing to non-ExternalRepresentation', (t)
 })
 
 test('compare returns unequal when comparing different external values', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Create two different external representations
   const rep1 = context.represent(externalValue) as ExternalRepresentation
@@ -66,8 +66,8 @@ test('compare returns unequal when comparing different external values', (t) => 
 })
 
 test('compare returns possiblyEqual when either context is deserialized', (t) => {
-  // Create two contexts - one for original descriptions, one for deserialization
-  const originalContext = new DescriptionContext()
+  // Create two contexts - one for real value, one for deserialization
+  const originalContext = new RealValueContext()
 
   // Create original representation
   const original = originalContext.represent(externalValue) as ExternalRepresentation
@@ -98,7 +98,7 @@ test('compare returns possiblyEqual when either context is deserialized', (t) =>
 
 // Formatting tests
 test('formatShallow applies the correct theme for external values', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const externalRep = context.represent(externalValue) as ExternalRepresentation
 
   const formatter = new Formatter(deriveTheme())
@@ -111,7 +111,7 @@ test('formatShallow applies the correct theme for external values', (t) => {
 
 // Serialization tests
 test('serializeShallow uses the external static type', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const externalRep = context.represent(externalValue) as ExternalRepresentation
 
   const encoder = new Encoder()

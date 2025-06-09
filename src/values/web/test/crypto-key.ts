@@ -1,5 +1,5 @@
 import test from 'ava'
-import { DescriptionContext } from '../../../description-context.ts'
+import { RealValueContext } from '../../../real-value-context.ts'
 import { Encoder } from '../../../encoder.ts'
 import { Decoder } from '../../../decoder.ts'
 import { DeserializationContext } from '../../../deserialization-context.ts'
@@ -27,7 +27,7 @@ async function generateCryptoKey() {
 
 // Deserialize method test
 test('deserialize creates a comparable CryptoKeyRepresentation', async (t) => {
-  const originalContext = new DescriptionContext()
+  const originalContext = new RealValueContext()
   const cryptoKey = await generateCryptoKey()
   const original = originalContext.represent(cryptoKey) as CryptoKeyRepresentation
 
@@ -45,7 +45,7 @@ test('deserialize creates a comparable CryptoKeyRepresentation', async (t) => {
 
 // Compare method tests
 test('compare returns possiblyEqual when comparing the same cryptoKey instance', async (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const cryptoKey = await generateCryptoKey()
 
   const cryptoKeyRep1 = context.represent(cryptoKey) as CryptoKeyRepresentation
@@ -57,7 +57,7 @@ test('compare returns possiblyEqual when comparing the same cryptoKey instance',
 })
 
 test('compare returns unequal when comparing to non-CryptoKeyRepresentation', async (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const cryptoKey = await generateCryptoKey()
   const object = {}
 
@@ -68,7 +68,7 @@ test('compare returns unequal when comparing to non-CryptoKeyRepresentation', as
 })
 
 test('compare returns possiblyEqual when comparing different cryptoKey instances with same properties', async (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Generate two different keys with same algorithm
   const cryptoKey1 = await generateCryptoKey()
@@ -84,7 +84,7 @@ test('compare returns possiblyEqual when comparing different cryptoKey instances
 
 // IterateProperties test
 test('iterateProperties yields type, extractable, algorithm, and usages properties', async (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const cryptoKey = await generateCryptoKey()
   const cryptoKeyRep = context.represent(cryptoKey) as CryptoKeyRepresentation
 
@@ -135,7 +135,7 @@ test('iterateProperties yields type, extractable, algorithm, and usages properti
 
 // Serialization test
 test('serialize uses cryptoKey static type', async (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const cryptoKey = await generateCryptoKey()
   const cryptoKeyRep = context.represent(cryptoKey) as CryptoKeyRepresentation
 
@@ -151,7 +151,7 @@ test('serialize uses cryptoKey static type', async (t) => {
 })
 
 test('serializing and deserializing a CryptoKey preserves its structure', async (t) => {
-  const originalContext = new DescriptionContext()
+  const originalContext = new RealValueContext()
   const cryptoKey = await generateCryptoKey()
   const original = originalContext.represent(cryptoKey) as CryptoKeyRepresentation
 
@@ -169,7 +169,7 @@ test('serializing and deserializing a CryptoKey preserves its structure', async 
 
 // FinalFormat tests
 test('finalFormat uses object brackets by default', async (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const cryptoKey = await generateCryptoKey()
   const cryptoKeyRep = context.represent(cryptoKey) as CryptoKeyRepresentation
 
@@ -191,7 +191,7 @@ test('finalFormat uses object brackets by default', async (t) => {
 })
 
 test('finalFormat shows disambiguation hint when options.disambiguationHint is true', async (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const cryptoKey = await generateCryptoKey()
   const cryptoKeyRep = context.represent(cryptoKey) as CryptoKeyRepresentation
 

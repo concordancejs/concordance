@@ -1,5 +1,5 @@
 import test from 'ava'
-import { DescriptionContext } from '../../../description-context.ts'
+import { RealValueContext } from '../../../real-value-context.ts'
 import { Encoder } from '../../../encoder.ts'
 import { Decoder } from '../../../decoder.ts'
 import { DeserializationContext } from '../../../deserialization-context.ts'
@@ -14,7 +14,7 @@ import * as moduleNamespace from './fixtures/module-fixture.ts'
 
 // Deserialize method test
 test('deserialize creates a comparable ModuleNamespaceObjectRepresentation', (t) => {
-  const originalContext = new DescriptionContext()
+  const originalContext = new RealValueContext()
   const original = originalContext.represent(moduleNamespace) as ModuleNamespaceObjectRepresentation
 
   const encoder = new Encoder()
@@ -31,7 +31,7 @@ test('deserialize creates a comparable ModuleNamespaceObjectRepresentation', (t)
 
 // Compare method tests
 test('compare returns strictlyEqual when comparing the same module namespace object instance', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   const moduleRep1 = context.represent(moduleNamespace) as ModuleNamespaceObjectRepresentation
   const moduleRep2 = context.represent(moduleNamespace) as ModuleNamespaceObjectRepresentation
@@ -40,7 +40,7 @@ test('compare returns strictlyEqual when comparing the same module namespace obj
 })
 
 test('compare returns unequal when comparing to non-ModuleNamespaceObjectRepresentation', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const object = {}
 
   const moduleRep = context.represent(moduleNamespace) as ModuleNamespaceObjectRepresentation
@@ -51,7 +51,7 @@ test('compare returns unequal when comparing to non-ModuleNamespaceObjectReprese
 
 // Module namespace objects from the same module are identical
 test('compare returns strictlyEqual when importing the same module multiple times', async (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Import the same module twice - they'll actually be the same object
   const { default: getDuplicateNamespace } = await import('./fixtures/get-duplicate-namespace.ts')
@@ -69,7 +69,7 @@ test('compare returns strictlyEqual when importing the same module multiple time
 
 // Test comparing different module namespace objects
 test('compare returns unequal when comparing different module namespace objects', async (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Import a different module
   const differentModuleNamespace = await import('./fixtures/different-module-fixture.ts')
@@ -83,7 +83,7 @@ test('compare returns unequal when comparing different module namespace objects'
 
 // Serialization test
 test('serialize uses moduleNamespaceObject static type', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const moduleRep = context.represent(moduleNamespace) as ModuleNamespaceObjectRepresentation
 
   const encoder = new Encoder()
@@ -98,7 +98,7 @@ test('serialize uses moduleNamespaceObject static type', (t) => {
 })
 
 test('serializing and deserializing a module namespace object preserves its structure', (t) => {
-  const originalContext = new DescriptionContext()
+  const originalContext = new RealValueContext()
   const original = originalContext.represent(moduleNamespace) as ModuleNamespaceObjectRepresentation
 
   // Serialize and deserialize the original module namespace object
@@ -116,7 +116,7 @@ test('serializing and deserializing a module namespace object preserves its stru
 
 // FinalFormat tests
 test('finalFormat uses object brackets and includes disambiguation hint', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const moduleRep = context.represent(moduleNamespace) as ModuleNamespaceObjectRepresentation
 
   const formatter = new Formatter(deriveTheme())
@@ -136,7 +136,7 @@ test('finalFormat uses object brackets and includes disambiguation hint', (t) =>
 })
 
 test('finalFormat works with non-empty formatter', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const moduleRep = context.represent(moduleNamespace) as ModuleNamespaceObjectRepresentation
 
   const formatter = new Formatter(deriveTheme())
@@ -157,7 +157,7 @@ test('finalFormat works with non-empty formatter', (t) => {
 })
 
 test('finalFormat handles maxDepthReached', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const moduleRep = context.represent(moduleNamespace) as ModuleNamespaceObjectRepresentation
 
   // Create a formatter with maxDepth already reached
@@ -177,7 +177,7 @@ test('finalFormat handles maxDepthReached', (t) => {
 })
 
 test('finalFormat handles maxDepthReached with non-empty formatter', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const moduleRep = context.represent(moduleNamespace) as ModuleNamespaceObjectRepresentation
 
   // Create formatter with max depth already reached and content

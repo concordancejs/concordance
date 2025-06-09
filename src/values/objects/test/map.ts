@@ -1,5 +1,5 @@
 import test from 'ava'
-import { DescriptionContext } from '../../../description-context.ts'
+import { RealValueContext } from '../../../real-value-context.ts'
 import { Encoder } from '../../../encoder.ts'
 import { Decoder } from '../../../decoder.ts'
 import { DeserializationContext } from '../../../deserialization-context.ts'
@@ -13,7 +13,7 @@ import { deriveTheme } from '../../../theme.ts'
 
 // Deserialize method test
 test('deserialize creates a comparable MapRepresentation', (t) => {
-  const originalContext = new DescriptionContext()
+  const originalContext = new RealValueContext()
   const map = new Map([
     ['key1', 'value1'],
     ['key2', 'value2'],
@@ -34,7 +34,7 @@ test('deserialize creates a comparable MapRepresentation', (t) => {
 
 // Compare method tests
 test('compare returns strictlyEqual when comparing the same map instance', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const map = new Map([
     ['key1', 'value1'],
     ['key2', 'value2'],
@@ -47,7 +47,7 @@ test('compare returns strictlyEqual when comparing the same map instance', (t) =
 })
 
 test('compare returns unequal when comparing to non-MapRepresentation', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const map = new Map([
     ['key1', 'value1'],
     ['key2', 'value2'],
@@ -61,7 +61,7 @@ test('compare returns unequal when comparing to non-MapRepresentation', (t) => {
 })
 
 test('compare returns unequal when comparing maps of different sizes', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const map1 = new Map([
     ['key1', 'value1'],
     ['key2', 'value2'],
@@ -75,7 +75,7 @@ test('compare returns unequal when comparing maps of different sizes', (t) => {
 })
 
 test('compare returns comparable when comparing different map instances with same entries', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const map1 = new Map([
     ['key1', 'value1'],
     ['key2', 'value2'],
@@ -93,7 +93,7 @@ test('compare returns comparable when comparing different map instances with sam
 })
 
 test('compare returns comparable when comparing maps with same keys but different values', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const map1 = new Map([
     ['key1', 'value1'],
     ['key2', 'value2'],
@@ -111,7 +111,7 @@ test('compare returns comparable when comparing maps with same keys but differen
 })
 
 test('compare returns comparable when comparing maps with different keys', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const map1 = new Map([
     ['key1', 'value1'],
     ['key2', 'value2'],
@@ -129,7 +129,7 @@ test('compare returns comparable when comparing maps with different keys', (t) =
 })
 
 test('compare handles maps with complex keys and values', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Create maps with objects and arrays as keys and values
   const key1 = { id: 1 }
@@ -157,7 +157,7 @@ test('compare handles maps with complex keys and values', (t) => {
 
 // IterateArrayLike test
 test('iterateArrayLike yields no elements for maps', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const map = new Map([
     ['key1', 'value1'],
     ['key2', 'value2'],
@@ -171,7 +171,7 @@ test('iterateArrayLike yields no elements for maps', (t) => {
 
 // IterateIterable test
 test('iterateIterable yields entries for maps', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const map = new Map([
     ['key1', 'value1'],
     ['key2', 'value2'],
@@ -190,7 +190,7 @@ test('iterateIterable yields entries for maps', (t) => {
 })
 
 test('iterateIterable preserves entry order', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Create a map with specific insertion order
   const map = new Map()
@@ -231,7 +231,7 @@ test('iterateIterable preserves entry order', (t) => {
 
 // Serialization tests
 test('serialize uses map static type and includes size annotation', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const map = new Map([
     ['key1', 'value1'],
     ['key2', 'value2'],
@@ -252,7 +252,7 @@ test('serialize uses map static type and includes size annotation', (t) => {
 })
 
 test('serializing and deserializing a Map preserves its structure', (t) => {
-  const originalContext = new DescriptionContext()
+  const originalContext = new RealValueContext()
 
   // Create a map with some entries
   const map = new Map([
@@ -284,7 +284,7 @@ test('serializing and deserializing a Map preserves its structure', (t) => {
 })
 
 test('handles empty maps correctly', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const emptyMap = new Map()
   const emptyMapRep = context.represent(emptyMap) as MapRepresentation
 
@@ -308,7 +308,7 @@ test('handles empty maps correctly', (t) => {
 
 // FinalFormat tests
 test('finalFormat uses object brackets by default', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const map = new Map([
     ['key1', 'value1'],
     ['key2', 'value2'],
@@ -333,7 +333,7 @@ test('finalFormat uses object brackets by default', (t) => {
 })
 
 test('finalFormat shows disambiguation hint when options.disambiguationHint is true', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const map = new Map([
     ['key1', 'value1'],
     ['key2', 'value2'],

@@ -1,5 +1,5 @@
 import test from 'ava'
-import { DescriptionContext } from '../../../description-context.ts'
+import { RealValueContext } from '../../../real-value-context.ts'
 import { Encoder } from '../../../encoder.ts'
 import { Decoder } from '../../../decoder.ts'
 import { DeserializationContext } from '../../../deserialization-context.ts'
@@ -12,7 +12,7 @@ import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
 
 // Deserialize method test
 test('deserialize creates a comparable PromiseRepresentation', (t) => {
-  const originalContext = new DescriptionContext()
+  const originalContext = new RealValueContext()
   const promise = Promise.resolve('value')
   const original = originalContext.represent(promise) as PromiseRepresentation
 
@@ -30,7 +30,7 @@ test('deserialize creates a comparable PromiseRepresentation', (t) => {
 
 // Compare method tests
 test('compare returns strictlyEqual when comparing the same promise instance', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const promise = Promise.resolve('value')
 
   const promiseRep1 = context.represent(promise) as PromiseRepresentation
@@ -40,7 +40,7 @@ test('compare returns strictlyEqual when comparing the same promise instance', (
 })
 
 test('compare returns unequal when comparing to non-PromiseRepresentation', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const promise = Promise.resolve('value')
   const object = {}
 
@@ -51,7 +51,7 @@ test('compare returns unequal when comparing to non-PromiseRepresentation', (t) 
 })
 
 test('compare returns unequal when comparing different promise instances', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Two different promise instances that resolve to the same value
   const promise1 = Promise.resolve('same value')
@@ -65,7 +65,7 @@ test('compare returns unequal when comparing different promise instances', (t) =
 })
 
 test('compare returns comparable when at least one promise is deserialized', (t) => {
-  const originalContext = new DescriptionContext()
+  const originalContext = new RealValueContext()
   const promise = Promise.resolve('value')
   const original = originalContext.represent(promise) as PromiseRepresentation
 
@@ -78,7 +78,7 @@ test('compare returns comparable when at least one promise is deserialized', (t)
   const deserialized = PromiseRepresentation.deserialize(deserializationContext, decoder)
 
   // Create a new representation of a different promise
-  const newContext = new DescriptionContext()
+  const newContext = new RealValueContext()
   const differentPromise = Promise.resolve('value')
   const differentRep = newContext.represent(differentPromise) as PromiseRepresentation
 
@@ -89,7 +89,7 @@ test('compare returns comparable when at least one promise is deserialized', (t)
 
 // Serialization test
 test('serialize uses promise static type', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const promise = Promise.resolve('value')
   const promiseRep = context.represent(promise) as PromiseRepresentation
 
@@ -106,7 +106,7 @@ test('serialize uses promise static type', (t) => {
 
 // FinalFormat tests
 test('finalFormat passes object brackets and does not include disambiguation hint by default', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const promise = Promise.resolve('value')
   const promiseRep = context.represent(promise) as PromiseRepresentation
 
@@ -127,7 +127,7 @@ test('finalFormat passes object brackets and does not include disambiguation hin
 })
 
 test('finalFormat passes object brackets and shows disambiguation hint when options.disambiguationHint is true', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const promise = Promise.resolve('value')
   const promiseRep = context.represent(promise) as PromiseRepresentation
 

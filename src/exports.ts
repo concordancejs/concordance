@@ -1,5 +1,5 @@
-export { compare, compareDescriptors, type CompareOptions } from './compare.ts'
-export { describe, type DescribeOptions } from './describe.ts'
+export { compare, compareRepresentations, type CompareOptions } from './compare.ts'
+export { representValue, type RepresentOptions } from './represent.ts'
 export { serialize } from './serialize.ts'
 export { deserialize, type DeserializeOptions } from './deserialize.ts'
 export { deriveFlags, type Flags } from './flags.ts'

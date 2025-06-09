@@ -1,5 +1,5 @@
 import { comparable, comparableAfterAlignment, deeplyEqual, unequal, type Comparison } from './comparison.ts'
-import { describe } from './describe.ts'
+import { representValue } from './represent.ts'
 import type { Flags } from './flags.ts'
 import { isPrimitive } from './primitives.ts'
 import { Stack } from './stack.ts'
@@ -22,13 +22,13 @@ export function compare(actual: unknown, expected: unknown, options?: CompareOpt
     return { pass: false }
   }
 
-  const lhs = describe(actual, options)
-  const rhs = describe(expected, options)
-  const pass = compareDescriptors(lhs, rhs)
+  const lhs = representValue(actual, options)
+  const rhs = representValue(expected, options)
+  const pass = compareRepresentations(lhs, rhs)
   return { pass, actual: lhs, expected: rhs }
 }
 
-export function compareDescriptors(lhs: ValueRepresentation, rhs: ValueRepresentation): boolean {
+export function compareRepresentations(lhs: ValueRepresentation, rhs: ValueRepresentation): boolean {
   const lhsStack = new Stack()
   const rhsStack = new Stack()
 

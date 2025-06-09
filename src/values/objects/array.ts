@@ -1,7 +1,7 @@
 import never from 'never'
 import { ElementAccessor, SparseValueRepresentation } from '../../accessors/element.ts'
 import { strictlyEqual, unequal } from '../../comparison.ts'
-import { DescriptionContext } from '../../description-context.ts'
+import { RealValueContext } from '../../real-value-context.ts'
 import type { Decoder } from '../../decoder.ts'
 import { DeserializationContext } from '../../deserialization-context.ts'
 import type { Encoder } from '../../encoder.ts'
@@ -48,7 +48,7 @@ export class ArrayRepresentation extends ObjectRepresentation {
       return
     }
 
-    if (!DescriptionContext.is(this.#context)) {
+    if (!RealValueContext.is(this.#context)) {
       return never()
     }
 

@@ -1,6 +1,6 @@
 /* eslint-disable unicorn/new-for-builtins, no-new-wrappers */
 import test from 'ava'
-import { DescriptionContext } from '../../../description-context.ts'
+import { RealValueContext } from '../../../real-value-context.ts'
 import { Encoder } from '../../../encoder.ts'
 import { Decoder } from '../../../decoder.ts'
 import { DeserializationContext } from '../../../deserialization-context.ts'
@@ -24,7 +24,7 @@ function createBoxedValues() {
 
 // Deserialize method test
 test('deserialize creates a comparable BoxedRepresentation', (t) => {
-  const originalContext = new DescriptionContext()
+  const originalContext = new RealValueContext()
   const boxed = new Number(42)
   const original = originalContext.represent(boxed) as BoxedRepresentation
 
@@ -41,7 +41,7 @@ test('deserialize creates a comparable BoxedRepresentation', (t) => {
 })
 
 test('deserialize fails if the primitive value is missing', (t) => {
-  const originalContext = new DescriptionContext()
+  const originalContext = new RealValueContext()
   const boxed = new Number(10) // Encoded as a single CBOR byte.
   const original = originalContext.represent(boxed) as BoxedRepresentation
 
@@ -59,7 +59,7 @@ test('deserialize fails if the primitive value is missing', (t) => {
 
 // Compare method tests
 test('compare returns strictlyEqual when comparing the same boxed instance', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const boxed = new Number(42)
 
   const boxedRep1 = context.represent(boxed) as BoxedRepresentation
@@ -69,7 +69,7 @@ test('compare returns strictlyEqual when comparing the same boxed instance', (t)
 })
 
 test('compare returns unequal when comparing to non-BoxedRepresentation', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const boxed = new Number(42)
   const object = {}
 
@@ -80,7 +80,7 @@ test('compare returns unequal when comparing to non-BoxedRepresentation', (t) =>
 })
 
 test('compare returns unequal when comparing boxed values with different primitive values', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const boxed1 = new Number(42)
   const boxed2 = new Number(43)
 
@@ -91,7 +91,7 @@ test('compare returns unequal when comparing boxed values with different primiti
 })
 
 test('compare returns comparable when comparing different boxed instances with same primitive value', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const boxed1 = new Number(42)
   const boxed2 = new Number(42)
 
@@ -103,7 +103,7 @@ test('compare returns comparable when comparing different boxed instances with s
 })
 
 test('compare compares different boxed primitive types correctly', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Create instances of different types of boxed primitives
   const values = createBoxedValues()
@@ -129,7 +129,7 @@ test('compare compares different boxed primitive types correctly', (t) => {
 
 // IterateArrayLike test
 test('iterateArrayLike yields no elements for boxed strings (which are array like)', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const boxedString = new String('abc')
   const boxedStringRep = context.represent(boxedString) as BoxedRepresentation
 
@@ -141,7 +141,7 @@ test('iterateArrayLike yields no elements for boxed strings (which are array lik
 
 // IterateIterable test
 test('iterateIterable yields no elements for boxed primitives', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const values = createBoxedValues()
 
   // None of the boxed primitives should have iterable elements
@@ -153,7 +153,7 @@ test('iterateIterable yields no elements for boxed primitives', (t) => {
 
 // Serialization tests
 test('serialize uses boxed static type and includes primitive value annotation', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const boxed = new Number(42)
   const boxedRep = context.represent(boxed) as BoxedRepresentation
 
@@ -169,7 +169,7 @@ test('serialize uses boxed static type and includes primitive value annotation',
 })
 
 test('serializing and deserializing different boxed primitive types', (t) => {
-  const originalContext = new DescriptionContext()
+  const originalContext = new RealValueContext()
   const values = createBoxedValues()
 
   // Test each type of boxed primitive
@@ -191,7 +191,7 @@ test('serializing and deserializing different boxed primitive types', (t) => {
 
 // Formatting tests
 test('preformat formats the primitive value', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const boxed = new Number(42)
   const boxedRep = context.represent(boxed) as BoxedRepresentation
 
@@ -210,7 +210,7 @@ test('preformat formats the primitive value', (t) => {
 })
 
 test('preformat formats different boxed primitive types correctly', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const values = createBoxedValues()
 
   // Test each type of boxed primitive
@@ -233,7 +233,7 @@ test('preformat formats different boxed primitive types correctly', (t) => {
 })
 
 test('finalFormat uses object brackets and no disambiguation hint by default', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const boxed = new Number(42)
   const boxedRep = context.represent(boxed) as BoxedRepresentation
 
@@ -254,7 +254,7 @@ test('finalFormat uses object brackets and no disambiguation hint by default', (
 })
 
 test('finalFormat shows disambiguation hint when options.disambiguationHint is true', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const boxed = new Number(42)
   const boxedRep = context.represent(boxed) as BoxedRepresentation
 
@@ -275,7 +275,7 @@ test('finalFormat shows disambiguation hint when options.disambiguationHint is t
 })
 
 test('integration of preformat and finalFormat produces correct output', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const boxed = new Number(42)
   const boxedRep = context.represent(boxed) as BoxedRepresentation
 

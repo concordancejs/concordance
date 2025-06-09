@@ -6,14 +6,14 @@ import { NumberRepresentation } from './values/primitives/number.ts'
 import { StringRepresentation } from './values/primitives/string.ts'
 import { SymbolRepresentation } from './values/primitives/symbol.ts'
 import type { Opaque, PrimitiveRepresentation } from './value.d.ts'
-import type { DescriptionContext } from './description-context.ts'
+import type { RealValueContext } from './real-value-context.ts'
 
 // eslint-disable-next-line @typescript-eslint/no-restricted-types
 export function isPrimitive(value: unknown): value is string | number | bigint | boolean | symbol | undefined | null {
   return value === null || (typeof value !== 'object' && typeof value !== 'function')
 }
 
-export function representPrimitive(context: DescriptionContext, value: unknown): PrimitiveRepresentation {
+export function representPrimitive(context: RealValueContext, value: unknown): PrimitiveRepresentation {
   switch (typeof value) {
     case 'bigint': {
       return new BigIntRepresentation(value)

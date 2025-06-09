@@ -6,7 +6,7 @@ import { BooleanRepresentation } from '../../values/primitives/boolean.ts'
 import { strictlyEqual, possiblyEqual, unequal } from '../../comparison.ts'
 import { partial } from '../../serialization-result.ts'
 import { Encoder } from '../../encoder.ts'
-import { DescriptionContext } from '../../description-context.ts'
+import { RealValueContext } from '../../real-value-context.ts'
 import { Decoder } from '../../decoder.ts'
 import { DeserializationContext } from '../../deserialization-context.ts'
 import type { SymbolRepresentation } from '../../values/primitives/symbol.ts'
@@ -16,7 +16,7 @@ import type { ValueRepresentation } from '../../value.d.ts'
 
 // Test constructor and basic properties
 test('constructor sets key and value, which iterator yields in order', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Test with string value
   const key1 = new StringRepresentation('key1')
@@ -41,7 +41,7 @@ test('constructor sets key and value, which iterator yields in order', (t) => {
 
 // Test is static method
 test('is correctly identifies MapEntryAccessor instances', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const key = new StringRepresentation('key')
   const value = new StringRepresentation('value')
   const mapEntry = new MapEntryAccessor(context, key, value)
@@ -78,7 +78,7 @@ test('lazy loads value from DeserializationContext when not provided', (t) => {
 
 // Test compare
 test('compare returns unequal for non-MapEntryAccessor', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const key = new StringRepresentation('key')
   const value = new StringRepresentation('value')
   const mapEntry = new MapEntryAccessor(context, key, value)
@@ -95,7 +95,7 @@ test('compare returns unequal for non-MapEntryAccessor', (t) => {
 })
 
 test('compare returns key comparison result when keys are not equal', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   const key1 = new StringRepresentation('key1')
   const value1 = new StringRepresentation('value')
@@ -110,7 +110,7 @@ test('compare returns key comparison result when keys are not equal', (t) => {
 })
 
 test('compare returns value comparison result when keys are equal', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   const key = new StringRepresentation('key')
   const value1 = new StringRepresentation('value1')
@@ -133,7 +133,7 @@ test('compare returns value comparison result when keys are equal', (t) => {
 })
 
 test('compare handles strictlyEqual keys across contexts', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Create the first map entry
   const key1 = new StringRepresentation('key')
@@ -154,10 +154,10 @@ test('compare handles possiblyEqual keys correctly', (t) => {
   // To test the possiblyEqual branch, we need a type that can be possiblyEqual
   // SymbolRepresentation can be possiblyEqual after deserialization
 
-  const originalContext = new DescriptionContext()
+  const valueContext = new RealValueContext()
   // Create a symbol with description
   const symbol1 = Symbol('test')
-  const key1 = originalContext.represent(symbol1) as SymbolRepresentation
+  const key1 = valueContext.represent(symbol1) as SymbolRepresentation
 
   // Serialize the symbol representation
   const encoder = new Encoder()
@@ -173,7 +173,7 @@ test('compare handles possiblyEqual keys correctly', (t) => {
 
   // Now create map entries with these keys
   const value1 = new StringRepresentation('value1')
-  const mapEntry1 = new MapEntryAccessor(originalContext, key1, value1)
+  const mapEntry1 = new MapEntryAccessor(valueContext, key1, value1)
 
   // Different value
   const value2 = new StringRepresentation('value2')
@@ -192,7 +192,7 @@ test('compare handles possiblyEqual keys correctly', (t) => {
 
 // Test serialize
 test('serialize always returns partial', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const key = new StringRepresentation('key')
   const value = new StringRepresentation('value')
   const mapEntry = new MapEntryAccessor(context, key, value)
@@ -202,7 +202,7 @@ test('serialize always returns partial', (t) => {
 
 // Test formatAfterIteration
 test('formatAfterIteration adds mapEntry.afterKey to formatter when value is the key', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const key = new StringRepresentation('key')
   const value = new StringRepresentation('value')
   const mapEntry = new MapEntryAccessor(context, key, value)
@@ -220,7 +220,7 @@ test('formatAfterIteration adds mapEntry.afterKey to formatter when value is the
 })
 
 test('formatAfterIteration does not append anything when value is not the key', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const key = new StringRepresentation('key')
   const value = new StringRepresentation('value')
   const mapEntry = new MapEntryAccessor(context, key, value)
@@ -239,7 +239,7 @@ test('formatAfterIteration does not append anything when value is not the key', 
 
 // Test finalFormat
 test('finalFormat appends mapEntry.afterValue to formatter', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const key = new StringRepresentation('key')
   const value = new StringRepresentation('value')
   const mapEntry = new MapEntryAccessor(context, key, value)

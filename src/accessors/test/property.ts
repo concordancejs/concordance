@@ -6,7 +6,7 @@ import { NumberRepresentation } from '../../values/primitives/number.ts'
 import type { SymbolRepresentation } from '../../values/primitives/symbol.ts'
 import { strictlyEqual, unequal, comparable, comparableAfterAlignment, type Comparison } from '../../comparison.ts'
 import { finished, partial, partialStoreAsByteArray } from '../../serialization-result.ts'
-import { DescriptionContext } from '../../description-context.ts'
+import { RealValueContext } from '../../real-value-context.ts'
 import { Encoder } from '../../encoder.ts'
 import { Decoder } from '../../decoder.ts'
 import { deriveTheme } from '../../theme.ts'
@@ -158,7 +158,7 @@ test('NamedPropertyAccessor - finalFormat appends theme.property.afterValue and 
 
 // SymbolPropertyAccessor Tests
 test('SymbolPropertyAccessor - constructor correctly sets key and value, which iterator yields', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Test with string value
   const symbol1 = Symbol('testSymbol1')
@@ -192,9 +192,9 @@ test('SymbolPropertyAccessor - lazy loads value from DeserializationContext when
   const deserializationContext = new DeserializationContext(decoder)
 
   // Create a symbol and get its representation through context.represent
-  const originalContext = new DescriptionContext()
+  const valueContext = new RealValueContext()
   const symbol = Symbol('testSymbol')
-  const key = originalContext.represent(symbol) as SymbolRepresentation
+  const key = valueContext.represent(symbol) as SymbolRepresentation
 
   // Create a symbol property accessor with only a key
   const property = new SymbolPropertyAccessor(deserializationContext, key)
@@ -212,7 +212,7 @@ test('SymbolPropertyAccessor - lazy loads value from DeserializationContext when
 })
 
 test('SymbolPropertyAccessor - compare returns unequal for non-SymbolPropertyAccessor', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const symbol = Symbol('testSymbol')
   // Get symbol representation through context
   const key = context.represent(symbol) as SymbolRepresentation
@@ -224,7 +224,7 @@ test('SymbolPropertyAccessor - compare returns unequal for non-SymbolPropertyAcc
 })
 
 test('SymbolPropertyAccessor - compare returns unequal for different symbol keys', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const symbol1 = Symbol('symbol1')
   const symbol2 = Symbol('symbol2')
 
@@ -241,7 +241,7 @@ test('SymbolPropertyAccessor - compare returns unequal for different symbol keys
 })
 
 test('SymbolPropertyAccessor - compare delegates to value comparison when symbol keys match', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const symbol = Symbol('testSymbol')
 
   // Create two representations of the same symbol
@@ -263,7 +263,7 @@ test('SymbolPropertyAccessor - compare delegates to value comparison when symbol
 })
 
 test('SymbolPropertyAccessor - serialize encodes key and returns partialStoreAsByteArray', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const symbol = Symbol('testSymbol')
   // Get symbol representation through context
   const key = context.represent(symbol) as SymbolRepresentation
@@ -278,7 +278,7 @@ test('SymbolPropertyAccessor - serialize encodes key and returns partialStoreAsB
 })
 
 test('SymbolPropertyAccessor - preformat formats symbol key correctly', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const symbol = Symbol('testSymbol')
   const key = context.represent(symbol) as SymbolRepresentation
   const value = new StringRepresentation('value')
@@ -295,7 +295,7 @@ test('SymbolPropertyAccessor - preformat formats symbol key correctly', (t) => {
 })
 
 test('SymbolPropertyAccessor - finalFormat appends theme.property.afterValue and closes formatter', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const symbol = Symbol('testSymbol')
   const key = context.represent(symbol) as SymbolRepresentation
   const value = new StringRepresentation('value')
@@ -313,7 +313,7 @@ test('SymbolPropertyAccessor - finalFormat appends theme.property.afterValue and
 
 // For the SymbolPropertyAccessor.orderByIntersection test
 test('SymbolPropertyAccessor.orderByIntersection orders properties by intersection', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Create symbols
   const symbolA = Symbol('symbolA')
@@ -365,7 +365,7 @@ test('SymbolPropertyAccessor.orderByIntersection orders properties by intersecti
 
 // NamedPropertyGroup Tests
 test('NamedPropertyGroup - constructor sets properties which iterator yields', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const prop1 = new NamedPropertyAccessor('prop1', new StringRepresentation('value1'))
   const prop2 = new NamedPropertyAccessor('prop2', new StringRepresentation('value2'))
 
@@ -378,7 +378,7 @@ test('NamedPropertyGroup - constructor sets properties which iterator yields', (
 })
 
 test('NamedPropertyGroup.is correctly identifies instances', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const group = new NamedPropertyGroup(context, [])
 
   t.true(NamedPropertyGroup.is(group))
@@ -386,7 +386,7 @@ test('NamedPropertyGroup.is correctly identifies instances', (t) => {
 })
 
 test('NamedPropertyGroup - empty property returns true for empty groups', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const emptyGroup = new NamedPropertyGroup(context, [])
   const nonEmptyGroup = new NamedPropertyGroup(context, [
     new NamedPropertyAccessor('prop', new StringRepresentation('value')),
@@ -397,7 +397,7 @@ test('NamedPropertyGroup - empty property returns true for empty groups', (t) =>
 })
 
 test('NamedPropertyGroup - compare returns comparable for another NamedPropertyGroup', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const group1 = new NamedPropertyGroup(context, [])
   const group2 = new NamedPropertyGroup(context, [])
 
@@ -405,7 +405,7 @@ test('NamedPropertyGroup - compare returns comparable for another NamedPropertyG
 })
 
 test('NamedPropertyGroup - compare returns unequal for non-NamedPropertyGroup', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const group = new NamedPropertyGroup(context, [])
 
   t.is(group.compare(new StringRepresentation('')), unequal)
@@ -462,7 +462,7 @@ test('NamedPropertyGroup - iterator loads properties from DeserializationContext
 
 // SymbolPropertyGroup Tests
 test('SymbolPropertyGroup - constructor sets properties array', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const symbol1 = Symbol('symbol1')
   const symbol2 = Symbol('symbol2')
 
@@ -491,7 +491,7 @@ test('SymbolPropertyGroup.is correctly identifies instances', (t) => {
 test('SymbolPropertyGroup - empty property returns true for empty groups', (t) => {
   const emptyGroup = new SymbolPropertyGroup([])
 
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const symbol = Symbol('test')
   // Get symbol representation through context
   const key = context.represent(symbol) as SymbolRepresentation
@@ -504,7 +504,7 @@ test('SymbolPropertyGroup - empty property returns true for empty groups', (t) =
 })
 
 test('SymbolPropertyGroup - align reorders properties based on intersection', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Create symbols and get their representations through context
   const symbolA = Symbol('symbolA')

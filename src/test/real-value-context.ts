@@ -1,6 +1,6 @@
 import { mock } from 'node:test'
 import test from 'ava'
-import { DescriptionContext } from '../description-context.ts'
+import { RealValueContext } from '../real-value-context.ts'
 import { StringRepresentation } from '../values/primitives/string.ts'
 import { NumberRepresentation } from '../values/primitives/number.ts'
 import { BooleanRepresentation } from '../values/primitives/boolean.ts'
@@ -20,7 +20,7 @@ import { DateRepresentation } from '../values/objects/date.ts'
 import { ArrayBufferRepresentation } from '../values/objects/array-buffer.ts'
 import { ArrayBufferViewRepresentation } from '../values/objects/array-buffer-view.ts'
 import { BoxedPrimitiveRepresentation } from '../values/objects/boxed.ts'
-import { compareDescriptors } from '../compare.ts'
+import { compareRepresentations } from '../compare.ts'
 import { ExternalRepresentation } from '../values/nodejs/external.ts'
 import { ModuleNamespaceObjectRepresentation } from '../values/objects/module-namespace-object.ts'
 import { PromiseRepresentation } from '../values/objects/promise.ts'
@@ -41,24 +41,24 @@ import type { Context } from '../context.d.ts'
 // -----------------------------------------------------------------------------
 
 test('is identifies context instances correctly', (t) => {
-  const context = new DescriptionContext()
-  t.true(DescriptionContext.is(context))
-  t.false(DescriptionContext.is({ deserialized: false } as unknown as Context))
+  const context = new RealValueContext()
+  t.true(RealValueContext.is(context))
+  t.false(RealValueContext.is({ deserialized: false } as unknown as Context))
 })
 
 test('deserialized returns false', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   t.false(context.deserialized)
 })
 
 test('flags returns flags', (t) => {
   const flags = deriveFlags()
-  const context = new DescriptionContext({ flags })
+  const context = new RealValueContext({ flags })
   t.deepEqual(context.flags, flags, 'Flags should match the provided flags')
 })
 
 test('represent() returns consistent representations for the same object', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const object = { a: 1 }
 
   const rep1 = context.represent(object)
@@ -69,7 +69,7 @@ test('represent() returns consistent representations for the same object', (t) =
 })
 
 test('pointer returns index for representation', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const representation1 = context.represent({})
   const representation2 = context.represent({})
 
@@ -79,7 +79,7 @@ test('pointer returns index for representation', (t) => {
 })
 
 test('internal PointerMap correctly allocates and retrieves pointers', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const object1 = {}
   const object2 = {}
 
@@ -110,7 +110,7 @@ test('internal PointerMap correctly allocates and retrieves pointers', (t) => {
 // -----------------------------------------------------------------------------
 
 test('correctly identifies prototype chains', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Null prototype
   const nullProto = Object.create(null) as Record<string, never>
@@ -132,7 +132,7 @@ test('correctly identifies prototype chains', (t) => {
 })
 
 test('correctly identifies array-like objects', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Array-like objects
   t.true(context.isArrayLike([1, 2, 3]))
@@ -146,7 +146,7 @@ test('correctly identifies array-like objects', (t) => {
 })
 
 test('isArrayLike handles various edge cases', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Test with non-safe integer length
   const nonSafeInteger = { length: Number.MAX_SAFE_INTEGER + 1, 0: 'value' } // eslint-disable-line @typescript-eslint/naming-convention
@@ -174,7 +174,7 @@ test('isArrayLike handles various edge cases', (t) => {
 })
 
 test('constructorName handles edge cases correctly', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Test with empty name
   const EmptyNameClass = new Function('return function() {}')() // eslint-disable-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, no-new-func, @typescript-eslint/naming-convention
@@ -200,7 +200,7 @@ test('constructorName handles edge cases correctly', (t) => {
 })
 
 test('handles objects with toStringTag correctly', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   const object = {}
   Object.defineProperty(object, Symbol.toStringTag, {
@@ -220,7 +220,7 @@ test('handles objects with toStringTag correctly', (t) => {
 // -----------------------------------------------------------------------------
 
 test('represent() correctly delegates to representPrimitive for primitive values', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Just test one example of each primitive type to verify delegation works
   t.is(context.represent(42).constructor, NumberRepresentation)
@@ -233,7 +233,7 @@ test('represent() correctly delegates to representPrimitive for primitive values
 })
 
 test('valueOf returns primitive value from object wrapper', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // eslint-disable-next-line no-new-wrappers
   const stringObject = new String('test string') // eslint-disable-line unicorn/new-for-builtins
@@ -257,7 +257,7 @@ test('valueOf returns primitive value from object wrapper', (t) => {
 })
 
 test('handles symbols and their registration', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   const regularSymbol = Symbol('test')
   const registeredSymbol = Symbol.for('registered')
@@ -273,18 +273,18 @@ test('handles symbols and their registration', (t) => {
   const wellKnownSymbolDesc = context.represent(wellKnownSymbol)
 
   // Same symbols should be equal
-  t.true(compareDescriptors(regularSymbolDesc, context.represent(regularSymbol)))
-  t.true(compareDescriptors(registeredSymbolDesc, context.represent(Symbol.for('registered'))))
-  t.true(compareDescriptors(wellKnownSymbolDesc, context.represent(Symbol.iterator)))
+  t.true(compareRepresentations(regularSymbolDesc, context.represent(regularSymbol)))
+  t.true(compareRepresentations(registeredSymbolDesc, context.represent(Symbol.for('registered'))))
+  t.true(compareRepresentations(wellKnownSymbolDesc, context.represent(Symbol.iterator)))
 
   // Different symbols should not be equal
-  t.false(compareDescriptors(regularSymbolDesc, context.represent(Symbol('test'))))
-  t.false(compareDescriptors(registeredSymbolDesc, regularSymbolDesc))
-  t.false(compareDescriptors(wellKnownSymbolDesc, context.represent(Symbol('iterator'))))
+  t.false(compareRepresentations(regularSymbolDesc, context.represent(Symbol('test'))))
+  t.false(compareRepresentations(registeredSymbolDesc, regularSymbolDesc))
+  t.false(compareRepresentations(wellKnownSymbolDesc, context.represent(Symbol('iterator'))))
 })
 
 test('describeSymbol categorizes symbols correctly', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Regular symbol
   const regularSymbol = Symbol('test')
@@ -313,7 +313,7 @@ test('describeSymbol categorizes symbols correctly', (t) => {
 // -----------------------------------------------------------------------------
 
 test('DescriptionContext.represent returns correct representation for objects', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   t.is(context.represent({}).constructor, ObjectRepresentation)
   t.is(context.represent([]).constructor, ArrayRepresentation)
@@ -333,7 +333,7 @@ test('DescriptionContext.represent returns correct representation for objects', 
 })
 
 test('uses generic ObjectRepresentation for unknown object types', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Create a class with a null prototype to avoid matching standard JS types
   // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -351,7 +351,7 @@ test('uses generic ObjectRepresentation for unknown object types', (t) => {
 })
 
 test('represent handles objects with null prototype correctly', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Create a plain object with null prototype
   // This will hit the specific branch we want to test
@@ -369,7 +369,7 @@ test('represent handles objects with null prototype correctly', (t) => {
 })
 
 test('handles nested object structures', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   const nested = {
     a: [1, 2, { b: 'test' }],
@@ -383,11 +383,11 @@ test('handles nested object structures', (t) => {
   const representation2 = context.represent({ ...nested })
 
   // Check that the representations are similar
-  t.true(compareDescriptors(representation1, representation2))
+  t.true(compareRepresentations(representation1, representation2))
 })
 
 test('correctly identifies Arguments objects', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   function getArguments(..._: unknown[]) {
     return arguments // eslint-disable-line prefer-rest-params
@@ -398,7 +398,7 @@ test('correctly identifies Arguments objects', (t) => {
 })
 
 test('correctly identifies ArrayBuffers and views', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   const buffer = new ArrayBuffer(16)
   t.is(context.represent(buffer).constructor, ArrayBufferRepresentation)
@@ -411,7 +411,7 @@ test('correctly identifies ArrayBuffers and views', (t) => {
 })
 
 test('correctly identifies boxed primitives', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // eslint-disable-next-line no-new-wrappers
   t.is(context.represent(new String('test')).constructor, BoxedPrimitiveRepresentation) // eslint-disable-line unicorn/new-for-builtins
@@ -422,7 +422,7 @@ test('correctly identifies boxed primitives', (t) => {
 })
 
 test('correctly identifies CryptoKey objects', async (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Create a real CryptoKey for testing
   const key = await globalThis.crypto.subtle.generateKey(
@@ -437,7 +437,7 @@ test('correctly identifies CryptoKey objects', async (t) => {
 })
 
 test('correctly identifies Error objects', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   t.is(context.represent(new Error('test')).constructor, ErrorRepresentation)
   t.is(context.represent(new TypeError('test')).constructor, ErrorRepresentation)
@@ -445,7 +445,7 @@ test('correctly identifies Error objects', (t) => {
 })
 
 test('correctly identifies External objects', async (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // @ts-expect-error ts2307: Suppress error about missing import
   const refNapi = await (import('ref-napi') as Promise<{ default: { instance: Record<string, unknown> } }>)
@@ -455,7 +455,7 @@ test('correctly identifies External objects', async (t) => {
 })
 
 test('correctly identifies Module Namespace objects', async (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   const namespace = await import('../values/objects/test/fixtures/module-fixture.ts')
   t.is(context.represent(namespace).constructor, ModuleNamespaceObjectRepresentation)
@@ -466,7 +466,7 @@ test('correctly identifies Module Namespace objects', async (t) => {
 // -----------------------------------------------------------------------------
 
 test('handles circular references', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   const object: Record<string, unknown> = {}
   object['self'] = object
@@ -480,12 +480,12 @@ test('handles circular references', (t) => {
   const representation2 = context.represent(object2)
 
   // Verify circular references are handled correctly
-  t.true(compareDescriptors(representation, context.represent(object)))
-  t.true(compareDescriptors(representation2, context.represent(object2)))
+  t.true(compareRepresentations(representation, context.represent(object)))
+  t.true(compareRepresentations(representation2, context.represent(object2)))
 })
 
 test('iterateElements iterates through array-like elements', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const array = [1, 2, 3]
 
   // Convert iterator to array for testing
@@ -504,7 +504,7 @@ test('iterateElements iterates through array-like elements', (t) => {
 })
 
 test('iterateMapEntries iterates through map entries', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const map = new Map([
     ['key1', 'value1'],
     ['key2', 'value2'],
@@ -524,7 +524,7 @@ test('iterateMapEntries iterates through map entries', (t) => {
 })
 
 test('iterateValues handles objects with and without Symbol.iterator', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Object with iterator
   const iterable = {
@@ -545,7 +545,7 @@ test('iterateValues handles objects with and without Symbol.iterator', (t) => {
 })
 
 test('size returns correct size for sized collections', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   const map = new Map([
     ['a', 1],
@@ -565,8 +565,8 @@ test('size returns correct size for sized collections', (t) => {
 // Property access and representation tests
 // -----------------------------------------------------------------------------
 
-test('namedProperties handles property descriptors correctly', (t) => {
-  const context = new DescriptionContext()
+test('namedProperties handles property accessors correctly', (t) => {
+  const context = new RealValueContext()
 
   // Object with non-enumerable properties
   const object = {}
@@ -597,7 +597,7 @@ test('namedProperties handles property descriptors correctly', (t) => {
 })
 
 test('namedProperties filters out numeric indices for array-like objects', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Create an array-like object with both numeric indices and named properties
   const arrayLike = {
@@ -659,7 +659,7 @@ test('namedProperties filters out numeric indices for array-like objects', (t) =
 })
 
 test('symbolProperties handles objects with symbol properties', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Create an object with symbol properties
   const sym1 = Symbol('test1')
@@ -686,7 +686,7 @@ test('symbolProperties handles objects with symbol properties', (t) => {
 })
 
 test('nonSparseArrayElements filters out sparse array elements', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Create a sparse array
   const sparseArray = new Array(5) // eslint-disable-line unicorn/no-new-array
@@ -714,7 +714,7 @@ test('nonSparseArrayElements filters out sparse array elements', (t) => {
 })
 
 test('representBytes creates correct BytesAccessor for buffer types', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Test with ArrayBuffer
   const buffer = new ArrayBuffer(16)
@@ -758,7 +758,7 @@ test('representBytes creates correct BytesAccessor for buffer types', (t) => {
 // -----------------------------------------------------------------------------
 
 test('notifyNextExplicitlyNamedPropertyAccess - basic functionality and argument validation', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const object = { name: 'test', value: 42 }
 
   // Create a mock callback
@@ -785,7 +785,7 @@ test('notifyNextExplicitlyNamedPropertyAccess - basic functionality and argument
 })
 
 test('notifyNextExplicitlyNamedPropertyAccess - non-existent properties', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const nonExistentCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {
     // No-op
   })
@@ -798,7 +798,7 @@ test('notifyNextExplicitlyNamedPropertyAccess - non-existent properties', (t) =>
 })
 
 test('notifyNextExplicitlyNamedPropertyAccess - non-enumerable properties', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const nonEnumObject = {}
   Object.defineProperty(nonEnumObject, 'hidden', { value: 'secret', enumerable: false })
   const hiddenCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {
@@ -815,7 +815,7 @@ test('notifyNextExplicitlyNamedPropertyAccess - non-enumerable properties', (t) 
 })
 
 test('notifyNextExplicitlyNamedPropertyAccess - duplicate registration', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const object = { key: 'value', count: 123 }
 
   const firstCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {
@@ -850,7 +850,7 @@ test('notifyNextExplicitlyNamedPropertyAccess - duplicate registration', (t) => 
 })
 
 test('notifyNextExplicitlyNamedPropertyAccess - isolation', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const object1 = { name: 'first', value: 'test' }
   const object2 = { name: 'second' }
 
@@ -879,7 +879,7 @@ test('notifyNextExplicitlyNamedPropertyAccess - isolation', (t) => {
 })
 
 test('notifyNextExplicitlyNamedPropertyAccess - callback invocation tracking', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const trackingObject = { name: 'tracking' }
   const trackingCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {
     // No-op
@@ -895,7 +895,7 @@ test('notifyNextExplicitlyNamedPropertyAccess - callback invocation tracking', (
 })
 
 test('resetPropertyAccessNotifiers - cleanup and re-registration', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const object = { name: 'test', value: 42 }
 
   const nameCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {

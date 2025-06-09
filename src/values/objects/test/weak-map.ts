@@ -1,5 +1,5 @@
 import test from 'ava'
-import { DescriptionContext } from '../../../description-context.ts'
+import { RealValueContext } from '../../../real-value-context.ts'
 import { Encoder } from '../../../encoder.ts'
 import { Decoder } from '../../../decoder.ts'
 import { DeserializationContext } from '../../../deserialization-context.ts'
@@ -12,7 +12,7 @@ import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
 
 // Deserialize method test
 test('deserialize creates a comparable WeakMapRepresentation', (t) => {
-  const originalContext = new DescriptionContext()
+  const originalContext = new RealValueContext()
   const weakMap = new WeakMap()
   const original = originalContext.represent(weakMap) as WeakMapRepresentation
 
@@ -31,7 +31,7 @@ test('deserialize creates a comparable WeakMapRepresentation', (t) => {
 
 // Compare method tests
 test('compare returns strictlyEqual when comparing the same weakMap instance', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const weakMap = new WeakMap()
 
   const weakMapRep1 = context.represent(weakMap) as WeakMapRepresentation
@@ -41,7 +41,7 @@ test('compare returns strictlyEqual when comparing the same weakMap instance', (
 })
 
 test('compare returns unequal when comparing to non-WeakMapRepresentation', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const weakMap = new WeakMap()
   const object = {}
 
@@ -52,7 +52,7 @@ test('compare returns unequal when comparing to non-WeakMapRepresentation', (t) 
 })
 
 test('compare returns possiblyEqual when comparing different weakMap instances', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const weakMap1 = new WeakMap()
   const weakMap2 = new WeakMap()
 
@@ -70,7 +70,7 @@ test('compare returns possiblyEqual when comparing different weakMap instances',
 })
 
 test('compare returns unequal when comparing WeakMaps with different constructor names', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Create a regular WeakMap
   const weakMap = new WeakMap()
@@ -89,7 +89,7 @@ test('compare returns unequal when comparing WeakMaps with different constructor
 
 // Serialization test
 test('serialize uses weakMap static type', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const weakMap = new WeakMap()
   const weakMapRep = context.represent(weakMap) as WeakMapRepresentation
 
@@ -106,7 +106,7 @@ test('serialize uses weakMap static type', (t) => {
 
 // FinalFormat tests
 test('finalFormat passes object brackets and does not include disambiguation hint by default', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const weakMap = new WeakMap()
   const weakMapRep = context.represent(weakMap) as WeakMapRepresentation
 
@@ -127,7 +127,7 @@ test('finalFormat passes object brackets and does not include disambiguation hin
 })
 
 test('finalFormat passes object brackets and shows disambiguation hint when options.disambiguationHint is true', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const weakMap = new WeakMap()
   const weakMapRep = context.represent(weakMap) as WeakMapRepresentation
 

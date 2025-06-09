@@ -1,5 +1,5 @@
 import test from 'ava'
-import { DescriptionContext } from '../../../description-context.ts'
+import { RealValueContext } from '../../../real-value-context.ts'
 import { Encoder } from '../../../encoder.ts'
 import { Decoder } from '../../../decoder.ts'
 import { DeserializationContext } from '../../../deserialization-context.ts'
@@ -13,7 +13,7 @@ import { deriveTheme } from '../../../theme.ts'
 
 // Deserialize method test
 test('deserialize creates a comparable ErrorRepresentation', (t) => {
-  const originalContext = new DescriptionContext()
+  const originalContext = new RealValueContext()
   const error = new Error('Test error')
   const original = originalContext.represent(error) as ErrorRepresentation
 
@@ -31,7 +31,7 @@ test('deserialize creates a comparable ErrorRepresentation', (t) => {
 
 // Compare method tests - ErrorRepresentation inherits all comparison logic
 test('compare returns strictlyEqual when comparing the same error instance', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const error = new Error('Test error')
 
   const errorRep1 = context.represent(error) as ErrorRepresentation
@@ -41,7 +41,7 @@ test('compare returns strictlyEqual when comparing the same error instance', (t)
 })
 
 test('compare returns unequal when comparing to non-ErrorRepresentation', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const error = new Error('Test error')
   const object = {}
 
@@ -52,7 +52,7 @@ test('compare returns unequal when comparing to non-ErrorRepresentation', (t) =>
 })
 
 test('compare returns comparable when comparing different error instances', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const error1 = new Error('Test error')
   const error2 = new Error('Different message')
 
@@ -65,7 +65,7 @@ test('compare returns comparable when comparing different error instances', (t) 
 
 // IterateArrayLike and iterateIterable tests
 test('iterateArrayLike yields no elements for errors', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const error = new Error('Test error')
   const errorRep = context.represent(error) as ErrorRepresentation
 
@@ -75,7 +75,7 @@ test('iterateArrayLike yields no elements for errors', (t) => {
 })
 
 test('iterateIterable yields no elements for errors', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const error = new Error('Test error')
   const errorRep = context.represent(error) as ErrorRepresentation
 
@@ -86,7 +86,7 @@ test('iterateIterable yields no elements for errors', (t) => {
 
 // IterateProperties test
 test('iterateProperties yields name and message properties for errors', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const error = new Error('Test error')
   const errorRep = context.represent(error) as ErrorRepresentation
 
@@ -122,7 +122,7 @@ test('iterateProperties yields name and message properties for errors', (t) => {
 })
 
 test('iterateProperties includes cause property when set', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Create error with a cause using the constructor
   const causeError = new Error('Cause error')
@@ -168,7 +168,7 @@ test('iterateProperties includes cause property when set', (t) => {
 })
 
 test('iterateProperties includes name and message even when non-enumerable', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Create a custom error class with non-enumerable name and message
   class CustomError extends Error {
@@ -224,7 +224,7 @@ test('iterateProperties includes name and message even when non-enumerable', (t)
 
 // Serialization test
 test('serialize uses error static type', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const error = new Error('Test error')
   const errorRep = context.represent(error) as ErrorRepresentation
 
@@ -241,7 +241,7 @@ test('serialize uses error static type', (t) => {
 
 // FinalFormat tests
 test('finalFormat uses object brackets by default', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const error = new Error('Test error')
   const errorRep = context.represent(error) as ErrorRepresentation
 
@@ -263,7 +263,7 @@ test('finalFormat uses object brackets by default', (t) => {
 })
 
 test('finalFormat shows disambiguation hint when options.disambiguationHint is true', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const error = new Error('Test error')
   const errorRep = context.represent(error) as ErrorRepresentation
 
@@ -284,7 +284,7 @@ test('finalFormat shows disambiguation hint when options.disambiguationHint is t
 })
 
 test('finalFormat handles custom error types', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   class CustomError extends Error {
     constructor(message: string) {

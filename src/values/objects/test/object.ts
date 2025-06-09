@@ -1,6 +1,6 @@
 import test from 'ava'
 import never from 'never'
-import { DescriptionContext } from '../../../description-context.ts'
+import { RealValueContext } from '../../../real-value-context.ts'
 import { Encoder } from '../../../encoder.ts'
 import { Decoder } from '../../../decoder.ts'
 import { DeserializationContext } from '../../../deserialization-context.ts'
@@ -16,7 +16,7 @@ import { deriveTheme } from '../../../theme.ts'
 
 // Static method tests
 test('static is method correctly identifies ObjectRepresentation instances', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const object = { a: 1 }
   const rep = context.represent(object) as ObjectRepresentation
 
@@ -64,7 +64,7 @@ test('unpackAnnotations provides defaults for missing values', (t) => {
 // Compare method tests
 test('compare returns strictlyEqual for same object instance', (t) => {
   const object = {}
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const a = context.represent(object) as ObjectRepresentation
   const b = context.represent(object) as ObjectRepresentation
 
@@ -72,14 +72,14 @@ test('compare returns strictlyEqual for same object instance', (t) => {
 })
 
 test('compare returns unequal for non-ObjectRepresentation values', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const a = context.represent({}) as ObjectRepresentation
 
   t.is(a.compare(new NullRepresentation()), unequal)
 })
 
 test('compare returns unequal by default when one object has a null prototype and the other does not', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const nullProtoObject = Object.create(null) as Record<string, never>
   const regularObject = {}
 
@@ -91,7 +91,7 @@ test('compare returns unequal by default when one object has a null prototype an
 })
 
 test('compare returns comparable when compareNullProtoToObjectProto flag is true', (t) => {
-  const context = new DescriptionContext({ flags: { compareNullProtoToObjectProto: true } })
+  const context = new RealValueContext({ flags: { compareNullProtoToObjectProto: true } })
   const nullProtoObject = Object.create(null) as Record<string, never>
   const regularObject = {}
 
@@ -103,7 +103,7 @@ test('compare returns comparable when compareNullProtoToObjectProto flag is true
 })
 
 test('compare returns unequal for objects with different string tags', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Create an object with custom toString tag
   const object1 = {}
@@ -120,7 +120,7 @@ test('compare returns unequal for objects with different string tags', (t) => {
 })
 
 test('compare returns unequal for objects with different constructor names', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   class Custom1 {
     foo = 'bar'
@@ -136,7 +136,7 @@ test('compare returns unequal for objects with different constructor names', (t)
 })
 
 test('compare returns unequal when comparing objects with empty string vs undefined constructor names', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Create an object with empty string constructor name
   const EmptyNameClass = new Function('return function() {}')() // eslint-disable-line @typescript-eslint/naming-convention, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, no-new-func
@@ -160,7 +160,7 @@ test('iterateArrayLike yields elements for array-like objects', (t) => {
     1: 'second', // eslint-disable-line @typescript-eslint/naming-convention
     length: 2,
   }
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const representation = context.represent(arrayLike) as ObjectRepresentation
 
   const elements = [...representation.iterateArrayLike()]
@@ -170,7 +170,7 @@ test('iterateArrayLike yields elements for array-like objects', (t) => {
 
 test('iterateArrayLike yields no elements for non-array-like objects', (t) => {
   const object = {}
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const representation = context.represent(object) as ObjectRepresentation
 
   const elements = [...representation.iterateArrayLike()]
@@ -185,7 +185,7 @@ test('iterateProperties yields property groups', (t) => {
     [Symbol('')]: 'thud',
   }
 
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const representation = context.represent(object) as ObjectRepresentation
 
   const propertyGroups = [...representation.iterateProperties()]
@@ -208,7 +208,7 @@ test('iterateProperties ignores non-enumerable properties', (t) => {
     enumerable: false,
   })
 
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const representation = context.represent(object) as ObjectRepresentation
 
   // Include specific property
@@ -229,7 +229,7 @@ test('iterateProperties accepts specific property names to include', (t) => {
     enumerable: false,
   })
 
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const representation = context.represent(object) as ObjectRepresentation
 
   // Include specific property
@@ -243,7 +243,7 @@ test('iterateProperties accepts specific property names to include', (t) => {
 // Iterable tests
 test('iterateIterable yields no entries for non-iterable objects', (t) => {
   const object = {}
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const representation = context.represent(object) as ObjectRepresentation
 
   const iterables = [...representation.iterateIterable()]
@@ -264,7 +264,7 @@ test('iterateIterable yields no entries for array-like objects even with Symbol.
     },
   }
 
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const representation = context.represent(arrayLikeWithIterator) as ObjectRepresentation
 
   // Should yield no values for array-like objects, ignoring the iterator
@@ -284,7 +284,7 @@ test('iterateIterable yields values for objects with Symbol.iterator', (t) => {
     },
   }
 
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const representation = context.represent(iterableObject) as ObjectRepresentation
 
   const iterables = [...representation.iterateIterable()]
@@ -294,7 +294,7 @@ test('iterateIterable yields values for objects with Symbol.iterator', (t) => {
 
 // Symbol.iterator tests
 test('Symbol.iterator yields array-like elements and property groups for array-like objects', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const object = {
     0: 'a', // eslint-disable-line @typescript-eslint/naming-convention
     1: 'b', // eslint-disable-line @typescript-eslint/naming-convention
@@ -311,7 +311,7 @@ test('Symbol.iterator yields array-like elements and property groups for array-l
 })
 
 test('Symbol.iterator yields iterator values and property groups for iterable non-array-like objects', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const object = {
     foo: 'bar',
     [Symbol('')]: 'Test',
@@ -340,7 +340,7 @@ test('serialize includes annotations', (t) => {
       1 = 'b'; // eslint-disable-line @typescript-eslint/naming-convention
       [Symbol.toStringTag] = 'CustomTag'
     }
-    const context = new DescriptionContext()
+    const context = new RealValueContext()
     const custom = context.represent(new CustomClass()) as ObjectRepresentation
     const encoder = new Encoder()
     custom.serialize(encoder)
@@ -353,7 +353,7 @@ test('serialize includes annotations', (t) => {
 
   {
     const object = Object.create(null) as Record<string, never>
-    const context = new DescriptionContext()
+    const context = new RealValueContext()
     const representation = context.represent(object) as ObjectRepresentation
     const encoder = new Encoder()
     representation.serialize(encoder)
@@ -362,7 +362,7 @@ test('serialize includes annotations', (t) => {
 
   {
     const object = { length: 2, 0: 'a', 1: 'b' } // eslint-disable-line @typescript-eslint/naming-convention
-    const context = new DescriptionContext()
+    const context = new RealValueContext()
     const representation = context.represent(object) as ObjectRepresentation
     const encoder = new Encoder()
     const bytes = new TextEncoder().encode('👋')
@@ -380,7 +380,7 @@ test('compare returns comparable for deserialized objects with same structure', 
     [Symbol.toStringTag] = 'CustomTag'
   }
   const object = new CustomClass()
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const representation = context.represent(object) as ObjectRepresentation
 
   const encoder = new Encoder()
@@ -397,7 +397,7 @@ test('compare returns comparable for deserialized objects with same structure', 
 
 // FinalFormat tests
 test('finalFormat prefixes & appends correctly for basic object', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const object = {}
   const representation = context.represent(object) as ObjectRepresentation
 
@@ -409,7 +409,7 @@ test('finalFormat prefixes & appends correctly for basic object', (t) => {
 })
 
 test('finalFormat prefixes & appends correctly for object with stringTag', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const object = {}
   Object.defineProperty(object, Symbol.toStringTag, {
     value: 'CustomTag',
@@ -425,7 +425,7 @@ test('finalFormat prefixes & appends correctly for object with stringTag', (t) =
 })
 
 test('finalFormat prefixes & appends correctly for object with constructor name', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   class TestClass {
     foo = 'bar'
   }
@@ -440,7 +440,7 @@ test('finalFormat prefixes & appends correctly for object with constructor name'
 })
 
 test('finalFormat prefixes & appends correctly for null prototype object', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const object = Object.create(null) as Record<string, never>
   const representation = context.represent(object) as ObjectRepresentation
 
@@ -452,7 +452,7 @@ test('finalFormat prefixes & appends correctly for null prototype object', (t) =
 })
 
 test('finalFormat prefixes & appends correctly when max depth reached', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const object = {}
   const representation = context.represent(object) as ObjectRepresentation
 
@@ -464,7 +464,7 @@ test('finalFormat prefixes & appends correctly when max depth reached', (t) => {
 })
 
 test('finalFormat prefixes & appends correctly when max depth reached and formatter is not empty', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const object = {}
   const representation = context.represent(object) as ObjectRepresentation
 
@@ -478,7 +478,7 @@ test('finalFormat prefixes & appends correctly when max depth reached and format
 })
 
 test('finalFormat prefixes & appends correctly for object with undefined constructor name but defined string tag', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   // Create an object with no constructor name but with a string tag
   const object = {}
   // Delete constructor property to simulate undefined constructor name
@@ -498,7 +498,7 @@ test('finalFormat prefixes & appends correctly for object with undefined constru
 })
 
 test('finalFormat prefixes & appends correctly for object with undefined constructor name and empty string tag', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   // Create an object with no constructor name but with an empty string tag
   const object = {}
   // Delete constructor property to simulate undefined constructor name
@@ -518,7 +518,7 @@ test('finalFormat prefixes & appends correctly for object with undefined constru
 })
 
 test('finalFormat prefixes & appends correctly for object with non-Object constructor name and matching string tag', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   // Create a class with a matching string tag
   class TestClass {
     static get [Symbol.toStringTag]() {
@@ -539,7 +539,7 @@ test('finalFormat prefixes & appends correctly for object with non-Object constr
 })
 
 test('finalFormat prefixes & appends correctly for object with non-Object constructor name and different string tag', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   // Create a class with a different string tag
   class TestClass {
     foo = 'bar'
@@ -560,7 +560,7 @@ test('finalFormat prefixes & appends correctly for object with non-Object constr
 })
 
 test('finalFormat prefixes & appends correctly for object with non-Object constructor name and empty string tag', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   // Create a class with custom constructor name
   class TestClass {
     foo = 'bar'
@@ -581,7 +581,7 @@ test('finalFormat prefixes & appends correctly for object with non-Object constr
 })
 
 test('finalFormat prefixes & appends correctly for object with empty string constructor name', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Create an object with empty string constructor name
   const EmptyNameClass = new Function('return function() {}')() // eslint-disable-line @typescript-eslint/naming-convention, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, no-new-func
@@ -598,7 +598,7 @@ test('finalFormat prefixes & appends correctly for object with empty string cons
 
 // Add another test for empty string constructor name but with a string tag
 test('finalFormat prefixes & appends correctly for object with empty string constructor name and string tag', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Create an object with empty string constructor name
   const EmptyNameClass = new Function('return function() {}')() // eslint-disable-line @typescript-eslint/naming-convention, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, no-new-func
@@ -620,7 +620,7 @@ test('finalFormat prefixes & appends correctly for object with empty string cons
 })
 
 test('finalFormat prefixes & appends correctly with non-empty formatter', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const object = {}
   const representation = context.represent(object) as ObjectRepresentation
 
@@ -645,7 +645,7 @@ test('finalFormat encodes identifier-like strings correctly', (t) => {
   Object.defineProperty(TestClass, 'name', { value: 'Test\nClass🎉' })
 
   {
-    const context = new DescriptionContext()
+    const context = new RealValueContext()
     const object = new TestClass()
     const representation = context.represent(object) as ObjectRepresentation
     const formatter = new Formatter(deriveTheme())
@@ -659,7 +659,7 @@ test('finalFormat encodes identifier-like strings correctly', (t) => {
 
   Object.defineProperty(TestClass, 'name', { value: undefined }) // Reset name to undefined
   {
-    const context = new DescriptionContext()
+    const context = new RealValueContext()
     const object = new TestClass()
     const representation = context.represent(object) as ObjectRepresentation
     const formatter = new Formatter(deriveTheme())
@@ -671,7 +671,7 @@ test('finalFormat encodes identifier-like strings correctly', (t) => {
 })
 
 test('finalFormat uses array brackets when options.array is true', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const object = { a: 1, b: 2 } // Regular object, not array-like
   const representation = context.represent(object) as ObjectRepresentation
 
@@ -685,7 +685,7 @@ test('finalFormat uses array brackets when options.array is true', (t) => {
 })
 
 test('finalFormat uses array brackets when object is array-like', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const arrayLike = {
     0: 'first', // eslint-disable-line @typescript-eslint/naming-convention
     1: 'second', // eslint-disable-line @typescript-eslint/naming-convention
@@ -703,7 +703,7 @@ test('finalFormat uses array brackets when object is array-like', (t) => {
 })
 
 test('finalFormat uses array brackets with maxDepthReached when options.array is true', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const object = { a: 1, b: 2 }
   const representation = context.represent(object) as ObjectRepresentation
 
@@ -717,7 +717,7 @@ test('finalFormat uses array brackets with maxDepthReached when options.array is
 })
 
 test('finalFormat uses array brackets with empty formatter when options.array is true', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const object = {} // Empty object
   const representation = context.represent(object) as ObjectRepresentation
 
@@ -741,7 +741,7 @@ test('finalFormat does not render Array constructor name when options.array is t
 
   const fakeArray = new Fake()
 
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const representation = context.represent(fakeArray) as ObjectRepresentation
 
   const formatter = new Formatter(deriveTheme())
@@ -760,7 +760,7 @@ test('finalFormat does not render Array constructor name when options.array is t
 
 test('finalFormat renders disambiguationHint when provided', (t) => {
   {
-    const context = new DescriptionContext()
+    const context = new RealValueContext()
     const empty = {}
     const representation = context.represent(empty) as ObjectRepresentation
 
@@ -773,7 +773,7 @@ test('finalFormat renders disambiguationHint when provided', (t) => {
   }
 
   {
-    const context = new DescriptionContext()
+    const context = new RealValueContext()
     const object = {}
     const representation = context.represent(object) as ObjectRepresentation
 
@@ -786,7 +786,7 @@ test('finalFormat renders disambiguationHint when provided', (t) => {
   }
 
   {
-    const context = new DescriptionContext()
+    const context = new RealValueContext()
     const object = {}
     const representation = context.represent(object) as ObjectRepresentation
 

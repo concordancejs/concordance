@@ -1,6 +1,6 @@
 import { mock } from 'node:test'
 import test from 'ava'
-import { DescriptionContext } from '../../../description-context.ts'
+import { RealValueContext } from '../../../real-value-context.ts'
 import { Encoder } from '../../../encoder.ts'
 import { Decoder } from '../../../decoder.ts'
 import { DeserializationContext } from '../../../deserialization-context.ts'
@@ -14,7 +14,7 @@ import { deriveTheme } from '../../../theme.ts'
 
 // Deserialize method test
 test('deserialize creates a comparable RegExpRepresentation', (t) => {
-  const originalContext = new DescriptionContext()
+  const originalContext = new RealValueContext()
   const regexp = /test/i
   const original = originalContext.represent(regexp) as RegExpRepresentation
 
@@ -32,7 +32,7 @@ test('deserialize creates a comparable RegExpRepresentation', (t) => {
 
 // Compare method tests - just basic identity checks since comparison is inherited
 test('compare returns strictlyEqual when comparing the same regexp instance', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const regexp = /test/i
 
   const regexpRep1 = context.represent(regexp) as RegExpRepresentation
@@ -42,7 +42,7 @@ test('compare returns strictlyEqual when comparing the same regexp instance', (t
 })
 
 test('compare returns unequal when comparing to non-RegExpRepresentation', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const regexp = /test/i
   const object = {}
 
@@ -54,7 +54,7 @@ test('compare returns unequal when comparing to non-RegExpRepresentation', (t) =
 
 // The key test - verify that the right properties are included
 test('iterateProperties yields flags and source properties for regexps', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const regexp = /test/i
   const regexpRep = context.represent(regexp) as RegExpRepresentation
 
@@ -94,7 +94,7 @@ test('iterateProperties yields flags and source properties for regexps', (t) => 
 
 // Serialization test
 test('serialize uses regExp static type', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const regexp = /test/i
   const regexpRep = context.represent(regexp) as RegExpRepresentation
 
@@ -110,7 +110,7 @@ test('serialize uses regExp static type', (t) => {
 })
 
 test('serializing and deserializing a RegExp preserves its structure', (t) => {
-  const originalContext = new DescriptionContext()
+  const originalContext = new RealValueContext()
   const regexp = /test/i
   const original = originalContext.represent(regexp) as RegExpRepresentation
 
@@ -128,7 +128,7 @@ test('serializing and deserializing a RegExp preserves its structure', (t) => {
 
 // Preformat test
 test('preformat performs setup only', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const regexp = /test/i
   const regexpRep = context.represent(regexp) as RegExpRepresentation
 
@@ -139,7 +139,7 @@ test('preformat performs setup only', (t) => {
 })
 
 // Helper function to set up a RegExpRepresentation for testing
-function injectProperties(context: DescriptionContext, regexp: RegExp, representation: RegExpRepresentation) {
+function injectProperties(context: RealValueContext, regexp: RegExp, representation: RegExpRepresentation) {
   const { mock: notifyNextExplicitlyNamedPropertyAccess } = mock.method(
     context,
     'notifyNextExplicitlyNamedPropertyAccess',
@@ -170,7 +170,7 @@ function injectProperties(context: DescriptionContext, regexp: RegExp, represent
 
 // ShouldFormatNamedProperty test
 test('shouldFormatNamedProperty returns false for flags and source properties', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const regexp = /test/i
   const regexpRep = context.represent(regexp) as RegExpRepresentation
   const { flagsProperty, sourceProperty } = injectProperties(context, regexp, regexpRep)
@@ -185,7 +185,7 @@ test('shouldFormatNamedProperty returns false for flags and source properties', 
 
 // FinalFormat tests
 test('finalFormat renders regexp literal notation by default', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const regexp = /test/i
   const regexpRep = context.represent(regexp) as RegExpRepresentation
   injectProperties(context, regexp, regexpRep)
@@ -212,7 +212,7 @@ test('finalFormat renders regexp literal notation by default', (t) => {
 })
 
 test('finalFormat includes disambiguation hint when options.disambiguationHint is true, but only if there are shenanigans', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const regexp = /test/i
   Object.defineProperties(regexp, { [Symbol.toStringTag]: { value: 'Shenanigans' } })
   const regexpRep = context.represent(regexp) as RegExpRepresentation
@@ -236,7 +236,7 @@ test('finalFormat includes disambiguation hint when options.disambiguationHint i
 })
 
 test('finalFormat renders object notation for regexp with additional properties', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const regexp = /test/i
   const regexpRep = context.represent(regexp) as RegExpRepresentation
   injectProperties(context, regexp, regexpRep)
@@ -261,7 +261,7 @@ test('finalFormat renders object notation for regexp with additional properties'
 })
 
 test('finalFormat renders object notation for regexp with custom constructor name', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const regexp = /test/i
   const regexpRep = context.represent(regexp) as RegExpRepresentation
   injectProperties(context, regexp, regexpRep)

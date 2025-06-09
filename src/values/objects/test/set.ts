@@ -1,5 +1,5 @@
 import test from 'ava'
-import { DescriptionContext } from '../../../description-context.ts'
+import { RealValueContext } from '../../../real-value-context.ts'
 import { Encoder } from '../../../encoder.ts'
 import { Decoder } from '../../../decoder.ts'
 import { DeserializationContext } from '../../../deserialization-context.ts'
@@ -12,7 +12,7 @@ import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
 
 // Deserialize method test
 test('deserialize creates a comparable SetRepresentation', (t) => {
-  const originalContext = new DescriptionContext()
+  const originalContext = new RealValueContext()
   const set = new Set(['value1', 'value2'])
   const original = originalContext.represent(set) as SetRepresentation
 
@@ -30,7 +30,7 @@ test('deserialize creates a comparable SetRepresentation', (t) => {
 
 // Compare method tests
 test('compare returns strictlyEqual when comparing the same set instance', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const set = new Set(['value1', 'value2'])
 
   const setRep1 = context.represent(set) as SetRepresentation
@@ -40,7 +40,7 @@ test('compare returns strictlyEqual when comparing the same set instance', (t) =
 })
 
 test('compare returns unequal when comparing to non-SetRepresentation', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const set = new Set(['value1', 'value2'])
   const object = {}
 
@@ -51,7 +51,7 @@ test('compare returns unequal when comparing to non-SetRepresentation', (t) => {
 })
 
 test('compare returns unequal when comparing sets of different sizes', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const set1 = new Set(['value1', 'value2'])
   const set2 = new Set(['value1'])
 
@@ -62,7 +62,7 @@ test('compare returns unequal when comparing sets of different sizes', (t) => {
 })
 
 test('compare returns comparable when comparing different set instances with same values', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const set1 = new Set(['value1', 'value2'])
   const set2 = new Set(['value1', 'value2'])
 
@@ -74,7 +74,7 @@ test('compare returns comparable when comparing different set instances with sam
 })
 
 test('compare returns comparable when comparing sets with different values', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const set1 = new Set(['value1', 'value2'])
   const set2 = new Set(['value1', 'different'])
 
@@ -86,7 +86,7 @@ test('compare returns comparable when comparing sets with different values', (t)
 })
 
 test('compare handles sets with complex values', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Create sets with objects and arrays as values
   const value1 = { id: 1 }
@@ -106,7 +106,7 @@ test('compare handles sets with complex values', (t) => {
 
 // IterateArrayLike test
 test('iterateArrayLike yields no elements for sets', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const set = new Set(['value1', 'value2'])
   const setRep = context.represent(set) as SetRepresentation
 
@@ -117,7 +117,7 @@ test('iterateArrayLike yields no elements for sets', (t) => {
 
 // IterateIterable test
 test('iterateIterable yields values for sets', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const set = new Set(['value1', 'value2'])
   const setRep = context.represent(set) as SetRepresentation
 
@@ -143,7 +143,7 @@ test('iterateIterable yields values for sets', (t) => {
 })
 
 test('iterateIterable preserves insertion order', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Create a set with specific insertion order
   const set = new Set()
@@ -189,7 +189,7 @@ test('iterateIterable preserves insertion order', (t) => {
 
 // Serialization tests
 test('serialize uses set static type and includes size annotation', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const set = new Set(['value1', 'value2'])
   const setRep = context.represent(set) as SetRepresentation
 
@@ -207,7 +207,7 @@ test('serialize uses set static type and includes size annotation', (t) => {
 })
 
 test('serializing and deserializing a Set preserves its structure', (t) => {
-  const originalContext = new DescriptionContext()
+  const originalContext = new RealValueContext()
 
   // Create a set with some values
   const set = new Set(['value1', 'value2'])
@@ -236,7 +236,7 @@ test('serializing and deserializing a Set preserves its structure', (t) => {
 })
 
 test('handles empty sets correctly', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const emptySet = new Set()
   const emptySetRep = context.represent(emptySet) as SetRepresentation
 
@@ -260,7 +260,7 @@ test('handles empty sets correctly', (t) => {
 
 // FinalFormat tests
 test('finalFormat passes object brackets and does not include disambiguation hint by default', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const set = new Set(['value1', 'value2'])
   const setRep = context.represent(set) as SetRepresentation
 
@@ -281,7 +281,7 @@ test('finalFormat passes object brackets and does not include disambiguation hin
 })
 
 test('finalFormat passes object brackets and shows disambiguation hint when options.disambiguationHint is true', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const set = new Set(['value1', 'value2'])
   const setRep = context.represent(set) as SetRepresentation
 

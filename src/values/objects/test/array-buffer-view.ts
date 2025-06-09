@@ -1,5 +1,5 @@
 import test from 'ava'
-import { DescriptionContext } from '../../../description-context.ts'
+import { RealValueContext } from '../../../real-value-context.ts'
 import { Encoder } from '../../../encoder.ts'
 import { Decoder } from '../../../decoder.ts'
 import { DeserializationContext } from '../../../deserialization-context.ts'
@@ -13,7 +13,7 @@ import { deriveTheme } from '../../../theme.ts'
 
 // Compare method tests
 test('compare returns strictlyEqual when comparing the same array buffer view instance', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const view = new Uint8Array([1, 2, 3, 4])
 
   const viewRep1 = context.represent(view) as ArrayBufferViewRepresentation
@@ -23,7 +23,7 @@ test('compare returns strictlyEqual when comparing the same array buffer view in
 })
 
 test('compare returns unequal when comparing to non-ArrayBufferViewRepresentation', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const view = new Uint8Array([1, 2, 3, 4])
   const object = {}
 
@@ -34,7 +34,7 @@ test('compare returns unequal when comparing to non-ArrayBufferViewRepresentatio
 })
 
 test('compare returns unequal when comparing array buffer views with different content', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const view1 = new Uint8Array([1, 2, 3, 4])
   const view2 = new Uint8Array([1, 2, 3, 5]) // Different last byte
 
@@ -45,7 +45,7 @@ test('compare returns unequal when comparing array buffer views with different c
 })
 
 test('compare considers offset and length within the underlying buffer', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const buffer = new ArrayBuffer(8)
 
   // Fill the buffer with data.
@@ -63,7 +63,7 @@ test('compare considers offset and length within the underlying buffer', (t) => 
 })
 
 test('compare returns unequal for array buffer views with same content but different types', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Create two different view types on the same content
   const buffer = new ArrayBuffer(4)
@@ -78,7 +78,7 @@ test('compare returns unequal for array buffer views with same content but diffe
 })
 
 test('compare returns comparable when comparing against a deserialized representation', (t) => {
-  const originalContext = new DescriptionContext()
+  const originalContext = new RealValueContext()
   const view = new Uint8Array([1, 2, 3, 4])
   const original = originalContext.represent(view) as ArrayBufferViewRepresentation
 
@@ -97,7 +97,7 @@ test('compare returns comparable when comparing against a deserialized represent
 })
 
 test('compare correctly handles empty array buffer views', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Create two different empty views
   const emptyView1 = new Uint8Array(0)
@@ -131,7 +131,7 @@ test('compare correctly handles empty array buffer views', (t) => {
 
 // IterateArrayLike and iterateIterable tests
 test('iterateArrayLike yields no elements for array buffer views', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const view = new Uint8Array([1, 2, 3, 4])
   const viewRep = context.represent(view) as ArrayBufferViewRepresentation
 
@@ -141,7 +141,7 @@ test('iterateArrayLike yields no elements for array buffer views', (t) => {
 })
 
 test('iterateIterable yields no elements for array buffer views', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const view = new Uint8Array([1, 2, 3, 4])
   const viewRep = context.represent(view) as ArrayBufferViewRepresentation
 
@@ -152,7 +152,7 @@ test('iterateIterable yields no elements for array buffer views', (t) => {
 
 // Serialization tests
 test('serialize uses arrayBufferView static type and includes bytes annotation', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const view = new Uint8Array([1, 2, 3, 4])
   const viewRep = context.represent(view) as ArrayBufferViewRepresentation
 
@@ -173,7 +173,7 @@ test('serialize uses arrayBufferView static type and includes bytes annotation',
 
 // Formatter tests
 test('preformat appends formatted bytes', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const view = new Uint8Array([0xde, 0xad, 0xbe, 0xef])
   const viewRep = context.represent(view) as ArrayBufferViewRepresentation
 
@@ -186,7 +186,7 @@ test('preformat appends formatted bytes', (t) => {
 })
 
 test('finalFormat uses array brackets and no disambiguation hint by default', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const view = new Uint8Array([0xde, 0xad, 0xbe, 0xef])
   const viewRep = context.represent(view) as ArrayBufferViewRepresentation
 
@@ -207,7 +207,7 @@ test('finalFormat uses array brackets and no disambiguation hint by default', (t
 })
 
 test('finalFormat shows disambiguation hint when options.disambiguationHint is true', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const view = new Uint8Array([0xde, 0xad, 0xbe, 0xef])
   const viewRep = context.represent(view) as ArrayBufferViewRepresentation
 
@@ -228,7 +228,7 @@ test('finalFormat shows disambiguation hint when options.disambiguationHint is t
 })
 
 test('integration of preformat and finalFormat produces correct output', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const view = new Uint8Array([0xde, 0xad, 0xbe, 0xef])
   const viewRep = context.represent(view) as ArrayBufferViewRepresentation
 
@@ -249,7 +249,7 @@ test('integration of preformat and finalFormat produces correct output', (t) => 
 })
 
 test('preformat followed by finalFormat handles different typed array types correctly', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const views = [
     new Uint8Array([1, 2, 3, 4]),
     new Int8Array([1, 2, -3, -4]),

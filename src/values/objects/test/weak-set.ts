@@ -1,5 +1,5 @@
 import test from 'ava'
-import { DescriptionContext } from '../../../description-context.ts'
+import { RealValueContext } from '../../../real-value-context.ts'
 import { Encoder } from '../../../encoder.ts'
 import { Decoder } from '../../../decoder.ts'
 import { DeserializationContext } from '../../../deserialization-context.ts'
@@ -12,7 +12,7 @@ import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
 
 // Deserialize method test
 test('deserialize creates a comparable WeakSetRepresentation', (t) => {
-  const originalContext = new DescriptionContext()
+  const originalContext = new RealValueContext()
   const weakSet = new WeakSet()
   const original = originalContext.represent(weakSet) as WeakSetRepresentation
 
@@ -31,7 +31,7 @@ test('deserialize creates a comparable WeakSetRepresentation', (t) => {
 
 // Compare method tests
 test('compare returns strictlyEqual when comparing the same weakSet instance', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const weakSet = new WeakSet()
 
   const weakSetRep1 = context.represent(weakSet) as WeakSetRepresentation
@@ -41,7 +41,7 @@ test('compare returns strictlyEqual when comparing the same weakSet instance', (
 })
 
 test('compare returns unequal when comparing to non-WeakSetRepresentation', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const weakSet = new WeakSet()
   const object = {}
 
@@ -52,7 +52,7 @@ test('compare returns unequal when comparing to non-WeakSetRepresentation', (t) 
 })
 
 test('compare returns possiblyEqual when comparing different weakSet instances', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const weakSet1 = new WeakSet()
   const weakSet2 = new WeakSet()
 
@@ -70,7 +70,7 @@ test('compare returns possiblyEqual when comparing different weakSet instances',
 })
 
 test('compare returns unequal when comparing WeakSets with different constructor names', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Create a regular WeakSet
   const weakSet = new WeakSet()
@@ -89,7 +89,7 @@ test('compare returns unequal when comparing WeakSets with different constructor
 
 // Serialization test
 test('serialize uses weakSet static type', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const weakSet = new WeakSet()
   const weakSetRep = context.represent(weakSet) as WeakSetRepresentation
 
@@ -106,7 +106,7 @@ test('serialize uses weakSet static type', (t) => {
 
 // FinalFormat tests
 test('finalFormat passes object brackets and does not include disambiguation hint by default', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const weakSet = new WeakSet()
   const weakSetRep = context.represent(weakSet) as WeakSetRepresentation
 
@@ -127,7 +127,7 @@ test('finalFormat passes object brackets and does not include disambiguation hin
 })
 
 test('finalFormat passes object brackets and shows disambiguation hint when options.disambiguationHint is true', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const weakSet = new WeakSet()
   const weakSetRep = context.represent(weakSet) as WeakSetRepresentation
 

@@ -1,5 +1,5 @@
 import test from 'ava'
-import { compare, compareDescriptors } from '../compare.ts'
+import { compare, compareRepresentations } from '../compare.ts'
 import {
   comparable,
   comparableAfterAlignment,
@@ -90,14 +90,14 @@ test('compareDescriptors returns true when both value representations are deeply
   const lhs = new MockValueRepresentation(deeplyEqual)
   const rhs = new MockValueRepresentation(deeplyEqual)
 
-  t.true(compareDescriptors(lhs, rhs))
+  t.true(compareRepresentations(lhs, rhs))
 })
 
 test('compareDescriptors returns false when value representations are unequal', (t) => {
   const lhs = new MockValueRepresentation(unequal)
   const rhs = new MockValueRepresentation(unequal)
 
-  t.false(compareDescriptors(lhs, rhs))
+  t.false(compareRepresentations(lhs, rhs))
 })
 
 test('compareDescriptors handles circular references correctly', (t) => {
@@ -113,7 +113,7 @@ test('compareDescriptors handles circular references correctly', (t) => {
   lhs.children = [lhsChild]
   rhs.children = [rhsChild]
 
-  t.true(compareDescriptors(lhs, rhs))
+  t.true(compareRepresentations(lhs, rhs))
 })
 
 test('compareDescriptors returns false when circular references are at different depths', (t) => {
@@ -128,7 +128,7 @@ test('compareDescriptors returns false when circular references are at different
   rhs.children = [rhsChild]
   rhsChild.children = [rhsGrandchild]
 
-  t.false(compareDescriptors(lhs, rhs))
+  t.false(compareRepresentations(lhs, rhs))
 })
 
 test('compareDescriptors returns false when only rhs has circular reference', (t) => {
@@ -141,14 +141,14 @@ test('compareDescriptors returns false when only rhs has circular reference', (t
   rhs.children = [rhs] // Direct circular reference in rhs
 
   // This will trigger the branch where rhsStack.includes(rhs) is true but lhsStack.includes(lhs) is false
-  t.false(compareDescriptors(lhs, rhs))
+  t.false(compareRepresentations(lhs, rhs))
 })
 
 test('compareDescriptors returns true when alignment is necessary', (t) => {
   const lhs = new MockValueRepresentation(comparableAfterAlignment, [], true)
   const rhs = new MockValueRepresentation(comparableAfterAlignment)
 
-  t.true(compareDescriptors(lhs, rhs))
+  t.true(compareRepresentations(lhs, rhs))
   t.true(lhs.aligned, 'lhs should be aligned with rhs')
 })
 
@@ -162,7 +162,7 @@ test('compareDescriptors handles nested value traversal correctly', (t) => {
   const rhsChild2 = new MockValueRepresentation(comparable)
   const rhs = new MockValueRepresentation(comparable, [rhsChild1, rhsChild2])
 
-  t.true(compareDescriptors(lhs, rhs))
+  t.true(compareRepresentations(lhs, rhs))
 })
 
 test('compareDescriptors returns false when one representation has more children', (t) => {
@@ -173,7 +173,7 @@ test('compareDescriptors returns false when one representation has more children
   const rhsChild2 = new MockValueRepresentation(comparable)
   const rhs = new MockValueRepresentation(comparable, [rhsChild1, rhsChild2])
 
-  t.false(compareDescriptors(lhs, rhs))
+  t.false(compareRepresentations(lhs, rhs))
 })
 
 test('compareDescriptors returns false when children are unequal', (t) => {
@@ -185,12 +185,12 @@ test('compareDescriptors returns false when children are unequal', (t) => {
   const rhsChild2 = new MockValueRepresentation(comparable)
   const rhs = new MockValueRepresentation(comparable, [rhsChild1, rhsChild2])
 
-  t.false(compareDescriptors(lhs, rhs))
+  t.false(compareRepresentations(lhs, rhs))
 })
 
 test('compareDescriptors gracefully handles empty iterators', (t) => {
   const lhs = new MockValueRepresentation(comparable, [])
   const rhs = new MockValueRepresentation(comparable, [])
 
-  t.true(compareDescriptors(lhs, rhs))
+  t.true(compareRepresentations(lhs, rhs))
 })

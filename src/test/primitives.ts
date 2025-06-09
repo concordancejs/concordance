@@ -1,6 +1,6 @@
 import test from 'ava'
 import { isPrimitive, representPrimitive } from '../primitives.ts'
-import { DescriptionContext } from '../description-context.ts'
+import { RealValueContext } from '../real-value-context.ts'
 import { StringRepresentation } from '../values/primitives/string.ts'
 import { NumberRepresentation } from '../values/primitives/number.ts'
 import { BooleanRepresentation } from '../values/primitives/boolean.ts'
@@ -44,21 +44,21 @@ test('isPrimitive identifies primitive values correctly', (t) => {
 // -----------------------------------------------------------------------------
 
 test('representPrimitive returns correct representation for null', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const representation = representPrimitive(context, null)
 
   t.true(representation instanceof NullRepresentation)
 })
 
 test('representPrimitive returns correct representation for undefined', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const representation = representPrimitive(context, undefined)
 
   t.true(representation instanceof UndefinedRepresentation)
 })
 
 test('representPrimitive returns correct representation for booleans', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   const trueRepresentation = representPrimitive(context, true)
   t.true(trueRepresentation instanceof BooleanRepresentation)
@@ -68,7 +68,7 @@ test('representPrimitive returns correct representation for booleans', (t) => {
 })
 
 test('representPrimitive returns correct representation for numbers', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   const regularNumber = representPrimitive(context, 42)
   t.true(regularNumber instanceof NumberRepresentation)
@@ -87,7 +87,7 @@ test('representPrimitive returns correct representation for numbers', (t) => {
 })
 
 test('representPrimitive returns correct representation for bigints', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   const bigInt = representPrimitive(context, BigInt(123))
   t.true(bigInt instanceof BigIntRepresentation)
@@ -100,7 +100,7 @@ test('representPrimitive returns correct representation for bigints', (t) => {
 })
 
 test('representPrimitive returns correct representation for strings', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   const regularString = representPrimitive(context, 'hello')
   t.true(regularString instanceof StringRepresentation)
@@ -113,7 +113,7 @@ test('representPrimitive returns correct representation for strings', (t) => {
 })
 
 test('representPrimitive returns correct representation for symbols', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   const regularSymbol = Symbol('test')
   const symbolRep = representPrimitive(context, regularSymbol)
@@ -129,7 +129,7 @@ test('representPrimitive returns correct representation for symbols', (t) => {
 })
 
 test('representPrimitive throws for non-primitive values', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Objects aren't primitives, so representPrimitive should throw when called with them
   t.throws(() => representPrimitive(context, {}), { name: 'TypeError', message: 'Not a primitive value' })
@@ -148,7 +148,7 @@ test('representPrimitive uses context for symbol representation', (t) => {
   const mockContext = {
     deserialized: false,
     describeSymbol: () => ({ string: 'mock-symbol', key: undefined, wellKnown: undefined }),
-  } as unknown as DescriptionContext
+  } as unknown as RealValueContext
 
   const symbol = Symbol('test')
   const representation = representPrimitive(mockContext, symbol)

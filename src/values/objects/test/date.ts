@@ -1,5 +1,5 @@
 import test from 'ava'
-import { DescriptionContext } from '../../../description-context.ts'
+import { RealValueContext } from '../../../real-value-context.ts'
 import { Encoder } from '../../../encoder.ts'
 import { Decoder } from '../../../decoder.ts'
 import { DeserializationContext } from '../../../deserialization-context.ts'
@@ -15,7 +15,7 @@ const firstCommitDate = new Date('2017-02-17T16:58:13Z')
 
 // Deserialize method test
 test('deserialize creates a comparable DateRepresentation', (t) => {
-  const originalContext = new DescriptionContext()
+  const originalContext = new RealValueContext()
   const date = firstCommitDate
   const original = originalContext.represent(date) as DateRepresentation
 
@@ -33,7 +33,7 @@ test('deserialize creates a comparable DateRepresentation', (t) => {
 
 // Compare method tests
 test('compare returns strictlyEqual when comparing the same date instance', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const date = firstCommitDate
 
   const dateRep1 = context.represent(date) as DateRepresentation
@@ -43,7 +43,7 @@ test('compare returns strictlyEqual when comparing the same date instance', (t) 
 })
 
 test('compare returns unequal when comparing to non-DateRepresentation', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const date = firstCommitDate
   const object = {}
 
@@ -54,7 +54,7 @@ test('compare returns unequal when comparing to non-DateRepresentation', (t) => 
 })
 
 test('compare returns unequal when comparing dates with different timestamps', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const date1 = firstCommitDate
   const date2 = new Date(firstCommitDate.getTime() + 1000) // Add 1 second
 
@@ -65,7 +65,7 @@ test('compare returns unequal when comparing dates with different timestamps', (
 })
 
 test('compare returns comparable when comparing different date instances with same timestamp', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   // Create two different Date instances with the same timestamp
   const date1 = new Date(firstCommitDate)
   const date2 = new Date(firstCommitDate)
@@ -78,7 +78,7 @@ test('compare returns comparable when comparing different date instances with sa
 })
 
 test('compare handles invalid dates correctly', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Create invalid date objects
   const invalidDate1 = new Date('invalid')
@@ -103,7 +103,7 @@ test('compare handles invalid dates correctly', (t) => {
 
 // IterateArrayLike and iterateIterable tests
 test('iterateArrayLike yields no elements for dates', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const date = firstCommitDate
   const dateRep = context.represent(date) as DateRepresentation
 
@@ -113,7 +113,7 @@ test('iterateArrayLike yields no elements for dates', (t) => {
 })
 
 test('iterateIterable yields no elements for dates', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const date = firstCommitDate
   const dateRep = context.represent(date) as DateRepresentation
 
@@ -124,7 +124,7 @@ test('iterateIterable yields no elements for dates', (t) => {
 
 // Serialization tests
 test('serialize uses date static type and includes valueOf annotation', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const date = firstCommitDate
   const dateRep = context.represent(date) as DateRepresentation
 
@@ -144,7 +144,7 @@ test('serialize uses date static type and includes valueOf annotation', (t) => {
 })
 
 test('serializing and deserializing a Date preserves its timestamp', (t) => {
-  const originalContext = new DescriptionContext()
+  const originalContext = new RealValueContext()
 
   // Test with various dates including the first commit date
   const dates = [
@@ -171,7 +171,7 @@ test('serializing and deserializing a Date preserves its timestamp', (t) => {
 
 // Formatting tests
 test('preformat formats valid dates correctly', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const date = new Date('2023-04-15T12:30:45.678Z')
   const dateRep = context.represent(date) as DateRepresentation
 
@@ -192,7 +192,7 @@ test('preformat formats valid dates correctly', (t) => {
 })
 
 test('preformat formats invalid dates correctly', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const invalidDate = new Date('invalid')
   const dateRep = context.represent(invalidDate) as DateRepresentation
 
@@ -215,7 +215,7 @@ test('preformat formats invalid dates correctly', (t) => {
 })
 
 test('finalFormat uses object brackets by default', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const date = new Date('2023-04-15T12:30:45.678Z')
   const dateRep = context.represent(date) as DateRepresentation
 
@@ -237,7 +237,7 @@ test('finalFormat uses object brackets by default', (t) => {
 })
 
 test('finalFormat shows disambiguation hint when options.disambiguationHint is true', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const date = new Date('2023-04-15T12:30:45.678Z')
   const dateRep = context.represent(date) as DateRepresentation
 
@@ -258,7 +258,7 @@ test('finalFormat shows disambiguation hint when options.disambiguationHint is t
 })
 
 test('integration of preformat and finalFormat produces correct output', (t) => {
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
   const date = new Date('2023-04-15T12:30:45.678Z')
   const dateRep = context.represent(date) as DateRepresentation
 

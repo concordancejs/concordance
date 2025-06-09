@@ -21,7 +21,7 @@ import {
 import { MapEntryAccessor } from '../accessors/map-entry.ts'
 import { IteratorValueAccessor } from '../accessors/iterator-value.ts'
 import type { ValueRepresentation } from '../value.ts'
-import { DescriptionContext } from '../description-context.ts'
+import { RealValueContext } from '../real-value-context.ts'
 import { SymbolRepresentation } from '../values/primitives/symbol.ts'
 
 const cborOptions = {
@@ -226,7 +226,7 @@ test('serialize handles NamedPropertyGroup objects', (t) => {
   })
 
   // Create a context for the property group
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Create a named property accessor group
   const namedProperties = [
@@ -269,7 +269,7 @@ test('serialize handles SymbolPropertyGroup objects', (t) => {
   })
 
   // Create a context
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Create symbol representations
   const symbol1Rep = new SymbolRepresentation(context, Symbol('testSymbol1') as unknown as Record<string, unknown>)
@@ -347,7 +347,7 @@ test('serialize handles IteratorValueAccessor objects', (t) => {
 
 test('serialize handles MapEntryAccessor objects', (t) => {
   // Create a context for the accessors
-  const context = new DescriptionContext()
+  const context = new RealValueContext()
 
   // Create key and value representations
   const keyValue = new MockValueRepresentation({
