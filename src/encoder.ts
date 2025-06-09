@@ -1,5 +1,4 @@
-import type * as cbor from 'cbor2'
-import { Writer } from 'cbor2/writer'
+import * as cbor from 'cbor2'
 import {
   writeBigInt,
   writeFloat,
@@ -15,7 +14,7 @@ import { type StaticType, staticTypeTable } from './serialization-types.ts'
 export type Annotations = Record<string, boolean | number | string | BytesAccessor>
 
 export class Encoder {
-  readonly #writer = new Writer()
+  readonly #writer = new cbor.Writer()
   readonly #options: cbor.RequiredEncodeOptions = {
     chunkSize: 4096,
     avoidInts: false,
