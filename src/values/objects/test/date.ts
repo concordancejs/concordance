@@ -11,12 +11,12 @@ import { Formatter } from '../../../formatter.ts'
 import { deriveTheme } from '../../../theme.ts'
 
 // Use the first commit timestamp for testing
-const FIRST_COMMIT_DATE = new Date('2017-02-17T16:58:13Z')
+const firstCommitDate = new Date('2017-02-17T16:58:13Z')
 
 // Deserialize method test
 test('deserialize creates a comparable DateRepresentation', (t) => {
   const originalContext = new DescriptionContext()
-  const date = FIRST_COMMIT_DATE
+  const date = firstCommitDate
   const original = originalContext.represent(date) as DateRepresentation
 
   const encoder = new Encoder()
@@ -34,7 +34,7 @@ test('deserialize creates a comparable DateRepresentation', (t) => {
 // Compare method tests
 test('compare returns strictlyEqual when comparing the same date instance', (t) => {
   const context = new DescriptionContext()
-  const date = FIRST_COMMIT_DATE
+  const date = firstCommitDate
 
   const dateRep1 = context.represent(date) as DateRepresentation
   const dateRep2 = context.represent(date) as DateRepresentation
@@ -44,19 +44,19 @@ test('compare returns strictlyEqual when comparing the same date instance', (t) 
 
 test('compare returns unequal when comparing to non-DateRepresentation', (t) => {
   const context = new DescriptionContext()
-  const date = FIRST_COMMIT_DATE
-  const obj = {}
+  const date = firstCommitDate
+  const object = {}
 
   const dateRep = context.represent(date) as DateRepresentation
-  const objRep = context.represent(obj)
+  const objectRep = context.represent(object)
 
-  t.is(dateRep.compare(objRep), unequal)
+  t.is(dateRep.compare(objectRep), unequal)
 })
 
 test('compare returns unequal when comparing dates with different timestamps', (t) => {
   const context = new DescriptionContext()
-  const date1 = FIRST_COMMIT_DATE
-  const date2 = new Date(FIRST_COMMIT_DATE.getTime() + 1000) // Add 1 second
+  const date1 = firstCommitDate
+  const date2 = new Date(firstCommitDate.getTime() + 1000) // Add 1 second
 
   const dateRep1 = context.represent(date1) as DateRepresentation
   const dateRep2 = context.represent(date2) as DateRepresentation
@@ -67,8 +67,8 @@ test('compare returns unequal when comparing dates with different timestamps', (
 test('compare returns comparable when comparing different date instances with same timestamp', (t) => {
   const context = new DescriptionContext()
   // Create two different Date instances with the same timestamp
-  const date1 = new Date(FIRST_COMMIT_DATE.getTime())
-  const date2 = new Date(FIRST_COMMIT_DATE.getTime())
+  const date1 = new Date(firstCommitDate)
+  const date2 = new Date(firstCommitDate)
 
   const dateRep1 = context.represent(date1) as DateRepresentation
   const dateRep2 = context.represent(date2) as DateRepresentation
@@ -95,16 +95,16 @@ test('compare handles invalid dates correctly', (t) => {
   t.is(invalidDateRep1.compare(invalidDateRep2), comparable)
 
   // An invalid date should be unequal to a valid date
-  const validDate = FIRST_COMMIT_DATE
+  const validDate = firstCommitDate
   const validDateRep = context.represent(validDate) as DateRepresentation
 
   t.is(invalidDateRep1.compare(validDateRep), unequal)
 })
 
-// iterateArrayLike and iterateIterable tests
+// IterateArrayLike and iterateIterable tests
 test('iterateArrayLike yields no elements for dates', (t) => {
   const context = new DescriptionContext()
-  const date = FIRST_COMMIT_DATE
+  const date = firstCommitDate
   const dateRep = context.represent(date) as DateRepresentation
 
   const elements = [...dateRep.iterateArrayLike()]
@@ -114,7 +114,7 @@ test('iterateArrayLike yields no elements for dates', (t) => {
 
 test('iterateIterable yields no elements for dates', (t) => {
   const context = new DescriptionContext()
-  const date = FIRST_COMMIT_DATE
+  const date = firstCommitDate
   const dateRep = context.represent(date) as DateRepresentation
 
   const iterables = [...dateRep.iterateIterable()]
@@ -125,7 +125,7 @@ test('iterateIterable yields no elements for dates', (t) => {
 // Serialization tests
 test('serialize uses date static type and includes valueOf annotation', (t) => {
   const context = new DescriptionContext()
-  const date = FIRST_COMMIT_DATE
+  const date = firstCommitDate
   const dateRep = context.represent(date) as DateRepresentation
 
   const encoder = new Encoder()
@@ -148,7 +148,7 @@ test('serializing and deserializing a Date preserves its timestamp', (t) => {
 
   // Test with various dates including the first commit date
   const dates = [
-    FIRST_COMMIT_DATE,
+    firstCommitDate,
     new Date(0), // Epoch
     new Date('invalid'), // Invalid date
   ]
@@ -165,7 +165,7 @@ test('serializing and deserializing a Date preserves its timestamp', (t) => {
     const deserialized = DateRepresentation.deserialize(deserializationContext, decoder)
 
     // The original and deserialized representations should be comparable
-    t.is(original.compare(deserialized), comparable, `Failed for date: ${date}`)
+    t.is(original.compare(deserialized), comparable, `Failed for date: ${String(date)}`)
   }
 })
 

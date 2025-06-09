@@ -40,7 +40,7 @@ test('append adds values to the accumulator in order', (t) => {
   formatter.close()
 
   // Convert the formatter to an array to check its contents
-  const values = Array.from(formatter)
+  const values = [...formatter]
   t.true(values.includes('first'))
   t.true(values.includes('second'))
   t.true(values.includes('third'))
@@ -69,7 +69,7 @@ test('prepend adds values to the beginning of the accumulator in order', (t) => 
   formatter.prepend('first')
   formatter.close()
 
-  const values = Array.from(formatter)
+  const values = [...formatter]
 
   // Values should be present
   t.true(values.includes('first'))
@@ -108,7 +108,7 @@ test('prefix adds values to the beginning of the accumulator in the order called
   formatter.prefix('second')
   formatter.close()
 
-  const values = Array.from(formatter)
+  const values = [...formatter]
 
   // The prefix method adds values at the beginning
   t.true(values.includes('first'))
@@ -144,7 +144,7 @@ test('open creates a new deeper formatter', (t) => {
 
   formatter.close()
 
-  const values = Array.from(formatter)
+  const values = [...formatter]
   t.is(values.length, 4)
   t.is(values[0], 1) // Parent depth
   t.is(values[1], 2) // Child depth
@@ -235,8 +235,7 @@ test('close with value respects parent depth in nested formatters', (t) => {
   const indent2 = testTheme.indent.repeat(2)
   const indent3 = testTheme.indent.repeat(3)
 
-  const expectedResult =
-    'root\n' + `${indent2}level 1\n` + `${indent3}level 2\n` + `${indent2}level 2 close\n${indent1}level 1 close`
+  const expectedResult = `root\n${indent2}level 1\n${indent3}level 2\n${indent2}level 2 close\n${indent1}level 1 close`
 
   t.is(formatter.render(), expectedResult)
 })
@@ -258,14 +257,14 @@ test('cannot be iterated unless closed', (t) => {
   const formatter = new Formatter(testTheme).append('test')
 
   // Attempting to iterate before closing should throw
-  t.throws(() => Array.from(formatter), {
+  t.throws(() => [...formatter], {
     message: 'Formatter is not closed',
   })
 
   formatter.close()
 
   // Now it should work
-  t.notThrows(() => Array.from(formatter))
+  t.notThrows(() => [...formatter])
 })
 
 // -----------------------------------------------------------------------------
@@ -298,7 +297,7 @@ test('appendWrapped adds wrapped content in order', (t) => {
 
   formatter.close()
 
-  const values = Array.from(formatter)
+  const values = [...formatter]
   t.true(values.includes('[first]'))
   t.true(values.includes('{second}'))
   t.true(values.includes('[third]'))
@@ -324,7 +323,7 @@ test('prefixWrapped adds wrapped content at the beginning in the order called', 
 
   formatter.close()
 
-  const values = Array.from(formatter)
+  const values = [...formatter]
   t.true(values.includes('[first]'))
   t.true(values.includes('{second}'))
   t.true(values.includes('third'))
@@ -368,8 +367,8 @@ test('yields all accumulated values and depth values', (t) => {
   formatter.open().append('child').close()
   formatter.append('four').close()
 
-  const values = Array.from(formatter)
-  t.is(values.length, 8) // depth, 'one', 'two', 'three', depth, 'child', depth, 'four'
+  const values = [...formatter]
+  t.is(values.length, 8) // Depth, 'one', 'two', 'three', depth, 'child', depth, 'four'
   t.is(values[0], 1) // The depth marker added by the parent formatter
   t.is(values[1], 'one')
   t.is(values[2], 'two')
@@ -445,9 +444,9 @@ test('render with complex nesting and indentation', (t) => {
   formatter.append('prop2: ', '{', Formatter.lineMarker)
 
   // Content of nested object - in a deeper formatter (depth 2)
-  const nestedObj = formatter.open() // Increases depth to 2
-  nestedObj.append('nestedProp: "nestedValue"', Formatter.lineMarker)
-  nestedObj.close('}') // Closes the nested object, returns to depth 1
+  const nestedObject = formatter.open() // Increases depth to 2
+  nestedObject.append('nestedProp: "nestedValue"', Formatter.lineMarker)
+  nestedObject.close('}') // Closes the nested object, returns to depth 1
 
   // "Close" main object - at top level
   formatter.append(Formatter.lineMarker)
@@ -504,18 +503,18 @@ test('encodeTypicalIdentifier escapes common control characters', (t) => {
   const formatter = new Formatter(testTheme)
 
   // Test null byte
-  t.is(formatter.encodeTypicalIdentifier('\0'), '\\0')
+  t.is(formatter.encodeTypicalIdentifier('\0'), String.raw`\0`)
 
   // Test whitespace characters
-  t.is(formatter.encodeTypicalIdentifier('\n'), '\\n')
-  t.is(formatter.encodeTypicalIdentifier('\r'), '\\r')
-  t.is(formatter.encodeTypicalIdentifier('\t'), '\\t')
-  t.is(formatter.encodeTypicalIdentifier('\v'), '\\v')
-  t.is(formatter.encodeTypicalIdentifier('\f'), '\\f')
-  t.is(formatter.encodeTypicalIdentifier('\b'), '\\b')
+  t.is(formatter.encodeTypicalIdentifier('\n'), String.raw`\n`)
+  t.is(formatter.encodeTypicalIdentifier('\r'), String.raw`\r`)
+  t.is(formatter.encodeTypicalIdentifier('\t'), String.raw`\t`)
+  t.is(formatter.encodeTypicalIdentifier('\v'), String.raw`\v`)
+  t.is(formatter.encodeTypicalIdentifier('\f'), String.raw`\f`)
+  t.is(formatter.encodeTypicalIdentifier('\b'), String.raw`\b`)
 
   // Test with multiple characters
-  t.is(formatter.encodeTypicalIdentifier('a\nb\tc'), 'a\\nb\\tc')
+  t.is(formatter.encodeTypicalIdentifier('a\nb\tc'), String.raw`a\nb\tc`)
 
   // Test ANSI escape code
   t.is(formatter.encodeTypicalIdentifier('\u001B'), '␛')
@@ -525,29 +524,29 @@ test('encodeTypicalIdentifier escapes quotes and backslashes', (t) => {
   const formatter = new Formatter(testTheme)
 
   // Test quotes
-  t.is(formatter.encodeTypicalIdentifier('"'), '\\"')
-  t.is(formatter.encodeTypicalIdentifier("'"), "\\'")
+  t.is(formatter.encodeTypicalIdentifier('"'), String.raw`\"`)
+  t.is(formatter.encodeTypicalIdentifier("'"), String.raw`\'`)
 
   // Test backslash
   t.is(formatter.encodeTypicalIdentifier('\\'), '\\\\')
 
   // Test combined
-  t.is(formatter.encodeTypicalIdentifier('a\\"b\'c'), 'a\\\\\\"b\\\'c')
+  t.is(formatter.encodeTypicalIdentifier(String.raw`a\"b'c`), String.raw`a\\\"b\'c`)
 })
 
 test('encodeTypicalIdentifier escapes BMP Unicode characters', (t) => {
   const formatter = new Formatter(testTheme)
 
   // Space (ASCII)
-  t.is(formatter.encodeTypicalIdentifier(' '), '\\u0020')
+  t.is(formatter.encodeTypicalIdentifier(' '), String.raw`\u0020`)
 
   // Some punctuation
-  t.is(formatter.encodeTypicalIdentifier('!'), '\\u0021')
-  t.is(formatter.encodeTypicalIdentifier('@'), '\\u0040')
+  t.is(formatter.encodeTypicalIdentifier('!'), String.raw`\u0021`)
+  t.is(formatter.encodeTypicalIdentifier('@'), String.raw`\u0040`)
 
   // Emoji within BMP range
-  t.is(formatter.encodeTypicalIdentifier('©'), '\\u00a9')
-  t.is(formatter.encodeTypicalIdentifier('—'), '\\u2014')
+  t.is(formatter.encodeTypicalIdentifier('©'), String.raw`\u00a9`)
+  t.is(formatter.encodeTypicalIdentifier('—'), String.raw`\u2014`)
 })
 
 test('encodeTypicalIdentifier escapes astral plane Unicode characters', (t) => {
@@ -555,10 +554,10 @@ test('encodeTypicalIdentifier escapes astral plane Unicode characters', (t) => {
 
   // Astral plane characters (emoji and others)
   t.is(formatter.encodeTypicalIdentifier('𠮷'), '𠮷') // U+20BB7 CJK Unified Ideograph
-  t.is(formatter.encodeTypicalIdentifier('🎉'), '\\u{1f389}') // U+1F389 PARTY POPPER
+  t.is(formatter.encodeTypicalIdentifier('🎉'), String.raw`\u{1f389}`) // U+1F389 PARTY POPPER
 
   // Mixed with regular text
-  t.is(formatter.encodeTypicalIdentifier('hi🎉'), 'hi\\u{1f389}')
+  t.is(formatter.encodeTypicalIdentifier('hi🎉'), String.raw`hi\u{1f389}`)
 })
 
 test('encodeTypicalIdentifier handles combination of different character types', (t) => {
@@ -566,11 +565,11 @@ test('encodeTypicalIdentifier handles combination of different character types',
 
   // Mix of regular chars, control chars, and Unicode
   const complex = 'a\n©🎉\\"\''
-  const expected = 'a\\n\\u00a9\\u{1f389}\\\\\\"\\\''
+  const expected = String.raw`a\n\u00a9\u{1f389}\\\"\'`
   t.is(formatter.encodeTypicalIdentifier(complex), expected)
 
   // Multiple escapes in sequence
-  t.is(formatter.encodeTypicalIdentifier('\n\r\t'), '\\n\\r\\t')
+  t.is(formatter.encodeTypicalIdentifier('\n\r\t'), String.raw`\n\r\t`)
 })
 
 test('encodeTypicalIdentifier handles empty string', (t) => {
@@ -602,18 +601,18 @@ test('encodeTypicalSimpleString escapes control characters', (t) => {
   const formatter = new Formatter(testTheme)
 
   // Test null byte
-  t.is(formatter.encodeTypicalSimpleString('\0'), '\\0')
+  t.is(formatter.encodeTypicalSimpleString('\0'), String.raw`\0`)
 
   // Test whitespace characters
-  t.is(formatter.encodeTypicalSimpleString('\n'), '\\n')
-  t.is(formatter.encodeTypicalSimpleString('\r'), '\\r')
-  t.is(formatter.encodeTypicalSimpleString('\t'), '\\t')
-  t.is(formatter.encodeTypicalSimpleString('\v'), '\\v')
-  t.is(formatter.encodeTypicalSimpleString('\f'), '\\f')
-  t.is(formatter.encodeTypicalSimpleString('\b'), '\\b')
+  t.is(formatter.encodeTypicalSimpleString('\n'), String.raw`\n`)
+  t.is(formatter.encodeTypicalSimpleString('\r'), String.raw`\r`)
+  t.is(formatter.encodeTypicalSimpleString('\t'), String.raw`\t`)
+  t.is(formatter.encodeTypicalSimpleString('\v'), String.raw`\v`)
+  t.is(formatter.encodeTypicalSimpleString('\f'), String.raw`\f`)
+  t.is(formatter.encodeTypicalSimpleString('\b'), String.raw`\b`)
 
   // Test with multiple characters
-  t.is(formatter.encodeTypicalSimpleString('a\nb\tc'), 'a\\nb\\tc')
+  t.is(formatter.encodeTypicalSimpleString('a\nb\tc'), String.raw`a\nb\tc`)
 
   // Test ANSI escape code
   t.is(formatter.encodeTypicalSimpleString('\u001B'), '␛')
@@ -623,20 +622,20 @@ test('encodeTypicalSimpleString escapes quotes and backslashes', (t) => {
   const formatter = new Formatter(testTheme)
 
   // Test double quote
-  t.is(formatter.encodeTypicalSimpleString('"'), '\\"')
+  t.is(formatter.encodeTypicalSimpleString('"'), String.raw`\"`)
 
   // Test single quote
-  t.is(formatter.encodeTypicalSimpleString("'"), "\\'")
+  t.is(formatter.encodeTypicalSimpleString("'"), String.raw`\'`)
 
   // Test backslash (already covered in another test but included here for completeness)
   t.is(formatter.encodeTypicalSimpleString('\\'), '\\\\')
 
   // Test combined with text
-  t.is(formatter.encodeTypicalSimpleString('Say "hello" and \'world\''), 'Say \\"hello\\" and \\\'world\\\'')
+  t.is(formatter.encodeTypicalSimpleString('Say "hello" and \'world\''), String.raw`Say \"hello\" and \'world\'`)
 
   // Test escaped quotes
-  t.is(formatter.encodeTypicalSimpleString('\\ \\ "'), '\\\\ \\\\ \\"')
-  t.is(formatter.encodeTypicalSimpleString("\\ \\ '"), "\\\\ \\\\ \\'")
+  t.is(formatter.encodeTypicalSimpleString(String.raw`\ \ "`), String.raw`\\ \\ \"`)
+  t.is(formatter.encodeTypicalSimpleString(String.raw`\ \ '`), String.raw`\\ \\ \'`)
 })
 
 test('encodeTypicalSimpleString escapes backslash', (t) => {
@@ -646,20 +645,20 @@ test('encodeTypicalSimpleString escapes backslash', (t) => {
   t.is(formatter.encodeTypicalSimpleString('\\'), '\\\\')
 
   // Test in a string
-  t.is(formatter.encodeTypicalSimpleString('path\\to\\file'), 'path\\\\to\\\\file')
+  t.is(formatter.encodeTypicalSimpleString(String.raw`path\to\file`), String.raw`path\\to\\file`)
 })
 
 test('encodeTypicalSimpleString escapes control characters in ranges', (t) => {
   const formatter = new Formatter(testTheme)
 
   // ASCII control characters (C0 controls: \u0000-\u001F)
-  t.is(formatter.encodeTypicalSimpleString('\u0001'), '\\u0001')
-  t.is(formatter.encodeTypicalSimpleString('\u001F'), '\\u001f')
+  t.is(formatter.encodeTypicalSimpleString('\u0001'), String.raw`\u0001`)
+  t.is(formatter.encodeTypicalSimpleString('\u001F'), String.raw`\u001f`)
 
   // ASCII DEL and C1 controls (\u007F-\u009F)
-  t.is(formatter.encodeTypicalSimpleString('\u007F'), '\\u007f')
-  t.is(formatter.encodeTypicalSimpleString('\u0080'), '\\u0080')
-  t.is(formatter.encodeTypicalSimpleString('\u009F'), '\\u009f')
+  t.is(formatter.encodeTypicalSimpleString('\u007F'), String.raw`\u007f`)
+  t.is(formatter.encodeTypicalSimpleString('\u0080'), String.raw`\u0080`)
+  t.is(formatter.encodeTypicalSimpleString('\u009F'), String.raw`\u009f`)
 })
 
 test('encodeTypicalSimpleString handles astral plane Unicode characters correctly', (t) => {
@@ -685,29 +684,29 @@ test('encodeTypicalSimpleString and encodeTypicalIdentifier encode different cha
   // Characters that are encoded differently between the two methods:
 
   // 1. Space - encoded in identifiers but not in strings
-  t.is(formatter.encodeTypicalIdentifier(' '), '\\u0020')
+  t.is(formatter.encodeTypicalIdentifier(' '), String.raw`\u0020`)
   t.is(formatter.encodeTypicalSimpleString(' '), ' ')
 
   // 2. Punctuation - encoded in identifiers but not in strings
-  t.is(formatter.encodeTypicalIdentifier('!'), '\\u0021')
+  t.is(formatter.encodeTypicalIdentifier('!'), String.raw`\u0021`)
   t.is(formatter.encodeTypicalSimpleString('!'), '!')
 
-  t.is(formatter.encodeTypicalIdentifier('@'), '\\u0040')
+  t.is(formatter.encodeTypicalIdentifier('@'), String.raw`\u0040`)
   t.is(formatter.encodeTypicalSimpleString('@'), '@')
 
   // 3. Emoji in astral plane - encoded in identifiers but not in strings
-  t.is(formatter.encodeTypicalIdentifier('🎉'), '\\u{1f389}')
+  t.is(formatter.encodeTypicalIdentifier('🎉'), String.raw`\u{1f389}`)
   t.is(formatter.encodeTypicalSimpleString('🎉'), '🎉')
 
   // 4. Non-identifier Unicode that's valid in strings is handled differently
-  t.is(formatter.encodeTypicalIdentifier('→'), '\\u2192') // Right arrow
+  t.is(formatter.encodeTypicalIdentifier('→'), String.raw`\u2192`) // Right arrow
   t.is(formatter.encodeTypicalSimpleString('→'), '→')
 
   // Test with a complex mixed string
   const mixed = 'Hello! "Test" with →🎉 and \t\n'
   t.is(
     formatter.encodeTypicalIdentifier(mixed),
-    'Hello\\u0021\\u0020\\"Test\\"\\u0020with\\u0020\\u2192\\u{1f389}\\u0020and\\u0020\\t\\n',
+    String.raw`Hello\u0021\u0020\"Test\"\u0020with\u0020\u2192\u{1f389}\u0020and\u0020\t\n`,
   )
-  t.is(formatter.encodeTypicalSimpleString(mixed), 'Hello! \\"Test\\" with →🎉 and \\t\\n')
+  t.is(formatter.encodeTypicalSimpleString(mixed), String.raw`Hello! \"Test\" with →🎉 and \t\n`)
 })

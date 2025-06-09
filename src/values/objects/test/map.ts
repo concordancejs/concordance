@@ -52,12 +52,12 @@ test('compare returns unequal when comparing to non-MapRepresentation', (t) => {
     ['key1', 'value1'],
     ['key2', 'value2'],
   ])
-  const obj = {}
+  const object = {}
 
   const mapRep = context.represent(map) as MapRepresentation
-  const objRep = context.represent(obj)
+  const objectRep = context.represent(object)
 
-  t.is(mapRep.compare(objRep), unequal)
+  t.is(mapRep.compare(objectRep), unequal)
 })
 
 test('compare returns unequal when comparing maps of different sizes', (t) => {
@@ -155,7 +155,7 @@ test('compare handles maps with complex keys and values', (t) => {
   t.is(mapRep1.compare(mapRep2), comparable)
 })
 
-// iterateArrayLike test
+// IterateArrayLike test
 test('iterateArrayLike yields no elements for maps', (t) => {
   const context = new DescriptionContext()
   const map = new Map([
@@ -169,7 +169,7 @@ test('iterateArrayLike yields no elements for maps', (t) => {
   t.is(elements.length, 0)
 })
 
-// iterateIterable test
+// IterateIterable test
 test('iterateIterable yields entries for maps', (t) => {
   const context = new DescriptionContext()
   const map = new Map([
@@ -184,9 +184,9 @@ test('iterateIterable yields entries for maps', (t) => {
   t.is(entries.length, 2)
 
   // Each entry should be a MapEntryAccessor
-  entries.forEach((entry) => {
+  for (const entry of entries) {
     t.true(entry instanceof MapEntryAccessor)
-  })
+  }
 })
 
 test('iterateIterable preserves entry order', (t) => {
@@ -306,7 +306,7 @@ test('handles empty maps correctly', (t) => {
   t.is(emptyMapRep.compare(anotherEmptyMapRep), comparable)
 })
 
-// finalFormat tests
+// FinalFormat tests
 test('finalFormat uses object brackets by default', (t) => {
   const context = new DescriptionContext()
   const map = new Map([

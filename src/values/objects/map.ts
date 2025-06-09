@@ -1,5 +1,5 @@
-import type { Context } from '../../context.js'
-import type { FinalFormatOptions, ValueRepresentation } from '../../value.js'
+import type { Context } from '../../context.d.ts'
+import type { FinalFormatOptions, Opaque, ValueRepresentation } from '../../value.d.ts'
 import { strictlyEqual, unequal } from '../../comparison.ts'
 import type { Encoder } from '../../encoder.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
@@ -14,10 +14,10 @@ export class MapRepresentation extends ObjectRepresentation {
     return new this(context, { size, ...this.unpackAnnotations(objectAnnotations) })
   }
 
-  readonly #value: object
+  readonly #value: Opaque
   readonly #context: Context
 
-  constructor(context: Context, value: object) {
+  constructor(context: Context, value: Opaque) {
     super(context, value)
     this.#value = value
     this.#context = context

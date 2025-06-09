@@ -1,4 +1,4 @@
-import type { ValueRepresentation } from './value.js'
+import type { ValueRepresentation } from './value.d.ts'
 import { DescriptionContext } from './description-context.ts'
 import type { Flags } from './flags.ts'
 

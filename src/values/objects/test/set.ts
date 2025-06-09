@@ -42,12 +42,12 @@ test('compare returns strictlyEqual when comparing the same set instance', (t) =
 test('compare returns unequal when comparing to non-SetRepresentation', (t) => {
   const context = new DescriptionContext()
   const set = new Set(['value1', 'value2'])
-  const obj = {}
+  const object = {}
 
   const setRep = context.represent(set) as SetRepresentation
-  const objRep = context.represent(obj)
+  const objectRep = context.represent(object)
 
-  t.is(setRep.compare(objRep), unequal)
+  t.is(setRep.compare(objectRep), unequal)
 })
 
 test('compare returns unequal when comparing sets of different sizes', (t) => {
@@ -104,7 +104,7 @@ test('compare handles sets with complex values', (t) => {
   t.is(setRep1.compare(setRep2), comparable)
 })
 
-// iterateArrayLike test
+// IterateArrayLike test
 test('iterateArrayLike yields no elements for sets', (t) => {
   const context = new DescriptionContext()
   const set = new Set(['value1', 'value2'])
@@ -115,7 +115,7 @@ test('iterateArrayLike yields no elements for sets', (t) => {
   t.is(elements.length, 0)
 })
 
-// iterateIterable test
+// IterateIterable test
 test('iterateIterable yields values for sets', (t) => {
   const context = new DescriptionContext()
   const set = new Set(['value1', 'value2'])
@@ -258,7 +258,7 @@ test('handles empty sets correctly', (t) => {
   t.is(emptySetRep.compare(anotherEmptySetRep), comparable)
 })
 
-// finalFormat tests
+// FinalFormat tests
 test('finalFormat passes object brackets and does not include disambiguation hint by default', (t) => {
   const context = new DescriptionContext()
   const set = new Set(['value1', 'value2'])

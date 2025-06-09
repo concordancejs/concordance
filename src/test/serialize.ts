@@ -1,8 +1,14 @@
 import test from 'ava'
 import * as cbor from 'cbor2'
-import { Encoder } from '../encoder.ts'
+import type { Encoder } from '../encoder.ts'
 import { serialize } from '../serialize.ts'
-import { finished, partial, partialRequiringTerminator, partialStoreAsByteArray } from '../serialization-result.ts'
+import {
+  finished,
+  partial,
+  partialRequiringTerminator,
+  partialStoreAsByteArray,
+  type SerializationResult,
+} from '../serialization-result.ts'
 import { staticTypeTable, version } from '../serialization-types.ts'
 import { ElementAccessor } from '../accessors/element.ts'
 import {
@@ -14,7 +20,6 @@ import {
 } from '../accessors/property.ts'
 import { MapEntryAccessor } from '../accessors/map-entry.ts'
 import { IteratorValueAccessor } from '../accessors/iterator-value.ts'
-import type { SerializationResult } from '../serialization-result.ts'
 import type { ValueRepresentation } from '../value.ts'
 import { DescriptionContext } from '../description-context.ts'
 import { SymbolRepresentation } from '../values/primitives/symbol.ts'
@@ -40,10 +45,10 @@ function decodeAllCbor(bytes: Uint8Array): unknown[] {
 
 // Mock ValueRepresentation for testing
 class MockValueRepresentation {
-  pointer?: number
-  #serializeResult: SerializationResult
-  #serializeImpl?: (encoder: Encoder) => SerializationResult
   children: Array<ValueRepresentation | PropertyGroup>
+  pointer?: number
+  readonly #serializeResult: SerializationResult
+  readonly #serializeImpl?: (encoder: Encoder) => SerializationResult
 
   constructor(
     options: {
@@ -107,14 +112,14 @@ test('serialize handles simple finished values', (t) => {
 test('serialize handles partial serialization results', (t) => {
   // Create a mock that returns partial on first call, then has a child that returns finished
   const childMock = new MockValueRepresentation({
-    serializeImpl: (encoder) => {
+    serializeImpl(encoder) {
       encoder.string('child value')
       return finished
     },
   })
 
   const parentMock = new MockValueRepresentation({
-    serializeImpl: (encoder) => {
+    serializeImpl(encoder) {
       encoder.staticType(staticTypeTable.array)
       return partial
     },
@@ -133,14 +138,14 @@ test('serialize handles partial serialization results', (t) => {
 test('serialize handles partialRequiringTerminator serialization results', (t) => {
   // Create a mock that needs a terminator
   const childMock = new MockValueRepresentation({
-    serializeImpl: (encoder) => {
+    serializeImpl(encoder) {
       encoder.string('child value')
       return finished
     },
   })
 
   const parentMock = new MockValueRepresentation({
-    serializeImpl: (encoder) => {
+    serializeImpl(encoder) {
       encoder.staticType(staticTypeTable.object)
       return partialRequiringTerminator
     },
@@ -162,7 +167,7 @@ test('serialize handles circular references', (t) => {
   // Create an object with a circular reference
   const circularMock = new MockValueRepresentation({
     pointer: 1,
-    serializeImpl: (encoder) => {
+    serializeImpl(encoder) {
       encoder.staticType(staticTypeTable.object)
       return partial
     },
@@ -185,14 +190,14 @@ test('serialize handles circular references', (t) => {
 test('serialize handles ElementAccessor objects', (t) => {
   // Create a mock array-like representation that yields ElementAccessors
   const elementValue = new MockValueRepresentation({
-    serializeImpl: (encoder) => {
+    serializeImpl(encoder) {
       encoder.string('array item')
       return finished
     },
   })
 
   const arrayMock = new MockValueRepresentation({
-    serializeImpl: (encoder) => {
+    serializeImpl(encoder) {
       encoder.staticType(staticTypeTable.array)
       return partial
     },
@@ -203,18 +208,18 @@ test('serialize handles ElementAccessor objects', (t) => {
   const values = decodeAllCbor(serialized)
 
   // Check for presence of the element aspect type
-  const hasElementAspect = values.some((v) => v === staticTypeTable.elementAspect)
+  const hasElementAspect = values.includes(staticTypeTable.elementAspect)
   t.true(hasElementAspect, 'Should contain element aspect type')
 
   // Check that our values made it into the output
-  const containsString = values.some((v) => v === 'array item')
+  const containsString = values.includes('array item')
   t.true(containsString, 'Should contain array item string')
 })
 
 test('serialize handles NamedPropertyGroup objects', (t) => {
   // Create a mock object representation that yields NamedPropertyGroups
   const propertyValue = new MockValueRepresentation({
-    serializeImpl: (encoder) => {
+    serializeImpl(encoder) {
       encoder.number(42)
       return finished
     },
@@ -231,7 +236,7 @@ test('serialize handles NamedPropertyGroup objects', (t) => {
   const propertyGroup = new NamedPropertyGroup(context, namedProperties)
 
   const objectMock = new MockValueRepresentation({
-    serializeImpl: (encoder) => {
+    serializeImpl(encoder) {
       encoder.staticType(staticTypeTable.object)
       return partial
     },
@@ -242,13 +247,13 @@ test('serialize handles NamedPropertyGroup objects', (t) => {
   const values = decodeAllCbor(serialized)
 
   // Check for presence of the named property aspect type
-  const hasPropertyAspect = values.some((v) => v === staticTypeTable.namedPropertyAspect)
+  const hasPropertyAspect = values.includes(staticTypeTable.namedPropertyAspect)
   t.true(hasPropertyAspect, 'Should contain named property aspect type')
 
   // Check that our property names and values made it into the output
-  const containsProp1 = values.some((v) => v === 'prop1')
-  const containsProp2 = values.some((v) => v === 'prop2')
-  const containsNumber = values.some((v) => v === 42)
+  const containsProp1 = values.includes('prop1')
+  const containsProp2 = values.includes('prop2')
+  const containsNumber = values.includes(42)
   t.true(containsProp1, 'Should contain property name "prop1"')
   t.true(containsProp2, 'Should contain property name "prop2"')
   t.true(containsNumber, 'Should contain property value 42')
@@ -257,7 +262,7 @@ test('serialize handles NamedPropertyGroup objects', (t) => {
 test('serialize handles SymbolPropertyGroup objects', (t) => {
   // Create a mock object representation that yields SymbolPropertyGroups
   const propertyValue = new MockValueRepresentation({
-    serializeImpl: (encoder) => {
+    serializeImpl(encoder) {
       encoder.string('symbol value')
       return finished
     },
@@ -267,8 +272,8 @@ test('serialize handles SymbolPropertyGroup objects', (t) => {
   const context = new DescriptionContext()
 
   // Create symbol representations
-  const symbol1Rep = new SymbolRepresentation(context, Symbol('testSymbol1') as unknown as object)
-  const symbol2Rep = new SymbolRepresentation(context, Symbol('testSymbol2') as unknown as object)
+  const symbol1Rep = new SymbolRepresentation(context, Symbol('testSymbol1') as unknown as Record<string, unknown>)
+  const symbol2Rep = new SymbolRepresentation(context, Symbol('testSymbol2') as unknown as Record<string, unknown>)
 
   // Create symbol property accessors
   const symbolAccessors = [
@@ -281,7 +286,7 @@ test('serialize handles SymbolPropertyGroup objects', (t) => {
 
   // Create object with the symbol property group
   const objectMock = new MockValueRepresentation({
-    serializeImpl: (encoder) => {
+    serializeImpl(encoder) {
       encoder.staticType(staticTypeTable.object)
       return partial
     },
@@ -292,17 +297,18 @@ test('serialize handles SymbolPropertyGroup objects', (t) => {
   const values = decodeAllCbor(serialized)
 
   // Check for presence of the symbol property aspect type
-  const hasSymbolPropertyAspect = values.some((v) => v === staticTypeTable.symbolPropertyAspect)
+  const hasSymbolPropertyAspect = values.includes(staticTypeTable.symbolPropertyAspect)
   t.true(hasSymbolPropertyAspect, 'Should contain symbol property aspect type')
 
   // Check that our symbol key and value made it into the output
-  const containsSymbolKey1 = values.some((v) => v === 'Symbol(testSymbol1)')
-  const containsSymbolKey2 = values.some((v) => v === 'Symbol(testSymbol2)')
+  const containsSymbolKey1 = values.includes('Symbol(testSymbol1)')
+  const containsSymbolKey2 = values.includes('Symbol(testSymbol2)')
   const containsValue = values.some((v) => {
     if (v instanceof Uint8Array) {
       const decoded = decodeCbor(v)
       return decoded === 'symbol value'
     }
+
     return false
   })
   t.true(containsSymbolKey1, 'Should contain symbol key 1')
@@ -313,14 +319,14 @@ test('serialize handles SymbolPropertyGroup objects', (t) => {
 test('serialize handles IteratorValueAccessor objects', (t) => {
   // Create a mock iterable representation that yields IteratorValueAccessors
   const iteratorValue = new MockValueRepresentation({
-    serializeImpl: (encoder) => {
+    serializeImpl(encoder) {
       encoder.string('iterator item')
       return finished
     },
   })
 
   const iterableMock = new MockValueRepresentation({
-    serializeImpl: (encoder) => {
+    serializeImpl(encoder) {
       encoder.staticType(staticTypeTable.object) // Or some iterable type
       return partial
     },
@@ -331,11 +337,11 @@ test('serialize handles IteratorValueAccessor objects', (t) => {
   const values = decodeAllCbor(serialized)
 
   // Check for presence of the iterator value aspect type
-  const hasIteratorValueAspect = values.some((v) => v === staticTypeTable.iteratorValueAspect)
+  const hasIteratorValueAspect = values.includes(staticTypeTable.iteratorValueAspect)
   t.true(hasIteratorValueAspect, 'Should contain iterator value aspect type')
 
   // Check that our values made it into the output
-  const containsString = values.some((v) => v === 'iterator item')
+  const containsString = values.includes('iterator item')
   t.true(containsString, 'Should contain iterator item string')
 })
 
@@ -345,14 +351,14 @@ test('serialize handles MapEntryAccessor objects', (t) => {
 
   // Create key and value representations
   const keyValue = new MockValueRepresentation({
-    serializeImpl: (encoder) => {
+    serializeImpl(encoder) {
       encoder.string('map key')
       return finished
     },
   })
 
   const valueValue = new MockValueRepresentation({
-    serializeImpl: (encoder) => {
+    serializeImpl(encoder) {
       encoder.string('map value')
       return finished
     },
@@ -360,7 +366,7 @@ test('serialize handles MapEntryAccessor objects', (t) => {
 
   // Create a mock map representation that yields MapEntryAccessors
   const mapMock = new MockValueRepresentation({
-    serializeImpl: (encoder) => {
+    serializeImpl(encoder) {
       encoder.staticType(staticTypeTable.map)
       return partial
     },
@@ -371,12 +377,12 @@ test('serialize handles MapEntryAccessor objects', (t) => {
   const values = decodeAllCbor(serialized)
 
   // Check for presence of the map entry aspect type
-  const hasMapEntryAspect = values.some((v) => v === staticTypeTable.mapEntryAspect)
+  const hasMapEntryAspect = values.includes(staticTypeTable.mapEntryAspect)
   t.true(hasMapEntryAspect, 'Should contain map entry aspect type')
 
   // Check that our key and value made it into the output
-  const containsKey = values.some((v) => v === 'map key')
-  const containsValue = values.some((v) => v === 'map value')
+  const containsKey = values.includes('map key')
+  const containsValue = values.includes('map value')
   t.true(containsKey, 'Should contain map key string')
   t.true(containsValue, 'Should contain map value string')
 })
@@ -384,14 +390,14 @@ test('serialize handles MapEntryAccessor objects', (t) => {
 test('serialize handles partialStoreAsByteArray serialization results', (t) => {
   // Create a value that uses partialStoreAsByteArray
   const childMock = new MockValueRepresentation({
-    serializeImpl: (encoder) => {
+    serializeImpl(encoder) {
       encoder.string('123')
       return finished
     },
   })
 
   const parentMock = new MockValueRepresentation({
-    serializeImpl: (encoder) => {
+    serializeImpl(encoder) {
       encoder.staticType(staticTypeTable.string)
       return partialStoreAsByteArray
     },

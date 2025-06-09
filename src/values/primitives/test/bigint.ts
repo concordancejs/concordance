@@ -41,7 +41,7 @@ test('serializeShallow correctly encodes a bigint', (t) => {
 })
 
 test('can serialize and deserialize positive bigints', (t) => {
-  const original = new BigIntRepresentation(9007199254740993n) // Number larger than MAX_SAFE_INTEGER
+  const original = new BigIntRepresentation(9_007_199_254_740_993n) // Number larger than MAX_SAFE_INTEGER
   const encoder = new Encoder()
   original.serializeShallow(encoder)
 
@@ -52,7 +52,7 @@ test('can serialize and deserialize positive bigints', (t) => {
 })
 
 test('can serialize and deserialize negative bigints', (t) => {
-  const original = new BigIntRepresentation(-9007199254740993n)
+  const original = new BigIntRepresentation(-9_007_199_254_740_993n)
   const encoder = new Encoder()
   original.serializeShallow(encoder)
 
@@ -111,7 +111,7 @@ test('formatShallow correctly formats zero as bigint', (t) => {
 
 test('formatShallow correctly formats very large bigint', (t) => {
   // Create a bigint larger than MAX_SAFE_INTEGER
-  const representation = new BigIntRepresentation(9007199254740993n)
+  const representation = new BigIntRepresentation(9_007_199_254_740_993n)
   const formatter = new Formatter(deriveTheme())
 
   representation.formatShallow(formatter)

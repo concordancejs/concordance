@@ -3,7 +3,7 @@ import type { IteratorValueAccessor } from './accessors/iterator-value.ts'
 import type { MapEntryAccessor } from './accessors/map-entry.ts'
 import type { NamedPropertyGroup, SymbolPropertyGroup } from './accessors/property.ts'
 import type { Flags } from './flags.ts'
-import type { ValueRepresentation } from './value.js'
+import type { Opaque, ValueRepresentation } from './value.d.ts'
 
 export type ContextOptions = {
   flags?: Partial<Flags>
@@ -14,24 +14,24 @@ export type PropertyAccessCallback = (property: NamedPropertyAccessor, value: Va
 export type Context = {
   readonly deserialized: boolean
   readonly flags: Readonly<Flags>
-  constructorName(value: object): string | undefined
-  describeSymbol(value: object): DescribedSymbol
-  isArrayLike(value: object): boolean
-  isNullProto(value: object): boolean
-  isObjectProto(value: object): boolean
-  iterateElements(value: object): Iterable<ElementAccessor>
-  iterateMapEntries(value: object): Iterable<MapEntryAccessor>
-  iterateValues(value: object): Iterable<IteratorValueAccessor>
-  length(value: object): number
-  namedProperties(value: object, ...include: string[]): NamedPropertyGroup
-  notifyNextExplicitlyNamedPropertyAccess(value: object, name: string, callback: PropertyAccessCallback): void
-  pointer(representation: ValueRepresentation, value: object): number | undefined
-  representBytes(value: object): BytesAccessor
-  resetPropertyAccessNotifiers(value: object): void
-  size(value: object): number
-  stringTag(value: object): string | undefined
-  symbolProperties(value: object): SymbolPropertyGroup
-  valueOf(value: object): unknown
+  constructorName(value: Opaque): string | undefined
+  describeSymbol(value: Opaque): DescribedSymbol
+  isArrayLike(value: Opaque): boolean
+  isNullProto(value: Opaque): boolean
+  isObjectProto(value: Opaque): boolean
+  iterateElements(value: Opaque): Iterable<ElementAccessor>
+  iterateMapEntries(value: Opaque): Iterable<MapEntryAccessor>
+  iterateValues(value: Opaque): Iterable<IteratorValueAccessor>
+  length(value: Opaque): number
+  namedProperties(value: Opaque, ...include: string[]): NamedPropertyGroup
+  notifyNextExplicitlyNamedPropertyAccess(value: Opaque, name: string, callback: PropertyAccessCallback): void
+  pointer(representation: ValueRepresentation, value: Opaque): number | undefined
+  representBytes(value: Opaque): BytesAccessor
+  resetPropertyAccessNotifiers(value: Opaque): void
+  size(value: Opaque): number
+  stringTag(value: Opaque): string | undefined
+  symbolProperties(value: Opaque): SymbolPropertyGroup
+  valueOf(value: Opaque): unknown
 }
 
 export type DescribedSymbol =

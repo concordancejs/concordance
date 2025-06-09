@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { mock } from 'node:test'
 import test, { type AssertionError, type ExecutionContext, type ThrowsExpectation } from 'ava'
 import { staticTypeTable, type StaticType } from '../serialization-types.ts'
@@ -7,7 +8,7 @@ import { describe } from '../describe.ts'
 import { DescriptionContext } from '../description-context.ts'
 import { ElementAccessor, SparseValueRepresentation } from '../accessors/element.ts'
 import { IteratorValueAccessor } from '../accessors/iterator-value.ts'
-import { NamedPropertyAccessor, SymbolPropertyAccessor } from '../accessors/property.ts'
+import { NamedPropertyAccessor, type NamedPropertyGroup, SymbolPropertyAccessor } from '../accessors/property.ts'
 import { comparable, possiblyEqual, strictlyEqual, type Comparison } from '../comparison.ts'
 import type { ObjectRepresentation } from '../values/objects/object.ts'
 import { MapEntryAccessor } from '../accessors/map-entry.ts'
@@ -15,9 +16,10 @@ import type { SymbolRepresentation } from '../values/primitives/symbol.ts'
 import * as testModuleNamespace from '../values/objects/test/fixtures/module-fixture.ts'
 import { Decoder } from '../decoder.ts'
 import { DeserializationContext } from '../deserialization-context.ts'
-import type { ValueRepresentation } from '../value.js'
+import type { ValueRepresentation } from '../value.d.ts'
 import { StringRepresentation } from '../values/primitives/string.ts'
 import { deriveFlags } from '../flags.ts'
+import type { Context } from '../context.d.ts'
 
 // -----------------------------------------------------------------------------
 // Basic Instance and Property Tests
@@ -28,7 +30,7 @@ test('is identifies context instances correctly', (t) => {
   const context = new DeserializationContext(decoder)
 
   t.true(DeserializationContext.is(context))
-  t.false(DeserializationContext.is({ deserialized: true } as any))
+  t.false(DeserializationContext.is({ deserialized: true } as unknown as Context))
 })
 
 test('deserialized property returns true', (t) => {
@@ -139,7 +141,7 @@ test('accessor methods correctly return object properties', (t) => {
   const objectWithoutConstructorName = {}
 
   const objectWithSymbolDesc = { wellKnown: 'Symbol.iterator', string: 'Symbol(Symbol.iterator)' }
-  const emptyObject = Object.create(null)
+  const emptyObject = Object.create(null) as Record<string, never>
 
   const lengthObject = { length: 42 }
   const sizeObject = { size: 24 }
@@ -175,7 +177,7 @@ test('accessor methods correctly return object properties', (t) => {
   t.is(context.size(sizeObject), 24, 'Should return size property')
 
   // Using any ValueRepresentation as first parameter since it's ignored
-  const dummyRepresentation = {} as any
+  const dummyRepresentation = {} as unknown as ValueRepresentation
   t.is(context.pointer(dummyRepresentation, withPointer), 123, 'Should return pointer property')
   t.is(context.pointer(dummyRepresentation, emptyObject), undefined, 'Should return undefined when pointer is missing')
 
@@ -213,7 +215,7 @@ type IterationMethod =
 
 type IterationOptions = (
   | {
-      value: Iterable<any> | object
+      value: Iterable<any> | Record<string | symbol, unknown>
     }
   | {
       encode: (encoder: Encoder) => void
@@ -228,14 +230,14 @@ type IterationOptions = (
       }
   )
 
-type IterationAssert = (
+type IterationAssert<M extends IterationMethod> = (
   t: ExecutionContext,
-  values: any[],
+  values: ReturnType<DeserializationContext[M]> extends Iterable<infer V> ? V[] : never,
   context: DeserializationContext,
   representation: ValueRepresentation,
 ) => void
 
-const iteration = test.macro<[IterationMethod, IterationOptions, IterationAssert?]>({
+const iteration = test.macro<[IterationMethod, IterationOptions, IterationAssert<IterationMethod>?]>({
   title(providedTitle, method) {
     return `${method} - ${providedTitle}`
   },
@@ -262,9 +264,9 @@ const iteration = test.macro<[IterationMethod, IterationOptions, IterationAssert
         // For named properties, we need to get the group first
         const group = context.namedProperties(representation)
         return context.iterateNamedProperties(group)
-      } else {
-        return context[method](representation)
       }
+
+      return context[method](representation)
     }
 
     if ('expectedThrows' in options) {
@@ -283,7 +285,7 @@ const iteration = test.macro<[IterationMethod, IterationOptions, IterationAssert
     let restart = false
     for (const value of getIterable()) {
       // Consume the value from the decoder
-      Array.from(value)
+      void [...value]
 
       values.push(value)
       if (values.length === breakRestartAfter) {
@@ -291,6 +293,7 @@ const iteration = test.macro<[IterationMethod, IterationOptions, IterationAssert
         break
       }
     }
+
     if (restart) {
       // Restart the iteration. Expect to read cached values first.
       let offset = 0
@@ -301,7 +304,7 @@ const iteration = test.macro<[IterationMethod, IterationOptions, IterationAssert
         }
 
         // Consume the value from the decoder
-        Array.from(value)
+        void [...value]
         values.push(value)
       }
     }
@@ -318,7 +321,7 @@ const iteration = test.macro<[IterationMethod, IterationOptions, IterationAssert
     }
 
     // Run additional assertions if provided
-    assert?.(t, values, context, representation)
+    assert?.(t, values, context, representation) // eslint-disable-line @typescript-eslint/no-unsafe-argument
   },
 })
 
@@ -553,9 +556,9 @@ test(
       new NamedPropertyAccessor('c', describe(3)),
     ]
 
-    for (let i = 0; i < properties.length; i++) {
+    for (const [i, property] of properties.entries()) {
       t.is(
-        properties[i].compare(expectedProperties[i]),
+        property.compare(expectedProperties[i]!),
         strictlyEqual,
         `Property at index ${i} should match expected value`,
       )
@@ -589,8 +592,8 @@ test(
 )
 
 test('namedProperties returns cached NamedPropertyGroup instance on subsequent calls', (t) => {
-  const obj = { a: 1, b: 2 }
-  const serialized = serialize(describe(obj))
+  const object = { a: 1, b: 2 }
+  const serialized = serialize(describe(object))
   const decoder = new Decoder(serialized.slice(1))
   const context = new DeserializationContext(decoder)
 
@@ -797,7 +800,7 @@ test('iterateNamedProperties throws when given unknown group', (t) => {
   // Should throw an assertion error when given a group the context doesn't recognize
   t.throws(
     () => {
-      context.iterateNamedProperties({} as any).next()
+      context.iterateNamedProperties({} as unknown as NamedPropertyGroup).next()
     },
     {
       name: 'AssertionError',
@@ -1174,8 +1177,8 @@ test(
       new MapEntryAccessor(descriptionContext, describe('key2'), describe('value2')),
     ]
 
-    for (let i = 0; i < entries.length; i++) {
-      t.is(entries[i].compare(expectedEntries[i]), strictlyEqual, `Entry at index ${i} should match expected value`)
+    for (const [i, entry] of entries.entries()) {
+      t.is(entry.compare(expectedEntries[i]!), strictlyEqual, `Entry at index ${i} should match expected value`)
     }
   },
 )
@@ -1394,8 +1397,8 @@ test(
       new IteratorValueAccessor(1, describe('value2')),
     ]
 
-    for (let i = 0; i < values.length; i++) {
-      t.is(values[i].compare(expectedValues[i]), strictlyEqual, `Value at index ${i} should match expected value`)
+    for (const [i, value] of values.entries()) {
+      t.is(value.compare(expectedValues[i]!), strictlyEqual, `Value at index ${i} should match expected value`)
     }
   },
 )
@@ -1584,7 +1587,7 @@ test('handles terminators correctly', iteration, 'iterateValues', {
 
 const typeDeserializationMacro = test.macro<[string, unknown, Comparison]>({
   title(providedTitle, desc) {
-    return providedTitle || `DeserializationContext correctly deserializes ${desc}`
+    return (providedTitle ?? '') || `DeserializationContext correctly deserializes ${desc}`
   },
   exec(t, _, value, expectedEquality) {
     // Create the original representation
@@ -1617,7 +1620,7 @@ test(typeDeserializationMacro, 'boolean (true)', true, strictlyEqual)
 test(typeDeserializationMacro, 'boolean (false)', false, strictlyEqual)
 test(typeDeserializationMacro, 'number (integer)', 42, strictlyEqual)
 test(typeDeserializationMacro, 'number (float)', 3.14, strictlyEqual)
-test(typeDeserializationMacro, 'number (NaN)', NaN, strictlyEqual)
+test(typeDeserializationMacro, 'number (NaN)', Number.NaN, strictlyEqual)
 test(typeDeserializationMacro, 'number (Infinity)', Infinity, strictlyEqual)
 test(typeDeserializationMacro, 'number (negative zero)', -0, strictlyEqual)
 test(typeDeserializationMacro, 'bigint', BigInt('9007199254740991'), strictlyEqual)
@@ -1636,7 +1639,7 @@ test(
   typeDeserializationMacro,
   'arguments',
   (function (..._: any[]) {
-    return arguments
+    return arguments // eslint-disable-line prefer-rest-params
   })(1, 2, 3),
   comparable,
 )
@@ -1679,12 +1682,14 @@ test(
 )
 
 // Object wrapper tests
+// eslint-disable-next-line no-new-wrappers, unicorn/new-for-builtins
 test(typeDeserializationMacro, 'boxed primitive', new Number(42), comparable)
 
 // Function test
 test(
   typeDeserializationMacro,
   'function',
+  // eslint-disable-next-line func-names
   function testFunc() {
     return 42
   },
@@ -1732,7 +1737,7 @@ test('DeserializationContext correctly deserializes crypto key', async (t) => {
 
 test('DeserializationContext correctly deserializes external value', async (t) => {
   // @ts-expect-error ts2307: Suppress error about missing import
-  const refNapi = await (import('ref-napi') as Promise<{ default: { instance: object } }>)
+  const refNapi = await (import('ref-napi') as Promise<{ default: { instance: Record<string, unknown> } }>)
   const externalValue = refNapi.default.instance
 
   // Now proceed with the same pattern as the macro
@@ -1762,18 +1767,20 @@ test('notifyNextExplicitlyNamedPropertyAccess - basic functionality and argument
   const serialized = serialize(describe({ name: 'test', value: 42 }))
   const decoder = new Decoder(serialized.slice(1)) // Skip the initial byte
   const context = new DeserializationContext(decoder)
-  const representation = context.next() as ValueRepresentation
-  const callback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
+  const representation = context.next()!
+  const callback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {
+    // No-op
+  })
 
   // Register the callback
   context.notifyNextExplicitlyNamedPropertyAccess(representation, 'name', callback)
 
   // Regular property enumeration should not trigger callbacks
-  Array.from(context.namedProperties(representation))
+  void [...context.namedProperties(representation)]
   t.is(callback.mock.callCount(), 0, 'Callbacks should not be called for regular property access')
 
   // Access property explicitly to trigger callback
-  const properties = Array.from(context.namedProperties(representation, 'name'))
+  const properties = [...context.namedProperties(representation, 'name')]
   t.is(callback.mock.callCount(), 1, 'Callback should be called once')
 
   // Verify callback arguments
@@ -1786,15 +1793,17 @@ test('notifyNextExplicitlyNamedPropertyAccess - non-existent properties', (t) =>
   const nonExistentSerialized = serialize(describe({ existing: true }))
   const nonExistentDecoder = new Decoder(nonExistentSerialized.slice(1))
   const nonExistentContext = new DeserializationContext(nonExistentDecoder)
-  const nonExistentRepresentation = nonExistentContext.next() as ValueRepresentation
-  const nonExistentCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
+  const nonExistentRepresentation = nonExistentContext.next()!
+  const nonExistentCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {
+    // No-op
+  })
 
   nonExistentContext.notifyNextExplicitlyNamedPropertyAccess(
     nonExistentRepresentation,
     'nonExistent',
     nonExistentCallback,
   )
-  Array.from(nonExistentContext.namedProperties(nonExistentRepresentation, 'nonExistent'))
+  void [...nonExistentContext.namedProperties(nonExistentRepresentation, 'nonExistent')]
 
   t.is(nonExistentCallback.mock.callCount(), 0, 'Callback not called for non-existent property')
 })
@@ -1803,22 +1812,33 @@ test('notifyNextExplicitlyNamedPropertyAccess - duplicate registration', (t) => 
   const serialized = serialize(describe({ key: 'value', count: 123, extra: true }))
   const decoder = new Decoder(serialized.slice(1)) // Skip the initial byte
   const context = new DeserializationContext(decoder)
-  const representation = context.next() as ValueRepresentation
+  const representation = context.next()!
 
   // Test duplicate registration error
-  const callback1 = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
-  const callback2 = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
+  const callback1 = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {
+    // No-op
+  })
+  const callback2 = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {
+    // No-op
+  })
   context.notifyNextExplicitlyNamedPropertyAccess(representation, 'key', callback1)
 
-  t.throws(() => context.notifyNextExplicitlyNamedPropertyAccess(representation, 'key', callback2), {
-    message: "A notifier is already registered for property 'key'",
-  })
+  t.throws(
+    () => {
+      context.notifyNextExplicitlyNamedPropertyAccess(representation, 'key', callback2)
+    },
+    {
+      message: "A notifier is already registered for property 'key'",
+    },
+  )
 
   // Can still register for different properties
-  t.notThrows(() => context.notifyNextExplicitlyNamedPropertyAccess(representation, 'count', callback2))
+  t.notThrows(() => {
+    context.notifyNextExplicitlyNamedPropertyAccess(representation, 'count', callback2)
+  })
 
   // Access properties to verify callbacks work
-  Array.from(context.namedProperties(representation, 'key', 'count'))
+  void [...context.namedProperties(representation, 'key', 'count')]
   t.is(callback1.mock.callCount(), 1, 'First callback called once for key')
   t.is(callback2.mock.callCount(), 1, 'Second callback called once for count')
 })
@@ -1827,22 +1847,24 @@ test('notifyNextExplicitlyNamedPropertyAccess - callback invocation tracking', (
   const trackingSerialized = serialize(describe({ prop1: 'value1', prop2: 'value2' }))
   const trackingDecoder = new Decoder(trackingSerialized.slice(1))
   const trackingContext = new DeserializationContext(trackingDecoder)
-  const trackingRepresentation = trackingContext.next() as ValueRepresentation
-  const trackingCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
+  const trackingRepresentation = trackingContext.next()!
+  const trackingCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {
+    // No-op
+  })
 
   trackingContext.notifyNextExplicitlyNamedPropertyAccess(trackingRepresentation, 'prop1', trackingCallback)
   trackingContext.notifyNextExplicitlyNamedPropertyAccess(trackingRepresentation, 'prop2', trackingCallback)
 
   // First access
-  Array.from(trackingContext.namedProperties(trackingRepresentation, 'prop1'))
+  void [...trackingContext.namedProperties(trackingRepresentation, 'prop1')]
   t.is(trackingCallback.mock.callCount(), 1, 'Callback called for first property')
 
   // Second access to same property - should NOT trigger again
-  Array.from(trackingContext.namedProperties(trackingRepresentation, 'prop1'))
+  void [...trackingContext.namedProperties(trackingRepresentation, 'prop1')]
   t.is(trackingCallback.mock.callCount(), 1, 'Callback should not be called again for cached property')
 
   // Access to different property
-  Array.from(trackingContext.namedProperties(trackingRepresentation, 'prop2'))
+  void [...trackingContext.namedProperties(trackingRepresentation, 'prop2')]
   t.is(trackingCallback.mock.callCount(), 2, 'Callback called for second property')
 })
 
@@ -1850,16 +1872,19 @@ test('resetPropertyAccessNotifiers - cleanup and re-registration', (t) => {
   const serialized = serialize(describe({ name: 'test', value: 42 }))
   const decoder = new Decoder(serialized.slice(1)) // Skip the initial byte
   const context = new DeserializationContext(decoder)
-  const representation = context.next() as ValueRepresentation
+  const representation = context.next()!
 
-  const nameCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
-  const valueCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
+  const nameCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {
+    // No-op
+  })
+  const valueCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {
+    // No-op
+  })
 
   // Register callbacks and verify they work
   context.notifyNextExplicitlyNamedPropertyAccess(representation, 'name', nameCallback)
   context.notifyNextExplicitlyNamedPropertyAccess(representation, 'value', valueCallback)
-
-  Array.from(context.namedProperties(representation, 'name', 'value'))
+  void [...context.namedProperties(representation, 'name', 'value')]
   t.is(nameCallback.mock.callCount(), 1, 'Name callback should be called before reset')
   t.is(valueCallback.mock.callCount(), 1, 'Value callback should be called before reset')
 
@@ -1867,14 +1892,15 @@ test('resetPropertyAccessNotifiers - cleanup and re-registration', (t) => {
   context.resetPropertyAccessNotifiers(representation)
 
   // Should be able to register new callbacks for the same properties
-  const newNameCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
-  t.notThrows(
-    () => context.notifyNextExplicitlyNamedPropertyAccess(representation, 'name', newNameCallback),
-    'Should be able to register new callback after reset',
-  )
+  const newNameCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {
+    // No-op
+  })
+  t.notThrows(() => {
+    context.notifyNextExplicitlyNamedPropertyAccess(representation, 'name', newNameCallback)
+  }, 'Should be able to register new callback after reset')
 
   // Verify new callback works and old callbacks are not called again
-  Array.from(context.namedProperties(representation, 'name'))
+  void [...context.namedProperties(representation, 'name')]
   t.is(newNameCallback.mock.callCount(), 1, 'New callback should be called after reset')
   t.is(nameCallback.mock.callCount(), 1, 'Old name callback should not be called after reset')
   t.is(valueCallback.mock.callCount(), 1, 'Old value callback should not be called after reset')

@@ -31,11 +31,11 @@ test('compare returns unequal for non-StringRepresentation values', (t) => {
 })
 
 test('static is correctly identifies StringRepresentation instances', (t) => {
-  const str = new StringRepresentation('test')
-  const num = new NumberRepresentation(42)
+  const string = new StringRepresentation('test')
+  const number = new NumberRepresentation(42)
 
-  t.true(StringRepresentation.is(str))
-  t.false(StringRepresentation.is(num))
+  t.true(StringRepresentation.is(string))
+  t.false(StringRepresentation.is(number))
 })
 
 test('serializeShallow correctly encodes a string', (t) => {
@@ -82,7 +82,7 @@ test('can serialize and deserialize strings with special characters', (t) => {
 })
 
 test('can serialize and deserialize very long strings', (t) => {
-  const longString = 'a'.repeat(10000)
+  const longString = 'a'.repeat(10_000)
   const original = new StringRepresentation(longString)
   const encoder = new Encoder()
   original.serializeShallow(encoder)
@@ -150,11 +150,11 @@ test('formatShallow correctly escapes control characters', (t) => {
   t.snapshot(rendered)
 
   // Control characters should be properly escaped
-  t.true(rendered.includes('\\0'), 'Should escape null byte')
-  t.true(rendered.includes('\\b'), 'Should escape backspace')
-  t.true(rendered.includes('\\t'), 'Should escape tab')
-  t.true(rendered.includes('\\v'), 'Should escape vertical tab')
-  t.true(rendered.includes('\\f'), 'Should escape form feed')
+  t.true(rendered.includes(String.raw`\0`), 'Should escape null byte')
+  t.true(rendered.includes(String.raw`\b`), 'Should escape backspace')
+  t.true(rendered.includes(String.raw`\t`), 'Should escape tab')
+  t.true(rendered.includes(String.raw`\v`), 'Should escape vertical tab')
+  t.true(rendered.includes(String.raw`\f`), 'Should escape form feed')
   t.true(rendered.includes('\\\\'), 'Should escape backslash')
 })
 
@@ -209,23 +209,24 @@ test('formatShallow escapes C0 and C1 control characters with Unicode notation',
   for (let i = 1; i <= 31; i++) {
     // Skip common control characters that have specific escape sequences
     if (![8, 9, 10, 11, 12, 13, 27].includes(i)) {
-      controlString += String.fromCharCode(i)
+      controlString += String.fromCodePoint(i)
     }
   }
+
   // Add some C1 control characters
   for (let i = 128; i <= 159; i++) {
-    controlString += String.fromCharCode(i)
+    controlString += String.fromCodePoint(i)
   }
 
   const rendered = formatString(controlString)
   t.snapshot(rendered)
 
   // Check for a few specific escapes
-  t.true(rendered.includes('\\u0001'), 'Should escape SOH character')
-  t.true(rendered.includes('\\u0002'), 'Should escape STX character')
-  t.true(rendered.includes('\\u0003'), 'Should escape ETX character')
-  t.true(rendered.includes('\\u0080'), 'Should escape C1 control character 0x80')
-  t.true(rendered.includes('\\u0090'), 'Should escape C1 control character 0x90')
+  t.true(rendered.includes(String.raw`\u0001`), 'Should escape SOH character')
+  t.true(rendered.includes(String.raw`\u0002`), 'Should escape STX character')
+  t.true(rendered.includes(String.raw`\u0003`), 'Should escape ETX character')
+  t.true(rendered.includes(String.raw`\u0080`), 'Should escape C1 control character 0x80')
+  t.true(rendered.includes(String.raw`\u0090`), 'Should escape C1 control character 0x90')
 })
 
 test('formatShallow escapes quotes based on theme setting', (t) => {
@@ -247,12 +248,25 @@ test('formatShallow escapes quotes based on theme setting', (t) => {
   t.snapshot(rendered3, 'Backtick String')
 
   // Check that the theme's escape quote is properly escaped
-  if (theme.string.line.escapeQuote === "'") {
-    t.true(rendered1.includes("\\'"), 'Should escape single quote')
-  } else if (theme.string.line.escapeQuote === '"') {
-    t.true(rendered2.includes('\\"'), 'Should escape double quote')
-  } else if (theme.string.line.escapeQuote === '`') {
-    t.true(rendered3.includes('\\`'), 'Should escape backtick')
+  switch (theme.string.line.escapeQuote) {
+    case "'": {
+      t.true(rendered1.includes(String.raw`\'`), 'Should escape single quote')
+
+      break
+    }
+
+    case '"': {
+      t.true(rendered2.includes(String.raw`\"`), 'Should escape double quote')
+
+      break
+    }
+
+    case '`': {
+      t.true(rendered3.includes('\\`'), 'Should escape backtick')
+
+      break
+    }
+    // No default
   }
 })
 
@@ -264,9 +278,9 @@ test('formatShallow escapes control picture characters in text', (t) => {
   t.snapshot(rendered)
 
   // Control picture characters should be escaped with Unicode notation
-  t.true(rendered.includes('\\u240a'), 'Should escape LF control picture')
-  t.true(rendered.includes('\\u240d'), 'Should escape CR control picture')
-  t.true(rendered.includes('\\u241b'), 'Should escape ESC control picture')
+  t.true(rendered.includes(String.raw`\u240a`), 'Should escape LF control picture')
+  t.true(rendered.includes(String.raw`\u240d`), 'Should escape CR control picture')
+  t.true(rendered.includes(String.raw`\u241b`), 'Should escape ESC control picture')
 })
 
 test('formatShallow handles empty strings', (t) => {
@@ -310,12 +324,12 @@ test('formatTypicalIdentifier escapes non-identifier characters', (t) => {
 })
 
 test('formatTypicalIdentifier supports different append methods', (t) => {
-  const str = new StringRepresentation('test')
+  const string = new StringRepresentation('test')
   const formatter = new Formatter(deriveTheme())
 
   // Test append (default)
   formatter.append('prefix-')
-  str.formatTypicalIdentifier(formatter, 'append')
+  string.formatTypicalIdentifier(formatter, 'append')
   formatter.append('-suffix')
   formatter.close()
   t.is(formatter.render(), 'prefix-test-suffix', 'Should append to existing content')
@@ -323,14 +337,14 @@ test('formatTypicalIdentifier supports different append methods', (t) => {
   // Test prepend
   const formatter2 = new Formatter(deriveTheme())
   formatter2.append('original')
-  str.formatTypicalIdentifier(formatter2, 'prepend')
+  string.formatTypicalIdentifier(formatter2, 'prepend')
   formatter2.close()
   t.is(formatter2.render(), 'testoriginal', 'Should prepend to existing content')
 
   // Test prefix
   const formatter3 = new Formatter(deriveTheme())
   formatter3.append('middle')
-  str.formatTypicalIdentifier(formatter3, 'prefix')
+  string.formatTypicalIdentifier(formatter3, 'prefix')
   formatter3.append('-end')
   formatter3.close()
   t.is(formatter3.render(), 'testmiddle-end', 'Should add content at the beginning')
@@ -354,12 +368,12 @@ test('formatRaw outputs string value without encoding', (t) => {
 })
 
 test('formatRaw supports different append methods', (t) => {
-  const str = new StringRepresentation('raw')
+  const string = new StringRepresentation('raw')
   const formatter = new Formatter(deriveTheme())
 
   // Test append (default)
   formatter.append('before-')
-  str.formatRaw(formatter, 'append')
+  string.formatRaw(formatter, 'append')
   formatter.append('-after')
   formatter.close()
   t.is(formatter.render(), 'before-raw-after', 'Should append to existing content')
@@ -367,14 +381,14 @@ test('formatRaw supports different append methods', (t) => {
   // Test prepend
   const formatter2 = new Formatter(deriveTheme())
   formatter2.append('original')
-  str.formatRaw(formatter2, 'prepend')
+  string.formatRaw(formatter2, 'prepend')
   formatter2.close()
   t.is(formatter2.render(), 'raworiginal', 'Should prepend to existing content')
 
   // Test prefix
   const formatter3 = new Formatter(deriveTheme())
   formatter3.append('middle')
-  str.formatRaw(formatter3, 'prefix')
+  string.formatRaw(formatter3, 'prefix')
   formatter3.append('-end')
   formatter3.close()
   t.is(formatter3.render(), 'rawmiddle-end', 'Should add content at the beginning')
@@ -410,7 +424,7 @@ test('formatShallow correctly handles strings with multiple consecutive line bre
   t.snapshot(rendered)
 
   // Count occurrences of control pictures
-  const controlPictureCount = (rendered.match(/␊/g) || []).length
+  const controlPictureCount = (rendered.match(/␊/g) ?? []).length
   t.is(controlPictureCount, 5, 'Should have 5 line feed control pictures')
 })
 
@@ -422,9 +436,9 @@ test('formatShallow handles strings with mixed content types', (t) => {
   t.snapshot(rendered)
 
   t.true(rendered.includes('Normal text'), 'Should preserve normal text')
-  t.true(rendered.includes('\\t'), 'Should escape tab')
+  t.true(rendered.includes(String.raw`\t`), 'Should escape tab')
   t.true(rendered.includes('␛'), 'Should convert ESC to control picture')
   t.true(rendered.includes('␊'), 'Should convert newline to control picture')
   t.true(rendered.includes('🚀'), 'Should preserve emoji')
-  t.true(rendered.includes('\\u0001'), 'Should escape control character')
+  t.true(rendered.includes(String.raw`\u0001`), 'Should escape control character')
 })

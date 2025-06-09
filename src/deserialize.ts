@@ -24,7 +24,7 @@ export type DeserializeOptions = {
 }
 
 export function deserialize(bytes: Uint8Array, options?: DeserializeOptions): ValueRepresentation {
-  assert(bytes.length > 0, 'Bytes must not be empty')
+  assert.ok(bytes.length > 0, 'Bytes must not be empty')
 
   const decoder = new Decoder(bytes)
   try {

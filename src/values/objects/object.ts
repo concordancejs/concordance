@@ -1,13 +1,19 @@
 import never from 'never'
-import type { FinalFormatOptions, CommonRepresentation, DeepFunctionality, ValueRepresentation } from '../../value.d.ts'
+import type {
+  FinalFormatOptions,
+  CommonRepresentation,
+  DeepFunctionality,
+  ValueRepresentation,
+  Opaque,
+} from '../../value.d.ts'
 import type { ElementAccessor } from '../../accessors/element.ts'
 import type { IteratorValueAccessor } from '../../accessors/iterator-value.ts'
 import type { PropertyGroup } from '../../accessors/property.ts'
 import type { MapEntryAccessor } from '../../accessors/map-entry.ts'
 import { type Comparison, comparable, strictlyEqual, unequal } from '../../comparison.ts'
-import type { Context } from '../../context.js'
+import type { Context } from '../../context.d.ts'
 import type { BytesAccessor } from '../../accessors/bytes.ts'
-import type { Encoder } from '../../encoder.ts'
+import type { Annotations, Encoder } from '../../encoder.ts'
 import { staticTypeTable, type StaticType } from '../../serialization-types.ts'
 import { partialRequiringTerminator, type SerializationResult } from '../../serialization-result.ts'
 import type { Decoder } from '../../decoder.ts'
@@ -46,12 +52,10 @@ type KnownAnnotations = {
 const reserved = Symbol('Sentinel value for reserved annotations')
 type Reserved<T> = { [K in keyof Required<T>]?: typeof reserved }
 
-export type SerializationAnnotations = Record<string, boolean | number | string | BytesAccessor> &
-  Reserved<ObjectAnnotations> &
-  KnownAnnotations
+export type SerializationAnnotations = Annotations & Reserved<ObjectAnnotations> & KnownAnnotations
 
 export class ObjectRepresentation implements CommonRepresentation, DeepFunctionality {
-  static is(value: object): value is ObjectRepresentation {
+  static is(value: Opaque): value is ObjectRepresentation {
     return #value in value
   }
 
@@ -81,10 +85,10 @@ export class ObjectRepresentation implements CommonRepresentation, DeepFunctiona
     return new this(context, this.unpackAnnotations(decoder.annotations<ObjectAnnotations>()))
   }
 
-  readonly #value: object
+  readonly #value: Opaque
   readonly #context: Context
 
-  constructor(context: Context, value: object) {
+  constructor(context: Context, value: Opaque) {
     this.#value = value
     this.#context = context
   }

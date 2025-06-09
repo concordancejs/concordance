@@ -4,7 +4,7 @@ import { Encoder } from '../../../encoder.ts'
 import { Decoder } from '../../../decoder.ts'
 import { DeserializationContext } from '../../../deserialization-context.ts'
 import { ArrayBufferRepresentation } from '../array-buffer.ts'
-import { ArrayBufferViewRepresentation } from '../array-buffer-view.ts'
+import type { ArrayBufferViewRepresentation } from '../array-buffer-view.ts'
 import { comparable, strictlyEqual, unequal } from '../../../comparison.ts'
 import { staticTypeTable } from '../../../serialization-types.ts'
 import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
@@ -46,12 +46,12 @@ test('compare returns strictlyEqual when comparing the same array buffer instanc
 test('compare returns unequal when comparing to non-ArrayBufferRepresentation', (t) => {
   const context = new DescriptionContext()
   const buffer = new ArrayBuffer(4)
-  const obj = {}
+  const object = {}
 
   const bufferRep = context.represent(buffer) as ArrayBufferRepresentation
-  const objRep = context.represent(obj)
+  const objectRep = context.represent(object)
 
-  t.is(bufferRep.compare(objRep), unequal)
+  t.is(bufferRep.compare(objectRep), unequal)
 })
 
 test('compare returns unequal when comparing array buffers with different content', (t) => {
@@ -121,7 +121,7 @@ test('compare correctly handles empty array buffers', (t) => {
   t.is(emptyRep1.compare(deserialized), comparable)
 })
 
-// iterateArrayLike and iterateIterable tests
+// IterateArrayLike and iterateIterable tests
 test('iterateArrayLike yields no elements for array buffers', (t) => {
   const context = new DescriptionContext()
   const buffer = new ArrayBuffer(4)
@@ -142,7 +142,7 @@ test('iterateIterable yields no elements for array buffers', (t) => {
   t.is(iterables.length, 0)
 })
 
-// iterateProperties test
+// IterateProperties test
 test('iterateProperties yields properties for ArrayBuffer instances', (t) => {
   const context = new DescriptionContext()
   const buffer = new ArrayBuffer(4)

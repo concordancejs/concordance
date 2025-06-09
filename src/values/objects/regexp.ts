@@ -4,9 +4,9 @@ import type { DeserializationContext } from '../../deserialization-context.ts'
 import type { Encoder } from '../../encoder.ts'
 import { Formatter } from '../../formatter.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
-import type { DeepFunctionality, FinalFormatOptions } from '../../value.js'
+import type { DeepFunctionality, FinalFormatOptions, Opaque } from '../../value.d.ts'
 import { StringRepresentation } from '../primitives/string.ts'
-import type { Context } from '../../context.js'
+import type { Context } from '../../context.d.ts'
 import { ObjectRepresentation, type ObjectAnnotations } from './object.ts'
 
 export class RegExpRepresentation extends ObjectRepresentation implements DeepFunctionality {
@@ -16,11 +16,11 @@ export class RegExpRepresentation extends ObjectRepresentation implements DeepFu
   }
 
   readonly #context: Context
-  readonly #value: object
+  readonly #value: Opaque
   #iteratedFlags?: { property: NamedPropertyAccessor; value: StringRepresentation }
   #iteratedSource?: { property: NamedPropertyAccessor; value: StringRepresentation }
 
-  constructor(context: Context, value: object) {
+  constructor(context: Context, value: Opaque) {
     super(context, value)
     this.#context = context
     this.#value = value

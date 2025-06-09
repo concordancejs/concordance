@@ -12,6 +12,8 @@ import {
 import type { BytesAccessor } from './accessors/bytes.ts'
 import { type StaticType, staticTypeTable } from './serialization-types.ts'
 
+export type Annotations = Record<string, boolean | number | string | BytesAccessor>
+
 export class Encoder {
   readonly #writer = new Writer()
   readonly #options: cbor.RequiredEncodeOptions = {
@@ -82,7 +84,7 @@ export class Encoder {
     return this
   }
 
-  annotations<T extends Partial<Record<string, boolean | number | string | BytesAccessor>>>(value: T): this {
+  annotations<T extends Partial<Annotations>>(value: T): this {
     const entries = Object.entries(value).filter(
       (entry): entry is [string, Exclude<(typeof value)[string], undefined>] => entry[1] !== undefined,
     )

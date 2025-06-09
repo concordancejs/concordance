@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer'
 import test from 'ava'
 import { UnsupportedVersion, deserialize } from '../deserialize.ts'
 import { serialize } from '../serialize.ts'
@@ -39,7 +40,7 @@ test('deserialize throws when no value is deserialized', (t) => {
 })
 
 const serde = test.macro({
-  title: (desc, value) => `deserialized ${desc || String(value)} is equivalent to the original`,
+  title: (desc, value) => `deserialized ${(desc ?? '') || String(value)} is equivalent to the original`,
   exec(t, value: unknown) {
     const original = describe(value)
     const serialized = serialize(original)
@@ -81,17 +82,17 @@ test('undefined', serde, undefined)
 
 // BigInt
 test('bigint', serde, BigInt(42))
-test('large bigint', serde, 1234567890123456789012345678901234567890n)
-test('large negative bigint', serde, -1234567890123456789012345678901234567890n)
+test('large bigint', serde, 1_234_567_890_123_456_789_012_345_678_901_234_567_890n)
+test('large negative bigint', serde, -1_234_567_890_123_456_789_012_345_678_901_234_567_890n)
 
 // Edge case number values (consolidating duplicate tests)
-test('NaN', serde, NaN)
+test('NaN', serde, Number.NaN)
 test('Infinity', serde, Infinity)
 test('-Infinity', serde, -Infinity)
 test('-0x80 (int8)', serde, -0x80)
 test('0x7F (int8)', serde, 0x7f)
-test('-0x8000000000 (int40)', serde, -0x8000000000)
-test('0x7FFFFFFFFF (int40)', serde, 0x7fffffffff)
+test('-0x8000000000 (int40)', serde, -0x80_00_00_00_00)
+test('0x7FFFFFFFFF (int40)', serde, 0x7f_ff_ff_ff_ff)
 test('Number.MIN_VALUE', serde, Number.MIN_VALUE)
 test('Number.MAX_VALUE', serde, Number.MAX_VALUE)
 test('0.1 + 0.2 (float)', serde, 0.1 + 0.2)
@@ -99,7 +100,7 @@ test('0.1 + 0.2 (float)', serde, 0.1 + 0.2)
 // Collections
 test('empty array', serde, [])
 test('empty object', serde, {})
-test('sparse array', serde, [1, , 3])
+test('sparse array', serde, [1, , 3]) // eslint-disable-line no-sparse-arrays
 test('map with complex key and value', serde, new Map([[{}, {}]]))
 test('set with complex value', serde, new Set([{}]))
 
@@ -117,13 +118,13 @@ test('type error', serde, new TypeError('type error'))
 
 // Test circular references
 test('object with pointer to itself', (t) => {
-  const obj = {} as any
-  obj.self = obj
+  const object: Record<string, unknown> = {}
+  object['self'] = object
 
-  const serialized = serialize(describe(obj))
+  const serialized = serialize(describe(object))
   const deserialized = deserialize(serialized)
 
-  t.true(compareDescriptors(deserialized, describe(obj)))
+  t.true(compareDescriptors(deserialized, describe(object)))
 })
 
 // Test binary data
@@ -132,7 +133,7 @@ test('binary data types are preserved', (t) => {
   const arrayBuffer = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength)
 
   // Test several ArrayBuffer views
-  const testCases: [string, ArrayBuffer | ArrayBufferView][] = [
+  const testCases: Array<[string, ArrayBuffer | ArrayBufferView]> = [
     ['ArrayBuffer', arrayBuffer],
     ['Buffer', buffer],
     ['DataView', new DataView(arrayBuffer)],
@@ -163,6 +164,7 @@ test('symbol properties are reordered despite serialization', (t) => {
 })
 
 // Test function representation
+// eslint-disable-next-line func-names
 test('function serialization', serde, function foo() {
   return 42
 })

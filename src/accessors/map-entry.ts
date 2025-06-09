@@ -1,13 +1,19 @@
 import never from 'never'
 import { possiblyEqual, strictlyEqual, unequal } from '../comparison.ts'
-import { DeserializationContext } from '../deserialization-context.ts' // eslint-disable-line import/no-cycle
+import { DeserializationContext } from '../deserialization-context.ts'
 import { type SerializationResult, partial } from '../serialization-result.ts'
-import type { AccessorRepresentation, CommonRepresentation, DeepFunctionality, ValueRepresentation } from '../value.js'
-import type { Context } from '../context.js'
+import type {
+  AccessorRepresentation,
+  CommonRepresentation,
+  DeepFunctionality,
+  Opaque,
+  ValueRepresentation,
+} from '../value.d.ts'
+import type { Context } from '../context.d.ts'
 import type { Formatter } from '../formatter.ts'
 
 export class MapEntryAccessor implements CommonRepresentation, DeepFunctionality {
-  static is(value: object): value is MapEntryAccessor {
+  static is(value: Opaque): value is MapEntryAccessor {
     return #value in value
   }
 

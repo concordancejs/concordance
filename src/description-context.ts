@@ -1,9 +1,9 @@
 import typesUtils from 'node:util/types'
 import never from 'never'
-import type { ValueRepresentation } from './value.js'
-import type { Context, ContextOptions, DescribedSymbol, PropertyAccessCallback } from './context.js'
-import { ArgumentsRepresentation } from './values/objects/arguments.ts' // eslint-disable-line import/no-cycle
-import { type SymbolRepresentation } from './values/primitives/symbol.ts'
+import type { Opaque, ValueRepresentation } from './value.d.ts'
+import type { Context, ContextOptions, DescribedSymbol, PropertyAccessCallback } from './context.d.ts'
+import { ArgumentsRepresentation } from './values/objects/arguments.ts'
+import type { SymbolRepresentation } from './values/primitives/symbol.ts'
 import { BoxedPrimitiveRepresentation } from './values/objects/boxed.ts'
 import { ArrayRepresentation } from './values/objects/array.ts'
 import { ErrorRepresentation } from './values/objects/error.ts'
@@ -72,7 +72,7 @@ export class DescriptionContext implements Context {
 
   readonly #flags: Readonly<Flags>
   readonly #namedPropertyNotifiers = new Map<
-    object,
+    Opaque,
     Map<string, { callback: PropertyAccessCallback; invoked: boolean }>
   >()
 
@@ -94,20 +94,20 @@ export class DescriptionContext implements Context {
     return this.#pointers.getIndex(representation)
   }
 
-  stringTag(value: object) {
+  stringTag(value: Opaque) {
     const tag = (value as Record<symbol, unknown>)[Symbol.toStringTag]
     return typeof tag === 'string' ? tag : undefined
   }
 
-  isNullProto(value: object) {
+  isNullProto(value: Opaque) {
     return Object.getPrototypeOf(value) === null
   }
 
-  isObjectProto(value: object) {
+  isObjectProto(value: Opaque) {
     return Object.getPrototypeOf(value) === Object.prototype
   }
 
-  constructorName(value: object) {
+  constructorName(value: Opaque) {
     if (typeof value.constructor === 'function') {
       const name = value.constructor?.name
       return typeof name === 'string' ? name : undefined
@@ -116,7 +116,7 @@ export class DescriptionContext implements Context {
     return undefined
   }
 
-  isArrayLike(value: object) {
+  isArrayLike(value: Opaque) {
     if (!Reflect.has(value, 'length')) {
       return false
     }
@@ -129,15 +129,15 @@ export class DescriptionContext implements Context {
     )
   }
 
-  length(value: object) {
+  length(value: Opaque) {
     return (value as { length: number }).length
   }
 
-  size(value: object) {
+  size(value: Opaque) {
     return (value as { size: number }).size
   }
 
-  namedProperties(value: object, ...include: string[]) {
+  namedProperties(value: Opaque, ...include: string[]) {
     // Sort property names, they should never be order-sensitive. For array-like objects, reject names that are an
     // index.
     const isArrayLike = this.isArrayLike(value)
@@ -179,7 +179,7 @@ export class DescriptionContext implements Context {
     return new NamedPropertyGroup(this, properties)
   }
 
-  notifyNextExplicitlyNamedPropertyAccess(value: object, name: string, callback: PropertyAccessCallback) {
+  notifyNextExplicitlyNamedPropertyAccess(value: Opaque, name: string, callback: PropertyAccessCallback) {
     const objectNotifiers =
       this.#namedPropertyNotifiers.get(value) ??
       new Map<string, { callback: PropertyAccessCallback; invoked: boolean }>()
@@ -195,11 +195,11 @@ export class DescriptionContext implements Context {
     objectNotifiers.set(name, { callback, invoked: false })
   }
 
-  resetPropertyAccessNotifiers(value: object) {
+  resetPropertyAccessNotifiers(value: Opaque) {
     this.#namedPropertyNotifiers.delete(value)
   }
 
-  symbolProperties(value: object) {
+  symbolProperties(value: Opaque) {
     // Comparators should verify symbols in an order-insensitive manner if
     // possible.
     const symbolCandidates = Object.getOwnPropertySymbols(value).filter((symbol) => {
@@ -218,14 +218,14 @@ export class DescriptionContext implements Context {
     )
   }
 
-  *iterateElements(value: object) {
+  *iterateElements(value: Opaque) {
     const length = this.length(value)
     for (let index = 0; index < length; index++) {
       yield new ElementAccessor(index, this.represent((value as Record<number, unknown>)[index]))
     }
   }
 
-  *iterateValues(value: object) {
+  *iterateValues(value: Opaque) {
     if (!Reflect.has(value, Symbol.iterator)) {
       return
     }
@@ -236,13 +236,13 @@ export class DescriptionContext implements Context {
     }
   }
 
-  *iterateMapEntries(value: object) {
+  *iterateMapEntries(value: Opaque) {
     for (const [key, element] of value as Map<unknown, unknown>) {
       yield new MapEntryAccessor(this, this.represent(key), this.represent(element))
     }
   }
 
-  nonSparseArrayElements(value: object) {
+  nonSparseArrayElements(value: Opaque) {
     const elements: Array<[number, unknown]> = []
 
     forEach.call(value, (element, index) => {
@@ -252,11 +252,11 @@ export class DescriptionContext implements Context {
     return elements
   }
 
-  valueOf(value: object) {
+  valueOf(value: Opaque) {
     return value.valueOf() as unknown
   }
 
-  describeSymbol(value: object): DescribedSymbol {
+  describeSymbol(value: Opaque): DescribedSymbol {
     const symbol = value as unknown as symbol
     const key = Symbol.keyFor(symbol)
     if (key !== undefined) {
@@ -274,7 +274,7 @@ export class DescriptionContext implements Context {
     return { key: undefined, wellKnown: undefined, string: symbol.toString() }
   }
 
-  representBytes(value: object) {
+  representBytes(value: Opaque) {
     const buffer = ArrayBuffer.isView(value) ? value.buffer : (value as ArrayBufferLike)
     return new BytesAccessor(
       buffer,
@@ -297,7 +297,7 @@ export class DescriptionContext implements Context {
     return representation
   }
 
-  #representObject(value: object): ValueRepresentation {
+  #representObject(value: Opaque): ValueRepresentation {
     if (Array.isArray(value)) {
       return new ArrayRepresentation(this, value)
     }

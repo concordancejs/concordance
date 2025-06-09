@@ -3,8 +3,8 @@ import type { Decoder } from '../../decoder.ts'
 import type { DeserializationContext } from '../../deserialization-context.ts'
 import type { Encoder } from '../../encoder.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
-import type { Context } from '../../context.js'
-import type { DeepFunctionality, FinalFormatOptions, ValueRepresentation } from '../../value.js'
+import type { Context } from '../../context.d.ts'
+import type { DeepFunctionality, FinalFormatOptions, Opaque, ValueRepresentation } from '../../value.d.ts'
 import type { Formatter } from '../../formatter.ts'
 import { ObjectRepresentation, type ObjectAnnotations } from './object.ts'
 
@@ -15,9 +15,9 @@ export class DateRepresentation extends ObjectRepresentation implements DeepFunc
   }
 
   readonly #context: Context
-  readonly #value: object
+  readonly #value: Opaque
 
-  constructor(context: Context, value: object) {
+  constructor(context: Context, value: Opaque) {
     super(context, value)
     this.#context = context
     this.#value = value

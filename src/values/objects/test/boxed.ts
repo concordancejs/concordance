@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/new-for-builtins, no-new-wrappers */
 import test from 'ava'
 import { DescriptionContext } from '../../../description-context.ts'
 import { Encoder } from '../../../encoder.ts'
@@ -16,8 +17,8 @@ function createBoxedValues() {
     number: new Number(42),
     string: new String('test'),
     boolean: new Boolean(true),
-    symbol: Object(Symbol('test')),
-    bigint: Object(BigInt(42)),
+    symbol: new Object(Symbol('test')),
+    bigint: new Object(BigInt(42)),
   }
 }
 
@@ -70,12 +71,12 @@ test('compare returns strictlyEqual when comparing the same boxed instance', (t)
 test('compare returns unequal when comparing to non-BoxedRepresentation', (t) => {
   const context = new DescriptionContext()
   const boxed = new Number(42)
-  const obj = {}
+  const object = {}
 
   const boxedRep = context.represent(boxed) as BoxedRepresentation
-  const objRep = context.represent(obj)
+  const objectRep = context.represent(object)
 
-  t.is(boxedRep.compare(objRep), unequal)
+  t.is(boxedRep.compare(objectRep), unequal)
 })
 
 test('compare returns unequal when comparing boxed values with different primitive values', (t) => {
@@ -126,7 +127,7 @@ test('compare compares different boxed primitive types correctly', (t) => {
   t.is(symbolRep.compare(bigintRep), unequal)
 })
 
-// iterateArrayLike test
+// IterateArrayLike test
 test('iterateArrayLike yields no elements for boxed strings (which are array like)', (t) => {
   const context = new DescriptionContext()
   const boxedString = new String('abc')
@@ -138,7 +139,7 @@ test('iterateArrayLike yields no elements for boxed strings (which are array lik
   t.is(elements.length, 0)
 })
 
-// iterateIterable test
+// IterateIterable test
 test('iterateIterable yields no elements for boxed primitives', (t) => {
   const context = new DescriptionContext()
   const values = createBoxedValues()

@@ -16,10 +16,10 @@ test('is method correctly identifies ArrayRepresentation instances', (t) => {
   const context = new DescriptionContext()
   const array = [1, 2, 3]
   const arrayRep = context.represent(array) as ArrayRepresentation
-  const objRep = context.represent({})
+  const objectRep = context.represent({})
 
   t.true(ArrayRepresentation.is(arrayRep))
-  t.false(ArrayRepresentation.is(objRep))
+  t.false(ArrayRepresentation.is(objectRep))
 })
 
 // Deserialize method test
@@ -54,12 +54,12 @@ test('compare returns strictlyEqual when comparing the same array instance', (t)
 test('compare returns unequal when comparing to non-ArrayRepresentation', (t) => {
   const context = new DescriptionContext()
   const array = [1, 2, 3]
-  const obj = {}
+  const object = {}
 
   const arrayRep = context.represent(array) as ArrayRepresentation
-  const objRep = context.represent(obj)
+  const objectRep = context.represent(object)
 
-  t.is(arrayRep.compare(objRep), unequal)
+  t.is(arrayRep.compare(objectRep), unequal)
 })
 
 test('compare returns unequal when comparing arrays with different lengths', (t) => {
@@ -85,7 +85,7 @@ test('compare returns comparable when comparing different array instances with s
   t.is(arrayRep1.compare(arrayRep2), comparable)
 })
 
-// length property test
+// Length property test
 test('length property returns correct array length', (t) => {
   const context = new DescriptionContext()
   const array = [1, 2, 3]
@@ -98,7 +98,7 @@ test('length property returns correct array length', (t) => {
   t.is(emptyArrayRep.length, 0)
 })
 
-// iterateArrayLike tests
+// IterateArrayLike tests
 test('iterateArrayLike yields elements for dense arrays', (t) => {
   const context = new DescriptionContext()
   const array = [1, 2, 3]
@@ -139,12 +139,13 @@ test('iterateArrayLike handles sparse arrays', (t) => {
       value.serialize?.(encoder)
       value.serializeShallow?.(encoder)
     }
+
     const decoder = new Decoder(encoder.bytes)
     t.is(decoder.staticType(), staticTypeTable.undefined)
   }
 })
 
-// iterateIterable test
+// IterateIterable test
 test('iterateIterable yields no elements for arrays', (t) => {
   const context = new DescriptionContext()
   const array = [1, 2, 3]
@@ -189,10 +190,10 @@ test('serializing and deserializing an array preserves its structure', (t) => {
   t.is(original.compare(deserialized), comparable)
 
   // The deserialized representation should have the same length
-  t.is((deserialized as ArrayRepresentation).length, array.length)
+  t.is(deserialized.length, array.length)
 })
 
-// finalFormat tests
+// FinalFormat tests
 test('finalFormat uses array brackets and no disambiguation hint by default', (t) => {
   const context = new DescriptionContext()
   const array = [1, 2, 3]

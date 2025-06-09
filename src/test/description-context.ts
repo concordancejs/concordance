@@ -1,5 +1,5 @@
-import test from 'ava'
 import { mock } from 'node:test'
+import test from 'ava'
 import { DescriptionContext } from '../description-context.ts'
 import { StringRepresentation } from '../values/primitives/string.ts'
 import { NumberRepresentation } from '../values/primitives/number.ts'
@@ -32,8 +32,9 @@ import { MapEntryAccessor } from '../accessors/map-entry.ts'
 import { NamedPropertyAccessor } from '../accessors/property.ts'
 import { strictlyEqual } from '../comparison.ts'
 import { BytesAccessor } from '../accessors/bytes.ts'
-import type { ValueRepresentation } from '../value.js'
+import type { Opaque, ValueRepresentation } from '../value.d.ts'
 import { deriveFlags } from '../flags.ts'
+import type { Context } from '../context.d.ts'
 
 // -----------------------------------------------------------------------------
 // Core functionality
@@ -42,7 +43,7 @@ import { deriveFlags } from '../flags.ts'
 test('is identifies context instances correctly', (t) => {
   const context = new DescriptionContext()
   t.true(DescriptionContext.is(context))
-  t.false(DescriptionContext.is({ deserialized: false } as any))
+  t.false(DescriptionContext.is({ deserialized: false } as unknown as Context))
 })
 
 test('deserialized returns false', (t) => {
@@ -58,10 +59,10 @@ test('flags returns flags', (t) => {
 
 test('represent() returns consistent representations for the same object', (t) => {
   const context = new DescriptionContext()
-  const obj = { a: 1 }
+  const object = { a: 1 }
 
-  const rep1 = context.represent(obj)
-  const rep2 = context.represent(obj)
+  const rep1 = context.represent(object)
+  const rep2 = context.represent(object)
 
   // The same object should return the exact same representation instance
   t.is(rep1, rep2)
@@ -79,12 +80,12 @@ test('pointer returns index for representation', (t) => {
 
 test('internal PointerMap correctly allocates and retrieves pointers', (t) => {
   const context = new DescriptionContext()
-  const obj1 = {}
-  const obj2 = {}
+  const object1 = {}
+  const object2 = {}
 
   // First represent the objects to have them in the pointer map
-  const rep1 = context.represent(obj1)
-  const rep2 = context.represent(obj2)
+  const rep1 = context.represent(object1)
+  const rep2 = context.represent(object2)
 
   // Check that we can get pointer indexes
   const pointer1 = context.pointer(rep1)
@@ -95,8 +96,8 @@ test('internal PointerMap correctly allocates and retrieves pointers', (t) => {
   t.not(pointer1, pointer2)
 
   // Test with object that hasn't been represented yet
-  const obj3 = {}
-  const rep3 = context.represent(obj3)
+  const object3 = {}
+  const rep3 = context.represent(object3)
 
   const pointer3 = context.pointer(rep3)
   t.truthy(pointer3)
@@ -112,17 +113,19 @@ test('correctly identifies prototype chains', (t) => {
   const context = new DescriptionContext()
 
   // Null prototype
-  const nullProto = Object.create(null)
+  const nullProto = Object.create(null) as Record<string, never>
   t.true(context.isNullProto(nullProto))
   t.false(context.isObjectProto(nullProto))
 
   // Object prototype
-  const objProto = {}
-  t.false(context.isNullProto(objProto))
-  t.true(context.isObjectProto(objProto))
+  const objectProto = {}
+  t.false(context.isNullProto(objectProto))
+  t.true(context.isObjectProto(objectProto))
 
   // Custom prototype
-  class Custom {}
+  class Custom {
+    foo = 'bar'
+  }
   const customInstance = new Custom()
   t.false(context.isNullProto(customInstance))
   t.false(context.isObjectProto(customInstance))
@@ -133,7 +136,7 @@ test('correctly identifies array-like objects', (t) => {
 
   // Array-like objects
   t.true(context.isArrayLike([1, 2, 3]))
-  t.true(context.isArrayLike({ 0: 'a', 1: 'b', length: 2 }))
+  t.true(context.isArrayLike({ 0: 'a', 1: 'b', length: 2 })) // eslint-disable-line @typescript-eslint/naming-convention
 
   // Non-array-like objects
   t.false(context.isArrayLike({}))
@@ -146,11 +149,11 @@ test('isArrayLike handles various edge cases', (t) => {
   const context = new DescriptionContext()
 
   // Test with non-safe integer length
-  const nonSafeInteger = { length: Number.MAX_SAFE_INTEGER + 1, 0: 'value' }
+  const nonSafeInteger = { length: Number.MAX_SAFE_INTEGER + 1, 0: 'value' } // eslint-disable-line @typescript-eslint/naming-convention
   t.false(context.isArrayLike(nonSafeInteger))
 
   // Test with fractional length
-  const fractionalLength = { length: 3.5, 0: 'value' }
+  const fractionalLength = { length: 3.5, 0: 'value' } // eslint-disable-line @typescript-eslint/naming-convention
   t.false(context.isArrayLike(fractionalLength))
 
   // Test with zero length (should be true even without indices)
@@ -158,7 +161,7 @@ test('isArrayLike handles various edge cases', (t) => {
   t.true(context.isArrayLike(zeroLength))
 
   // Test with negative length
-  const negativeLength = { length: -1, 0: 'value' }
+  const negativeLength = { length: -1, 0: 'value' } // eslint-disable-line @typescript-eslint/naming-convention
   t.false(context.isArrayLike(negativeLength))
 
   // Test with non-numeric length property
@@ -174,22 +177,24 @@ test('constructorName handles edge cases correctly', (t) => {
   const context = new DescriptionContext()
 
   // Test with empty name
-  const EmptyNameClass = Function('return function() {}')()
-  const emptyNameInstance = new EmptyNameClass()
-  t.is(context.constructorName(emptyNameInstance), '')
+  const EmptyNameClass = new Function('return function() {}')() // eslint-disable-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, no-new-func, @typescript-eslint/naming-convention
+  const emptyNameInstance = new EmptyNameClass() // eslint-disable-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+  t.is(context.constructorName(emptyNameInstance), '') // eslint-disable-line @typescript-eslint/no-unsafe-argument
 
   // Test with explicitly empty name
-  const ExplicitEmptyNameClass = Function('return function() { this.constructor.name = "" }')()
-  const explicitEmptyNameInstance = new ExplicitEmptyNameClass()
-  t.is(context.constructorName(explicitEmptyNameInstance), '')
+  const ExplicitEmptyNameClass = new Function('return function() { this.constructor.name = "" }')() // eslint-disable-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, no-new-func, @typescript-eslint/naming-convention
+  const explicitEmptyNameInstance = new ExplicitEmptyNameClass() // eslint-disable-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+  t.is(context.constructorName(explicitEmptyNameInstance), '') // eslint-disable-line @typescript-eslint/no-unsafe-argument
 
   // Test with non-function constructor
-  const noConstructorObject = Object.create(null)
+  const noConstructorObject = Object.create(null) as Record<'constructor', undefined>
   noConstructorObject.constructor = undefined
   t.is(context.constructorName(noConstructorObject), undefined)
 
   // Test with normal class
-  class NormalClass {}
+  class NormalClass {
+    foo = 'bar'
+  }
   const normalInstance = new NormalClass()
   t.is(context.constructorName(normalInstance), 'NormalClass')
 })
@@ -197,17 +202,17 @@ test('constructorName handles edge cases correctly', (t) => {
 test('handles objects with toStringTag correctly', (t) => {
   const context = new DescriptionContext()
 
-  const obj = {}
-  Object.defineProperty(obj, Symbol.toStringTag, {
+  const object = {}
+  Object.defineProperty(object, Symbol.toStringTag, {
     value: 'CustomObject',
   })
 
   // Should still be represented as a generic object
-  const representation = context.represent(obj)
+  const representation = context.represent(object)
   t.is(representation.constructor, ObjectRepresentation)
 
   // Check the stringTag method directly
-  t.is(context.stringTag(obj), 'CustomObject')
+  t.is(context.stringTag(object), 'CustomObject')
 })
 
 // -----------------------------------------------------------------------------
@@ -231,12 +236,12 @@ test('valueOf returns primitive value from object wrapper', (t) => {
   const context = new DescriptionContext()
 
   // eslint-disable-next-line no-new-wrappers
-  const stringObj = new String('test string')
-  t.is(context.valueOf(stringObj), 'test string')
+  const stringObject = new String('test string') // eslint-disable-line unicorn/new-for-builtins
+  t.is(context.valueOf(stringObject), 'test string')
 
   // eslint-disable-next-line no-new-wrappers
-  const numberObj = new Number(123)
-  t.is(context.valueOf(numberObj), 123)
+  const numberObject = new Number(123) // eslint-disable-line unicorn/new-for-builtins
+  t.is(context.valueOf(numberObject), 123)
 
   // Test with Date object
   const date = new Date('2023-01-01')
@@ -283,21 +288,21 @@ test('describeSymbol categorizes symbols correctly', (t) => {
 
   // Regular symbol
   const regularSymbol = Symbol('test')
-  const regularDesc = context.describeSymbol(regularSymbol as any)
+  const regularDesc = context.describeSymbol(regularSymbol as unknown as Opaque)
   t.is(regularDesc.key, undefined)
   t.is(regularDesc.wellKnown, undefined)
   t.is(regularDesc.string, 'Symbol(test)')
 
   // Registered symbol (Symbol.for)
   const registeredSymbol = Symbol.for('registered-key')
-  const registeredDesc = context.describeSymbol(registeredSymbol as any)
+  const registeredDesc = context.describeSymbol(registeredSymbol as unknown as Opaque)
   t.is(registeredDesc.key, 'registered-key')
   t.is(registeredDesc.wellKnown, undefined)
   t.is(registeredDesc.string, undefined)
 
   // Well-known symbol
   const wellKnownSymbol = Symbol.iterator
-  const wellKnownDesc = context.describeSymbol(wellKnownSymbol as any)
+  const wellKnownDesc = context.describeSymbol(wellKnownSymbol as unknown as Opaque)
   t.is(wellKnownDesc.key, undefined)
   t.is(wellKnownDesc.wellKnown, 'iterator')
   t.is(wellKnownDesc.string, undefined)
@@ -312,7 +317,12 @@ test('DescriptionContext.represent returns correct representation for objects', 
 
   t.is(context.represent({}).constructor, ObjectRepresentation)
   t.is(context.represent([]).constructor, ArrayRepresentation)
-  t.is(context.represent(() => {}).constructor, FunctionRepresentation)
+  t.is(
+    context.represent(() => {
+      // No-op
+    }).constructor,
+    FunctionRepresentation,
+  )
   t.is(context.represent(new Map()).constructor, MapRepresentation)
   t.is(context.represent(new Set()).constructor, SetRepresentation)
   t.is(context.represent(new Date()).constructor, DateRepresentation)
@@ -326,10 +336,13 @@ test('uses generic ObjectRepresentation for unknown object types', (t) => {
   const context = new DescriptionContext()
 
   // Create a class with a null prototype to avoid matching standard JS types
-  const CustomClass = function () {} as unknown as { new (): any }
-  CustomClass.prototype = Object.create(null)
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  const CustomClass = function () {
+    // No-op
+  } as unknown as new () => any
+  CustomClass.prototype = Object.create(null) as Record<string, never>
 
-  const instance = new CustomClass()
+  const instance = new CustomClass() // eslint-disable-line @typescript-eslint/no-unsafe-assignment
   instance.customProp = 'test'
 
   // This should end up using the fallback case
@@ -342,14 +355,14 @@ test('represent handles objects with null prototype correctly', (t) => {
 
   // Create a plain object with null prototype
   // This will hit the specific branch we want to test
-  const nullProtoObj = Object.create(null)
-  nullProtoObj.prop = 'value'
+  const nullProtoObject = Object.create(null) as Record<'prop', string>
+  nullProtoObject.prop = 'value'
 
   // Verify the object does have a null prototype
-  t.true(context.isNullProto(nullProtoObj))
+  t.true(context.isNullProto(nullProtoObject))
 
   // This should use the ObjectRepresentation fallback for null prototype objects
-  const representation = context.represent(nullProtoObj)
+  const representation = context.represent(nullProtoObject)
 
   // Verify it's represented correctly
   t.is(representation.constructor, ObjectRepresentation)
@@ -377,8 +390,9 @@ test('correctly identifies Arguments objects', (t) => {
   const context = new DescriptionContext()
 
   function getArguments(..._: unknown[]) {
-    return arguments
+    return arguments // eslint-disable-line prefer-rest-params
   }
+
   const args = getArguments(1, 2, 3)
   t.is(context.represent(args).constructor, ArgumentsRepresentation)
 })
@@ -400,11 +414,11 @@ test('correctly identifies boxed primitives', (t) => {
   const context = new DescriptionContext()
 
   // eslint-disable-next-line no-new-wrappers
-  t.is(context.represent(new String('test')).constructor, BoxedPrimitiveRepresentation)
+  t.is(context.represent(new String('test')).constructor, BoxedPrimitiveRepresentation) // eslint-disable-line unicorn/new-for-builtins
   // eslint-disable-next-line no-new-wrappers
-  t.is(context.represent(new Number(42)).constructor, BoxedPrimitiveRepresentation)
+  t.is(context.represent(new Number(42)).constructor, BoxedPrimitiveRepresentation) // eslint-disable-line unicorn/new-for-builtins
   // eslint-disable-next-line no-new-wrappers
-  t.is(context.represent(new Boolean(true)).constructor, BoxedPrimitiveRepresentation)
+  t.is(context.represent(new Boolean(true)).constructor, BoxedPrimitiveRepresentation) // eslint-disable-line unicorn/new-for-builtins
 })
 
 test('correctly identifies CryptoKey objects', async (t) => {
@@ -434,7 +448,7 @@ test('correctly identifies External objects', async (t) => {
   const context = new DescriptionContext()
 
   // @ts-expect-error ts2307: Suppress error about missing import
-  const refNapi = await (import('ref-napi') as Promise<{ default: { instance: object } }>)
+  const refNapi = await (import('ref-napi') as Promise<{ default: { instance: Record<string, unknown> } }>)
   const externalValue = refNapi.default.instance
 
   t.is(context.represent(externalValue).constructor, ExternalRepresentation)
@@ -454,20 +468,20 @@ test('correctly identifies Module Namespace objects', async (t) => {
 test('handles circular references', (t) => {
   const context = new DescriptionContext()
 
-  const obj = {} as any
-  obj.self = obj
+  const object: Record<string, unknown> = {}
+  object['self'] = object
 
-  const representation = context.represent(obj)
+  const representation = context.represent(object)
 
   // We need a separate object to verify pointer tracking works
-  const obj2 = {} as any
-  obj2.self = obj2
+  const object2: Record<string, unknown> = {}
+  object2['self'] = object2
 
-  const representation2 = context.represent(obj2)
+  const representation2 = context.represent(object2)
 
   // Verify circular references are handled correctly
-  t.true(compareDescriptors(representation, context.represent(obj)))
-  t.true(compareDescriptors(representation2, context.represent(obj2)))
+  t.true(compareDescriptors(representation, context.represent(object)))
+  t.true(compareDescriptors(representation2, context.represent(object2)))
 })
 
 test('iterateElements iterates through array-like elements', (t) => {
@@ -555,17 +569,17 @@ test('namedProperties handles property descriptors correctly', (t) => {
   const context = new DescriptionContext()
 
   // Object with non-enumerable properties
-  const obj = {}
-  Object.defineProperty(obj, 'nonEnumProp', {
+  const object = {}
+  Object.defineProperty(object, 'nonEnumProp', {
     value: 'hidden',
     enumerable: false,
   })
-  Object.defineProperty(obj, 'enumProp', {
+  Object.defineProperty(object, 'enumProp', {
     value: 'visible',
     enumerable: true,
   })
 
-  const props = [...context.namedProperties(obj)]
+  const props = [...context.namedProperties(object)]
 
   // Create expected property accessors
   const expectedEnumProp = new NamedPropertyAccessor('enumProp', context.represent('visible'))
@@ -578,7 +592,7 @@ test('namedProperties handles property descriptors correctly', (t) => {
   t.false(props.some((p) => p.compare(expectedNonEnumProp) === strictlyEqual))
 
   // Test with include parameter to force inclusion of non-enumerable properties
-  const propsWithForced = [...context.namedProperties(obj, 'nonEnumProp')]
+  const propsWithForced = [...context.namedProperties(object, 'nonEnumProp')]
   t.true(propsWithForced.some((p) => p.compare(expectedNonEnumProp) === strictlyEqual))
 })
 
@@ -587,9 +601,9 @@ test('namedProperties filters out numeric indices for array-like objects', (t) =
 
   // Create an array-like object with both numeric indices and named properties
   const arrayLike = {
-    0: 'zero',
-    1: 'one',
-    2: 'two',
+    0: 'zero', // eslint-disable-line @typescript-eslint/naming-convention
+    1: 'one', // eslint-disable-line @typescript-eslint/naming-convention
+    2: 'two', // eslint-disable-line @typescript-eslint/naming-convention
     extraProp: 'extra',
   }
   Object.defineProperty(arrayLike, 'length', {
@@ -621,9 +635,10 @@ test('namedProperties filters out numeric indices for array-like objects', (t) =
 
   // Boundary case: a numeric index at exactly the length
   const arrayLikeWithBoundary = {
-    0: 'zero',
-    1: 'one',
-    2: 'boundary', // index 2 = length, should be included
+    0: 'zero', // eslint-disable-line @typescript-eslint/naming-convention
+    1: 'one', // eslint-disable-line @typescript-eslint/naming-convention
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    2: 'boundary', // Index 2 = length, should be included
     extraProp: 'extra',
   }
   Object.defineProperty(arrayLikeWithBoundary, 'length', {
@@ -650,23 +665,23 @@ test('symbolProperties handles objects with symbol properties', (t) => {
   const sym1 = Symbol('test1')
   const sym2 = Symbol('test2')
 
-  const obj = {
+  const object = {
     [sym1]: 'value1',
     [sym2]: 'value2',
     regularProp: 'regular',
   }
 
   // Make one symbol non-enumerable
-  Object.defineProperty(obj, sym2, { enumerable: false })
+  Object.defineProperty(object, sym2, { enumerable: false })
 
-  const symbolProps = [...context.symbolProperties(obj)]
+  const symbolProps = [...context.symbolProperties(object)]
 
   // Should only include enumerable symbol properties
   t.is(symbolProps.length, 1)
 
   // Create empty object to test empty symbol properties case
-  const emptyObj = {}
-  const emptySymbolProps = [...context.symbolProperties(emptyObj)]
+  const emptyObject = {}
+  const emptySymbolProps = [...context.symbolProperties(emptyObject)]
   t.is(emptySymbolProps.length, 0)
 })
 
@@ -674,7 +689,7 @@ test('nonSparseArrayElements filters out sparse array elements', (t) => {
   const context = new DescriptionContext()
 
   // Create a sparse array
-  const sparseArray = Array(5)
+  const sparseArray = new Array(5) // eslint-disable-line unicorn/no-new-array
   sparseArray[0] = 'first'
   sparseArray[3] = 'fourth'
 
@@ -744,143 +759,173 @@ test('representBytes creates correct BytesAccessor for buffer types', (t) => {
 
 test('notifyNextExplicitlyNamedPropertyAccess - basic functionality and argument validation', (t) => {
   const context = new DescriptionContext()
-  const obj = { name: 'test', value: 42 }
+  const object = { name: 'test', value: 42 }
 
   // Create a mock callback
-  const callback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
+  const callback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {
+    // No-op
+  })
 
   // Register the callback
-  context.notifyNextExplicitlyNamedPropertyAccess(obj, 'name', callback)
+  context.notifyNextExplicitlyNamedPropertyAccess(object, 'name', callback)
 
   // Should not trigger callbacks for normal property enumeration
-  context.namedProperties(obj)
+  context.namedProperties(object)
   t.is(callback.mock.callCount(), 0, 'Callbacks should not be called for regular property access')
 
   // Should trigger callbacks when explicitly including properties
-  const propertyGroup = context.namedProperties(obj, 'name')
+  const propertyGroup = context.namedProperties(object, 'name')
   t.is(callback.mock.callCount(), 1, 'Callback should be called once for explicitly named property')
 
   // Verify callback arguments are correct
   const [accessor, value] = callback.mock.calls[0]!.arguments
-  const expectedAccessor = Array.from(propertyGroup)[0]!
+  const expectedAccessor = [...propertyGroup][0]!
   t.is(accessor, expectedAccessor, 'Accessor passed to callback should be the exact same instance')
   t.true(StringRepresentation.is(value), 'Value should be a StringRepresentation')
 })
 
 test('notifyNextExplicitlyNamedPropertyAccess - non-existent properties', (t) => {
   const context = new DescriptionContext()
-  const nonExistentCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
-  const objWithMissingProp = { existing: true }
+  const nonExistentCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {
+    // No-op
+  })
+  const objectWithMissingProp = { existing: true }
 
-  context.notifyNextExplicitlyNamedPropertyAccess(objWithMissingProp, 'nonExistent', nonExistentCallback)
-  context.namedProperties(objWithMissingProp, 'nonExistent')
+  context.notifyNextExplicitlyNamedPropertyAccess(objectWithMissingProp, 'nonExistent', nonExistentCallback)
+  context.namedProperties(objectWithMissingProp, 'nonExistent')
 
   t.is(nonExistentCallback.mock.callCount(), 0, 'Callback should not be called for non-existent properties')
 })
 
 test('notifyNextExplicitlyNamedPropertyAccess - non-enumerable properties', (t) => {
   const context = new DescriptionContext()
-  const nonEnumObj = {}
-  Object.defineProperty(nonEnumObj, 'hidden', { value: 'secret', enumerable: false })
-  const hiddenCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
+  const nonEnumObject = {}
+  Object.defineProperty(nonEnumObject, 'hidden', { value: 'secret', enumerable: false })
+  const hiddenCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {
+    // No-op
+  })
 
-  context.notifyNextExplicitlyNamedPropertyAccess(nonEnumObj, 'hidden', hiddenCallback)
+  context.notifyNextExplicitlyNamedPropertyAccess(nonEnumObject, 'hidden', hiddenCallback)
 
-  context.namedProperties(nonEnumObj)
+  context.namedProperties(nonEnumObject)
   t.is(hiddenCallback.mock.callCount(), 0, 'Callback should not be called without explicit inclusion')
 
-  context.namedProperties(nonEnumObj, 'hidden')
+  context.namedProperties(nonEnumObject, 'hidden')
   t.is(hiddenCallback.mock.callCount(), 1, 'Callback should be called for explicitly included non-enumerable property')
 })
 
 test('notifyNextExplicitlyNamedPropertyAccess - duplicate registration', (t) => {
   const context = new DescriptionContext()
-  const obj = { key: 'value', count: 123 }
+  const object = { key: 'value', count: 123 }
 
-  const firstCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
-  const secondCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
-
-  // Register first callback
-  context.notifyNextExplicitlyNamedPropertyAccess(obj, 'key', firstCallback)
-
-  // Registering a second callback for the same property should throw an error
-  t.throws(() => context.notifyNextExplicitlyNamedPropertyAccess(obj, 'key', secondCallback), {
-    message: "A notifier is already registered for property 'key'",
+  const firstCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {
+    // No-op
+  })
+  const secondCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {
+    // No-op
   })
 
+  // Register first callback
+  context.notifyNextExplicitlyNamedPropertyAccess(object, 'key', firstCallback)
+
+  // Registering a second callback for the same property should throw an error
+  t.throws(
+    () => {
+      context.notifyNextExplicitlyNamedPropertyAccess(object, 'key', secondCallback)
+    },
+    {
+      message: "A notifier is already registered for property 'key'",
+    },
+  )
+
   // Can still register for different properties on the same object
-  t.notThrows(() => context.notifyNextExplicitlyNamedPropertyAccess(obj, 'count', secondCallback))
+  t.notThrows(() => {
+    context.notifyNextExplicitlyNamedPropertyAccess(object, 'count', secondCallback)
+  })
 
   // Verify both callbacks work for their respective properties
-  context.namedProperties(obj, 'key', 'count')
+  context.namedProperties(object, 'key', 'count')
   t.is(firstCallback.mock.callCount(), 1, 'First callback should be called for key')
   t.is(secondCallback.mock.callCount(), 1, 'Second callback should be called for count')
 })
 
 test('notifyNextExplicitlyNamedPropertyAccess - isolation', (t) => {
   const context = new DescriptionContext()
-  const obj1 = { name: 'first', value: 'test' }
-  const obj2 = { name: 'second' }
+  const object1 = { name: 'first', value: 'test' }
+  const object2 = { name: 'second' }
 
   // Test isolation between different objects
-  const obj1NameCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
-  const obj1ValueCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
-  const obj2Callback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
+  const object1NameCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {
+    // No-op
+  })
+  const object1ValueCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {
+    // No-op
+  })
+  const object2Callback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {
+    // No-op
+  })
 
-  context.notifyNextExplicitlyNamedPropertyAccess(obj1, 'name', obj1NameCallback)
-  context.notifyNextExplicitlyNamedPropertyAccess(obj1, 'value', obj1ValueCallback)
-  context.notifyNextExplicitlyNamedPropertyAccess(obj2, 'name', obj2Callback)
+  context.notifyNextExplicitlyNamedPropertyAccess(object1, 'name', object1NameCallback)
+  context.notifyNextExplicitlyNamedPropertyAccess(object1, 'value', object1ValueCallback)
+  context.notifyNextExplicitlyNamedPropertyAccess(object2, 'name', object2Callback)
 
   // Access properties to verify isolation
-  context.namedProperties(obj1, 'name')
-  context.namedProperties(obj2, 'name')
+  context.namedProperties(object1, 'name')
+  context.namedProperties(object2, 'name')
 
-  t.is(obj1NameCallback.mock.callCount(), 1, 'obj1 name callback should be called')
-  t.is(obj1ValueCallback.mock.callCount(), 0, 'obj1 value callback should not be called')
-  t.is(obj2Callback.mock.callCount(), 1, 'obj2 callback should be called')
+  t.is(object1NameCallback.mock.callCount(), 1, 'obj1 name callback should be called')
+  t.is(object1ValueCallback.mock.callCount(), 0, 'obj1 value callback should not be called')
+  t.is(object2Callback.mock.callCount(), 1, 'obj2 callback should be called')
 })
 
 test('notifyNextExplicitlyNamedPropertyAccess - callback invocation tracking', (t) => {
   const context = new DescriptionContext()
-  const trackingObj = { name: 'tracking' }
-  const trackingCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
+  const trackingObject = { name: 'tracking' }
+  const trackingCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {
+    // No-op
+  })
 
-  context.notifyNextExplicitlyNamedPropertyAccess(trackingObj, 'name', trackingCallback)
+  context.notifyNextExplicitlyNamedPropertyAccess(trackingObject, 'name', trackingCallback)
 
-  context.namedProperties(trackingObj, 'name')
+  context.namedProperties(trackingObject, 'name')
   t.is(trackingCallback.mock.callCount(), 1, 'Callback should be called once on first access')
 
-  context.namedProperties(trackingObj, 'name')
+  context.namedProperties(trackingObject, 'name')
   t.is(trackingCallback.mock.callCount(), 1, 'Callback should not be called again on second access')
 })
 
 test('resetPropertyAccessNotifiers - cleanup and re-registration', (t) => {
   const context = new DescriptionContext()
-  const obj = { name: 'test', value: 42 }
+  const object = { name: 'test', value: 42 }
 
-  const nameCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
-  const valueCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
+  const nameCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {
+    // No-op
+  })
+  const valueCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {
+    // No-op
+  })
 
   // Register callbacks and verify they work
-  context.notifyNextExplicitlyNamedPropertyAccess(obj, 'name', nameCallback)
-  context.notifyNextExplicitlyNamedPropertyAccess(obj, 'value', valueCallback)
+  context.notifyNextExplicitlyNamedPropertyAccess(object, 'name', nameCallback)
+  context.notifyNextExplicitlyNamedPropertyAccess(object, 'value', valueCallback)
 
-  context.namedProperties(obj, 'name', 'value')
+  context.namedProperties(object, 'name', 'value')
   t.is(nameCallback.mock.callCount(), 1, 'Name callback should be called before reset')
   t.is(valueCallback.mock.callCount(), 1, 'Value callback should be called before reset')
 
   // Reset notifiers
-  context.resetPropertyAccessNotifiers(obj)
+  context.resetPropertyAccessNotifiers(object)
 
   // Should be able to register new callbacks for the same properties
-  const newNameCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {})
-  t.notThrows(
-    () => context.notifyNextExplicitlyNamedPropertyAccess(obj, 'name', newNameCallback),
-    'Should be able to register new callback after reset',
-  )
+  const newNameCallback = mock.fn((_property: NamedPropertyAccessor, _value: ValueRepresentation) => {
+    // No-op
+  })
+  t.notThrows(() => {
+    context.notifyNextExplicitlyNamedPropertyAccess(object, 'name', newNameCallback)
+  }, 'Should be able to register new callback after reset')
 
   // Verify new callback works and old callbacks are not called again
-  context.namedProperties(obj, 'name')
+  context.namedProperties(object, 'name')
   t.is(newNameCallback.mock.callCount(), 1, 'New callback should be called after reset')
   t.is(nameCallback.mock.callCount(), 1, 'Old name callback should not be called after reset')
   t.is(valueCallback.mock.callCount(), 1, 'Old value callback should not be called after reset')

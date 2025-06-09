@@ -1,16 +1,22 @@
 import test from 'ava'
 import { compare, compareDescriptors } from '../compare.ts'
-import { comparable, comparableAfterAlignment, deeplyEqual, unequal, strictlyEqual } from '../comparison.ts'
+import {
+  comparable,
+  comparableAfterAlignment,
+  deeplyEqual,
+  unequal,
+  strictlyEqual,
+  type Comparison,
+} from '../comparison.ts'
 import { finished, type SerializationResult } from '../serialization-result.ts'
-import type { Comparison } from '../comparison.ts'
 import type { ValueRepresentation } from '../value.ts'
 
 // Mock ValueRepresentation implementation
 class MockValueRepresentation {
-  #compareResult: Comparison
-  children: ValueRepresentation[]
-  #aligned = false
   align?: (other: ValueRepresentation) => void
+  children: ValueRepresentation[]
+  readonly #compareResult: Comparison
+  #aligned = false
 
   constructor(compareResult: Comparison = strictlyEqual, children: ValueRepresentation[] = [], hasAlign = false) {
     this.#compareResult = compareResult
@@ -46,8 +52,8 @@ class MockValueRepresentation {
 
 // Tests for compare() function
 test('compare returns true for same objects', (t) => {
-  const obj = {}
-  t.true(compare(obj, obj).pass)
+  const object = {}
+  t.true(compare(object, object).pass)
 })
 
 test('compare returns true for equal primitive values', (t) => {
@@ -71,9 +77,9 @@ test('compare returns false when one value is primitive and the other is not', (
 })
 
 test('compare passes complex objects to compareDescriptors', (t) => {
-  const obj1 = { a: 1, b: 2 }
-  const obj2 = { a: 1, b: 2 }
-  const result = compare(obj1, obj2)
+  const object1 = { a: 1, b: 2 }
+  const object2 = { a: 1, b: 2 }
+  const result = compare(object1, object2)
   t.true(result.pass)
   t.truthy(result.actual)
   t.truthy(result.expected)

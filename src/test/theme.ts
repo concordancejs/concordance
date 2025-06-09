@@ -205,7 +205,7 @@ test('deriveTheme ignores unknown properties', (t) => {
     },
   }
 
-  const theme = deriveTheme(input as any)
+  const theme = deriveTheme(input)
 
   // Valid properties should be set
   t.is(theme.array.bracket.open, '««')

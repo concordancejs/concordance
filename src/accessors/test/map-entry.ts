@@ -12,6 +12,7 @@ import { DeserializationContext } from '../../deserialization-context.ts'
 import type { SymbolRepresentation } from '../../values/primitives/symbol.ts'
 import { Formatter } from '../../formatter.ts'
 import { deriveTheme } from '../../theme.ts'
+import type { ValueRepresentation } from '../../value.d.ts'
 
 // Test constructor and basic properties
 test('constructor sets key and value, which iterator yields in order', (t) => {
@@ -85,12 +86,12 @@ test('compare returns unequal for non-MapEntryAccessor', (t) => {
   const nonMapEntry = {
     compare: () => strictlyEqual,
     serialize: () => partial,
-    [Symbol.iterator]: function* () {
+    *[Symbol.iterator]() {
       yield null
     },
   }
 
-  t.is(mapEntry.compare(nonMapEntry as any), unequal)
+  t.is(mapEntry.compare(nonMapEntry as unknown as ValueRepresentation), unequal)
 })
 
 test('compare returns key comparison result when keys are not equal', (t) => {

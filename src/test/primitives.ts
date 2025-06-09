@@ -31,8 +31,12 @@ test('isPrimitive identifies primitive values correctly', (t) => {
   t.false(isPrimitive([]))
   t.false(isPrimitive(new Date()))
   t.false(isPrimitive(new Map()))
-  t.false(isPrimitive(() => {}))
-  t.false(isPrimitive(Object(42))) // Boxed primitive
+  t.false(
+    isPrimitive(() => {
+      // No-op
+    }),
+  )
+  t.false(isPrimitive(new Object(42))) // Boxed primitive
 })
 
 // -----------------------------------------------------------------------------
@@ -78,7 +82,7 @@ test('representPrimitive returns correct representation for numbers', (t) => {
   const infinite = representPrimitive(context, Infinity)
   t.true(infinite instanceof NumberRepresentation)
 
-  const nan = representPrimitive(context, NaN)
+  const nan = representPrimitive(context, Number.NaN)
   t.true(nan instanceof NumberRepresentation)
 })
 
@@ -91,7 +95,7 @@ test('representPrimitive returns correct representation for bigints', (t) => {
   const zeroBigInt = representPrimitive(context, BigInt(0))
   t.true(zeroBigInt instanceof BigIntRepresentation)
 
-  const negativeBigInt = representPrimitive(context, BigInt(-9007199254740991))
+  const negativeBigInt = representPrimitive(context, BigInt(-9_007_199_254_740_991))
   t.true(negativeBigInt instanceof BigIntRepresentation)
 })
 
@@ -130,7 +134,13 @@ test('representPrimitive throws for non-primitive values', (t) => {
   // Objects aren't primitives, so representPrimitive should throw when called with them
   t.throws(() => representPrimitive(context, {}), { name: 'TypeError', message: 'Not a primitive value' })
   t.throws(() => representPrimitive(context, []), { name: 'TypeError', message: 'Not a primitive value' })
-  t.throws(() => representPrimitive(context, () => {}), { name: 'TypeError', message: 'Not a primitive value' })
+  t.throws(
+    () =>
+      representPrimitive(context, () => {
+        // No-op
+      }),
+    { name: 'TypeError', message: 'Not a primitive value' },
+  )
 })
 
 test('representPrimitive uses context for symbol representation', (t) => {

@@ -43,12 +43,12 @@ test('compare returns strictlyEqual when comparing the same weakMap instance', (
 test('compare returns unequal when comparing to non-WeakMapRepresentation', (t) => {
   const context = new DescriptionContext()
   const weakMap = new WeakMap()
-  const obj = {}
+  const object = {}
 
   const weakMapRep = context.represent(weakMap) as WeakMapRepresentation
-  const objRep = context.represent(obj)
+  const objectRep = context.represent(object)
 
-  t.is(weakMapRep.compare(objRep), unequal)
+  t.is(weakMapRep.compare(objectRep), unequal)
 })
 
 test('compare returns possiblyEqual when comparing different weakMap instances', (t) => {
@@ -104,7 +104,7 @@ test('serialize uses weakMap static type', (t) => {
   t.is(decoder.staticType(), staticTypeTable.weakMap)
 })
 
-// finalFormat tests
+// FinalFormat tests
 test('finalFormat passes object brackets and does not include disambiguation hint by default', (t) => {
   const context = new DescriptionContext()
   const weakMap = new WeakMap()

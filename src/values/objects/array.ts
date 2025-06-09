@@ -1,13 +1,13 @@
 import never from 'never'
 import { ElementAccessor, SparseValueRepresentation } from '../../accessors/element.ts'
 import { strictlyEqual, unequal } from '../../comparison.ts'
-import { DescriptionContext } from '../../description-context.ts' // eslint-disable-line import/no-cycle
+import { DescriptionContext } from '../../description-context.ts'
 import type { Decoder } from '../../decoder.ts'
-import { DeserializationContext } from '../../deserialization-context.ts' // eslint-disable-line import/no-cycle
+import { DeserializationContext } from '../../deserialization-context.ts'
 import type { Encoder } from '../../encoder.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
-import type { Context } from '../../context.js'
-import type { FinalFormatOptions, ValueRepresentation } from '../../value.js'
+import type { Context } from '../../context.d.ts'
+import type { FinalFormatOptions, Opaque, ValueRepresentation } from '../../value.d.ts'
 import type { Formatter } from '../../formatter.ts'
 import { ObjectRepresentation, type ObjectAnnotations } from './object.ts'
 
@@ -17,14 +17,14 @@ export class ArrayRepresentation extends ObjectRepresentation {
     return new this(context, this.unpackAnnotations(objectAnnotations))
   }
 
-  static override is(value: object): value is ArrayRepresentation {
+  static override is(value: Opaque): value is ArrayRepresentation {
     return #value in value
   }
 
-  readonly #value: object
+  readonly #value: Opaque
   readonly #context: Context
 
-  constructor(context: Context, value: object) {
+  constructor(context: Context, value: Opaque) {
     super(context, value)
     this.#value = value
     this.#context = context

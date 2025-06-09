@@ -14,6 +14,7 @@ test('constructor initializes with bytes', (t) => {
   for (const _ of decoder) {
     count++
   }
+
   t.true(count > 0, 'Decoder should be iterable')
 })
 
@@ -51,21 +52,21 @@ test('bigInt handles large integers correctly', (t) => {
   // 0x1b prefix for uint64, followed by 0x10 00 00 00 00 00 00 00
   const largeBytes = new Uint8Array([0x1b, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00])
   const largeDecoder = new Decoder(largeBytes)
-  t.is(largeDecoder.bigInt(), 1152921504606846976n)
+  t.is(largeDecoder.bigInt(), 1_152_921_504_606_846_976n)
 
   // Test with a negative value smaller than -MAX_SAFE_INTEGER
   // CBOR encoding for -2^60 (-1152921504606846976):
   // 0x3b prefix for negative uint64, followed by 0x0f ff ff ff ff ff ff ff
   const negLargeBytes = new Uint8Array([0x3b, 0x0f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff])
   const negLargeDecoder = new Decoder(negLargeBytes)
-  t.is(negLargeDecoder.bigInt(), -1152921504606846976n)
+  t.is(negLargeDecoder.bigInt(), -1_152_921_504_606_846_976n)
 
   // Test with a value at the boundary of int64
   // CBOR encoding for 2^63-1 (9223372036854775807):
   // 0x1b prefix for uint64, followed by 0x7f ff ff ff ff ff ff ff
   const maxInt64Bytes = new Uint8Array([0x1b, 0x7f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff])
   const maxInt64Decoder = new Decoder(maxInt64Bytes)
-  t.is(maxInt64Decoder.bigInt(), 9223372036854775807n)
+  t.is(maxInt64Decoder.bigInt(), 9_223_372_036_854_775_807n)
 })
 
 test('bigInt handles tagged big integers correctly', (t) => {
@@ -96,7 +97,7 @@ test('bigInt handles tagged big integers correctly', (t) => {
     // Additional bytes would complete the 81-byte sequence for this big integer
   ])
   const taggedBigIntDecoder = new Decoder(taggedBigIntBytes)
-  t.is(taggedBigIntDecoder.bigInt(), 1234567890123456789012345678901234567890n)
+  t.is(taggedBigIntDecoder.bigInt(), 1_234_567_890_123_456_789_012_345_678_901_234_567_890n)
 
   // Test with a negative value exceeding the int64 range
   // Tagged BigInteger for -1234567890123456789012345678901234567890
@@ -126,7 +127,7 @@ test('bigInt handles tagged big integers correctly', (t) => {
     // Additional bytes would complete the 81-byte sequence for this big integer
   ])
   const taggedNegativeBigIntDecoder = new Decoder(taggedNegativeBigIntBytes)
-  t.is(taggedNegativeBigIntDecoder.bigInt(), -1234567890123456789012345678901234567890n)
+  t.is(taggedNegativeBigIntDecoder.bigInt(), -1_234_567_890_123_456_789_012_345_678_901_234_567_890n)
 })
 
 test('bigInt converts number value to bigint when needed', (t) => {
@@ -174,7 +175,7 @@ test('number handles integer values correctly', (t) => {
   // Test the same large integer with number() method
   const bytesLarge = new Uint8Array([0x1b, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00]) // 2^32
   const decoderLarge = new Decoder(bytesLarge)
-  t.is(decoderLarge.number(), 4294967296)
+  t.is(decoderLarge.number(), 4_294_967_296)
 
   // Test a small int with number()
   const bytesSmall = new Uint8Array([0x18, 0x2a]) // 42
@@ -570,14 +571,14 @@ test('annotations reads multiple entries in correct order', (t) => {
 
 test('annotations throws for empty buffer', (t) => {
   const decoder = new Decoder(new Uint8Array([]))
-  t.throws(() => decoder.annotations(), { name: 'AssertionError' })
+  t.throws(() => decoder.annotations<Record<string, string>>(), { name: 'AssertionError' })
 })
 
 test('annotations throws for incorrect major types', (t) => {
   // Create a byte array with CBOR string (0x65 + "hello") - not a map
   const bytesString = new Uint8Array([0x65, 0x68, 0x65, 0x6c, 0x6c, 0x6f])
   const decoderString = new Decoder(bytesString)
-  t.throws(() => decoderString.annotations(), {
+  t.throws(() => decoderString.annotations<Record<string, string>>(), {
     name: 'AssertionError',
     message: /Expected a map with defined length, got major type/,
   })
@@ -595,7 +596,7 @@ test('annotations throws for indefinite length maps', (t) => {
   ])
   const decoder = new Decoder(bytes)
 
-  t.throws(() => decoder.annotations(), {
+  t.throws(() => decoder.annotations<Record<string, string>>(), {
     name: 'AssertionError',
     message: /Expected a map with defined length, got major type 5 with additional information 31/,
   })
@@ -609,12 +610,12 @@ test('annotations throws when encountering null values', (t) => {
     0x6e,
     0x69,
     0x6c, // "nil"
-    0xf6, // null
+    0xf6, // Null
   ])
 
   const decoder = new Decoder(bytes)
 
-  t.throws(() => decoder.annotations(), {
+  t.throws(() => decoder.annotations<Record<string, string>>(), {
     message: /Unexpected major type/,
   })
 })
@@ -634,7 +635,7 @@ test('annotations throws for unexpected major types', (t) => {
   ])
 
   const decoder = new Decoder(bytes)
-  t.throws(() => decoder.annotations(), {
+  t.throws(() => decoder.annotations<Record<string, string>>(), {
     name: 'AssertionError',
     message: /Unexpected major type 4/,
   })

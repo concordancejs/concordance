@@ -7,8 +7,7 @@ import { CryptoKeyRepresentation } from '../crypto-key.ts'
 import { possiblyEqual, strictlyEqual, unequal } from '../../../comparison.ts'
 import { staticTypeTable } from '../../../serialization-types.ts'
 import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
-import { NamedPropertyAccessor } from '../../../accessors/property.ts'
-import { NamedPropertyGroup } from '../../../accessors/property.ts'
+import { NamedPropertyAccessor, NamedPropertyGroup } from '../../../accessors/property.ts'
 import { Formatter } from '../../../formatter.ts'
 import { deriveTheme } from '../../../theme.ts'
 
@@ -21,8 +20,8 @@ async function generateCryptoKey() {
       hash: { name: 'SHA-256' },
       length: 256,
     },
-    true, // extractable
-    ['sign', 'verify'], // usages
+    true, // Extractable
+    ['sign', 'verify'], // Usages
   )
 }
 
@@ -60,12 +59,12 @@ test('compare returns possiblyEqual when comparing the same cryptoKey instance',
 test('compare returns unequal when comparing to non-CryptoKeyRepresentation', async (t) => {
   const context = new DescriptionContext()
   const cryptoKey = await generateCryptoKey()
-  const obj = {}
+  const object = {}
 
   const cryptoKeyRep = context.represent(cryptoKey) as CryptoKeyRepresentation
-  const objRep = context.represent(obj)
+  const objectRep = context.represent(object)
 
-  t.is(cryptoKeyRep.compare(objRep), unequal)
+  t.is(cryptoKeyRep.compare(objectRep), unequal)
 })
 
 test('compare returns possiblyEqual when comparing different cryptoKey instances with same properties', async (t) => {
@@ -83,7 +82,7 @@ test('compare returns possiblyEqual when comparing different cryptoKey instances
   t.is(rep1.compare(rep2), possiblyEqual)
 })
 
-// iterateProperties test
+// IterateProperties test
 test('iterateProperties yields type, extractable, algorithm, and usages properties', async (t) => {
   const context = new DescriptionContext()
   const cryptoKey = await generateCryptoKey()
@@ -168,7 +167,7 @@ test('serializing and deserializing a CryptoKey preserves its structure', async 
   t.is(original.compare(deserialized), possiblyEqual)
 })
 
-// finalFormat tests
+// FinalFormat tests
 test('finalFormat uses object brackets by default', async (t) => {
   const context = new DescriptionContext()
   const cryptoKey = await generateCryptoKey()

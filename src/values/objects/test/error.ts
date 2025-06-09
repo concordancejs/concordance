@@ -43,12 +43,12 @@ test('compare returns strictlyEqual when comparing the same error instance', (t)
 test('compare returns unequal when comparing to non-ErrorRepresentation', (t) => {
   const context = new DescriptionContext()
   const error = new Error('Test error')
-  const obj = {}
+  const object = {}
 
   const errorRep = context.represent(error) as ErrorRepresentation
-  const objRep = context.represent(obj)
+  const objectRep = context.represent(object)
 
-  t.is(errorRep.compare(objRep), unequal)
+  t.is(errorRep.compare(objectRep), unequal)
 })
 
 test('compare returns comparable when comparing different error instances', (t) => {
@@ -63,7 +63,7 @@ test('compare returns comparable when comparing different error instances', (t) 
   t.is(errorRep1.compare(errorRep2), comparable)
 })
 
-// iterateArrayLike and iterateIterable tests
+// IterateArrayLike and iterateIterable tests
 test('iterateArrayLike yields no elements for errors', (t) => {
   const context = new DescriptionContext()
   const error = new Error('Test error')
@@ -84,7 +84,7 @@ test('iterateIterable yields no elements for errors', (t) => {
   t.is(iterables.length, 0)
 })
 
-// iterateProperties test
+// IterateProperties test
 test('iterateProperties yields name and message properties for errors', (t) => {
   const context = new DescriptionContext()
   const error = new Error('Test error')
@@ -239,7 +239,7 @@ test('serialize uses error static type', (t) => {
   t.is(decoder.staticType(), staticTypeTable.error)
 })
 
-// finalFormat tests
+// FinalFormat tests
 test('finalFormat uses object brackets by default', (t) => {
   const context = new DescriptionContext()
   const error = new Error('Test error')

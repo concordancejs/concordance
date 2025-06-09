@@ -1,5 +1,5 @@
-import type { Context } from '../../context.js'
-import type { DeepFunctionality, FinalFormatOptions, ValueRepresentation } from '../../value.js'
+import type { Context } from '../../context.d.ts'
+import type { DeepFunctionality, FinalFormatOptions, Opaque, ValueRepresentation } from '../../value.d.ts'
 import { strictlyEqual, unequal } from '../../comparison.ts'
 import type { Encoder } from '../../encoder.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
@@ -18,10 +18,10 @@ export class ArrayBufferRepresentation extends ObjectRepresentation implements D
     })
   }
 
-  readonly #value: object
+  readonly #value: Opaque
   readonly #context: Context
 
-  constructor(context: Context, value: object) {
+  constructor(context: Context, value: Opaque) {
     super(context, value)
     this.#value = value
     this.#context = context

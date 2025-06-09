@@ -1,5 +1,5 @@
-import type { Context } from '../../context.js'
-import type { DeepFunctionality, FinalFormatOptions, ValueRepresentation } from '../../value.js'
+import type { Context } from '../../context.d.ts'
+import type { DeepFunctionality, FinalFormatOptions, Opaque, ValueRepresentation } from '../../value.d.ts'
 import { type Comparison, strictlyEqual, unequal } from '../../comparison.ts'
 import type { Encoder } from '../../encoder.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
@@ -17,10 +17,10 @@ export class FunctionRepresentation extends ObjectRepresentation implements Deep
   }
 
   readonly #context: Context
-  readonly #value: object
+  readonly #value: Opaque
   #iteratedName?: { property: NamedPropertyAccessor; value: StringRepresentation }
 
-  constructor(context: Context, value: object) {
+  constructor(context: Context, value: Opaque) {
     super(context, value)
     this.#context = context
     this.#value = value

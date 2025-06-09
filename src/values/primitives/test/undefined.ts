@@ -24,20 +24,20 @@ test('compare returns unequal for non-UndefinedRepresentation values', (t) => {
 })
 
 test('compare returns unequal for NullRepresentation', (t) => {
-  const undefined = new UndefinedRepresentation()
-  const null_ = new NullRepresentation()
+  const undefinedRepr = new UndefinedRepresentation()
+  const nullRepr = new NullRepresentation()
 
-  t.is(undefined.compare(null_), unequal)
+  t.is(undefinedRepr.compare(nullRepr), unequal)
 })
 
 test('static is() correctly identifies UndefinedRepresentation instances', (t) => {
-  const undefined = new UndefinedRepresentation()
+  const undefinedRepr = new UndefinedRepresentation()
   const string = new StringRepresentation('undefined')
-  const null_ = new NullRepresentation()
+  const nullRepr = new NullRepresentation()
 
-  t.true(UndefinedRepresentation.is(undefined))
+  t.true(UndefinedRepresentation.is(undefinedRepr))
   t.false(UndefinedRepresentation.is(string))
-  t.false(UndefinedRepresentation.is(null_))
+  t.false(UndefinedRepresentation.is(nullRepr))
 })
 
 test('serializeShallow correctly encodes an undefined value', (t) => {

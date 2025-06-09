@@ -8,7 +8,7 @@ type AccumulatedValue = number | string | typeof lineMarker
 
 // Type for paths that lead to objects in the theme
 type WrappableThemePath = {
-  [K in keyof Theme]: Theme[K] extends object ? K : never
+  [K in keyof Theme]: Theme[K] extends Record<string, unknown> ? K : never
 }[keyof Theme]
 
 // Type for theme paths that have standard open/close properties
@@ -52,7 +52,7 @@ export class Formatter {
   }
 
   close(value?: string): this {
-    assert(!this.#closed, 'Formatter is already closed')
+    assert.ok(!this.#closed, 'Formatter is already closed')
     this.#closed = true
 
     if (value !== undefined) {
@@ -63,7 +63,7 @@ export class Formatter {
   }
 
   *[Symbol.iterator](): Generator<AccumulatedValue> {
-    assert(this.#closed, 'Formatter is not closed')
+    assert.ok(this.#closed, 'Formatter is not closed')
     yield this.#depth // Always yield the depth first, so following items are indented correctly
     for (const item of this.#accumulator) {
       if (typeof item === 'object') {
@@ -77,26 +77,26 @@ export class Formatter {
 
   /** Call on the parent formatter to obtain a new formatter one level deeper. */
   open(): Formatter {
-    assert(!this.#closed, 'Formatter is closed')
+    assert.ok(!this.#closed, 'Formatter is closed')
     const result = new Formatter(this.#theme, this.#depth + 1, this.#maxDepth)
     this.#accumulator.push(result[Symbol.iterator]())
     return result
   }
 
   append(...values: Array<Exclude<AccumulatedValue, number>>): this {
-    assert(!this.#closed, 'Formatter is closed')
+    assert.ok(!this.#closed, 'Formatter is closed')
     this.#accumulator.push(...values)
     return this
   }
 
   prepend(...values: Array<Exclude<AccumulatedValue, number>>): this {
-    assert(!this.#closed, 'Formatter is closed')
+    assert.ok(!this.#closed, 'Formatter is closed')
     this.#accumulator.unshift(...values)
     return this
   }
 
   prefix(...values: Array<Exclude<AccumulatedValue, number>>): this {
-    assert(!this.#closed, 'Formatter is closed')
+    assert.ok(!this.#closed, 'Formatter is closed')
     if (this.#prefixAccumulator === undefined) {
       this.#prefixAccumulator = []
       this.#accumulator.unshift(this.#prefixAccumulator[Symbol.iterator]())
@@ -118,31 +118,31 @@ export class Formatter {
       const codePoint = match.codePointAt(0) ?? never()
       switch (codePoint) {
         case 0: {
-          return '\\0'
+          return String.raw`\0`
         }
 
         case 8: {
-          return '\\b'
+          return String.raw`\b`
         }
 
         case 12: {
-          return '\\f'
+          return String.raw`\f`
         }
 
         case 10: {
-          return '\\n'
+          return String.raw`\n`
         }
 
         case 13: {
-          return '\\r'
+          return String.raw`\r`
         }
 
         case 9: {
-          return '\\t'
+          return String.raw`\t`
         }
 
         case 11: {
-          return '\\v'
+          return String.raw`\v`
         }
 
         case 27: {
@@ -150,11 +150,11 @@ export class Formatter {
         }
 
         case 34: {
-          return '\\"'
+          return String.raw`\"`
         }
 
         case 39: {
-          return "\\'"
+          return String.raw`\'`
         }
 
         case 92: {
@@ -190,31 +190,31 @@ export class Formatter {
       const codePoint = match.codePointAt(0) ?? never()
       switch (codePoint) {
         case 0: {
-          return '\\0'
+          return String.raw`\0`
         }
 
         case 8: {
-          return '\\b'
+          return String.raw`\b`
         }
 
         case 9: {
-          return '\\t'
+          return String.raw`\t`
         }
 
         case 10: {
-          return '\\n'
+          return String.raw`\n`
         }
 
         case 11: {
-          return '\\v'
+          return String.raw`\v`
         }
 
         case 12: {
-          return '\\f'
+          return String.raw`\f`
         }
 
         case 13: {
-          return '\\r'
+          return String.raw`\r`
         }
 
         case 27: {
@@ -222,11 +222,11 @@ export class Formatter {
         }
 
         case 34: {
-          return '\\"'
+          return String.raw`\"`
         }
 
         case 39: {
-          return "\\'"
+          return String.raw`\'`
         }
 
         case 92: {
@@ -309,7 +309,7 @@ export class Formatter {
   }
 
   render(): string {
-    assert(this.#closed, 'Formatter is not closed')
+    assert.ok(this.#closed, 'Formatter is not closed')
 
     let result = ''
     let currentIndent = ''

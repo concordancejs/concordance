@@ -1,7 +1,7 @@
 import never from 'never'
 import { type Comparison, possiblyEqual, strictlyEqual, unequal } from '../../comparison.ts'
-import type { CommonRepresentation, ShallowFunctionality, ValueRepresentation } from '../../value.js'
-import type { Context } from '../../context.js'
+import type { CommonRepresentation, Opaque, ShallowFunctionality, ValueRepresentation } from '../../value.d.ts'
+import type { Context } from '../../context.d.ts'
 import type { Encoder } from '../../encoder.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
 import { type ShallowSerializationResult, finished } from '../../serialization-result.ts'
@@ -16,9 +16,9 @@ export class ExternalRepresentation implements CommonRepresentation, ShallowFunc
   }
 
   readonly #context: Context
-  readonly #value: object
+  readonly #value: Opaque
 
-  constructor(context: Context, value: object) {
+  constructor(context: Context, value: Opaque) {
     this.#context = context
     this.#value = value
   }

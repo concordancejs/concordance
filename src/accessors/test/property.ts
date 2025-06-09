@@ -3,7 +3,7 @@ import test from 'ava'
 import { NamedPropertyAccessor, SymbolPropertyAccessor, NamedPropertyGroup, SymbolPropertyGroup } from '../property.ts'
 import { StringRepresentation } from '../../values/primitives/string.ts'
 import { NumberRepresentation } from '../../values/primitives/number.ts'
-import { SymbolRepresentation } from '../../values/primitives/symbol.ts'
+import type { SymbolRepresentation } from '../../values/primitives/symbol.ts'
 import { strictlyEqual, unequal, comparable, comparableAfterAlignment, type Comparison } from '../../comparison.ts'
 import { finished, partial, partialStoreAsByteArray } from '../../serialization-result.ts'
 import { DescriptionContext } from '../../description-context.ts'
@@ -13,7 +13,7 @@ import { deriveTheme } from '../../theme.ts'
 import { Formatter } from '../../formatter.ts'
 import { DeserializationContext } from '../../deserialization-context.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
-import type { ValueRepresentation } from '../../value.js'
+import type { ValueRepresentation } from '../../value.d.ts'
 
 // NamedPropertyAccessor Tests
 test('NamedPropertyAccessor - constructor correctly sets key and value, which iterator yields', (t) => {
@@ -76,8 +76,10 @@ test('NamedPropertyAccessor - serialize encodes key as string and delegates to v
   // Create a mock value with serializeShallow
   const mockValue = {
     compare: (): Comparison => strictlyEqual,
-    formatShallow: () => {},
-    serializeShallow: (encoder: Encoder): typeof finished => {
+    formatShallow() {
+      // No-op
+    },
+    serializeShallow(encoder: Encoder): typeof finished {
       encoder.uint8Array(new Uint8Array([42]))
       return finished
     },
@@ -103,7 +105,9 @@ test('NamedPropertyAccessor - serialize returns partial when value has no serial
   // Create a value without serializeShallow
   const mockValue = {
     compare: () => strictlyEqual,
-    finalFormat: () => {},
+    finalFormat() {
+      // No-op
+    },
     serialize: () => partial,
   } satisfies ValueRepresentation
 

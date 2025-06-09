@@ -5,14 +5,15 @@ import type { DeserializationContext } from '../../deserialization-context.ts'
 import type { Encoder } from '../../encoder.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
 import { partialRequiringTerminator, type SerializationResult } from '../../serialization-result.ts'
-import type { Context } from '../../context.js'
+import type { Context } from '../../context.d.ts'
 import type {
   DeepFunctionality,
   FinalFormatOptions,
+  Opaque,
   PrimitiveRepresentation,
   ValueRepresentation,
-} from '../../value.js'
-import { type Formatter } from '../../formatter.ts'
+} from '../../value.d.ts'
+import type { Formatter } from '../../formatter.ts'
 import { ObjectRepresentation, type ObjectAnnotations } from './object.ts'
 
 export class BoxedPrimitiveRepresentation extends ObjectRepresentation implements DeepFunctionality {
@@ -23,9 +24,9 @@ export class BoxedPrimitiveRepresentation extends ObjectRepresentation implement
   }
 
   readonly #primitive: PrimitiveRepresentation
-  readonly #value: object
+  readonly #value: Opaque
 
-  constructor(context: Context, value: object, primitive: PrimitiveRepresentation) {
+  constructor(context: Context, value: Opaque, primitive: PrimitiveRepresentation) {
     super(context, value)
     this.#primitive = primitive
     this.#value = value

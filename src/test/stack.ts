@@ -69,17 +69,23 @@ test('pop removes representation', (t) => {
 
 test('iterateNext returns next value from iterator', (t) => {
   const stack = new Stack()
-  const arrayLike = { 0: 'foo', 1: 'bar' }
+  const arrayLike = { 0: 'foo', 1: 'bar' } // eslint-disable-line @typescript-eslint/naming-convention
   Object.defineProperty(arrayLike, 'length', { value: 2, enumerable: false })
   stack.push(new ObjectRepresentation(new DescriptionContext(), arrayLike))
 
-  const next1 = stack.iterateNext() as any
-  t.false(next1.done)
-  t.truthy(next1.value)
+  const next1 = stack.iterateNext()
+  if (next1.done) {
+    t.fail()
+  } else {
+    t.truthy(next1.value)
+  }
 
-  const next2 = stack.iterateNext() as any
-  t.false(next2.done)
-  t.truthy(next2.value)
+  const next2 = stack.iterateNext()
+  if (next2.done) {
+    t.fail()
+  } else {
+    t.truthy(next2.value)
+  }
 
   const next3 = stack.iterateNext()
   t.true(next3.done)

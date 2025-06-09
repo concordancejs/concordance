@@ -5,12 +5,13 @@ import { type ShallowSerializationResult, finished } from '../serialization-resu
 import type {
   BytesAccessorRepresentation,
   CommonRepresentation,
+  Opaque,
   ShallowFunctionality,
   ValueRepresentation,
-} from '../value.js'
+} from '../value.d.ts'
 
 export class BytesAccessor implements CommonRepresentation, ShallowFunctionality {
-  static is(value: object): value is BytesAccessor {
+  static is(value: Opaque): value is BytesAccessor {
     return #bytes in value
   }
 

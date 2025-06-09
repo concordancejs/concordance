@@ -3,10 +3,10 @@ import type { Decoder } from '../../decoder.ts'
 import type { DeserializationContext } from '../../deserialization-context.ts'
 import type { Encoder } from '../../encoder.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
-import type { Context } from '../../context.js'
-import type { FinalFormatOptions, ValueRepresentation } from '../../value.js'
+import type { Context } from '../../context.d.ts'
+import type { FinalFormatOptions, Opaque, ValueRepresentation } from '../../value.d.ts'
 import type { Formatter } from '../../formatter.ts'
-import { ArrayRepresentation } from './array.ts' // eslint-disable-line import/no-cycle
+import { ArrayRepresentation } from './array.ts'
 import { ObjectRepresentation, type ObjectAnnotations } from './object.ts'
 
 export class ArgumentsRepresentation extends ObjectRepresentation {
@@ -15,10 +15,10 @@ export class ArgumentsRepresentation extends ObjectRepresentation {
     return new this(context, this.unpackAnnotations(objectAnnotations))
   }
 
-  readonly #value: object
+  readonly #value: Opaque
   readonly #context: Context
 
-  constructor(context: Context, value: object) {
+  constructor(context: Context, value: Opaque) {
     super(context, value)
     this.#context = context
     this.#value = value

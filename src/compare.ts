@@ -3,7 +3,7 @@ import { describe } from './describe.ts'
 import type { Flags } from './flags.ts'
 import { isPrimitive } from './primitives.ts'
 import { Stack } from './stack.ts'
-import type { ValueRepresentation } from './value.js'
+import type { ValueRepresentation } from './value.d.ts'
 
 export type CompareOptions = {
   flags?: Partial<Flags>

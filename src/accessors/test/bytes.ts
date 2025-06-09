@@ -5,6 +5,7 @@ import { Encoder } from '../../encoder.ts'
 import { finished } from '../../serialization-result.ts'
 import { deriveTheme } from '../../theme.ts'
 import { Formatter } from '../../formatter.ts'
+import type { ValueRepresentation } from '../../value.d.ts'
 
 // Test constructor and basic properties
 test('constructs with correct byte length', (t) => {
@@ -35,7 +36,7 @@ test('constructs view with correct offset and length', (t) => {
   const encoder = new Encoder()
   accessor.serializeShallow(encoder)
 
-  t.deepEqual(Array.from(encoder.bytes).slice(1), [3, 4, 5, 6])
+  t.deepEqual([...encoder.bytes].slice(1), [3, 4, 5, 6])
 })
 
 // Test comparison
@@ -61,12 +62,12 @@ test('compare returns unequal for non-BytesAccessor', (t) => {
   const nonAccessor = {
     compare: () => strictlyEqual,
     serialize: () => finished,
-    [Symbol.iterator]: function* () {
+    *[Symbol.iterator]() {
       yield null
     },
   }
 
-  t.is(accessor.compare(nonAccessor as any), unequal)
+  t.is(accessor.compare(nonAccessor as unknown as ValueRepresentation), unequal)
 })
 
 test('compare returns unequal for different byte lengths', (t) => {
@@ -137,7 +138,7 @@ test('serialize correctly writes bytes to encoder', (t) => {
   t.is(result, finished)
 
   // Check written bytes
-  t.deepEqual(Array.from(encoder.bytes).slice(1), [65, 66, 67, 68])
+  t.deepEqual([...encoder.bytes].slice(1), [65, 66, 67, 68])
 })
 
 test('serialize respects offset and length', (t) => {
@@ -152,26 +153,20 @@ test('serialize respects offset and length', (t) => {
   accessor.serializeShallow(encoder)
 
   // Check we got exactly the right bytes
-  t.deepEqual(Array.from(encoder.bytes).slice(1), [30, 40, 50, 60])
+  t.deepEqual([...encoder.bytes].slice(1), [30, 40, 50, 60])
 })
 
 test('serialize works with other ArrayBufferLike types', (t) => {
-  // Test with a SharedArrayBuffer if available
-  if (typeof SharedArrayBuffer !== 'undefined') {
-    const buffer = new SharedArrayBuffer(4)
-    const view = new Uint8Array(buffer)
-    view.set([1, 2, 3, 4])
+  const buffer = new SharedArrayBuffer(4)
+  const view = new Uint8Array(buffer)
+  view.set([1, 2, 3, 4])
 
-    const accessor = new BytesAccessor(buffer, 0, 4)
+  const accessor = new BytesAccessor(buffer, 0, 4)
 
-    const encoder = new Encoder()
-    accessor.serializeShallow(encoder)
+  const encoder = new Encoder()
+  accessor.serializeShallow(encoder)
 
-    t.deepEqual(Array.from(encoder.bytes).slice(1), [1, 2, 3, 4])
-  } else {
-    // Skip test if SharedArrayBuffer is not available
-    t.pass('SharedArrayBuffer not available in this environment')
-  }
+  t.deepEqual([...encoder.bytes].slice(1), [1, 2, 3, 4])
 })
 
 test('handles zero-length buffers', (t) => {

@@ -1,5 +1,5 @@
-import test from 'ava'
 import { mock } from 'node:test'
+import test from 'ava'
 import { DescriptionContext } from '../../../description-context.ts'
 import { Encoder } from '../../../encoder.ts'
 import { Decoder } from '../../../decoder.ts'
@@ -11,7 +11,7 @@ import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
 import { NamedPropertyGroup, NamedPropertyAccessor } from '../../../accessors/property.ts'
 import { Formatter } from '../../../formatter.ts'
 import { deriveTheme } from '../../../theme.ts'
-import { StringRepresentation } from '../../primitives/string.ts'
+import type { StringRepresentation } from '../../primitives/string.ts'
 
 // Helper functions for testing
 function namedFunction() {
@@ -58,12 +58,12 @@ test('compare returns strictlyEqual when comparing the same function instance', 
 test('compare returns unequal when comparing to non-FunctionRepresentation', (t) => {
   const context = new DescriptionContext()
   const func = namedFunction
-  const obj = {}
+  const object = {}
 
   const funcRep = context.represent(func) as FunctionRepresentation
-  const objRep = context.represent(obj)
+  const objectRep = context.represent(object)
 
-  t.is(funcRep.compare(objRep), unequal)
+  t.is(funcRep.compare(objectRep), unequal)
 })
 
 test('compare returns unequal when comparing different non-deserialized function instances', (t) => {
@@ -73,6 +73,7 @@ test('compare returns unequal when comparing different non-deserialized function
   function func1() {
     return 'result'
   }
+
   function func2() {
     return 'result'
   }
@@ -106,7 +107,7 @@ test('compare returns comparable when at least one function is deserialized', (t
   t.is(newRep.compare(deserialized), comparable)
 })
 
-// iterateArrayLike and iterateIterable tests
+// IterateArrayLike and iterateIterable tests
 test('iterateArrayLike yields no elements for functions', (t) => {
   const context = new DescriptionContext()
   const func = namedFunction
@@ -127,7 +128,7 @@ test('iterateIterable yields no elements for functions', (t) => {
   t.is(iterables.length, 0)
 })
 
-// iterateProperties test
+// IterateProperties test
 test('iterateProperties yields the name property for functions', (t) => {
   const context = new DescriptionContext()
   const func = namedFunction
@@ -229,6 +230,7 @@ test('serialize uses function static type', (t) => {
   t.is(decoder.staticType(), staticTypeTable.function)
 })
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 function injectNameProperty(context: DescriptionContext, funcRep: FunctionRepresentation, func: Function) {
   const { mock: notifyNextExplicitlyNamedPropertyAccess } = mock.method(
     context,
@@ -250,7 +252,7 @@ function injectNameProperty(context: DescriptionContext, funcRep: FunctionRepres
   return nameProperty
 }
 
-// preformat test
+// Preformat test
 test('preformat performs setup only', (t) => {
   const context = new DescriptionContext()
   const func = namedFunction
@@ -262,7 +264,7 @@ test('preformat performs setup only', (t) => {
   t.true(formatter.empty)
 })
 
-// shouldFormatNamedProperty test
+// ShouldFormatNamedProperty test
 test('shouldFormatNamedProperty returns false for name property', (t) => {
   const context = new DescriptionContext()
   const func = namedFunction
@@ -277,7 +279,7 @@ test('shouldFormatNamedProperty returns false for name property', (t) => {
   )
 })
 
-// finalFormat tests
+// FinalFormat tests
 test('finalFormat renders function notation correctly', (t) => {
   const context = new DescriptionContext()
   const func = namedFunction

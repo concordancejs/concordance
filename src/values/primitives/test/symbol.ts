@@ -14,8 +14,8 @@ import { deriveTheme } from '../../../theme.ts'
 test('compare returns strictlyEqual for same symbol instance', (t) => {
   const symbol = Symbol('test')
   const context = new DescriptionContext()
-  const a = new SymbolRepresentation(context, symbol as unknown as object)
-  const b = new SymbolRepresentation(context, symbol as unknown as object)
+  const a = new SymbolRepresentation(context, symbol as unknown as Record<string, unknown>)
+  const b = new SymbolRepresentation(context, symbol as unknown as Record<string, unknown>)
 
   t.is(a.compare(b), strictlyEqual)
 })
@@ -23,7 +23,7 @@ test('compare returns strictlyEqual for same symbol instance', (t) => {
 test('compare returns unequal for non-SymbolRepresentation values', (t) => {
   const symbol = Symbol('test')
   const context = new DescriptionContext()
-  const a = new SymbolRepresentation(context, symbol as unknown as object)
+  const a = new SymbolRepresentation(context, symbol as unknown as Record<string, unknown>)
   const nonSymbol = new StringRepresentation('Symbol(test)')
 
   t.is(a.compare(nonSymbol), unequal)
@@ -33,8 +33,8 @@ test('compare returns unequal for different non-registered symbols', (t) => {
   const context = new DescriptionContext()
   const symbol1 = Symbol('test')
   const symbol2 = Symbol('test') // Same description but different symbol
-  const a = new SymbolRepresentation(context, symbol1 as unknown as object)
-  const b = new SymbolRepresentation(context, symbol2 as unknown as object)
+  const a = new SymbolRepresentation(context, symbol1 as unknown as Record<string, unknown>)
+  const b = new SymbolRepresentation(context, symbol2 as unknown as Record<string, unknown>)
 
   t.is(a.compare(b), unequal)
 })
@@ -43,8 +43,8 @@ test('compare returns unequal for differently described symbols after serializat
   const context = new DescriptionContext()
   const symbol1 = Symbol('test')
   const symbol2 = Symbol('test2')
-  const a = new SymbolRepresentation(context, symbol1 as unknown as object)
-  const b = new SymbolRepresentation(context, symbol2 as unknown as object)
+  const a = new SymbolRepresentation(context, symbol1 as unknown as Record<string, unknown>)
+  const b = new SymbolRepresentation(context, symbol2 as unknown as Record<string, unknown>)
 
   const encoder = new Encoder()
   a.serializeShallow(encoder)
@@ -59,7 +59,7 @@ test('compare returns strictlyEqual for same registered symbol key after seriali
   // Create serialized representation
   const symbol = Symbol.for('test-registry')
   const originalContext = new DescriptionContext()
-  const original = new SymbolRepresentation(originalContext, symbol as unknown as object)
+  const original = new SymbolRepresentation(originalContext, symbol as unknown as Record<string, unknown>)
 
   const encoder = new Encoder()
   original.serializeShallow(encoder)
@@ -77,7 +77,7 @@ test('compare returns strictlyEqual for same well-known symbol after serializati
   // Create serialized representation of a well-known symbol
   const symbol = Symbol.iterator
   const originalContext = new DescriptionContext()
-  const original = new SymbolRepresentation(originalContext, symbol as unknown as object)
+  const original = new SymbolRepresentation(originalContext, symbol as unknown as Record<string, unknown>)
 
   const encoder = new Encoder()
   original.serializeShallow(encoder)
@@ -95,7 +95,7 @@ test('compare returns possiblyEqual for regular symbols with same string represe
   // Create serialized representation of a regular symbol
   const symbol = Symbol('regular')
   const originalContext = new DescriptionContext()
-  const original = new SymbolRepresentation(originalContext, symbol as unknown as object)
+  const original = new SymbolRepresentation(originalContext, symbol as unknown as Record<string, unknown>)
 
   const encoder = new Encoder()
   original.serializeShallow(encoder)
@@ -112,7 +112,7 @@ test('compare returns possiblyEqual for regular symbols with same string represe
 test('serializeShallow correctly encodes a symbol', (t) => {
   const symbol = Symbol.for('test')
   const context = new DescriptionContext()
-  const representation = new SymbolRepresentation(context, symbol as unknown as object)
+  const representation = new SymbolRepresentation(context, symbol as unknown as Record<string, unknown>)
   const encoder = new Encoder()
 
   const result = representation.serializeShallow(encoder)
@@ -124,7 +124,7 @@ test('serializeShallow correctly encodes a symbol', (t) => {
 test('serialize calls serializeShallow', (t) => {
   const symbol = Symbol.for('test')
   const context = new DescriptionContext()
-  const representation = new SymbolRepresentation(context, symbol as unknown as object)
+  const representation = new SymbolRepresentation(context, symbol as unknown as Record<string, unknown>)
   const encoder = new Encoder()
 
   const result = representation.serializeShallow(encoder)
@@ -139,7 +139,7 @@ test('serialize calls serializeShallow', (t) => {
 test('serialization includes proper key for registered symbol', (t) => {
   const symbol = Symbol.for('test-key')
   const context = new DescriptionContext()
-  const representation = new SymbolRepresentation(context, symbol as unknown as object)
+  const representation = new SymbolRepresentation(context, symbol as unknown as Record<string, unknown>)
   const encoder = new Encoder()
 
   representation.serializeShallow(encoder)
@@ -149,7 +149,7 @@ test('serialization includes proper key for registered symbol', (t) => {
 test('serialization includes proper wellKnown for well-known symbols', (t) => {
   const symbol = Symbol.iterator
   const context = new DescriptionContext()
-  const representation = new SymbolRepresentation(context, symbol as unknown as object)
+  const representation = new SymbolRepresentation(context, symbol as unknown as Record<string, unknown>)
   const encoder = new Encoder()
 
   representation.serializeShallow(encoder)
@@ -159,7 +159,7 @@ test('serialization includes proper wellKnown for well-known symbols', (t) => {
 test('serialization includes string representation for non-registered symbols', (t) => {
   const symbol = Symbol('custom-description')
   const context = new DescriptionContext()
-  const representation = new SymbolRepresentation(context, symbol as unknown as object)
+  const representation = new SymbolRepresentation(context, symbol as unknown as Record<string, unknown>)
   const encoder = new Encoder()
 
   representation.serializeShallow(encoder)
@@ -167,9 +167,9 @@ test('serialization includes string representation for non-registered symbols', 
 })
 
 test('serialization handles symbols without description', (t) => {
-  const symbol = Symbol()
+  const symbol = Symbol() // eslint-disable-line symbol-description
   const context = new DescriptionContext()
-  const representation = new SymbolRepresentation(context, symbol as unknown as object)
+  const representation = new SymbolRepresentation(context, symbol as unknown as Record<string, unknown>)
   const encoder = new Encoder()
 
   representation.serializeShallow(encoder)
@@ -179,7 +179,7 @@ test('serialization handles symbols without description', (t) => {
 test('formatShallow correctly formats a well-known symbol', (t) => {
   const symbol = Symbol.iterator
   const context = new DescriptionContext()
-  const representation = new SymbolRepresentation(context, symbol as unknown as object)
+  const representation = new SymbolRepresentation(context, symbol as unknown as Record<string, unknown>)
   const formatter = new Formatter(deriveTheme())
 
   representation.formatShallow(formatter)
@@ -193,7 +193,7 @@ test('formatShallow correctly formats a well-known symbol', (t) => {
 test('formatShallow correctly formats a registered symbol', (t) => {
   const symbol = Symbol.for('test-key')
   const context = new DescriptionContext()
-  const representation = new SymbolRepresentation(context, symbol as unknown as object)
+  const representation = new SymbolRepresentation(context, symbol as unknown as Record<string, unknown>)
   const formatter = new Formatter(deriveTheme())
 
   representation.formatShallow(formatter)
@@ -208,7 +208,7 @@ test('formatShallow correctly encodes special characters in registered symbol ke
   // Create a symbol with characters that need encoding: control chars, backslashes, etc.
   const symbol = Symbol.for('special\nkey\twith\r\ncontrol\0chars\\and"quotes')
   const context = new DescriptionContext()
-  const representation = new SymbolRepresentation(context, symbol as unknown as object)
+  const representation = new SymbolRepresentation(context, symbol as unknown as Record<string, unknown>)
   const formatter = new Formatter(deriveTheme())
 
   representation.formatShallow(formatter)
@@ -218,20 +218,20 @@ test('formatShallow correctly encodes special characters in registered symbol ke
   t.snapshot(rendered)
 
   // Check that encoding happened correctly - should encode newlines, tabs, null bytes, and backslashes
-  t.true(rendered.includes('\\n'))
-  t.true(rendered.includes('\\t'))
-  t.true(rendered.includes('\\r\\n'))
-  t.true(rendered.includes('\\0'))
+  t.true(rendered.includes(String.raw`\n`))
+  t.true(rendered.includes(String.raw`\t`))
+  t.true(rendered.includes(String.raw`\r\n`))
+  t.true(rendered.includes(String.raw`\0`))
   t.true(rendered.includes('\\\\'))
 
   // The whole pattern should be encoded properly
-  t.true(rendered.includes('Symbol.for(special\\nkey\\twith\\r\\ncontrol\\0chars\\\\and\\"quotes)'))
+  t.true(rendered.includes(String.raw`Symbol.for(special\nkey\twith\r\ncontrol\0chars\\and\"quotes)`))
 })
 
 test('formatShallow correctly formats a symbol with description', (t) => {
   const symbol = Symbol('custom-description')
   const context = new DescriptionContext()
-  const representation = new SymbolRepresentation(context, symbol as unknown as object)
+  const representation = new SymbolRepresentation(context, symbol as unknown as Record<string, unknown>)
   const formatter = new Formatter(deriveTheme())
 
   representation.formatShallow(formatter)
@@ -246,7 +246,7 @@ test('formatShallow correctly encodes special characters in symbol descriptions'
   // Create a symbol with a description containing characters that would need encoding
   const symbol = Symbol('description\nwith\tspecial\r\ncontrol\0chars\\and"quotes')
   const context = new DescriptionContext()
-  const representation = new SymbolRepresentation(context, symbol as unknown as object)
+  const representation = new SymbolRepresentation(context, symbol as unknown as Record<string, unknown>)
   const formatter = new Formatter(deriveTheme())
 
   representation.formatShallow(formatter)
@@ -256,10 +256,10 @@ test('formatShallow correctly encodes special characters in symbol descriptions'
   t.snapshot(rendered)
 
   // Check that encoding happened correctly - special characters should be escaped
-  t.true(rendered.includes('\\n'), 'Should encode newlines')
-  t.true(rendered.includes('\\t'), 'Should encode tabs')
-  t.true(rendered.includes('\\r'), 'Should encode carriage returns')
-  t.true(rendered.includes('\\0'), 'Should encode null bytes')
+  t.true(rendered.includes(String.raw`\n`), 'Should encode newlines')
+  t.true(rendered.includes(String.raw`\t`), 'Should encode tabs')
+  t.true(rendered.includes(String.raw`\r`), 'Should encode carriage returns')
+  t.true(rendered.includes(String.raw`\0`), 'Should encode null bytes')
   t.true(rendered.includes('\\\\'), 'Should encode backslashes')
 
   // With the updated implementation, the description should be properly encoded
@@ -270,9 +270,9 @@ test('formatShallow correctly encodes special characters in symbol descriptions'
 })
 
 test('formatShallow correctly formats a symbol without description', (t) => {
-  const symbol = Symbol()
+  const symbol = Symbol() // eslint-disable-line symbol-description
   const context = new DescriptionContext()
-  const representation = new SymbolRepresentation(context, symbol as unknown as object)
+  const representation = new SymbolRepresentation(context, symbol as unknown as Record<string, unknown>)
   const formatter = new Formatter(deriveTheme())
 
   representation.formatShallow(formatter)

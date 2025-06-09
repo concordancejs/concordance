@@ -1,11 +1,17 @@
 import { unequal } from '../comparison.ts'
 import { partial, type SerializationResult } from '../serialization-result.ts'
 import type { Encoder } from '../encoder.ts'
-import type { AccessorRepresentation, CommonRepresentation, DeepFunctionality, ValueRepresentation } from '../value.js'
+import type {
+  AccessorRepresentation,
+  CommonRepresentation,
+  DeepFunctionality,
+  Opaque,
+  ValueRepresentation,
+} from '../value.d.ts'
 import type { Formatter } from '../formatter.ts'
 
 export class IteratorValueAccessor implements CommonRepresentation, DeepFunctionality {
-  static is(value: object): value is IteratorValueAccessor {
+  static is(value: Opaque): value is IteratorValueAccessor {
     return #value in value
   }
 

@@ -8,11 +8,12 @@ type Path<T extends string, K extends string> = `${T}${T extends '' ? '' : '.'}$
 
 type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I : never
 
-type DeepPartial<T> = T extends object
-  ? {
-      [P in keyof T]?: DeepPartial<T[P]>
-    }
-  : T
+type DeepPartial<T> =
+  T extends Record<string, unknown>
+    ? {
+        [P in keyof T]?: DeepPartial<T[P]>
+      }
+    : T
 
 // Base type for making properties readonly
 type ReadonlyTheme<T> = T extends ThemeRecord ? { readonly [K in keyof T]: ReadonlyTheme<T[K]> } : T
@@ -48,8 +49,8 @@ type NestedObjectPaths<T, Prefix extends string = ''> = T extends ThemeRecord
               : never
           }[keyof T & string] // Index into the mapped type to get a union of all nested path objects
         >
-      : {})
-  : {}
+      : Record<string, unknown>)
+  : Record<string, unknown>
 
 // Final theme type that includes both the original structure and flattened paths
 type NormalizedTheme<T> = ReadonlyTheme<T> & NestedObjectPaths<T>

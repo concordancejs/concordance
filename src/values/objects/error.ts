@@ -3,7 +3,7 @@ import type { DeserializationContext } from '../../deserialization-context.ts'
 import type { Encoder } from '../../encoder.ts'
 import type { Formatter } from '../../formatter.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
-import type { FinalFormatOptions } from '../../value.js'
+import type { FinalFormatOptions } from '../../value.d.ts'
 import { ObjectRepresentation, type ObjectAnnotations } from './object.ts'
 
 export class ErrorRepresentation extends ObjectRepresentation {

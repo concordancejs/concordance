@@ -11,10 +11,11 @@ import type {
   AccessorRepresentation,
   CommonRepresentation,
   DeepFunctionality,
+  Opaque,
   PrimitiveRepresentation,
   ShallowFunctionality,
   ValueRepresentation,
-} from '../value.js'
+} from '../value.d.ts'
 import { UndefinedRepresentation } from '../values/primitives/undefined.ts'
 import type { Formatter } from '../formatter.ts'
 
@@ -43,7 +44,7 @@ void (SparseValueRepresentation satisfies new (
 ) => PrimitiveRepresentation)
 
 export class ElementAccessor implements CommonRepresentation, DeepFunctionality {
-  static is(value: object): value is ElementAccessor {
+  static is(value: Opaque): value is ElementAccessor {
     return #value in value
   }
 

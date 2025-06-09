@@ -3,6 +3,7 @@ import never from 'never'
 import { Wtf8Decoder } from '@cto.af/wtf8'
 import { type AspectType, type StaticType, isValidAspectType, isValidStaticType } from './serialization-types.ts'
 import { BytesAccessor } from './accessors/bytes.ts'
+import type { Annotations } from './encoder.ts'
 
 export class Decoder {
   readonly #sequence: cbor.SequenceEvents
@@ -144,7 +145,7 @@ export class Decoder {
     )
   }
 
-  annotations<T extends Record<string, boolean | number | string | BytesAccessor>>(): T {
+  annotations<T extends Annotations = Annotations>(): T {
     const [majorType, additionalInformation, value] = this.#sequence.read() ?? never()
     if (majorType !== 5 || additionalInformation === 31) {
       return never(

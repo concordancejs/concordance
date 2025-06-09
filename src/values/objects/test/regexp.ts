@@ -8,8 +8,7 @@ import { RegExpRepresentation } from '../regexp.ts'
 import { comparable, strictlyEqual, unequal } from '../../../comparison.ts'
 import { staticTypeTable } from '../../../serialization-types.ts'
 import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
-import { NamedPropertyGroup } from '../../../accessors/property.ts'
-import { NamedPropertyAccessor } from '../../../accessors/property.ts'
+import { NamedPropertyGroup, NamedPropertyAccessor } from '../../../accessors/property.ts'
 import { Formatter } from '../../../formatter.ts'
 import { deriveTheme } from '../../../theme.ts'
 
@@ -45,12 +44,12 @@ test('compare returns strictlyEqual when comparing the same regexp instance', (t
 test('compare returns unequal when comparing to non-RegExpRepresentation', (t) => {
   const context = new DescriptionContext()
   const regexp = /test/i
-  const obj = {}
+  const object = {}
 
   const regexpRep = context.represent(regexp) as RegExpRepresentation
-  const objRep = context.represent(obj)
+  const objectRep = context.represent(object)
 
-  t.is(regexpRep.compare(objRep), unequal)
+  t.is(regexpRep.compare(objectRep), unequal)
 })
 
 // The key test - verify that the right properties are included
@@ -127,7 +126,7 @@ test('serializing and deserializing a RegExp preserves its structure', (t) => {
   t.is(original.compare(deserialized), comparable)
 })
 
-// preformat test
+// Preformat test
 test('preformat performs setup only', (t) => {
   const context = new DescriptionContext()
   const regexp = /test/i
@@ -169,7 +168,7 @@ function injectProperties(context: DescriptionContext, regexp: RegExp, represent
   }
 }
 
-// shouldFormatNamedProperty test
+// ShouldFormatNamedProperty test
 test('shouldFormatNamedProperty returns false for flags and source properties', (t) => {
   const context = new DescriptionContext()
   const regexp = /test/i
@@ -184,7 +183,7 @@ test('shouldFormatNamedProperty returns false for flags and source properties', 
   )
 })
 
-// finalFormat tests
+// FinalFormat tests
 test('finalFormat renders regexp literal notation by default', (t) => {
   const context = new DescriptionContext()
   const regexp = /test/i

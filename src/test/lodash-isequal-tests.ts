@@ -1,3 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/naming-convention */
+/* eslint-disable prefer-rest-params */
+/* eslint-disable @typescript-eslint/no-empty-function */
+/* eslint-disable no-multi-assign */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /*
 Copyright JS Foundation and other contributors <https://js.foundation/>
 
@@ -34,11 +40,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 Tests adopted from https://github.com/lodash/lodash/blob/3967c1e1197b726463246b47521a4099ab74cb35/test/test.js#L9477:L10291>
 */
 
-/* eslint-disable unicorn/consistent-function-scoping */
-
+import { Buffer } from 'node:buffer'
 import vm from 'node:vm'
 import test from 'ava'
-
 import { compare } from '../compare.ts'
 
 const isEqual = (actual: unknown, expected: unknown) =>
@@ -49,7 +53,7 @@ const symbol1 = Symbol('a')
 const symbol2 = Symbol('b')
 
 test('compare primitives', (t) => {
-  const pairs: [any, any, any][] = [
+  const pairs: Array<[any, any, any]> = [
     [1, 1, true],
     [1, new Object(1), false],
     [1, '1', false],
@@ -60,31 +64,31 @@ test('compare primitives', (t) => {
     [new Object(0), new Object(0), true],
     [-0, 0, false],
     [0, '0', false],
-    [0, null, false], // eslint-disable-line max-len
-    [NaN, NaN, true],
-    [NaN, new Object(NaN), false],
-    [new Object(NaN), new Object(NaN), true],
-    [NaN, 'a', false],
-    [NaN, Infinity, false], // eslint-disable-line max-len
+    [0, null, false],
+    [Number.NaN, Number.NaN, true],
+    [Number.NaN, new Object(Number.NaN), false],
+    [new Object(Number.NaN), new Object(Number.NaN), true],
+    [Number.NaN, 'a', false],
+    [Number.NaN, Infinity, false],
     ['a', 'a', true],
     ['a', new Object('a'), false],
     [new Object('a'), new Object('a'), true],
     ['a', 'b', false],
-    ['a', ['a'], false], // eslint-disable-line max-len
+    ['a', ['a'], false],
     [true, true, true],
     [true, new Object(true), false],
     [new Object(true), new Object(true), true],
     [true, 1, false],
-    [true, 'a', false], // eslint-disable-line max-len
+    [true, 'a', false],
     [false, false, true],
     [false, new Object(false), false],
     [new Object(false), new Object(false), true],
     [false, 0, false],
-    [false, '', false], // eslint-disable-line max-len
+    [false, '', false],
     [symbol1, symbol1, true],
     [symbol1, new Object(symbol1), false],
     [new Object(symbol1), new Object(symbol1), true],
-    [symbol1, symbol2, false], // eslint-disable-line max-len
+    [symbol1, symbol2, false],
     [null, null, true],
     [null, undefined, false],
     [null, {}, false],
@@ -200,11 +204,11 @@ test('treat arrays with identical values but different non-index properties as u
 })
 
 test('compare sparse arrays', (t) => {
-  const array = new Array(1)
+  const array = Array.from({ length: 1 })
 
-  t.true(isEqual(array, new Array(1)))
+  t.true(isEqual(array, Array.from({ length: 1 })))
   t.true(isEqual(array, [undefined]))
-  t.false(isEqual(array, new Array(2)))
+  t.false(isEqual(array, Array.from({ length: 2 })))
 })
 
 test('compare plain objects', (t) => {
@@ -465,7 +469,7 @@ test('avoid common type coercions', (t) => {
   t.false(isEqual(new Object(36), new Object('36')))
   t.false(isEqual(0, ''))
   t.false(isEqual(1, true))
-  t.false(isEqual(1337756400000, new Date(2012, 4, 23)))
+  t.false(isEqual(1_337_756_400_000, new Date(2012, 4, 23)))
   t.false(isEqual('36', 36))
   t.false(isEqual(36, '36'))
 })
@@ -498,7 +502,7 @@ test('actual `arguments` objects may be compared to expected arrays', (t) => {
 })
 
 test('compare array buffers', (t) => {
-  const buffer = new Int8Array([-1]).buffer
+  const { buffer } = new Int8Array([-1])
 
   t.true(isEqual(buffer, new Uint8Array([255]).buffer))
   t.false(isEqual(buffer, new ArrayBuffer(1)))
@@ -518,9 +522,9 @@ test('compare array views', (t) => {
     'DataView',
   ]
 
-  const namespaces = [global, realm]
+  const namespaces = [globalThis, realm]
   for (const ns of namespaces) {
-    arrayViews.forEach((type, viewIndex) => {
+    for (const [viewIndex, type] of arrayViews.entries()) {
       const otherType = arrayViews[(viewIndex + 1) % arrayViews.length]!
       const CtorA = ns[type]
       const CtorB = ns[otherType]
@@ -531,7 +535,7 @@ test('compare array views', (t) => {
       t.true(isEqual(new CtorA(bufferA), new CtorA(bufferA)))
       t.false(isEqual(new CtorA(bufferA), new CtorB(bufferB)))
       t.false(isEqual(new CtorB(bufferB), new CtorB(bufferC)))
-    })
+    }
   }
 })
 
@@ -552,7 +556,7 @@ test('compare date objects', (t) => {
   t.false(
     isEqual(date, {
       getTime() {
-        return +date
+        return Number(date)
       },
     }),
   )
@@ -561,21 +565,22 @@ test('compare date objects', (t) => {
 test('compare error objects', (t) => {
   const errorTypes = ['Error', 'EvalError', 'RangeError', 'ReferenceError', 'SyntaxError', 'TypeError', 'URIError']
 
-  errorTypes.forEach((type, index) => {
+  for (let [index, type] of errorTypes.entries()) {
     const otherType = errorTypes[++index % errorTypes.length]!
-    const CtorA = (global as any)[type]
-    const CtorB = (global as any)[otherType]
+    const CtorA = (globalThis as any)[type]
+    const CtorB = (globalThis as any)[otherType]
 
     t.true(isEqual(new CtorA('a'), new CtorA('a')))
     t.false(isEqual(new CtorA('a'), new CtorB('a')))
     t.false(isEqual(new CtorB('a'), new CtorB('b')))
-  })
+  }
 })
 
 test('compare functions', (t) => {
   function a() {
     return 1 + 2
   }
+
   function b() {
     return 1 + 2
   }
@@ -691,7 +696,7 @@ test('compare symbol properties', (t) => {
   object2[symbol1] = { a: 1 }
   t.false(isEqual(object1, object2))
 
-  delete object2[symbol1]
+  delete object2[symbol1] // eslint-disable-line @typescript-eslint/no-dynamic-delete
   object2[Symbol('a')] = { a: { b: 2 } }
   t.false(isEqual(object1, object2))
 })
@@ -712,7 +717,7 @@ test('return `false` for objects with custom `toString` methods', (t) => {
   let primitive: any
   const object = {
     toString() {
-      return primitive
+      return primitive // eslint-disable-line @typescript-eslint/no-unsafe-return
     },
   }
   for (const value of [true, null, 1, 'a', undefined]) {

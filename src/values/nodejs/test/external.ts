@@ -11,7 +11,7 @@ import { deriveTheme } from '../../../theme.ts'
 import { Formatter } from '../../../formatter.ts'
 
 // @ts-expect-error ts2307: Suppress error about missing import
-const refNapi = await (import('ref-napi') as Promise<{ default: { instance: object } }>)
+const refNapi = await (import('ref-napi') as Promise<{ default: { instance: Record<string, unknown> } }>)
 const externalValue = refNapi.default.instance
 
 // Deserialize method test

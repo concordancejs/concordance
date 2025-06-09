@@ -16,17 +16,17 @@ test('version is correctly defined', (t) => {
 
 test('staticTypeTable defines the expected types', (t) => {
   // Test a sample of core types to ensure they exist
-  t.truthy(staticTypeTable.terminator !== undefined)
-  t.truthy(staticTypeTable.pointer !== undefined)
-  t.truthy(staticTypeTable.object !== undefined)
-  t.truthy(staticTypeTable.array !== undefined)
+  t.true(staticTypeTable.terminator !== undefined)
+  t.true(staticTypeTable.pointer !== undefined)
+  t.true(staticTypeTable.object !== undefined)
+  t.true(staticTypeTable.array !== undefined)
 
   // Test all aspect types
-  t.truthy(staticTypeTable.elementAspect !== undefined)
-  t.truthy(staticTypeTable.iteratorValueAspect !== undefined)
-  t.truthy(staticTypeTable.mapEntryAspect !== undefined)
-  t.truthy(staticTypeTable.namedPropertyAspect !== undefined)
-  t.truthy(staticTypeTable.symbolPropertyAspect !== undefined)
+  t.true(staticTypeTable.elementAspect !== undefined)
+  t.true(staticTypeTable.iteratorValueAspect !== undefined)
+  t.true(staticTypeTable.mapEntryAspect !== undefined)
+  t.true(staticTypeTable.namedPropertyAspect !== undefined)
+  t.true(staticTypeTable.symbolPropertyAspect !== undefined)
 })
 
 test('staticTypeTable has unique values', (t) => {

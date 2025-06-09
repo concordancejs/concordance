@@ -9,7 +9,7 @@ import type {
   PrimitiveRepresentation,
   ShallowFunctionality,
   ValueRepresentation,
-} from '../../value.js'
+} from '../../value.d.ts'
 import { Formatter } from '../../formatter.ts'
 
 const controlPictures = new Map<string, string>([
@@ -64,23 +64,23 @@ export class StringRepresentation implements CommonRepresentation, ShallowFuncti
           switch (codePoint) {
             // Use simple escapes for common characters
             case 0: {
-              return '\\0'
+              return String.raw`\0`
             }
 
             case 8: {
-              return '\\b'
+              return String.raw`\b`
             }
 
             case 9: {
-              return '\\t'
+              return String.raw`\t`
             }
 
             case 11: {
-              return '\\v'
+              return String.raw`\v`
             }
 
             case 12: {
-              return '\\f'
+              return String.raw`\f`
             }
 
             case 27: {

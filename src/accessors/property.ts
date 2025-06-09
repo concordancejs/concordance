@@ -7,11 +7,17 @@ import {
   unequal,
   possiblyEqual,
 } from '../comparison.ts'
-import { DeserializationContext } from '../deserialization-context.ts' // eslint-disable-line import/no-cycle
+import { DeserializationContext } from '../deserialization-context.ts'
 import type { Encoder } from '../encoder.ts'
 import { partialStoreAsByteArray, type SerializationResult, partial } from '../serialization-result.ts'
-import type { AccessorRepresentation, CommonRepresentation, DeepFunctionality, ValueRepresentation } from '../value.js'
-import type { Context } from '../context.js'
+import type {
+  AccessorRepresentation,
+  CommonRepresentation,
+  DeepFunctionality,
+  Opaque,
+  ValueRepresentation,
+} from '../value.d.ts'
+import type { Context } from '../context.d.ts'
 import type { SymbolRepresentation } from '../values/primitives/symbol.ts'
 import type { Formatter } from '../formatter.ts'
 
@@ -152,7 +158,7 @@ void (SymbolPropertyAccessor satisfies new (
 export type PropertyGroup = NamedPropertyGroup | SymbolPropertyGroup
 
 export class NamedPropertyGroup implements CommonRepresentation {
-  static is(value: object): value is NamedPropertyGroup {
+  static is(value: Opaque): value is NamedPropertyGroup {
     return #properties in value
   }
 
@@ -178,7 +184,7 @@ export class NamedPropertyGroup implements CommonRepresentation {
 }
 
 export class SymbolPropertyGroup implements CommonRepresentation {
-  static is(value: object): value is NamedPropertyGroup {
+  static is(value: Opaque): value is NamedPropertyGroup {
     return #properties in value
   }
 

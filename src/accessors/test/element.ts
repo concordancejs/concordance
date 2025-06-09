@@ -8,6 +8,7 @@ import { partial, finished } from '../../serialization-result.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
 import { deriveTheme } from '../../theme.ts'
 import { Formatter } from '../../formatter.ts'
+import type { ValueRepresentation } from '../../value.d.ts'
 
 // SparseValueRepresentation Tests
 test('SparseValueRepresentation - compare returns strictlyEqual for other sparse values', (t) => {
@@ -26,9 +27,9 @@ test('SparseValueRepresentation - compare returns deeplyEqual for undefined repr
 
 test('SparseValueRepresentation - compare returns unequal for other values', (t) => {
   const sparse = new SparseValueRepresentation()
-  const str = new StringRepresentation('test')
+  const string = new StringRepresentation('test')
 
-  t.is(sparse.compare(str), unequal)
+  t.is(sparse.compare(string), unequal)
 })
 
 test('SparseValueRepresentation - formatShallow formats as sparse', (t) => {
@@ -94,12 +95,12 @@ test('ElementAccessor - compare returns unequal for non-ElementAccessor', (t) =>
   const nonElement = {
     compare: () => strictlyEqual,
     serialize: () => finished,
-    [Symbol.iterator]: function* () {
+    *[Symbol.iterator]() {
       yield null
     },
   }
 
-  t.is(element.compare(nonElement as any), unequal)
+  t.is(element.compare(nonElement as unknown as ValueRepresentation), unequal)
 })
 
 test('ElementAccessor - compare returns unequal for different indices', (t) => {
@@ -132,16 +133,16 @@ test('ElementAccessor - serialize delegates to value serializeShallow if availab
   const mockValue = {
     compare: () => strictlyEqual,
     serialize: () => partial,
-    serializeShallow: (encoder: Encoder) => {
+    serializeShallow(encoder: Encoder) {
       encoder.staticType(staticTypeTable.string)
       return finished
     },
-    [Symbol.iterator]: function* () {
+    *[Symbol.iterator]() {
       yield null
     },
   }
 
-  const element = new ElementAccessor(5, mockValue as any)
+  const element = new ElementAccessor(5, mockValue as unknown as ValueRepresentation)
 
   const encoder = new Encoder()
   const result = element.serialize(encoder)
@@ -155,12 +156,12 @@ test('ElementAccessor - serialize returns partial when value has no serializeSha
   const mockValue = {
     compare: () => strictlyEqual,
     serialize: () => finished,
-    [Symbol.iterator]: function* () {
+    *[Symbol.iterator]() {
       yield null
     },
   }
 
-  const element = new ElementAccessor(5, mockValue as any)
+  const element = new ElementAccessor(5, mockValue as unknown as ValueRepresentation)
 
   const encoder = new Encoder()
   const result = element.serialize(encoder)
@@ -177,7 +178,7 @@ test('ElementAccessor - handles complex nesting', (t) => {
   // Access via iteration
   const outerIteration = [...outer]
   t.is(outerIteration.length, 1)
-  const innerIteration = [...(outerIteration[0] as any)]
+  const innerIteration = [...(outerIteration[0] as any)] // eslint-disable-line @typescript-eslint/no-unsafe-assignment
   t.is(innerIteration.length, 1)
   t.is(innerIteration[0], innerValue)
 

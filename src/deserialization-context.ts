@@ -1,8 +1,8 @@
 import assert from 'node:assert'
 import never from 'never'
 import { type AspectType, staticTypeTable } from './serialization-types.ts'
-import type { ValueRepresentation } from './value.js'
-import type { Context, ContextOptions, DescribedSymbol, PropertyAccessCallback } from './context.js'
+import type { Opaque, ValueRepresentation } from './value.d.ts'
+import type { Context, ContextOptions, DescribedSymbol, PropertyAccessCallback } from './context.d.ts'
 import { BigIntRepresentation } from './values/primitives/bigint.ts'
 import { BooleanRepresentation } from './values/primitives/boolean.ts'
 import { NullRepresentation } from './values/primitives/null.ts'
@@ -12,7 +12,7 @@ import { UndefinedRepresentation } from './values/primitives/undefined.ts'
 import { SymbolRepresentation } from './values/primitives/symbol.ts'
 import type { BytesAccessor } from './accessors/bytes.ts'
 import { ObjectRepresentation } from './values/objects/object.ts'
-import { ArrayRepresentation } from './values/objects/array.ts' // eslint-disable-line import/no-cycle
+import { ArrayRepresentation } from './values/objects/array.ts'
 import { MapRepresentation } from './values/objects/map.ts'
 import { SetRepresentation } from './values/objects/set.ts'
 import { ArrayBufferViewRepresentation } from './values/objects/array-buffer-view.ts'
@@ -30,14 +30,13 @@ import { PromiseRepresentation } from './values/objects/promise.ts'
 import { WeakMapRepresentation } from './values/objects/weak-map.ts'
 import { WeakSetRepresentation } from './values/objects/weak-set.ts'
 import { ElementAccessor, SparseValueRepresentation } from './accessors/element.ts'
-// eslint-disable-next-line import/no-cycle
 import {
   NamedPropertyAccessor,
   NamedPropertyGroup,
   SymbolPropertyAccessor,
   SymbolPropertyGroup,
 } from './accessors/property.ts'
-import { MapEntryAccessor } from './accessors/map-entry.ts' // eslint-disable-line import/no-cycle
+import { MapEntryAccessor } from './accessors/map-entry.ts'
 import { IteratorValueAccessor } from './accessors/iterator-value.ts'
 import { Decoder } from './decoder.ts'
 import { normalizeFlags, type Flags } from './flags.ts'
@@ -196,7 +195,7 @@ export class DeserializationContext implements Context {
 
   readonly #decoder: Decoder
   readonly #flags: Readonly<Flags>
-  readonly #iterationStates = new WeakMap<object, IterationState>()
+  readonly #iterationStates = new WeakMap<WeakKey, IterationState>()
   readonly #pointers = new PointerMap()
 
   constructor(decoder: Decoder, options?: ContextOptions) {
@@ -367,27 +366,27 @@ export class DeserializationContext implements Context {
     return representation
   }
 
-  constructorName(value: object): string | undefined {
+  constructorName(value: Opaque): string | undefined {
     return (value as { constructorName?: string }).constructorName
   }
 
-  describeSymbol(value: object): DescribedSymbol {
+  describeSymbol(value: Opaque): DescribedSymbol {
     return value as DescribedSymbol
   }
 
-  isArrayLike(value: object): boolean {
+  isArrayLike(value: Opaque): boolean {
     return (value as { isArrayLike: boolean }).isArrayLike
   }
 
-  isNullProto(value: object): boolean {
+  isNullProto(value: Opaque): boolean {
     return (value as { isNullProto: boolean }).isNullProto
   }
 
-  isObjectProto(value: object): boolean {
+  isObjectProto(value: Opaque): boolean {
     return (value as { isObjectProto: boolean }).isObjectProto
   }
 
-  *iterateElements(value: object): IterableIterator<ElementAccessor> {
+  *iterateElements(value: Opaque): IterableIterator<ElementAccessor> {
     const state = this.#iterationStates.get(value) ?? new IterationState()
     this.#iterationStates.set(value, state)
 
@@ -400,6 +399,7 @@ export class DeserializationContext implements Context {
     let endedAspect = false
     let index = state.elementAccessors?.length ?? 0
     do {
+      // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
       switch (this.#decoder.peekStaticType() ?? never('Expected terminator, aspect or value')) {
         case staticTypeTable.terminator: {
           this.#decoder.staticType()
@@ -421,14 +421,14 @@ export class DeserializationContext implements Context {
         }
 
         case staticTypeTable.undefined: {
-          assert(state.lastAspect === staticTypeTable.elementAspect, 'Unexpected undefined')
+          assert.ok(state.lastAspect === staticTypeTable.elementAspect, 'Unexpected undefined')
           this.#decoder.staticType()
           yield state.addElementAccessor(new ElementAccessor(index++, new SparseValueRepresentation()))
           break
         }
 
         default: {
-          assert(state.lastAspect === staticTypeTable.elementAspect, 'Expected terminator or aspect')
+          assert.ok(state.lastAspect === staticTypeTable.elementAspect, 'Expected terminator or aspect')
           const representation = this.next() ?? never()
           yield state.addElementAccessor(new ElementAccessor(index++, representation))
         }
@@ -445,6 +445,7 @@ export class DeserializationContext implements Context {
 
     let endedAspect = false
     while (!state.terminated && state.lastAspect === staticTypeTable.namedPropertyAspect && !endedAspect) {
+      // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
       switch (this.#decoder.peekStaticType()) {
         case staticTypeTable.terminator: {
           this.#decoder.staticType()
@@ -468,8 +469,8 @@ export class DeserializationContext implements Context {
 
         // Named properties are encoded as a sequence of CBOR strings and serialized values.
         case undefined: {
-          assert(state.lastAspect === staticTypeTable.namedPropertyAspect, 'Expected terminator or aspect')
-          assert(this.#decoder.hasNext(), 'Expected property name')
+          assert.ok(state.lastAspect === staticTypeTable.namedPropertyAspect, 'Expected terminator or aspect')
+          assert.ok(this.#decoder.hasNext(), 'Expected property name')
           const key = this.#decoder.string()
           const value = this.next() ?? never('Expected value after property name')
           yield state.addNamedPropertyAccessor(key, new NamedPropertyAccessor(key, value), value)
@@ -483,7 +484,7 @@ export class DeserializationContext implements Context {
     }
   }
 
-  *iterateMapEntries(value: object): IterableIterator<MapEntryAccessor> {
+  *iterateMapEntries(value: Opaque): IterableIterator<MapEntryAccessor> {
     const state = this.#iterationStates.get(value) ?? new IterationState()
     this.#iterationStates.set(value, state)
 
@@ -495,6 +496,7 @@ export class DeserializationContext implements Context {
 
     let endedAspect = false
     do {
+      // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
       switch (this.#decoder.peekStaticType() ?? never('Expected terminator, aspect or key')) {
         case staticTypeTable.terminator: {
           this.#decoder.staticType()
@@ -516,7 +518,7 @@ export class DeserializationContext implements Context {
         }
 
         default: {
-          assert(state.lastAspect === staticTypeTable.mapEntryAspect, 'Expected terminator or aspect')
+          assert.ok(state.lastAspect === staticTypeTable.mapEntryAspect, 'Expected terminator or aspect')
           const key = this.next() ?? never()
           yield state.addMapEntryAccessor(new MapEntryAccessor(this, key))
         }
@@ -524,7 +526,7 @@ export class DeserializationContext implements Context {
     } while (!state.terminated && state.lastAspect === staticTypeTable.mapEntryAspect && !endedAspect)
   }
 
-  *iterateValues(value: object): IterableIterator<IteratorValueAccessor> {
+  *iterateValues(value: Opaque): IterableIterator<IteratorValueAccessor> {
     const state = this.#iterationStates.get(value) ?? new IterationState()
     this.#iterationStates.set(value, state)
 
@@ -537,6 +539,7 @@ export class DeserializationContext implements Context {
     let endedAspect = false
     let index = state.valueAccessors?.length ?? 0
     do {
+      // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
       switch (this.#decoder.peekStaticType() ?? never('Expected terminator, aspect or value')) {
         case staticTypeTable.terminator: {
           this.#decoder.staticType()
@@ -558,7 +561,7 @@ export class DeserializationContext implements Context {
         }
 
         default: {
-          assert(state.lastAspect === staticTypeTable.iteratorValueAspect, 'Expected terminator or aspect')
+          assert.ok(state.lastAspect === staticTypeTable.iteratorValueAspect, 'Expected terminator or aspect')
           const value = this.next() ?? never()
           yield state.addValueAccessor(new IteratorValueAccessor(index++, value))
         }
@@ -566,7 +569,7 @@ export class DeserializationContext implements Context {
     } while (!state.terminated && state.lastAspect === staticTypeTable.iteratorValueAspect && !endedAspect)
   }
 
-  namedProperties(value: object, ...include: string[]): NamedPropertyGroup {
+  namedProperties(value: Opaque, ...include: string[]): NamedPropertyGroup {
     const state = this.#iterationStates.get(value) ?? new IterationState()
     state.supportExplicitlyNamedPropertyNotifications(include)
     this.#iterationStates.set(value, state)
@@ -582,6 +585,7 @@ export class DeserializationContext implements Context {
 
     let endedAspect = false
     do {
+      // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
       switch (this.#decoder.peekStaticType()) {
         case staticTypeTable.terminator: {
           this.#decoder.staticType()
@@ -604,8 +608,8 @@ export class DeserializationContext implements Context {
 
         // Named properties are encoded as a sequence of CBOR strings and serialized values.
         case undefined: {
-          assert(state.lastAspect === staticTypeTable.namedPropertyAspect, 'Expected terminator or aspect')
-          assert(this.#decoder.hasNext(), 'Expected property name')
+          assert.ok(state.lastAspect === staticTypeTable.namedPropertyAspect, 'Expected terminator or aspect')
+          assert.ok(this.#decoder.hasNext(), 'Expected property name')
           const key = this.#decoder.string()
           const value = this.next() ?? never('Expected value after property name')
           // Instantiate the first property accessor and add it to the state.
@@ -632,19 +636,19 @@ export class DeserializationContext implements Context {
     return state.namedPropertyGroup
   }
 
-  notifyNextExplicitlyNamedPropertyAccess(value: object, name: string, callback: PropertyAccessCallback) {
+  notifyNextExplicitlyNamedPropertyAccess(value: Opaque, name: string, callback: PropertyAccessCallback) {
     const state = this.#iterationStates.get(value) ?? new IterationState()
     this.#iterationStates.set(value, state)
 
     state.addNamedPropertyNotifier(name, callback)
   }
 
-  resetPropertyAccessNotifiers(value: object) {
+  resetPropertyAccessNotifiers(value: Opaque) {
     const state = this.#iterationStates.get(value)
     state?.resetNamedPropertyNotifiers()
   }
 
-  symbolProperties(value: object): SymbolPropertyGroup {
+  symbolProperties(value: Opaque): SymbolPropertyGroup {
     const state = this.#iterationStates.get(value) ?? new IterationState()
     this.#iterationStates.set(value, state)
 
@@ -659,6 +663,7 @@ export class DeserializationContext implements Context {
     let endedAspect = false
     const properties: SymbolPropertyAccessor[] = []
     do {
+      // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
       switch (this.#decoder.peekStaticType() ?? never('Expected terminator, aspect or property')) {
         case staticTypeTable.terminator: {
           this.#decoder.staticType()
@@ -680,11 +685,11 @@ export class DeserializationContext implements Context {
         }
 
         case staticTypeTable.symbol: {
-          assert(state.lastAspect === staticTypeTable.symbolPropertyAspect, 'Expected terminater or aspect')
-          assert(this.#decoder.hasNext(), 'Expected property symbol')
+          assert.ok(state.lastAspect === staticTypeTable.symbolPropertyAspect, 'Expected terminater or aspect')
+          assert.ok(this.#decoder.hasNext(), 'Expected property symbol')
           this.#decoder.staticType()
           const key = SymbolRepresentation.deserialize(this, this.#decoder)
-          assert(this.#decoder.hasNext(), 'Expected value after property symbol')
+          assert.ok(this.#decoder.hasNext(), 'Expected value after property symbol')
           const value = this.#decoder.uint8Array()
           const decoder = new Decoder(value)
           const context = new DeserializationContext(decoder)
@@ -702,27 +707,27 @@ export class DeserializationContext implements Context {
     return state.symbolPropertyGroup
   }
 
-  length(value: object): number {
+  length(value: Opaque): number {
     return (value as { length: number }).length
   }
 
-  pointer(_: ValueRepresentation, value: object): number | undefined {
+  pointer(_: ValueRepresentation, value: Opaque): number | undefined {
     return (value as { pointer?: number }).pointer
   }
 
-  representBytes(value: object): BytesAccessor {
+  representBytes(value: Opaque): BytesAccessor {
     return (value as { bytes: BytesAccessor }).bytes
   }
 
-  size(value: object): number {
+  size(value: Opaque): number {
     return (value as { size: number }).size
   }
 
-  stringTag(value: object): string | undefined {
+  stringTag(value: Opaque): string | undefined {
     return (value as { stringTag?: string }).stringTag
   }
 
-  valueOf(value: object): unknown {
+  valueOf(value: Opaque): unknown {
     return (value as { valueOf: unknown }).valueOf
   }
 }

@@ -31,7 +31,7 @@ test('bytes returns the serialized data', (t) => {
   const encoder = new Encoder()
   encoder.int(42)
 
-  const bytes = encoder.bytes
+  const { bytes } = encoder
   t.true(bytes instanceof Uint8Array)
   t.true(bytes.length > 0)
 })
@@ -40,7 +40,7 @@ test('staticType writes a static type', (t) => {
   const encoder = new Encoder()
   encoder.staticType(staticTypeTable.string)
 
-  const bytes = encoder.bytes
+  const { bytes } = encoder
   // Use decode instead of decodeAllCbor for single value
   const decoded = decodeCbor(bytes)
   t.is(decoded, staticTypeTable.string)
@@ -50,7 +50,7 @@ test('int writes an integer', (t) => {
   const encoder = new Encoder()
   encoder.int(42)
 
-  const bytes = encoder.bytes
+  const { bytes } = encoder
   const decoded = decodeCbor(bytes)
   t.is(decoded, 42)
 })
@@ -123,17 +123,17 @@ test('string writes a string', (t) => {
   const encoder = new Encoder()
   encoder.string('hello')
 
-  const bytes = encoder.bytes
+  const { bytes } = encoder
   const decoded = decodeCbor(bytes)
   t.is(decoded, 'hello')
 })
 
 test('uint8Array writes a byte array', (t) => {
   const encoder = new Encoder()
-  const arr = new Uint8Array([1, 2, 3])
-  encoder.uint8Array(arr)
+  const array = new Uint8Array([1, 2, 3])
+  encoder.uint8Array(array)
 
-  const bytes = encoder.bytes
+  const { bytes } = encoder
   const decoded = decodeCbor(bytes) as Uint8Array
 
   t.true(decoded instanceof Uint8Array)
@@ -150,10 +150,10 @@ test('annotations writes a map of annotations', (t) => {
     optional: undefined,
   })
 
-  const bytes = encoder.bytes
+  const { bytes } = encoder
   const decoded = decodeCbor(bytes) as Map<string, unknown>
 
-  // cbor2 decodes maps as Map objects
+  // Cbor2 decodes maps as Map objects
   t.true(decoded instanceof Map)
   t.is(decoded.get('name'), 'test')
   t.is(decoded.get('value'), 42)
@@ -175,7 +175,7 @@ test('annotations handles BytesAccessor objects', (t) => {
     name: 'test',
   })
 
-  const bytes = encoder.bytes
+  const { bytes } = encoder
   const decoded = decodeCbor(bytes) as Map<string, unknown>
 
   t.true(decoded instanceof Map)
@@ -189,7 +189,7 @@ test('terminator writes a terminator', (t) => {
   const encoder = new Encoder()
   encoder.terminator()
 
-  const bytes = encoder.bytes
+  const { bytes } = encoder
   const decoded = decodeCbor(bytes)
   t.is(decoded, staticTypeTable.terminator)
 })
@@ -198,7 +198,7 @@ test('methods can be chained with correct CBOR encoding', (t) => {
   const encoder = new Encoder()
   encoder.int(1).string('test').boolean(true)
 
-  const bytes = encoder.bytes
+  const { bytes } = encoder
   const values = decodeAllCbor(bytes)
 
   t.is(values.length, 3)

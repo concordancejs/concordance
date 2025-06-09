@@ -42,12 +42,12 @@ test('compare returns strictlyEqual when comparing the same promise instance', (
 test('compare returns unequal when comparing to non-PromiseRepresentation', (t) => {
   const context = new DescriptionContext()
   const promise = Promise.resolve('value')
-  const obj = {}
+  const object = {}
 
   const promiseRep = context.represent(promise) as PromiseRepresentation
-  const objRep = context.represent(obj)
+  const objectRep = context.represent(object)
 
-  t.is(promiseRep.compare(objRep), unequal)
+  t.is(promiseRep.compare(objectRep), unequal)
 })
 
 test('compare returns unequal when comparing different promise instances', (t) => {
@@ -104,7 +104,7 @@ test('serialize uses promise static type', (t) => {
   t.is(decoder.staticType(), staticTypeTable.promise)
 })
 
-// finalFormat tests
+// FinalFormat tests
 test('finalFormat passes object brackets and does not include disambiguation hint by default', (t) => {
   const context = new DescriptionContext()
   const promise = Promise.resolve('value')

@@ -4,7 +4,7 @@ import type { DeserializationContext } from '../../deserialization-context.ts'
 import type { Encoder } from '../../encoder.ts'
 import type { Formatter } from '../../formatter.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
-import type { FinalFormatOptions, ValueRepresentation } from '../../value.js'
+import type { FinalFormatOptions, ValueRepresentation } from '../../value.d.ts'
 import { ObjectRepresentation, type ObjectAnnotations } from '../objects/object.ts'
 
 export class CryptoKeyRepresentation extends ObjectRepresentation {

@@ -8,10 +8,9 @@ import { comparable, strictlyEqual, unequal } from '../../../comparison.ts'
 import { staticTypeTable } from '../../../serialization-types.ts'
 import { Formatter } from '../../../formatter.ts'
 import { deriveTheme } from '../../../theme.ts'
-
 // Import a module namespace for testing
-import * as moduleNamespace from './fixtures/module-fixture.ts'
 import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
+import * as moduleNamespace from './fixtures/module-fixture.ts'
 
 // Deserialize method test
 test('deserialize creates a comparable ModuleNamespaceObjectRepresentation', (t) => {
@@ -42,12 +41,12 @@ test('compare returns strictlyEqual when comparing the same module namespace obj
 
 test('compare returns unequal when comparing to non-ModuleNamespaceObjectRepresentation', (t) => {
   const context = new DescriptionContext()
-  const obj = {}
+  const object = {}
 
   const moduleRep = context.represent(moduleNamespace) as ModuleNamespaceObjectRepresentation
-  const objRep = context.represent(obj)
+  const objectRep = context.represent(object)
 
-  t.is(moduleRep.compare(objRep), unequal)
+  t.is(moduleRep.compare(objectRep), unequal)
 })
 
 // Module namespace objects from the same module are identical
@@ -115,7 +114,7 @@ test('serializing and deserializing a module namespace object preserves its stru
   t.is(original.compare(deserialized), comparable)
 })
 
-// finalFormat tests
+// FinalFormat tests
 test('finalFormat uses object brackets and includes disambiguation hint', (t) => {
   const context = new DescriptionContext()
   const moduleRep = context.represent(moduleNamespace) as ModuleNamespaceObjectRepresentation

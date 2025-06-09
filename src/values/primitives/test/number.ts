@@ -82,7 +82,7 @@ test('can handle zero', (t) => {
 })
 
 test('can handle special number values', (t) => {
-  const testCases = [Infinity, -Infinity, NaN, -0]
+  const testCases = [Infinity, -Infinity, Number.NaN, -0]
 
   for (const value of testCases) {
     const original = new NumberRepresentation(value)
@@ -124,7 +124,7 @@ test('formatShallow correctly formats special values', (t) => {
   const specialValues = [
     { value: Infinity, expected: 'Infinity' },
     { value: -Infinity, expected: '-Infinity' },
-    { value: NaN, expected: 'NaN' },
+    { value: Number.NaN, expected: 'NaN' },
     { value: -0, expected: '-0' },
   ]
 

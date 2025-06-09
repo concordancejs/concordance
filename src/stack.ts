@@ -1,5 +1,5 @@
 import assert from 'node:assert'
-import type { ValueRepresentation } from './value.js'
+import type { ValueRepresentation } from './value.d.ts'
 
 type OptionalFields = Partial<Record<string, unknown>>
 
@@ -8,7 +8,7 @@ export type StackEntry<Fields extends OptionalFields> = {
   readonly iterator?: IterableIterator<ValueRepresentation>
 } & Fields
 
-export class Stack<Fields extends OptionalFields = {}> {
+export class Stack<Fields extends OptionalFields = Record<string, unknown>> {
   readonly #entries: Array<StackEntry<Fields>> = []
   readonly #values = new Map<ValueRepresentation, number>()
 
@@ -21,7 +21,7 @@ export class Stack<Fields extends OptionalFields = {}> {
   }
 
   push(representation: ValueRepresentation, fields?: Fields): void {
-    assert(!this.#values.has(representation), 'Already in stack')
+    assert.ok(!this.#values.has(representation), 'Already in stack')
 
     this.#values.set(representation, this.#values.size + 1)
 

@@ -4,9 +4,10 @@ import type { DeserializationContext } from '../../deserialization-context.ts'
 import type { Encoder } from '../../encoder.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
 import { type ShallowSerializationResult, finished } from '../../serialization-result.ts'
-import type { Context } from '../../context.js'
+import type { Context } from '../../context.d.ts'
 import type {
   CommonRepresentation,
+  Opaque,
   PrimitiveRepresentation,
   ShallowFunctionality,
   ValueRepresentation,
@@ -22,9 +23,9 @@ export class SymbolRepresentation implements CommonRepresentation, ShallowFuncti
   }
 
   readonly #context: Context
-  readonly #value: object
+  readonly #value: Opaque
 
-  constructor(context: Context, value: object) {
+  constructor(context: Context, value: Opaque) {
     this.#context = context
     this.#value = value
   }

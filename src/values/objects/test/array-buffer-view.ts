@@ -7,7 +7,7 @@ import { ArrayBufferViewRepresentation } from '../array-buffer-view.ts'
 import { strictlyEqual, unequal, comparable } from '../../../comparison.ts'
 import { staticTypeTable } from '../../../serialization-types.ts'
 import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
-import { BytesAccessor } from '../../../accessors/bytes.ts'
+import type { BytesAccessor } from '../../../accessors/bytes.ts'
 import { Formatter } from '../../../formatter.ts'
 import { deriveTheme } from '../../../theme.ts'
 
@@ -25,12 +25,12 @@ test('compare returns strictlyEqual when comparing the same array buffer view in
 test('compare returns unequal when comparing to non-ArrayBufferViewRepresentation', (t) => {
   const context = new DescriptionContext()
   const view = new Uint8Array([1, 2, 3, 4])
-  const obj = {}
+  const object = {}
 
   const viewRep = context.represent(view) as ArrayBufferViewRepresentation
-  const objRep = context.represent(obj)
+  const objectRep = context.represent(object)
 
-  t.is(viewRep.compare(objRep), unequal)
+  t.is(viewRep.compare(objectRep), unequal)
 })
 
 test('compare returns unequal when comparing array buffer views with different content', (t) => {
@@ -129,7 +129,7 @@ test('compare correctly handles empty array buffer views', (t) => {
   t.is(emptyRep1.compare(deserialized), comparable)
 })
 
-// iterateArrayLike and iterateIterable tests
+// IterateArrayLike and iterateIterable tests
 test('iterateArrayLike yields no elements for array buffer views', (t) => {
   const context = new DescriptionContext()
   const view = new Uint8Array([1, 2, 3, 4])

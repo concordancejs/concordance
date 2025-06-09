@@ -1,5 +1,5 @@
 import never from 'never'
-import type { ValueRepresentation } from './value.js'
+import type { ValueRepresentation } from './value.d.ts'
 import { Stack } from './stack.ts'
 import { Encoder } from './encoder.ts'
 import { ElementAccessor } from './accessors/element.ts'

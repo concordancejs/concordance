@@ -43,12 +43,12 @@ test('compare returns strictlyEqual when comparing the same weakSet instance', (
 test('compare returns unequal when comparing to non-WeakSetRepresentation', (t) => {
   const context = new DescriptionContext()
   const weakSet = new WeakSet()
-  const obj = {}
+  const object = {}
 
   const weakSetRep = context.represent(weakSet) as WeakSetRepresentation
-  const objRep = context.represent(obj)
+  const objectRep = context.represent(object)
 
-  t.is(weakSetRep.compare(objRep), unequal)
+  t.is(weakSetRep.compare(objectRep), unequal)
 })
 
 test('compare returns possiblyEqual when comparing different weakSet instances', (t) => {
@@ -104,7 +104,7 @@ test('serialize uses weakSet static type', (t) => {
   t.is(decoder.staticType(), staticTypeTable.weakSet)
 })
 
-// finalFormat tests
+// FinalFormat tests
 test('finalFormat passes object brackets and does not include disambiguation hint by default', (t) => {
   const context = new DescriptionContext()
   const weakSet = new WeakSet()

@@ -8,6 +8,7 @@ import { partial, finished } from '../../serialization-result.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
 import { Formatter } from '../../formatter.ts'
 import { deriveTheme } from '../../theme.ts'
+import type { ValueRepresentation } from '../../value.d.ts'
 
 // Test constructor and basic properties
 test('constructor sets index and value, which iterator yields', (t) => {
@@ -48,12 +49,12 @@ test('compare returns unequal for non-IteratorValueAccessor', (t) => {
   const nonIteratorValue = {
     compare: () => strictlyEqual,
     serialize: () => finished,
-    [Symbol.iterator]: function* () {
+    *[Symbol.iterator]() {
       yield null
     },
   }
 
-  t.is(iteratorValue.compare(nonIteratorValue as any), unequal)
+  t.is(iteratorValue.compare(nonIteratorValue as unknown as ValueRepresentation), unequal)
 })
 
 test('compare returns unequal for different indices', (t) => {
@@ -87,16 +88,16 @@ test('serialize delegates to value serializeShallow if available', (t) => {
   const mockValue = {
     compare: () => strictlyEqual,
     serialize: () => partial,
-    serializeShallow: (encoder: Encoder) => {
+    serializeShallow(encoder: Encoder) {
       encoder.staticType(staticTypeTable.string)
       return finished
     },
-    [Symbol.iterator]: function* () {
+    *[Symbol.iterator]() {
       yield null
     },
   }
 
-  const iteratorValue = new IteratorValueAccessor(5, mockValue as any)
+  const iteratorValue = new IteratorValueAccessor(5, mockValue as unknown as ValueRepresentation)
 
   const encoder = new Encoder()
   const result = iteratorValue.serialize(encoder)
@@ -110,12 +111,12 @@ test('serialize returns partial when value has no serializeShallow', (t) => {
   const mockValue = {
     compare: () => strictlyEqual,
     serialize: () => finished,
-    [Symbol.iterator]: function* () {
+    *[Symbol.iterator]() {
       yield null
     },
   }
 
-  const iteratorValue = new IteratorValueAccessor(5, mockValue as any)
+  const iteratorValue = new IteratorValueAccessor(5, mockValue as unknown as ValueRepresentation)
 
   const encoder = new Encoder()
   const result = iteratorValue.serialize(encoder)
@@ -125,13 +126,13 @@ test('serialize returns partial when value has no serializeShallow', (t) => {
 
 // Test with real values
 test('works with primitive values', (t) => {
-  const numValue = new NumberRepresentation(42)
-  const iteratorValue = new IteratorValueAccessor(0, numValue)
+  const numberValue = new NumberRepresentation(42)
+  const iteratorValue = new IteratorValueAccessor(0, numberValue)
 
   // Iteration
   const values = [...iteratorValue]
   t.is(values.length, 1)
-  t.is(values[0], numValue)
+  t.is(values[0], numberValue)
 
   // Comparison
   const iteratorValue2 = new IteratorValueAccessor(0, new NumberRepresentation(42))
@@ -150,7 +151,7 @@ test('handles nested iterator values', (t) => {
   // Access via iteration
   const outerIteration = [...outer]
   t.is(outerIteration.length, 1)
-  const innerIteration = [...(outerIteration[0] as any)]
+  const innerIteration = [...(outerIteration[0] as any)] // eslint-disable-line @typescript-eslint/no-unsafe-assignment
   t.is(innerIteration.length, 1)
   t.is(innerIteration[0], innerValue)
 

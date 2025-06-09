@@ -4,6 +4,8 @@ import type { Encoder } from './encoder.ts'
 import type { Formatter } from './formatter.ts'
 import type { ShallowSerializationResult, SerializationResult } from './serialization-result.ts'
 
+export type Opaque = object // eslint-disable-line @typescript-eslint/no-restricted-types
+
 export type CommonRepresentation = {
   readonly pointer?: number
   compare(other: ValueRepresentation): Comparison
