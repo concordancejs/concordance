@@ -93,6 +93,10 @@ export class ObjectRepresentation implements CommonRepresentation, DeepFunctiona
     this.#context = context
   }
 
+  get deserialized() {
+    return this.#context.deserialized
+  }
+
   get pointer(): number {
     return this.#context.pointer(this, this.#value) ?? never()
   }

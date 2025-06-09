@@ -442,3 +442,8 @@ test('formatShallow handles strings with mixed content types', (t) => {
   t.true(rendered.includes('🚀'), 'Should preserve emoji')
   t.true(rendered.includes(String.raw`\u0001`), 'Should escape control character')
 })
+
+test('deserialized property returns false for StringRepresentation', (t) => {
+  const representation = new StringRepresentation('test')
+  t.false(representation.deserialized)
+})

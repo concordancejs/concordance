@@ -13,6 +13,7 @@ import { staticTypeTable } from '../../../serialization-types.ts'
 import { BytesAccessor } from '../../../accessors/bytes.ts'
 import { Formatter } from '../../../formatter.ts'
 import { deriveTheme } from '../../../theme.ts'
+import type { Opaque } from '../../../value.d.ts'
 
 // Static method tests
 test('static is method correctly identifies ObjectRepresentation instances', (t) => {
@@ -798,4 +799,16 @@ test('finalFormat renders disambiguationHint when provided', (t) => {
     t.snapshot(rendered, 'Object with non-empty formatter and disambiguation hint')
     t.true(rendered.includes('Test Hint'), 'Should include disambiguation hint in non-empty output')
   }
+})
+
+test('deserialized property delegates to context', (t) => {
+  const realContext = new RealValueContext()
+  const deserializationContext = new DeserializationContext(new Decoder(new Uint8Array()))
+
+  const opaque: Opaque = {}
+  const realRep = new ObjectRepresentation(realContext, opaque)
+  const deserializedRep = new ObjectRepresentation(deserializationContext, opaque)
+
+  t.false(realRep.deserialized)
+  t.true(deserializedRep.deserialized)
 })

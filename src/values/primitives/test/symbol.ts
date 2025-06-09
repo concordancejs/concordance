@@ -282,3 +282,14 @@ test('formatShallow correctly formats a symbol without description', (t) => {
   t.snapshot(rendered)
   t.true(rendered.includes('Symbol()'))
 })
+
+test('deserialized property delegates to context', (t) => {
+  const realContext = new RealValueContext()
+  const deserializationContext = new DeserializationContext(new Decoder(new Uint8Array()))
+
+  const realRep = new SymbolRepresentation(realContext, {} as unknown as Record<string, unknown>)
+  const deserializedRep = new SymbolRepresentation(deserializationContext, {} as unknown as Record<string, unknown>)
+
+  t.false(realRep.deserialized)
+  t.true(deserializedRep.deserialized)
+})

@@ -140,3 +140,8 @@ test('formatShallow correctly formats special values', (t) => {
     t.true(rendered.includes(expected), `Should include ${expected}`)
   }
 })
+
+test('deserialized property returns false for NumberRepresentation', (t) => {
+  const representation = new NumberRepresentation(42)
+  t.false(representation.deserialized)
+})

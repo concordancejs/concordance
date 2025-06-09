@@ -43,3 +43,8 @@ test('formatShallow correctly formats null', (t) => {
   t.snapshot(rendered)
   t.true(rendered.includes('null'))
 })
+
+test('deserialized property returns false for NullRepresentation', (t) => {
+  const representation = new NullRepresentation()
+  t.false(representation.deserialized)
+})

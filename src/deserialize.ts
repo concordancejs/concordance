@@ -5,6 +5,7 @@ import { DeserializationContext } from './deserialization-context.ts'
 import type { ValueRepresentation } from './value.d.ts'
 import { version as expectedVersion } from './serialization-types.ts'
 import type { Flags } from './flags.ts'
+import { Stack } from './stack.ts'
 
 export class UnsupportedVersion extends Error {
   readonly serializerVersion: number
@@ -35,4 +36,31 @@ export function deserialize(bytes: Uint8Array, options?: DeserializeOptions): Va
   }
 
   return new DeserializationContext(decoder, options).next() ?? never('No value was deserialized')
+}
+
+const knownFullDeserializations = new WeakSet<ValueRepresentation>()
+export function fullyDeserialize<R extends ValueRepresentation>(representation: R): typeof representation {
+  if (!representation.deserialized || knownFullDeserializations.has(representation)) {
+    return representation
+  }
+
+  knownFullDeserializations.add(representation)
+  const stack = new Stack()
+  stack.push(representation)
+  while (!stack.empty) {
+    const next = stack.iterateNext()
+    if (next.done) {
+      stack.pop()
+      continue
+    }
+
+    if (!next.value.deserialized || knownFullDeserializations.has(next.value)) {
+      continue
+    }
+
+    knownFullDeserializations.add(next.value)
+    stack.push(next.value)
+  }
+
+  return representation
 }

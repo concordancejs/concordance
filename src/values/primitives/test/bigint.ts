@@ -121,3 +121,8 @@ test('formatShallow correctly formats very large bigint', (t) => {
   t.snapshot(rendered)
   t.true(rendered.includes('9007199254740993n'))
 })
+
+test('deserialized property returns false for BigIntRepresentation', (t) => {
+  const representation = new BigIntRepresentation(42n)
+  t.false(representation.deserialized)
+})

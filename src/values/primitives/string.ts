@@ -33,6 +33,10 @@ export class StringRepresentation implements CommonRepresentation, ShallowFuncti
     this.#value = value
   }
 
+  get deserialized() {
+    return false
+  }
+
   compare(other: ValueRepresentation): Comparison {
     return #value in other && this.#value === other.#value ? strictlyEqual : unequal
   }

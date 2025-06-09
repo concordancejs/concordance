@@ -353,3 +353,9 @@ test('formatShallow handles non-aligned buffer length and offsets correctly', (t
   // Let the snapshot verify the formatted output
   t.snapshot(formatter.render())
 })
+
+test('deserialized property returns false for BytesAccessor', (t) => {
+  const view = new Uint8Array([10, 20, 30, 40])
+  const accessor = new BytesAccessor(view.buffer, view.byteOffset, view.length)
+  t.false(accessor.deserialized)
+})

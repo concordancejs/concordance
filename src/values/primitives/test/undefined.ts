@@ -61,3 +61,8 @@ test('formatShallow correctly formats undefined', (t) => {
   t.snapshot(rendered)
   t.true(rendered.includes('undefined'))
 })
+
+test('deserialized property returns false for UndefinedRepresentation', (t) => {
+  const representation = new UndefinedRepresentation()
+  t.false(representation.deserialized)
+})

@@ -13,6 +13,10 @@ import type { Formatter } from '../../formatter.ts'
 export class NullRepresentation implements CommonRepresentation, ShallowFunctionality {
   readonly #null: undefined
 
+  get deserialized() {
+    return false
+  }
+
   compare(other: ValueRepresentation) {
     return #null in other ? strictlyEqual : unequal
   }

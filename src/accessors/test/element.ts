@@ -9,6 +9,9 @@ import { staticTypeTable } from '../../serialization-types.ts'
 import { deriveTheme } from '../../theme.ts'
 import { Formatter } from '../../formatter.ts'
 import type { ValueRepresentation } from '../../value.d.ts'
+import { representValue } from '../../represent.ts'
+import { serialize } from '../../serialize.ts'
+import { deserialize } from '../../deserialize.ts'
 
 // SparseValueRepresentation Tests
 test('SparseValueRepresentation - compare returns strictlyEqual for other sparse values', (t) => {
@@ -56,6 +59,11 @@ test('SparseValueRepresentation - serializeShallow encodes as undefined', (t) =>
 
   // Both should encode identically
   t.deepEqual(encoder.bytes, encoder2.bytes)
+})
+
+test('SparseValueRepresentation - deserialized property returns false', (t) => {
+  const sparse = new SparseValueRepresentation()
+  t.false(sparse.deserialized)
 })
 
 // ElementAccessor Tests
@@ -206,4 +214,15 @@ test('ElementAccessor - finalFormat appends theme.element.after to formatter', (
 
   // Should contain the theme's element.after value
   t.is(rendered, theme.element.after)
+})
+
+test('ElementAccessor - deserialized property delegates to value representation', (t) => {
+  const arrayValue = representValue([])
+  const deserializedArrayValue = deserialize(serialize(arrayValue))
+
+  const element = new ElementAccessor(0, arrayValue)
+  const elementWithDeserialized = new ElementAccessor(1, deserializedArrayValue)
+
+  t.false(element.deserialized)
+  t.true(elementWithDeserialized.deserialized)
 })

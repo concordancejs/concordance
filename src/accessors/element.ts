@@ -22,6 +22,10 @@ import type { Formatter } from '../formatter.ts'
 export class SparseValueRepresentation implements CommonRepresentation, ShallowFunctionality {
   readonly #sparse: undefined
 
+  get deserialized() {
+    return false
+  }
+
   compare(other: ValueRepresentation) {
     if (#sparse in other) return strictlyEqual
     // Allow sparse values to be equal to undefined.
@@ -54,6 +58,10 @@ export class ElementAccessor implements CommonRepresentation, DeepFunctionality 
   constructor(key: number, value: ValueRepresentation) {
     this.#index = key
     this.#value = value
+  }
+
+  get deserialized() {
+    return this.#value.deserialized
   }
 
   *[Symbol.iterator]() {

@@ -46,6 +46,7 @@ function decodeAllCbor(bytes: Uint8Array): unknown[] {
 // Mock ValueRepresentation for testing
 class MockValueRepresentation {
   children: Array<ValueRepresentation | PropertyGroup>
+  deserialized = false
   pointer?: number
   readonly #serializeResult: SerializationResult
   readonly #serializeImpl?: (encoder: Encoder) => SerializationResult

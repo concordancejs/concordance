@@ -255,3 +255,17 @@ test('finalFormat appends mapEntry.afterValue to formatter', (t) => {
   const rendered = formatter.render()
   t.is(rendered, theme.mapEntry.afterValue)
 })
+
+test('deserialized property delegates to context', (t) => {
+  const realContext = new RealValueContext()
+  const deserializationContext = new DeserializationContext(new Decoder(new Uint8Array()))
+
+  const key = new StringRepresentation('key')
+  const value = new StringRepresentation('value')
+
+  const realMapEntry = new MapEntryAccessor(realContext, key, value)
+  const deserializedMapEntry = new MapEntryAccessor(deserializationContext, key, value)
+
+  t.false(realMapEntry.deserialized)
+  t.true(deserializedMapEntry.deserialized)
+})

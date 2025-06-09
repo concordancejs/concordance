@@ -17,6 +17,10 @@ export class UndefinedRepresentation implements CommonRepresentation, ShallowFun
 
   readonly #undefined: undefined
 
+  get deserialized() {
+    return false
+  }
+
   compare(other: ValueRepresentation): Comparison {
     return #undefined in other ? strictlyEqual : unequal
   }

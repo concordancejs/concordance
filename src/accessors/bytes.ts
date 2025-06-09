@@ -23,6 +23,10 @@ export class BytesAccessor implements CommonRepresentation, ShallowFunctionality
     this.#byteLength = byteLength
   }
 
+  get deserialized() {
+    return false
+  }
+
   compare(other: ValueRepresentation) {
     if (!(#bytes in other)) return unequal
     if (this.#byteLength !== other.#byteLength) return unequal

@@ -9,6 +9,9 @@ import { staticTypeTable } from '../../serialization-types.ts'
 import { Formatter } from '../../formatter.ts'
 import { deriveTheme } from '../../theme.ts'
 import type { ValueRepresentation } from '../../value.d.ts'
+import { representValue } from '../../represent.ts'
+import { serialize } from '../../serialize.ts'
+import { deserialize } from '../../deserialize.ts'
 
 // Test constructor and basic properties
 test('constructor sets index and value, which iterator yields', (t) => {
@@ -180,4 +183,15 @@ test('finalFormat appends theme.iteratorValue.after to formatter', (t) => {
 
   // Should contain the theme's iteratorValue.after value
   t.is(rendered, theme.iteratorValue.after)
+})
+
+test('deserialized property delegates to value representation', (t) => {
+  const arrayValue = representValue([])
+  const deserializedArrayValue = deserialize(serialize(arrayValue))
+
+  const iteratorWithValue = new IteratorValueAccessor(0, arrayValue)
+  const iteratorWithDeserialized = new IteratorValueAccessor(1, deserializedArrayValue)
+
+  t.false(iteratorWithValue.deserialized)
+  t.true(iteratorWithDeserialized.deserialized)
 })

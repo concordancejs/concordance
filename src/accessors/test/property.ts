@@ -13,6 +13,9 @@ import { deriveTheme } from '../../theme.ts'
 import { Formatter } from '../../formatter.ts'
 import { DeserializationContext } from '../../deserialization-context.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
+import { representValue } from '../../represent.ts'
+import { serialize } from '../../serialize.ts'
+import { deserialize } from '../../deserialize.ts'
 import type { ValueRepresentation } from '../../value.d.ts'
 
 // NamedPropertyAccessor Tests
@@ -75,6 +78,7 @@ test('NamedPropertyAccessor - serialize encodes key as string and delegates to v
 
   // Create a mock value with serializeShallow
   const mockValue = {
+    deserialized: false,
     compare: (): Comparison => strictlyEqual,
     formatShallow() {
       // No-op
@@ -104,6 +108,7 @@ test('NamedPropertyAccessor - serialize returns partial when value has no serial
 
   // Create a value without serializeShallow
   const mockValue = {
+    deserialized: false,
     compare: () => strictlyEqual,
     finalFormat() {
       // No-op
@@ -154,6 +159,17 @@ test('NamedPropertyAccessor - finalFormat appends theme.property.afterValue and 
 
   // Check the formatter output
   t.is(formatter.render(), theme.property.afterValue)
+})
+
+test('NamedPropertyAccessor - deserialized property delegates to value representation', (t) => {
+  const arrayValue = representValue([])
+  const deserializedArrayValue = deserialize(serialize(arrayValue))
+
+  const propWithArray = new NamedPropertyAccessor('key', arrayValue)
+  const propWithDeserialized = new NamedPropertyAccessor('key', deserializedArrayValue)
+
+  t.false(propWithArray.deserialized)
+  t.true(propWithDeserialized.deserialized)
 })
 
 // SymbolPropertyAccessor Tests
@@ -311,6 +327,28 @@ test('SymbolPropertyAccessor - finalFormat appends theme.property.afterValue and
   t.is(formatter.render(), theme.property.afterValue)
 })
 
+test('SymbolPropertyAccessor - deserialized property delegates to context', (t) => {
+  const realContext = new RealValueContext()
+  const deserializationContext = new DeserializationContext(new Decoder(new Uint8Array()))
+
+  const stringValue = new StringRepresentation('test')
+  const symbol = Symbol('test')
+  const symbolKey = realContext.represent(symbol) as SymbolRepresentation
+
+  // Create a deserialized symbol representation using the clean pattern
+  const deserializedSymbolKey = deserialize(serialize(symbolKey)) as SymbolRepresentation
+
+  const propWithRealContext = new SymbolPropertyAccessor(realContext, symbolKey, stringValue)
+  const propWithDeserializationContext = new SymbolPropertyAccessor(
+    deserializationContext,
+    deserializedSymbolKey,
+    stringValue,
+  )
+
+  t.false(propWithRealContext.deserialized)
+  t.true(propWithDeserializationContext.deserialized)
+})
+
 // For the SymbolPropertyAccessor.orderByIntersection test
 test('SymbolPropertyAccessor.orderByIntersection orders properties by intersection', (t) => {
   const context = new RealValueContext()
@@ -460,6 +498,17 @@ test('NamedPropertyGroup - iterator loads properties from DeserializationContext
   t.truthy(foundProp2, 'Should find property with key "prop2" and value 42')
 })
 
+test('NamedPropertyGroup - deserialized property delegates to context', (t) => {
+  const realContext = new RealValueContext()
+  const deserializationContext = new DeserializationContext(new Decoder(new Uint8Array()))
+
+  const realGroup = new NamedPropertyGroup(realContext, [])
+  const deserializedGroup = new NamedPropertyGroup(deserializationContext, [])
+
+  t.false(realGroup.deserialized)
+  t.true(deserializedGroup.deserialized)
+})
+
 // SymbolPropertyGroup Tests
 test('SymbolPropertyGroup - constructor sets properties array', (t) => {
   const context = new RealValueContext()
@@ -579,4 +628,31 @@ test('SymbolPropertyGroup - compare returns unequal for non-SymbolPropertyGroup'
   const group = new SymbolPropertyGroup([])
 
   t.is(group.compare(new StringRepresentation('')), unequal)
+})
+
+test('SymbolPropertyGroup - deserialized property returns false for empty group and checks first property when present', (t) => {
+  const realContext = new RealValueContext()
+  const deserializationContext = new DeserializationContext(new Decoder(new Uint8Array()))
+
+  const symbol = Symbol('test')
+  const symbolKey = realContext.represent(symbol) as SymbolRepresentation
+
+  // Create a deserialized symbol representation by using the deserialize method
+  const deserializedSymbolKey = deserialize(serialize(symbolKey)) as SymbolRepresentation
+
+  const stringValue = new StringRepresentation('value')
+
+  // Empty group returns false (no properties to check)
+  const emptyGroup = new SymbolPropertyGroup([])
+  t.false(emptyGroup.deserialized)
+
+  // Group with real context property (first property not deserialized)
+  const realProperty = new SymbolPropertyAccessor(realContext, symbolKey, stringValue)
+  const realGroup = new SymbolPropertyGroup([realProperty])
+  t.false(realGroup.deserialized)
+
+  // Group with deserialized property (first property is deserialized)
+  const deserializedProperty = new SymbolPropertyAccessor(deserializationContext, deserializedSymbolKey, stringValue)
+  const deserializedGroup = new SymbolPropertyGroup([deserializedProperty])
+  t.true(deserializedGroup.deserialized)
 })

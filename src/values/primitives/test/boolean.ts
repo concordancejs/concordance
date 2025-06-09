@@ -85,3 +85,10 @@ test('formatShallow correctly formats false', (t) => {
   t.snapshot(rendered)
   t.true(rendered.includes('false'))
 })
+
+test('deserialized property returns false for BooleanRepresentation', (t) => {
+  const trueRep = new BooleanRepresentation(true)
+  const falseRep = new BooleanRepresentation(false)
+  t.false(trueRep.deserialized)
+  t.false(falseRep.deserialized)
+})

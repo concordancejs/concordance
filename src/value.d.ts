@@ -7,6 +7,7 @@ import type { ShallowSerializationResult, SerializationResult } from './serializ
 export type Opaque = object // eslint-disable-line @typescript-eslint/no-restricted-types
 
 export type CommonRepresentation = {
+  readonly deserialized: boolean
   readonly pointer?: number
   compare(other: ValueRepresentation): Comparison
 }

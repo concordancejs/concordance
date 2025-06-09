@@ -30,6 +30,10 @@ export class NamedPropertyAccessor implements CommonRepresentation, DeepFunction
     this.#value = value
   }
 
+  get deserialized() {
+    return this.#value.deserialized
+  }
+
   *[Symbol.iterator]() {
     yield this.#value
   }
@@ -114,6 +118,10 @@ export class SymbolPropertyAccessor implements CommonRepresentation, DeepFunctio
     this.#valueRepresentation = value
   }
 
+  get deserialized() {
+    return this.#context.deserialized
+  }
+
   get #value() {
     if (!this.#valueRepresentation && DeserializationContext.is(this.#context)) {
       this.#valueRepresentation = this.#context.next() ?? never()
@@ -170,6 +178,10 @@ export class NamedPropertyGroup implements CommonRepresentation {
     this.#properties = properties
   }
 
+  get deserialized() {
+    return this.#context.deserialized
+  }
+
   get empty() {
     return this.#properties.length === 0
   }
@@ -192,6 +204,10 @@ export class SymbolPropertyGroup implements CommonRepresentation {
 
   constructor(properties: SymbolPropertyAccessor[]) {
     this.#properties = properties
+  }
+
+  get deserialized() {
+    return this.#properties[0]?.deserialized === true
   }
 
   get empty() {

@@ -27,6 +27,10 @@ export class MapEntryAccessor implements CommonRepresentation, DeepFunctionality
     this.#valueRepresentation = value
   }
 
+  get deserialized() {
+    return this.#context.deserialized
+  }
+
   get #value() {
     if (!this.#valueRepresentation && DeserializationContext.is(this.#context)) {
       this.#valueRepresentation = this.#context.next() ?? never()

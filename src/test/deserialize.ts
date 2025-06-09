@@ -1,10 +1,15 @@
 import { Buffer } from 'node:buffer'
 import test from 'ava'
-import { UnsupportedVersion, deserialize } from '../deserialize.ts'
+import { UnsupportedVersion, deserialize, fullyDeserialize } from '../deserialize.ts'
 import { serialize } from '../serialize.ts'
 import { representValue } from '../represent.ts'
 import { compareRepresentations } from '../compare.ts'
-import { version } from '../serialization-types.ts'
+import { staticTypeTable, version } from '../serialization-types.ts'
+import { Decoder } from '../decoder.ts'
+import { DeserializationContext } from '../deserialization-context.ts'
+import { StringRepresentation } from '../values/primitives/string.ts'
+import { strictlyEqual } from '../comparison.ts'
+import { Encoder } from '../encoder.ts'
 
 test('deserialize throws for incorrect version', (t) => {
   // Create a byte array with wrong version
@@ -171,3 +176,144 @@ test('function serialization', serde, function foo() {
 
 // Regular expressions
 test('regexp serialization', serde, /test[a-z]+/gi)
+
+// Test fullyDeserialize
+// Helper to create sequential encoded data with nested structure followed by a simple value
+function createSequentialEncodedData() {
+  const encoder = new Encoder()
+
+  // First value: Complex nested object that requires full deserialization
+  encoder
+    .staticType(staticTypeTable.object)
+    .annotations({ p: 1 })
+    // Named property: 'nested'
+    .staticType(staticTypeTable.namedPropertyAspect)
+    .string('nested')
+    // Value: Another object
+    .staticType(staticTypeTable.object)
+    .annotations({ p: 2 })
+    // Named property: 'items'
+    .staticType(staticTypeTable.namedPropertyAspect)
+    .string('items')
+    // Value: Array with multiple elements
+    .staticType(staticTypeTable.array)
+    .annotations({ p: 3 })
+    // Element 0
+    .staticType(staticTypeTable.elementAspect)
+    .staticType(staticTypeTable.string)
+    .string('first')
+    // Element 1
+    .staticType(staticTypeTable.elementAspect)
+    .staticType(staticTypeTable.string)
+    .string('second')
+    .staticType(staticTypeTable.terminator) // End array
+    .staticType(staticTypeTable.terminator) // End nested object
+    .staticType(staticTypeTable.terminator) // End root object
+
+  // Second value: Simple string that should only be readable after full deserialization
+  encoder.staticType(staticTypeTable.string).string('MARKER_AFTER_NESTED')
+
+  // Third value: Another marker to test WeakSet behavior
+  encoder.staticType(staticTypeTable.string).string('SECOND_MARKER')
+
+  return encoder.bytes
+}
+
+test('fullyDeserialize advances decoder to next value in sequence', (t) => {
+  const bytes = createSequentialEncodedData()
+  const decoder = new Decoder(bytes)
+  const context = new DeserializationContext(decoder)
+
+  // Read the first complex nested object but don't fully deserialize it yet
+  const nestedRepresentation = context.next()!
+  t.true(nestedRepresentation.deserialized, 'Should be deserialized')
+
+  // At this point, decoder should NOT be able to read the marker string
+  // because it hasn't fully processed the nested structure
+  t.true(decoder.hasNext(), 'Decoder should have more data')
+
+  // Now fully deserialize the nested representation
+  // This should cause the decoder to process all nested children
+  fullyDeserialize(nestedRepresentation)
+
+  // After full deserialization, decoder should be positioned at the marker
+  t.true(decoder.hasNext(), 'Decoder should still have data after full deserialization')
+
+  const markerRepresentation = context.next()!
+  // The marker can only be read if fullyDeserialize processed all nested data
+  const expectedMarker = new StringRepresentation('MARKER_AFTER_NESTED')
+  t.is(markerRepresentation.compare(expectedMarker), strictlyEqual, 'Next value should be the marker string')
+})
+
+test('fullyDeserialize returns the input representation', (t) => {
+  const bytes = createSequentialEncodedData()
+  const decoder = new Decoder(bytes)
+  const context = new DeserializationContext(decoder)
+  const representation = context.next()!
+  t.is(fullyDeserialize(representation), representation, 'fullyDeserialize should return the input representation')
+})
+
+test('fullyDeserialize handles circular references without infinite loops', (t) => {
+  // Create a complex object with circular reference manually in CBOR
+  const encoder = new Encoder()
+
+  // Root object with circular reference
+  encoder
+    .staticType(staticTypeTable.object)
+    .annotations({ p: 1 })
+    // Property 'name'
+    .staticType(staticTypeTable.namedPropertyAspect)
+    .string('name')
+    .staticType(staticTypeTable.string)
+    .string('root')
+    // Property 'self' - this will be a pointer back to the root object
+    .staticType(staticTypeTable.namedPropertyAspect)
+    .string('self')
+    .staticType(staticTypeTable.pointer)
+    .int(1) // Points back to the root object (pointer 1)
+    .staticType(staticTypeTable.terminator) // End root object
+
+  // Add marker string
+  encoder.staticType(staticTypeTable.string).string('CIRCULAR_HANDLED')
+
+  const decoder = new Decoder(encoder.bytes)
+  const context = new DeserializationContext(decoder)
+
+  const circularRepresentation = context.next()!
+
+  // This should not throw or hang due to circular references - the stack protects against infinite loops
+  t.notThrows(() => {
+    fullyDeserialize(circularRepresentation)
+  })
+
+  // Decoder should be positioned at marker
+  const markerRepresentation = context.next()!
+  const expectedMarker = new StringRepresentation('CIRCULAR_HANDLED')
+  t.is(markerRepresentation.compare(expectedMarker), strictlyEqual, 'Circular reference was handled correctly')
+})
+
+test('fullyDeserialize does not reprocess same representation', (t) => {
+  // Test that second call to fullyDeserialize on same representation doesn't advance decoder further
+  const bytes = createSequentialEncodedData()
+  const decoder = new Decoder(bytes)
+  const context = new DeserializationContext(decoder)
+
+  const representation = context.next()!
+
+  // First call should process everything and advance decoder to first marker
+  fullyDeserialize(representation)
+
+  // Verify decoder advanced to first marker
+  const marker1 = context.next()!
+  const expectedMarker1 = new StringRepresentation('MARKER_AFTER_NESTED')
+  t.is(marker1.compare(expectedMarker1), strictlyEqual)
+
+  // Second call to fullyDeserialize on SAME representation should use WeakSet early return
+  // and NOT advance the decoder further
+  fullyDeserialize(representation)
+
+  // Decoder should still be positioned at the second marker (not advanced)
+  const marker2 = context.next()!
+  const expectedMarker2 = new StringRepresentation('SECOND_MARKER')
+  t.is(marker2.compare(expectedMarker2), strictlyEqual, 'Second fullyDeserialize call should not advance decoder')
+})

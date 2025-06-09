@@ -23,6 +23,10 @@ export class IteratorValueAccessor implements CommonRepresentation, DeepFunction
     this.#value = value
   }
 
+  get deserialized() {
+    return this.#value.deserialized
+  }
+
   *[Symbol.iterator]() {
     yield this.#value
   }

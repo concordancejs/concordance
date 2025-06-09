@@ -15,6 +15,7 @@ import type { ValueRepresentation } from '../value.ts'
 class MockValueRepresentation {
   align?: (other: ValueRepresentation) => void
   children: ValueRepresentation[]
+  deserialized = false
   readonly #compareResult: Comparison
   #aligned = false
 

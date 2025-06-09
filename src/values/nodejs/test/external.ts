@@ -124,3 +124,14 @@ test('serializeShallow uses the external static type', (t) => {
   const decoder = new Decoder(encoder.bytes)
   t.is(decoder.staticType(), staticTypeTable.external)
 })
+
+test('deserialized property delegates to context', (t) => {
+  const realContext = new RealValueContext()
+  const deserializationContext = new DeserializationContext(new Decoder(new Uint8Array()))
+
+  const realRep = new ExternalRepresentation(realContext, externalValue)
+  const deserializedRep = new ExternalRepresentation(deserializationContext, externalValue)
+
+  t.false(realRep.deserialized)
+  t.true(deserializedRep.deserialized)
+})

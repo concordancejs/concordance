@@ -22,6 +22,10 @@ export class NumberRepresentation implements CommonRepresentation, ShallowFuncti
     this.#value = value
   }
 
+  get deserialized() {
+    return false
+  }
+
   compare(other: ValueRepresentation) {
     return #value in other && Object.is(this.#value, other.#value) ? strictlyEqual : unequal
   }
