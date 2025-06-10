@@ -49,17 +49,17 @@ export function fullyDeserialize<R extends ValueRepresentation>(representation: 
   stack.push(representation)
   while (!stack.empty) {
     const next = stack.iterateNext()
-    if (next.done) {
+    if (!next) {
       stack.pop()
       continue
     }
 
-    if (!next.value.deserialized || knownFullDeserializations.has(next.value)) {
+    if (!next.deserialized || knownFullDeserializations.has(next)) {
       continue
     }
 
-    knownFullDeserializations.add(next.value)
-    stack.push(next.value)
+    knownFullDeserializations.add(next)
+    stack.push(next)
   }
 
   return representation

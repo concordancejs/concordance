@@ -73,27 +73,14 @@ test('iterateNext returns next value from iterator', (t) => {
   Object.defineProperty(arrayLike, 'length', { value: 2, enumerable: false })
   stack.push(new ObjectRepresentation(new RealValueContext(), arrayLike))
 
-  const next1 = stack.iterateNext()
-  if (next1.done) {
-    t.fail()
-  } else {
-    t.truthy(next1.value)
-  }
-
-  const next2 = stack.iterateNext()
-  if (next2.done) {
-    t.fail()
-  } else {
-    t.truthy(next2.value)
-  }
-
-  const next3 = stack.iterateNext()
-  t.true(next3.done)
+  t.truthy(stack.iterateNext()) // First value
+  t.truthy(stack.iterateNext()) // Second value
+  t.is(stack.iterateNext(), undefined) // No more values
 })
 
-test('iterateNext returns done for empty stack', (t) => {
+test('iterateNext returns undefined for empty stack', (t) => {
   const stack = new Stack()
-  t.true(stack.iterateNext().done)
+  t.is(stack.iterateNext(), undefined)
 })
 
 test('throws error when pushing already present representation', (t) => {

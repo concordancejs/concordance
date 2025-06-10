@@ -61,15 +61,15 @@ export function compareRepresentations(lhs: ValueRepresentation, rhs: ValueRepre
     while (!lhsStack.empty) {
       const lhsNext = lhsStack.iterateNext()
       const rhsNext = rhsStack.iterateNext()
-      if (lhsNext.done && rhsNext.done) {
+      if (!lhsNext && !rhsNext) {
         lhsStack.pop()
         rhsStack.pop()
         continue
       }
 
-      if (!lhsNext.done && !rhsNext.done) {
-        lhs = lhsNext.value
-        rhs = rhsNext.value
+      if (lhsNext && rhsNext) {
+        lhs = lhsNext
+        rhs = rhsNext
         break
       }
 

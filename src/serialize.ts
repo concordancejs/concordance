@@ -81,17 +81,15 @@ export function serialize(value: ValueRepresentation): Uint8Array {
 
     while (!stack.empty) {
       const next = stack.iterateNext()
-      if (next.done) {
-        const { requiresTerminator = false, encoder = rootEncoder } = stack.pop() ?? never()
-        if (requiresTerminator) encoder.terminator()
-        if (encoder !== rootEncoder && encoder !== stack.top?.encoder) {
-          ;(stack.top?.encoder ?? rootEncoder).uint8Array(encoder.bytes)
-        }
-
-        continue
-      } else {
-        value = next.value
+      if (next) {
+        value = next
         break
+      }
+
+      const { requiresTerminator = false, encoder = rootEncoder } = stack.pop() ?? never()
+      if (requiresTerminator) encoder.terminator()
+      if (encoder !== rootEncoder && encoder !== stack.top?.encoder) {
+        ;(stack.top?.encoder ?? rootEncoder).uint8Array(encoder.bytes)
       }
     }
   } while (!stack.empty)

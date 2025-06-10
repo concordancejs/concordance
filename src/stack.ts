@@ -50,10 +50,10 @@ export class Stack<Fields extends OptionalFields = Record<string, unknown>> {
     return this.#values.get(representation) ?? -1
   }
 
-  iterateNext(): { done: true } | { value: ValueRepresentation; done: false } {
+  iterateNext(): ValueRepresentation | undefined {
     const next = this.top?.iterator?.next()
-    if (!next || next.done) return { done: true }
+    if (!next || next.done) return
 
-    return { value: next.value, done: false }
+    return next?.value
   }
 }
