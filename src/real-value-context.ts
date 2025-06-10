@@ -210,7 +210,6 @@ export class RealValueContext implements Context {
       symbolCandidates.map(
         (symbol) =>
           new SymbolPropertyAccessor(
-            this,
             this.represent(symbol) as SymbolRepresentation,
             this.represent((value as Record<symbol, unknown>)[symbol]),
           ),

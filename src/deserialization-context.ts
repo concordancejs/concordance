@@ -38,8 +38,9 @@ import {
 } from './accessors/property.ts'
 import { MapEntryAccessor } from './accessors/map-entry.ts'
 import { IteratorValueAccessor } from './accessors/iterator-value.ts'
-import { Decoder } from './decoder.ts'
+import { type Decoder } from './decoder.ts'
 import { normalizeFlags, type Flags } from './flags.ts'
+import { fullyDeserialize } from './deserialize.ts'
 
 class PointerMap extends Map<number, ValueRepresentation> {
   readonly #byRepresentation = new WeakMap<ValueRepresentation, number>()
@@ -690,10 +691,8 @@ export class DeserializationContext implements Context {
           this.#decoder.staticType()
           const key = SymbolRepresentation.deserialize(this, this.#decoder)
           assert.ok(this.#decoder.hasNext(), 'Expected value after property symbol')
-          const value = this.#decoder.uint8Array()
-          const decoder = new Decoder(value)
-          const context = new DeserializationContext(decoder)
-          properties.push(new SymbolPropertyAccessor(context, key))
+          const value = this.next() ?? never('Expected value after property symbol')
+          properties.push(new SymbolPropertyAccessor(key, fullyDeserialize(value)))
           break
         }
 

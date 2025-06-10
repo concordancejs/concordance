@@ -1,4 +1,3 @@
-import never from 'never'
 import {
   type Comparison,
   comparableAfterAlignment,
@@ -9,7 +8,7 @@ import {
 } from '../comparison.ts'
 import { DeserializationContext } from '../deserialization-context.ts'
 import type { Encoder } from '../encoder.ts'
-import { partialStoreAsByteArray, type SerializationResult, partial } from '../serialization-result.ts'
+import { type SerializationResult, partial } from '../serialization-result.ts'
 import type {
   AccessorRepresentation,
   CommonRepresentation,
@@ -108,26 +107,16 @@ export class SymbolPropertyAccessor implements CommonRepresentation, DeepFunctio
     ]
   }
 
-  readonly #context: Context
   readonly #key: SymbolRepresentation
-  #valueRepresentation?: ValueRepresentation
+  readonly #value: ValueRepresentation
 
-  constructor(context: Context, key: SymbolRepresentation, value?: ValueRepresentation) {
-    this.#context = context
+  constructor(key: SymbolRepresentation, value: ValueRepresentation) {
     this.#key = key
-    this.#valueRepresentation = value
+    this.#value = value
   }
 
   get deserialized() {
-    return this.#context.deserialized
-  }
-
-  get #value() {
-    if (!this.#valueRepresentation && DeserializationContext.is(this.#context)) {
-      this.#valueRepresentation = this.#context.next() ?? never()
-    }
-
-    return this.#valueRepresentation ?? never()
+    return this.#value.deserialized
   }
 
   *[Symbol.iterator]() {
@@ -155,7 +144,7 @@ export class SymbolPropertyAccessor implements CommonRepresentation, DeepFunctio
 
   serialize(encoder: Encoder): SerializationResult {
     this.#key.serializeShallow(encoder)
-    return partialStoreAsByteArray
+    return partial
   }
 }
 

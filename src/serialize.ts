@@ -6,25 +6,23 @@ import { ElementAccessor } from './accessors/element.ts'
 import { NamedPropertyGroup, SymbolPropertyGroup } from './accessors/property.ts'
 import { IteratorValueAccessor } from './accessors/iterator-value.ts'
 import { MapEntryAccessor } from './accessors/map-entry.ts'
-import { finished, partial, partialRequiringTerminator, partialStoreAsByteArray } from './serialization-result.ts'
+import { finished, partial, partialRequiringTerminator } from './serialization-result.ts'
 import { type AspectType, staticTypeTable, version } from './serialization-types.ts'
 
 type StackFields = {
   lastAspect?: AspectType
   requiresTerminator?: boolean
-  encoder?: Encoder
 }
 
 // eslint-disable-next-line complexity
 export function serialize(value: ValueRepresentation): Uint8Array {
-  const rootEncoder = new Encoder()
-  rootEncoder.int(version)
+  const encoder = new Encoder()
+  encoder.int(version)
 
   const stack = new Stack<StackFields>()
   const seen = new Set<number>()
   do {
     const { top } = stack
-    const encoder = top?.encoder ?? rootEncoder
     if (top) {
       if (ElementAccessor.is(value)) {
         if (top.lastAspect !== staticTypeTable.elementAspect) {
@@ -65,11 +63,9 @@ export function serialize(value: ValueRepresentation): Uint8Array {
         }
 
         case partial:
-        case partialRequiringTerminator:
-        case partialStoreAsByteArray: {
+        case partialRequiringTerminator: {
           stack.push(value, {
             requiresTerminator: result === partialRequiringTerminator,
-            encoder: result === partialStoreAsByteArray ? new Encoder() : encoder,
             lastAspect: undefined,
           })
           break
@@ -86,13 +82,10 @@ export function serialize(value: ValueRepresentation): Uint8Array {
         break
       }
 
-      const { requiresTerminator = false, encoder = rootEncoder } = stack.pop() ?? never()
+      const { requiresTerminator = false } = stack.pop() ?? never()
       if (requiresTerminator) encoder.terminator()
-      if (encoder !== rootEncoder && encoder !== stack.top?.encoder) {
-        ;(stack.top?.encoder ?? rootEncoder).uint8Array(encoder.bytes)
-      }
     }
   } while (!stack.empty)
 
-  return rootEncoder.bytes
+  return encoder.bytes
 }

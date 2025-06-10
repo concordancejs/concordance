@@ -894,21 +894,10 @@ test('throws when property name is not a string', iteration, 'namedProperties', 
       expectedCount: 2,
     },
     (t, properties) => {
-      // Create a context for the expected accessors
-      const valueContext = new RealValueContext()
-
-      // Create expected properties for comparison - using the proper constructor signature
+      // Create expected properties for comparison
       const expectedProperties = [
-        new SymbolPropertyAccessor(
-          valueContext,
-          representValue(sym1) as SymbolRepresentation,
-          representValue('symbol value 1'),
-        ),
-        new SymbolPropertyAccessor(
-          valueContext,
-          representValue(sym2) as SymbolRepresentation,
-          representValue('symbol value 2'),
-        ),
+        new SymbolPropertyAccessor(representValue(sym1) as SymbolRepresentation, representValue('symbol value 1')),
+        new SymbolPropertyAccessor(representValue(sym2) as SymbolRepresentation, representValue('symbol value 2')),
       ]
 
       // Symbol properties won't be the exact same symbols (since they aren't registered)
@@ -979,7 +968,8 @@ test('stops at different aspect types', iteration, 'symbolProperties', {
       .staticType(staticTypeTable.symbol)
       .annotations({ s: 'Symbol(test)' })
       // Add the value (number 42)
-      .uint8Array(new Uint8Array([staticTypeTable.number, 0x18, 0x2a]))
+      .staticType(staticTypeTable.number)
+      .number(42)
       // Add another aspect type that should end the symbol properties
       .staticType(staticTypeTable.namedPropertyAspect)
   },
@@ -998,12 +988,14 @@ test('handles multiple symbol properties correctly', iteration, 'symbolPropertie
       .staticType(staticTypeTable.symbol)
       .annotations({ s: 'Symbol(sym1)' })
       // Add the value (number 42)
-      .uint8Array(new Uint8Array([staticTypeTable.number, 0x18, 0x2a]))
+      .staticType(staticTypeTable.number)
+      .number(42)
       // Add second symbol property
       .staticType(staticTypeTable.symbol)
       .annotations({ s: 'Symbol(sym2)' })
       // Add the value (number 42)
-      .uint8Array(new Uint8Array([staticTypeTable.number, 0x18, 0x2a]))
+      .staticType(staticTypeTable.number)
+      .number(42)
       // Add another aspect type to stop iteration
       .staticType(staticTypeTable.iteratorValueAspect)
   },
@@ -1075,7 +1067,8 @@ test('handles proper terminator after first property', iteration, 'symbolPropert
       .staticType(staticTypeTable.symbol)
       .annotations({ s: 'Symbol(sym1)' })
       // Add the value (number 42)
-      .uint8Array(new Uint8Array([staticTypeTable.number, 0x18, 0x2a]))
+      .staticType(staticTypeTable.number)
+      .number(42)
       // Add terminator
       .staticType(staticTypeTable.terminator)
       // Add data that would be wrongly interpreted if not properly terminated
@@ -1095,17 +1088,82 @@ test('handles well-known symbols correctly', iteration, 'symbolProperties', {
       .staticType(staticTypeTable.symbol)
       .annotations({ w: 'Symbol.iterator' })
       // Add the value (number 42)
-      .uint8Array(new Uint8Array([staticTypeTable.number, 0x18, 0x2a]))
+      .staticType(staticTypeTable.number)
+      .number(42)
       // Registered symbol
       .staticType(staticTypeTable.symbol)
       .annotations({ k: 'testKey' })
       // Add the value (number 42)
-      .uint8Array(new Uint8Array([staticTypeTable.number, 0x18, 0x2a]))
+      .staticType(staticTypeTable.number)
+      .number(42)
       // Terminator
       .staticType(staticTypeTable.terminator)
   },
   expectedCount: 2,
 })
+
+test(
+  'handles symbol properties with complex values requiring fullyDeserialize',
+  iteration,
+  'symbolProperties',
+  {
+    encode(encoder) {
+      encoder
+        .staticType(staticTypeTable.object)
+        .annotations({ p: 1 })
+        // Add symbol property aspect
+        .staticType(staticTypeTable.symbolPropertyAspect)
+        // First symbol property with array value (complex enough to test fullyDeserialize)
+        .staticType(staticTypeTable.symbol)
+        .annotations({ s: 'Symbol(objectValue)' })
+        // Array as the complex value
+        .staticType(staticTypeTable.object)
+        .annotations({ p: 2 })
+        .staticType(staticTypeTable.symbolPropertyAspect)
+        // Nested symbol property
+        .staticType(staticTypeTable.symbol)
+        .annotations({ s: 'Symbol(nested)' })
+        // Add the value (string 'nested')
+        .staticType(staticTypeTable.string)
+        .string('nested')
+        .staticType(staticTypeTable.terminator)
+        // Second symbol property with simple string value
+        .staticType(staticTypeTable.symbol)
+        .annotations({ s: 'Symbol(simple)' })
+        .staticType(staticTypeTable.string)
+        .string('simpleStringValue')
+        // End symbol properties
+        .staticType(staticTypeTable.terminator)
+    },
+    expectedCount: 2,
+  },
+  (t, properties) => {
+    // Should have exactly two symbol properties
+    t.is(properties.length, 2, 'Should have two symbol properties')
+
+    // First property with complex array value
+    const firstProperty = properties[0]!
+    t.assert(firstProperty instanceof SymbolPropertyAccessor, 'First property should be a SymbolPropertyAccessor')
+
+    // The complex value should be fully deserialized (this tests fullyDeserialize() call)
+    const firstValues = [...firstProperty]
+    t.is(firstValues.length, 1, 'First property should yield one value')
+
+    const complexValue = firstValues[0]!
+    t.true(complexValue.deserialized, 'Complex value should be deserialized')
+
+    // Second property with simple string value
+    const secondProperty = properties[1]!
+    t.assert(secondProperty instanceof SymbolPropertyAccessor, 'Second property should be a SymbolPropertyAccessor')
+
+    const secondValues = [...secondProperty]
+    t.is(secondValues.length, 1, 'Second property should yield one value')
+
+    const simpleValue = secondValues[0]! as StringRepresentation
+    const expectedValue = new StringRepresentation('simpleStringValue')
+    t.is(simpleValue.compare(expectedValue), strictlyEqual, 'Second property value should match expected string value')
+  },
+)
 
 for (const aspect of ['namedPropertyAspect', 'elementAspect', 'iteratorValueAspect', 'mapEntryAspect'] satisfies Array<
   keyof typeof staticTypeTable
@@ -1125,7 +1183,8 @@ for (const aspect of ['namedPropertyAspect', 'elementAspect', 'iteratorValueAspe
         .staticType(staticTypeTable.symbol)
         .annotations({ s: 'Symbol(test)' })
         // Add the value (number 42)
-        .uint8Array(new Uint8Array([staticTypeTable.number, 0x18, 0x2a]))
+        .staticType(staticTypeTable.number)
+        .number(42)
     },
     expectedCount: 0,
     expectedNextStaticType: staticTypeTable[aspect],
@@ -1142,7 +1201,8 @@ for (const aspect of ['namedPropertyAspect', 'elementAspect', 'iteratorValueAspe
         .staticType(staticTypeTable.symbol)
         .annotations({ s: 'Symbol(sym1)' })
         // Add the value (number 42)
-        .uint8Array(new Uint8Array([staticTypeTable.number, 0x18, 0x2a]))
+        .staticType(staticTypeTable.number)
+        .number(42)
         // Then add a different aspect
         .staticType(staticTypeTable[aspect])
         .boolean(true)

@@ -5,7 +5,7 @@ import { StringRepresentation } from '../../values/primitives/string.ts'
 import { NumberRepresentation } from '../../values/primitives/number.ts'
 import type { SymbolRepresentation } from '../../values/primitives/symbol.ts'
 import { strictlyEqual, unequal, comparable, comparableAfterAlignment, type Comparison } from '../../comparison.ts'
-import { finished, partial, partialStoreAsByteArray } from '../../serialization-result.ts'
+import { finished, partial } from '../../serialization-result.ts'
 import { RealValueContext } from '../../real-value-context.ts'
 import { Encoder } from '../../encoder.ts'
 import { Decoder } from '../../decoder.ts'
@@ -180,7 +180,7 @@ test('SymbolPropertyAccessor - constructor correctly sets key and value, which i
   const symbol1 = Symbol('testSymbol1')
   const key1 = context.represent(symbol1) as SymbolRepresentation
   const value1 = new StringRepresentation('value')
-  const property1 = new SymbolPropertyAccessor(context, key1, value1)
+  const property1 = new SymbolPropertyAccessor(key1, value1)
 
   const values1 = [...property1]
   t.is(values1.length, 1)
@@ -190,41 +190,11 @@ test('SymbolPropertyAccessor - constructor correctly sets key and value, which i
   const symbol2 = Symbol('testSymbol2')
   const key2 = context.represent(symbol2) as SymbolRepresentation
   const value2 = new NumberRepresentation(42)
-  const property2 = new SymbolPropertyAccessor(context, key2, value2)
+  const property2 = new SymbolPropertyAccessor(key2, value2)
 
   const values2 = [...property2]
   t.is(values2.length, 1)
   t.is(values2[0], value2, 'Iterator should yield the number value')
-})
-
-test('SymbolPropertyAccessor - lazy loads value from DeserializationContext when not provided', (t) => {
-  // Create a serialized value
-  const encoder = new Encoder()
-  const valueToDeserialize = new NumberRepresentation(42)
-  valueToDeserialize.serializeShallow(encoder)
-
-  // Set up a deserialization context with this serialized data
-  const decoder = new Decoder(encoder.bytes)
-  const deserializationContext = new DeserializationContext(decoder)
-
-  // Create a symbol and get its representation through context.represent
-  const valueContext = new RealValueContext()
-  const symbol = Symbol('testSymbol')
-  const key = valueContext.represent(symbol) as SymbolRepresentation
-
-  // Create a symbol property accessor with only a key
-  const property = new SymbolPropertyAccessor(deserializationContext, key)
-
-  // When we iterate, it should load the value from context
-  const yielded = [...property]
-  t.is(yielded.length, 1)
-
-  // The value should have been loaded from the deserialization context
-  const value = yielded[0]!
-  t.true(value instanceof NumberRepresentation)
-
-  // Check the value was correctly deserialized by comparing with an equivalent NumberRepresentation
-  t.is(value.compare(new NumberRepresentation(42)), strictlyEqual)
 })
 
 test('SymbolPropertyAccessor - compare returns unequal for non-SymbolPropertyAccessor', (t) => {
@@ -234,7 +204,7 @@ test('SymbolPropertyAccessor - compare returns unequal for non-SymbolPropertyAcc
   const key = context.represent(symbol) as SymbolRepresentation
   const value = new StringRepresentation('value')
 
-  const property = new SymbolPropertyAccessor(context, key, value)
+  const property = new SymbolPropertyAccessor(key, value)
 
   t.is(property.compare(value), unequal)
 })
@@ -250,8 +220,8 @@ test('SymbolPropertyAccessor - compare returns unequal for different symbol keys
 
   const value = new StringRepresentation('value')
 
-  const property1 = new SymbolPropertyAccessor(context, key1, value)
-  const property2 = new SymbolPropertyAccessor(context, key2, value)
+  const property1 = new SymbolPropertyAccessor(key1, value)
+  const property2 = new SymbolPropertyAccessor(key2, value)
 
   t.is(property1.compare(property2), unequal)
 })
@@ -264,33 +234,33 @@ test('SymbolPropertyAccessor - compare delegates to value comparison when symbol
   const key = context.represent(symbol) as SymbolRepresentation
 
   const value1 = new StringRepresentation('value1')
-  const property1 = new SymbolPropertyAccessor(context, key, value1)
+  const property1 = new SymbolPropertyAccessor(key, value1)
 
   const value2 = new StringRepresentation('value2')
-  const property2 = new SymbolPropertyAccessor(context, key, value2)
+  const property2 = new SymbolPropertyAccessor(key, value2)
 
   // Should return result of comparing values (unequal in this case)
   t.is(property1.compare(property2), unequal)
 
   // When values are equal
   const value3 = new StringRepresentation('value1')
-  const property3 = new SymbolPropertyAccessor(context, key, value3)
+  const property3 = new SymbolPropertyAccessor(key, value3)
   t.is(property1.compare(property3), strictlyEqual)
 })
 
-test('SymbolPropertyAccessor - serialize encodes key and returns partialStoreAsByteArray', (t) => {
+test('SymbolPropertyAccessor - serialize encodes key and returns partial', (t) => {
   const context = new RealValueContext()
   const symbol = Symbol('testSymbol')
   // Get symbol representation through context
   const key = context.represent(symbol) as SymbolRepresentation
   const value = new StringRepresentation('value')
 
-  const property = new SymbolPropertyAccessor(context, key, value)
+  const property = new SymbolPropertyAccessor(key, value)
 
   const encoder = new Encoder()
   const result = property.serialize(encoder)
 
-  t.is(result, partialStoreAsByteArray)
+  t.is(result, partial)
 })
 
 test('SymbolPropertyAccessor - preformat formats symbol key correctly', (t) => {
@@ -298,7 +268,7 @@ test('SymbolPropertyAccessor - preformat formats symbol key correctly', (t) => {
   const symbol = Symbol('testSymbol')
   const key = context.represent(symbol) as SymbolRepresentation
   const value = new StringRepresentation('value')
-  const property = new SymbolPropertyAccessor(context, key, value)
+  const property = new SymbolPropertyAccessor(key, value)
 
   const theme = deriveTheme()
   const formatter = new Formatter(theme)
@@ -315,7 +285,7 @@ test('SymbolPropertyAccessor - finalFormat appends theme.property.afterValue and
   const symbol = Symbol('testSymbol')
   const key = context.represent(symbol) as SymbolRepresentation
   const value = new StringRepresentation('value')
-  const property = new SymbolPropertyAccessor(context, key, value)
+  const property = new SymbolPropertyAccessor(key, value)
 
   const theme = deriveTheme()
   const formatter = new Formatter(theme)
@@ -327,26 +297,19 @@ test('SymbolPropertyAccessor - finalFormat appends theme.property.afterValue and
   t.is(formatter.render(), theme.property.afterValue)
 })
 
-test('SymbolPropertyAccessor - deserialized property delegates to context', (t) => {
+test('SymbolPropertyAccessor - deserialized property delegates to value', (t) => {
   const realContext = new RealValueContext()
-  const deserializationContext = new DeserializationContext(new Decoder(new Uint8Array()))
 
-  const stringValue = new StringRepresentation('test')
+  const arrayValue = representValue([])
+  const deserializedArrayValue = deserialize(serialize(arrayValue))
   const symbol = Symbol('test')
   const symbolKey = realContext.represent(symbol) as SymbolRepresentation
 
-  // Create a deserialized symbol representation using the clean pattern
-  const deserializedSymbolKey = deserialize(serialize(symbolKey)) as SymbolRepresentation
+  const propWithArray = new SymbolPropertyAccessor(symbolKey, arrayValue)
+  const propWithDeserialized = new SymbolPropertyAccessor(symbolKey, deserializedArrayValue)
 
-  const propWithRealContext = new SymbolPropertyAccessor(realContext, symbolKey, stringValue)
-  const propWithDeserializationContext = new SymbolPropertyAccessor(
-    deserializationContext,
-    deserializedSymbolKey,
-    stringValue,
-  )
-
-  t.false(propWithRealContext.deserialized)
-  t.true(propWithDeserializationContext.deserialized)
+  t.false(propWithArray.deserialized)
+  t.true(propWithDeserialized.deserialized)
 })
 
 // For the SymbolPropertyAccessor.orderByIntersection test
@@ -371,12 +334,12 @@ test('SymbolPropertyAccessor.orderByIntersection orders properties by intersecti
 
   const value = new StringRepresentation('value')
 
-  const propA = new SymbolPropertyAccessor(context, keyA, value)
-  const propB = new SymbolPropertyAccessor(context, keyB, value)
-  const propC = new SymbolPropertyAccessor(context, keyC, value)
-  const propD = new SymbolPropertyAccessor(context, keyD, value)
-  const propE = new SymbolPropertyAccessor(context, keyE, value)
-  const propF = new SymbolPropertyAccessor(context, keyF, value)
+  const propA = new SymbolPropertyAccessor(keyA, value)
+  const propB = new SymbolPropertyAccessor(keyB, value)
+  const propC = new SymbolPropertyAccessor(keyC, value)
+  const propD = new SymbolPropertyAccessor(keyD, value)
+  const propE = new SymbolPropertyAccessor(keyE, value)
+  const propF = new SymbolPropertyAccessor(keyF, value)
 
   // LHS: [A, B, C, D]
   // RHS: [E, B, F, D]
@@ -519,8 +482,8 @@ test('SymbolPropertyGroup - constructor sets properties array', (t) => {
   const key1 = context.represent(symbol1) as SymbolRepresentation
   const key2 = context.represent(symbol2) as SymbolRepresentation
 
-  const prop1 = new SymbolPropertyAccessor(context, key1, new StringRepresentation('value1'))
-  const prop2 = new SymbolPropertyAccessor(context, key2, new StringRepresentation('value2'))
+  const prop1 = new SymbolPropertyAccessor(key1, new StringRepresentation('value1'))
+  const prop2 = new SymbolPropertyAccessor(key2, new StringRepresentation('value2'))
 
   const group = new SymbolPropertyGroup([prop1, prop2])
 
@@ -544,7 +507,7 @@ test('SymbolPropertyGroup - empty property returns true for empty groups', (t) =
   const symbol = Symbol('test')
   // Get symbol representation through context
   const key = context.represent(symbol) as SymbolRepresentation
-  const prop = new SymbolPropertyAccessor(context, key, new StringRepresentation('value'))
+  const prop = new SymbolPropertyAccessor(key, new StringRepresentation('value'))
 
   const nonEmptyGroup = new SymbolPropertyGroup([prop])
 
@@ -572,12 +535,12 @@ test('SymbolPropertyGroup - align reorders properties based on intersection', (t
 
   const value = new StringRepresentation('value')
 
-  const propA = new SymbolPropertyAccessor(context, keyA, value)
-  const propB = new SymbolPropertyAccessor(context, keyB, value)
-  const propC = new SymbolPropertyAccessor(context, keyC, value)
-  const propD = new SymbolPropertyAccessor(context, keyD, value)
-  const propE = new SymbolPropertyAccessor(context, keyE, value)
-  const propF = new SymbolPropertyAccessor(context, keyF, value)
+  const propA = new SymbolPropertyAccessor(keyA, value)
+  const propB = new SymbolPropertyAccessor(keyB, value)
+  const propC = new SymbolPropertyAccessor(keyC, value)
+  const propD = new SymbolPropertyAccessor(keyD, value)
+  const propE = new SymbolPropertyAccessor(keyE, value)
+  const propF = new SymbolPropertyAccessor(keyF, value)
 
   // Group 1: [A, B, C, D]
   // Group 2: [E, B, F, D]
@@ -632,27 +595,24 @@ test('SymbolPropertyGroup - compare returns unequal for non-SymbolPropertyGroup'
 
 test('SymbolPropertyGroup - deserialized property returns false for empty group and checks first property when present', (t) => {
   const realContext = new RealValueContext()
-  const deserializationContext = new DeserializationContext(new Decoder(new Uint8Array()))
 
   const symbol = Symbol('test')
   const symbolKey = realContext.represent(symbol) as SymbolRepresentation
 
-  // Create a deserialized symbol representation by using the deserialize method
-  const deserializedSymbolKey = deserialize(serialize(symbolKey)) as SymbolRepresentation
-
-  const stringValue = new StringRepresentation('value')
+  const arrayValue = representValue([])
+  const deserializedArrayValue = deserialize(serialize(arrayValue))
 
   // Empty group returns false (no properties to check)
   const emptyGroup = new SymbolPropertyGroup([])
   t.false(emptyGroup.deserialized)
 
   // Group with real context property (first property not deserialized)
-  const realProperty = new SymbolPropertyAccessor(realContext, symbolKey, stringValue)
+  const realProperty = new SymbolPropertyAccessor(symbolKey, arrayValue)
   const realGroup = new SymbolPropertyGroup([realProperty])
   t.false(realGroup.deserialized)
 
   // Group with deserialized property (first property is deserialized)
-  const deserializedProperty = new SymbolPropertyAccessor(deserializationContext, deserializedSymbolKey, stringValue)
+  const deserializedProperty = new SymbolPropertyAccessor(symbolKey, deserializedArrayValue)
   const deserializedGroup = new SymbolPropertyGroup([deserializedProperty])
   t.true(deserializedGroup.deserialized)
 })

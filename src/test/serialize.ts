@@ -2,13 +2,7 @@ import test from 'ava'
 import * as cbor from 'cbor2'
 import type { Encoder } from '../encoder.ts'
 import { serialize } from '../serialize.ts'
-import {
-  finished,
-  partial,
-  partialRequiringTerminator,
-  partialStoreAsByteArray,
-  type SerializationResult,
-} from '../serialization-result.ts'
+import { finished, partial, partialRequiringTerminator, type SerializationResult } from '../serialization-result.ts'
 import { staticTypeTable, version } from '../serialization-types.ts'
 import { ElementAccessor } from '../accessors/element.ts'
 import {
@@ -34,9 +28,6 @@ const cborOptions = {
   sortKeys: null,
   preferMap: true,
 }
-
-// Helper to decode a single CBOR value
-const decodeCbor = (bytes: Uint8Array): unknown => cbor.decode(bytes, cborOptions)
 
 // Helper to decode multiple CBOR values when needed
 function decodeAllCbor(bytes: Uint8Array): unknown[] {
@@ -278,8 +269,8 @@ test('serialize handles SymbolPropertyGroup objects', (t) => {
 
   // Create symbol property accessors
   const symbolAccessors = [
-    new SymbolPropertyAccessor(context, symbol1Rep, propertyValue),
-    new SymbolPropertyAccessor(context, symbol2Rep, propertyValue),
+    new SymbolPropertyAccessor(symbol1Rep, propertyValue),
+    new SymbolPropertyAccessor(symbol2Rep, propertyValue),
   ]
 
   // Create a symbol property group
@@ -304,14 +295,7 @@ test('serialize handles SymbolPropertyGroup objects', (t) => {
   // Check that our symbol key and value made it into the output
   const containsSymbolKey1 = values.includes('Symbol(testSymbol1)')
   const containsSymbolKey2 = values.includes('Symbol(testSymbol2)')
-  const containsValue = values.some((v) => {
-    if (v instanceof Uint8Array) {
-      const decoded = decodeCbor(v)
-      return decoded === 'symbol value'
-    }
-
-    return false
-  })
+  const containsValue = values.includes('symbol value')
   t.true(containsSymbolKey1, 'Should contain symbol key 1')
   t.true(containsSymbolKey2, 'Should contain symbol key 2')
   t.true(containsValue, 'Should contain symbol property value')
@@ -386,35 +370,4 @@ test('serialize handles MapEntryAccessor objects', (t) => {
   const containsValue = values.includes('map value')
   t.true(containsKey, 'Should contain map key string')
   t.true(containsValue, 'Should contain map value string')
-})
-
-test('serialize handles partialStoreAsByteArray serialization results', (t) => {
-  // Create a value that uses partialStoreAsByteArray
-  const childMock = new MockValueRepresentation({
-    serializeImpl(encoder) {
-      encoder.string('123')
-      return finished
-    },
-  })
-
-  const parentMock = new MockValueRepresentation({
-    serializeImpl(encoder) {
-      encoder.staticType(staticTypeTable.string)
-      return partialStoreAsByteArray
-    },
-    children: [childMock],
-  })
-
-  const serialized = serialize(parentMock)
-  const values = decodeAllCbor(serialized)
-
-  // Should have version + arrayBuffer type + byte array
-  t.is(values.length, 3)
-  t.is(values[0], version)
-  t.is(values[1], staticTypeTable.string)
-
-  // The third value should be a Uint8Array
-  const byteArray = values[2] as Uint8Array
-  t.true(byteArray instanceof Uint8Array)
-  t.is(cbor.decode(byteArray), '123')
 })
