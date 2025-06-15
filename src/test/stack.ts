@@ -92,3 +92,53 @@ test('throws error when pushing already present representation', (t) => {
     { name: 'AssertionError', message: 'Already in stack' },
   )
 })
+
+test('peekNext returns undefined for empty stack', (t) => {
+  const stack = new Stack()
+  t.is(stack.peekNext(), undefined)
+})
+
+test('peekNext returns undefined when iterator is exhausted', (t) => {
+  const stack = new Stack()
+  const arrayLike = { 0: 'foo' } // eslint-disable-line @typescript-eslint/naming-convention
+  Object.defineProperty(arrayLike, 'length', { value: 1, enumerable: false })
+  stack.push(new ObjectRepresentation(new RealValueContext(), arrayLike))
+
+  // Consume the only value
+  stack.iterateNext()
+
+  // Now peeking should return undefined
+  t.is(stack.peekNext(), undefined)
+})
+
+test('peekNext and iterateNext interaction', (t) => {
+  const stack = new Stack()
+  const arrayLike = { 0: 'foo', 1: 'bar', 2: 'baz' } // eslint-disable-line @typescript-eslint/naming-convention
+  Object.defineProperty(arrayLike, 'length', { value: 3, enumerable: false })
+  stack.push(new ObjectRepresentation(new RealValueContext(), arrayLike))
+
+  // Multiple peeks should return the same value
+  const peek1 = stack.peekNext()
+  const peek2 = stack.peekNext()
+  t.is(peek1, peek2)
+
+  // IterateNext should return the peeked value
+  const iterated1 = stack.iterateNext()
+  t.is(peek1, iterated1)
+
+  // Peek and iterate the second value
+  const peek3 = stack.peekNext()
+  const iterated2 = stack.iterateNext()
+  t.is(peek3, iterated2)
+  t.not(iterated2, iterated1)
+
+  // Final iteration without peeking
+  const iterated3 = stack.iterateNext()
+  t.truthy(iterated3)
+  t.not(iterated3, iterated1)
+  t.not(iterated3, iterated2)
+
+  // Should be exhausted
+  t.is(stack.iterateNext(), undefined)
+  t.is(stack.peekNext(), undefined)
+})

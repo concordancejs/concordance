@@ -10,6 +10,7 @@ export type StackEntry<Fields extends OptionalFields> = Fields & {
 
 type InternalEntryState = {
   readonly iterator?: IterableIterator<ValueRepresentation>
+  nextValueRepresentation?: ValueRepresentation
 }
 
 export class Stack<Fields extends OptionalFields = OptionalFields> {
@@ -38,6 +39,7 @@ export class Stack<Fields extends OptionalFields = OptionalFields> {
     this.#entries.push(entry)
     this.#internal.set(entry, {
       iterator: representation[Symbol.iterator]?.(),
+      nextValueRepresentation: undefined,
     })
   }
 
@@ -65,9 +67,32 @@ export class Stack<Fields extends OptionalFields = OptionalFields> {
     if (!top) return
 
     const internal = this.#internal.get(top) ?? never('Internal state not found for stack entry')
+    const { nextValueRepresentation } = internal
+    if (nextValueRepresentation) {
+      internal.nextValueRepresentation = undefined
+      return nextValueRepresentation
+    }
+
     const next = internal.iterator?.next()
     if (!next || next.done) return
 
     return next?.value
+  }
+
+  peekNext(): ValueRepresentation | undefined {
+    const { top } = this
+    if (!top) return
+
+    const internal = this.#internal.get(top) ?? never('Internal state not found for stack entry')
+    const { nextValueRepresentation } = internal
+    if (nextValueRepresentation) {
+      return nextValueRepresentation
+    }
+
+    const next = internal.iterator?.next()
+    if (!next || next.done) return
+
+    internal.nextValueRepresentation = next.value
+    return next.value
   }
 }
