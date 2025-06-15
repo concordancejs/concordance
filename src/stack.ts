@@ -1,6 +1,7 @@
 import assert from 'node:assert'
 import never from 'never'
 import type { ValueRepresentation } from './value.d.ts'
+import { fullyDeserialize } from './deserialize.ts'
 
 type OptionalFields = Partial<Record<string, unknown>>
 
@@ -95,4 +96,25 @@ export class Stack<Fields extends OptionalFields = OptionalFields> {
     internal.nextValueRepresentation = next.value
     return next.value
   }
+
+  *#takeWhile<T extends ValueRepresentation>(
+    expectedTop: StackEntry<Fields>,
+    condition: (value: ValueRepresentation) => value is T,
+  ): IterableIterator<T> {
+    while (this.top === expectedTop) {
+      const nextValue = this.peekNext()
+      if (nextValue === undefined || !condition(nextValue)) return
+      this.iterateNext()
+      yield fullyDeserialize(nextValue)
+    }
+  }
+
+  get takeWhile(): TakeWhile {
+    const { top: expectedTop = never('Stack is empty') } = this
+    return this.#takeWhile.bind(this, expectedTop) as TakeWhile
+  }
 }
+
+export type TakeWhile = <T extends ValueRepresentation>(
+  condition: (value: ValueRepresentation) => value is T,
+) => IterableIterator<T>

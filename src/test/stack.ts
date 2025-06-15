@@ -2,6 +2,12 @@ import test from 'ava'
 import { Stack } from '../stack.ts'
 import { ObjectRepresentation } from '../values/objects/object.ts'
 import { RealValueContext } from '../real-value-context.ts'
+import type { ValueRepresentation } from '../value.d.ts'
+import { Encoder } from '../encoder.ts'
+import { staticTypeTable } from '../serialization-types.ts'
+import { Decoder } from '../decoder.ts'
+import { DeserializationContext } from '../deserialization-context.ts'
+import { NamedPropertyAccessor } from '../accessors/property.ts'
 
 const representation = new ObjectRepresentation(new RealValueContext(), {})
 
@@ -141,4 +147,139 @@ test('peekNext and iterateNext interaction', (t) => {
   // Should be exhausted
   t.is(stack.iterateNext(), undefined)
   t.is(stack.peekNext(), undefined)
+})
+
+test('takeWhile throws when stack is empty', (t) => {
+  const stack = new Stack()
+  t.throws(
+    () => {
+      stack.takeWhile((value): value is ObjectRepresentation => value instanceof ObjectRepresentation)
+    },
+    { message: 'Stack is empty' },
+  )
+})
+
+test('takeWhile yields values while condition is true', (t) => {
+  const stack = new Stack()
+
+  // Create an object with multiple properties to iterate over
+  const testObject = { a: 1, b: 2, c: 3 }
+  const objectRepresentation = new ObjectRepresentation(new RealValueContext(), testObject)
+  stack.push(objectRepresentation)
+
+  // Take the first 2 values (should be property representations)
+  let count = 0
+  const condition = (_value: ValueRepresentation): _value is ValueRepresentation => {
+    count++
+    return count <= 2
+  }
+
+  const iterator = stack.takeWhile(condition)
+  const results = [...iterator]
+
+  t.is(results.length, 2)
+  t.truthy(results[0])
+  t.truthy(results[1])
+
+  // There should be one more value available
+  const remaining = stack.iterateNext()
+  t.truthy(remaining)
+
+  // And then it should be exhausted
+  t.is(stack.iterateNext(), undefined)
+})
+
+test('takeWhile returns empty iterator when condition is false immediately', (t) => {
+  const stack = new Stack()
+
+  const testObject = { a: 1, b: 2 }
+  const objectRepresentation = new ObjectRepresentation(new RealValueContext(), testObject)
+  stack.push(objectRepresentation)
+
+  // Condition that never matches
+  const condition = (_value: ValueRepresentation): _value is never => false
+  const iterator = stack.takeWhile(condition)
+
+  const results = [...iterator]
+  t.is(results.length, 0)
+
+  // The first value should still be available
+  const first = stack.peekNext()
+  t.truthy(first)
+})
+
+test('takeWhile stops when stack top changes', (t) => {
+  const stack = new Stack()
+
+  const testObject = { a: 1, b: 2 }
+  const objectRepresentation = new ObjectRepresentation(new RealValueContext(), testObject)
+  stack.push(objectRepresentation)
+
+  const condition = (_value: ValueRepresentation): _value is ValueRepresentation => true
+  const iterator = stack.takeWhile(condition)
+
+  // Get first value
+  const firstResult = iterator.next()
+  t.false(firstResult.done)
+  t.truthy(firstResult.value)
+
+  // Change the stack by popping
+  stack.pop()
+
+  // Iterator should now be done even though condition would match
+  const secondResult = iterator.next()
+  t.true(secondResult.done)
+})
+
+test('takeWhile fully deserializes yielded values', (t) => {
+  const encoder = new Encoder()
+
+  // First value: Complex nested object that requires full deserialization
+  encoder
+    .staticType(staticTypeTable.object)
+    .annotations({ p: 1 })
+    // Named property: 'foo'
+    .staticType(staticTypeTable.namedPropertyAspect)
+    .string('foo')
+    // Value: Simple string
+    .staticType(staticTypeTable.string)
+    .string('bar')
+    // Named property: 'nested'
+    .staticType(staticTypeTable.namedPropertyAspect)
+    .string('nested')
+    // Value: Another object
+    .staticType(staticTypeTable.object)
+    .annotations({ p: 2 })
+    // Named property: 'items'
+    .staticType(staticTypeTable.namedPropertyAspect)
+    .string('items')
+    // Value: Array with multiple elements
+    .staticType(staticTypeTable.array)
+    .annotations({ p: 3 })
+    // Element 0
+    .staticType(staticTypeTable.elementAspect)
+    .staticType(staticTypeTable.string)
+    .string('first')
+    // Element 1
+    .staticType(staticTypeTable.elementAspect)
+    .staticType(staticTypeTable.string)
+    .string('second')
+    .staticType(staticTypeTable.terminator) // End array
+    .staticType(staticTypeTable.terminator) // End nested object
+    .staticType(staticTypeTable.terminator) // End root object
+
+  const decoder = new Decoder(encoder.bytes)
+  const context = new DeserializationContext(decoder)
+
+  const representation = context.next()!
+  const stack = new Stack()
+  stack.push(representation)
+  const condition = (value: ValueRepresentation): value is NamedPropertyAccessor => {
+    return NamedPropertyAccessor.is(value)
+  }
+
+  // Expect only two properties if takeWhile() fully deserialized each yielded value. If not, we should see three,
+  // since the 'items' property would be attributed to the root object instead of the nested object.
+  const properties = [...stack.takeWhile(condition)]
+  t.is(properties.length, 2) // 'foo' and 'nested'
 })
