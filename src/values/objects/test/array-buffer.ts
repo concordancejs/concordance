@@ -8,7 +8,7 @@ import type { ArrayBufferViewRepresentation } from '../array-buffer-view.ts'
 import { comparable, strictlyEqual, unequal } from '../../../comparison.ts'
 import { staticTypeTable } from '../../../serialization-types.ts'
 import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
-import { NamedPropertyGroup, NamedPropertyAccessor } from '../../../accessors/property.ts'
+import { NamedPropertyAccessor } from '../../../accessors/property.ts'
 import type { BytesAccessor } from '../../../accessors/bytes.ts'
 import { Formatter } from '../../../formatter.ts'
 import { deriveTheme } from '../../../theme.ts'
@@ -148,14 +148,8 @@ test('iterateProperties yields properties for ArrayBuffer instances', (t) => {
   const buffer = new ArrayBuffer(4)
   const bufferRep = context.represent(buffer) as ArrayBufferRepresentation
 
-  const propertyGroups = [...bufferRep.iterateProperties()]
-
-  t.is(propertyGroups.length, 1)
-  const [namedGroup] = propertyGroups
-  t.true(namedGroup instanceof NamedPropertyGroup)
-
+  const properties = [...bufferRep.iterateProperties()]
   // ArrayBuffer has 'maxByteLength' and 'resizable' properties
-  const properties = [...namedGroup!]
   t.is(properties.length, 2)
 
   // Create property accessors for expected properties
@@ -184,14 +178,8 @@ test('iterateProperties yields properties for SharedArrayBuffer instances', (t) 
   const buffer = new SharedArrayBuffer(4)
   const bufferRep = context.represent(buffer) as ArrayBufferRepresentation
 
-  const propertyGroups = [...bufferRep.iterateProperties()]
-
-  t.is(propertyGroups.length, 1)
-  const [namedGroup] = propertyGroups
-  t.true(namedGroup instanceof NamedPropertyGroup)
-
+  const properties = [...bufferRep.iterateProperties()]
   // SharedArrayBuffer has 'maxByteLength' and 'growable' properties
-  const properties = [...namedGroup!]
   t.is(properties.length, 2)
 
   // Create property accessors for expected properties

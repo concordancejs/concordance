@@ -7,7 +7,7 @@ import { ErrorRepresentation } from '../error.ts'
 import { comparable, strictlyEqual, unequal } from '../../../comparison.ts'
 import { staticTypeTable } from '../../../serialization-types.ts'
 import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
-import { NamedPropertyGroup, NamedPropertyAccessor } from '../../../accessors/property.ts'
+import { NamedPropertyAccessor } from '../../../accessors/property.ts'
 import { Formatter } from '../../../formatter.ts'
 import { deriveTheme } from '../../../theme.ts'
 
@@ -90,14 +90,7 @@ test('iterateProperties yields name and message properties for errors', (t) => {
   const error = new Error('Test error')
   const errorRep = context.represent(error) as ErrorRepresentation
 
-  const propertyGroups = [...errorRep.iterateProperties()]
-
-  t.is(propertyGroups.length, 1)
-  const [namedGroup] = propertyGroups
-  t.true(namedGroup instanceof NamedPropertyGroup)
-
-  // Check if the group contains the expected properties
-  const properties = [...namedGroup!]
+  const properties = [...errorRep.iterateProperties()]
   t.is(properties.length, 2)
 
   // Create property accessors for expected properties
@@ -129,14 +122,8 @@ test('iterateProperties includes cause property when set', (t) => {
   const error = new Error('Main error', { cause: causeError })
 
   const errorRep = context.represent(error) as ErrorRepresentation
-  const propertyGroups = [...errorRep.iterateProperties()]
-
-  t.is(propertyGroups.length, 1)
-  const [namedGroup] = propertyGroups
-  t.true(namedGroup instanceof NamedPropertyGroup)
-
+  const properties = [...errorRep.iterateProperties()]
   // With a cause set, we should have name, message, and cause properties
-  const properties = [...namedGroup!]
   t.is(properties.length, 3)
 
   // Create property accessors for expected properties
@@ -191,14 +178,8 @@ test('iterateProperties includes name and message even when non-enumerable', (t)
   const error = new CustomError('Custom error message')
   const errorRep = context.represent(error) as ErrorRepresentation
 
-  const propertyGroups = [...errorRep.iterateProperties()]
-
-  t.is(propertyGroups.length, 1)
-  const [namedGroup] = propertyGroups
-  t.true(namedGroup instanceof NamedPropertyGroup)
-
+  const properties = [...errorRep.iterateProperties()]
   // We should still see name and message properties even though they're non-enumerable
-  const properties = [...namedGroup!]
   t.is(properties.length, 2)
 
   // Create property accessors for expected properties

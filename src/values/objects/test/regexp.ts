@@ -8,7 +8,7 @@ import { RegExpRepresentation } from '../regexp.ts'
 import { comparable, strictlyEqual, unequal } from '../../../comparison.ts'
 import { staticTypeTable } from '../../../serialization-types.ts'
 import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
-import { NamedPropertyGroup, NamedPropertyAccessor } from '../../../accessors/property.ts'
+import { NamedPropertyAccessor } from '../../../accessors/property.ts'
 import { Formatter } from '../../../formatter.ts'
 import { deriveTheme } from '../../../theme.ts'
 
@@ -58,14 +58,7 @@ test('iterateProperties yields flags and source properties for regexps', (t) => 
   const regexp = /test/i
   const regexpRep = context.represent(regexp) as RegExpRepresentation
 
-  const propertyGroups = [...regexpRep.iterateProperties()]
-
-  t.is(propertyGroups.length, 1)
-  const [namedGroup] = propertyGroups
-  t.true(namedGroup instanceof NamedPropertyGroup)
-
-  // Check if the group contains exactly the expected properties
-  const properties = [...namedGroup!]
+  const properties = [...regexpRep.iterateProperties()]
   t.is(properties.length, 2)
 
   // Create our own property accessors with the same names and values

@@ -34,7 +34,7 @@ export class RegExpRepresentation extends ObjectRepresentation implements DeepFu
     this.#context.notifyNextExplicitlyNamedPropertyAccess(this.#value, 'flags', (property, value) => {
       if (StringRepresentation.is(value)) {
         this.#iteratedFlags = {
-          property: property as NamedPropertyAccessor,
+          property,
           value,
         }
       }
@@ -42,7 +42,7 @@ export class RegExpRepresentation extends ObjectRepresentation implements DeepFu
     this.#context.notifyNextExplicitlyNamedPropertyAccess(this.#value, 'source', (property, value) => {
       if (StringRepresentation.is(value)) {
         this.#iteratedSource = {
-          property: property as NamedPropertyAccessor,
+          property,
           value,
         }
       }

@@ -1,37 +1,30 @@
+import { mock } from 'node:test'
 import test from 'ava'
 import { compare, compareRepresentations } from '../compare.ts'
-import {
-  comparable,
-  comparableAfterAlignment,
-  deeplyEqual,
-  unequal,
-  strictlyEqual,
-  type Comparison,
-} from '../comparison.ts'
+import { comparable, deeplyEqual, unequal, strictlyEqual, type Comparison } from '../comparison.ts'
 import { finished, type SerializationResult } from '../serialization-result.ts'
-import type { ValueRepresentation } from '../value.ts'
+import type {
+  AccessorFunctionality,
+  CommonRepresentation,
+  DeepFunctionality,
+  GroupRepresentation,
+  ValueRepresentation,
+} from '../value.ts'
+import type { TakeWhile } from '../stack.ts'
+import { Encoder } from '../encoder.ts'
+import { staticTypeTable, version } from '../serialization-types.ts'
+import { deserialize } from '../deserialize.ts'
+import { representValue } from '../represent.ts'
 
 // Mock ValueRepresentation implementation
-class MockValueRepresentation {
-  align?: (other: ValueRepresentation) => void
+class MockValueRepresentation implements CommonRepresentation, DeepFunctionality {
   children: ValueRepresentation[]
   deserialized = false
   readonly #compareResult: Comparison
-  #aligned = false
 
-  constructor(compareResult: Comparison = strictlyEqual, children: ValueRepresentation[] = [], hasAlign = false) {
+  constructor(compareResult: Comparison = strictlyEqual, children: ValueRepresentation[] = []) {
     this.#compareResult = compareResult
     this.children = children
-
-    if (hasAlign) {
-      this.align = () => {
-        this.#aligned = true
-      }
-    }
-  }
-
-  get aligned(): boolean {
-    return this.#aligned
   }
 
   compare(): Comparison {
@@ -44,6 +37,86 @@ class MockValueRepresentation {
 
   serialize(): SerializationResult {
     return finished
+  }
+
+  *[Symbol.iterator]() {
+    yield* this.children
+  }
+}
+
+// Mock Groupable ValueRepresentation for testing groupForComparison
+class MockGroupableRepresentation implements CommonRepresentation, AccessorFunctionality {
+  static is(value: unknown): value is MockGroupableRepresentation {
+    return value instanceof MockGroupableRepresentation
+  }
+
+  deserialized = false
+  readonly #compareResult: Comparison
+  readonly #groupToReturn: MockGroupRepresentation | undefined
+
+  constructor(compareResult: Comparison = strictlyEqual, groupToReturn?: MockGroupRepresentation) {
+    this.#compareResult = compareResult
+    this.#groupToReturn = groupToReturn
+  }
+
+  compare(): Comparison {
+    return this.#compareResult
+  }
+
+  finalFormat(): never {
+    throw new Error('finalFormat should not be called on MockGroupableRepresentation')
+  }
+
+  serialize(): SerializationResult {
+    return finished
+  }
+
+  groupForComparison(takeWhile: TakeWhile, parent: ValueRepresentation): GroupRepresentation | undefined {
+    if (MockGroupRepresentation.is(parent)) return undefined
+    if (!this.#groupToReturn) return undefined
+
+    // Take the relevant representations using takeWhile
+    const additionalItems = [...takeWhile((value) => MockGroupableRepresentation.is(value))]
+
+    // Add this item and the additional items to the group
+    this.#groupToReturn.children = [this, ...additionalItems]
+
+    return this.#groupToReturn
+  }
+
+  *[Symbol.iterator](): IterableIterator<ValueRepresentation> {
+    // No children to iterate over in this simplified mock
+  }
+}
+
+// Mock Group representation for testing align functionality
+class MockGroupRepresentation implements GroupRepresentation {
+  static is(value: unknown): value is MockGroupRepresentation {
+    return value instanceof MockGroupRepresentation
+  }
+
+  children: MockGroupableRepresentation[]
+  deserialized = false
+  readonly #compareResult: Comparison
+
+  constructor(compareResult: Comparison = comparable) {
+    this.#compareResult = compareResult
+    this.children = [] // Start empty, items will be added via groupForComparison
+  }
+
+  compare(other?: ValueRepresentation): Comparison {
+    // If we're comparing with another MockGroupRepresentation,
+    // return unequal if either this or the other has unequal as its result
+    if (MockGroupRepresentation.is(other) && (this.#compareResult === unequal || other.#compareResult === unequal)) {
+      return unequal
+    }
+
+    return this.#compareResult
+  }
+
+  align(_other: ValueRepresentation): void {
+    // Default implementation does nothing
+    // Tests can spy on this method if needed
   }
 
   *[Symbol.iterator]() {
@@ -145,14 +218,6 @@ test('compareDescriptors returns false when only rhs has circular reference', (t
   t.false(compareRepresentations(lhs, rhs))
 })
 
-test('compareDescriptors returns true when alignment is necessary', (t) => {
-  const lhs = new MockValueRepresentation(comparableAfterAlignment, [], true)
-  const rhs = new MockValueRepresentation(comparableAfterAlignment)
-
-  t.true(compareRepresentations(lhs, rhs))
-  t.true(lhs.aligned, 'lhs should be aligned with rhs')
-})
-
 test('compareDescriptors handles nested value traversal correctly', (t) => {
   // Create a tree of representations
   const lhsChild1 = new MockValueRepresentation(comparable)
@@ -194,4 +259,118 @@ test('compareDescriptors gracefully handles empty iterators', (t) => {
   const rhs = new MockValueRepresentation(comparable, [])
 
   t.true(compareRepresentations(lhs, rhs))
+})
+
+test('compareDescriptors correctly uses groupForComparison', (t) => {
+  // SUCCESS CASE: When items can be grouped and groups are comparable
+  const successLhsGroup = new MockGroupRepresentation(comparable)
+  const successRhsGroup = new MockGroupRepresentation(comparable)
+
+  const successLhsItem = new MockGroupableRepresentation(comparable, successLhsGroup)
+  const successRhsItem = new MockGroupableRepresentation(comparable, successRhsGroup)
+
+  const successLhs = new MockValueRepresentation(comparable, [successLhsItem])
+  const successRhs = new MockValueRepresentation(comparable, [successRhsItem])
+
+  t.true(compareRepresentations(successLhs, successRhs), 'Should succeed when groups are comparable')
+
+  // FAILURE CASE: Same setup but one group returns unequal
+  const failureLhsGroup = new MockGroupRepresentation(comparable)
+  const failureRhsGroup = new MockGroupRepresentation(unequal) // This makes it fail
+
+  const failureLhsItem = new MockGroupableRepresentation(comparable, failureLhsGroup)
+  const failureRhsItem = new MockGroupableRepresentation(comparable, failureRhsGroup)
+
+  const failureLhs = new MockValueRepresentation(comparable, [failureLhsItem])
+  const failureRhs = new MockValueRepresentation(comparable, [failureRhsItem])
+
+  t.false(compareRepresentations(failureLhs, failureRhs), 'Should fail when one group is unequal')
+})
+
+test('compareDescriptors aligns groups', (t) => {
+  const lhsGroup = new MockGroupRepresentation(comparable)
+  const rhsGroup = new MockGroupRepresentation(comparable)
+
+  // Create spies to track align calls
+  const lhsAlignSpy = mock.method(lhsGroup, 'align')
+
+  // Test direct align call
+  t.is(lhsAlignSpy.mock.callCount(), 0, 'Align should not be called initially')
+
+  // Test with comparison (align may or may not be called depending on implementation)
+  const lhsItem = new MockGroupableRepresentation(comparable, lhsGroup)
+  const rhsItem = new MockGroupableRepresentation(comparable, rhsGroup)
+
+  const lhs = new MockValueRepresentation(comparable, [lhsItem])
+  const rhs = new MockValueRepresentation(comparable, [rhsItem])
+
+  t.true(compareRepresentations(lhs, rhs), 'Comparison should succeed')
+  // Note: Whether align is called during comparison depends on the implementation
+  t.is(lhsAlignSpy.mock.callCount(), 1, 'Align should be called once')
+})
+
+test('compareDescriptors handles asymmetric grouping', (t) => {
+  // FAILURE CASE: LHS gets grouped, RHS doesn't
+  const lhsGroup = new MockGroupRepresentation(comparable)
+  const lhsItem = new MockGroupableRepresentation(comparable, lhsGroup) // This will be grouped
+  const rhsItem = new MockGroupableRepresentation(comparable) // This won't be grouped (no group provided)
+
+  const lhs = new MockValueRepresentation(comparable, [lhsItem])
+  const rhs = new MockValueRepresentation(comparable, [rhsItem])
+
+  t.false(compareRepresentations(lhs, rhs), 'Should fail when LHS is grouped but RHS is not')
+
+  // FAILURE CASE: RHS gets grouped, LHS doesn't
+  const rhsGroup = new MockGroupRepresentation(comparable)
+  const ungroupedLhsItem = new MockGroupableRepresentation(comparable) // This won't be grouped
+  const groupedRhsItem = new MockGroupableRepresentation(comparable, rhsGroup) // This will be grouped
+
+  const ungroupedLhs = new MockValueRepresentation(comparable, [ungroupedLhsItem])
+  const groupedRhs = new MockValueRepresentation(comparable, [groupedRhsItem])
+
+  t.false(compareRepresentations(ungroupedLhs, groupedRhs), 'Should fail when RHS is grouped but LHS is not')
+})
+
+test('representations are fully deserialized before grouping', (t) => {
+  // Rather than using mocks, perform an actual comparison that is expected to succeed only when full deserialization
+  // is performed.
+  const { bytes } = new Encoder()
+    .int(version)
+    .staticType(staticTypeTable.object)
+    .annotations({ p: 1, c: 'Object' })
+    // Add symbol property aspect
+    .staticType(staticTypeTable.symbolPropertyAspect)
+    // First symbol property with object value (complex enough to test fullyDeserialize)
+    .staticType(staticTypeTable.symbol)
+    .annotations({ s: 'Symbol(objectValue)' })
+    // Object as the complex value
+    .staticType(staticTypeTable.object)
+    .annotations({ p: 2, c: 'Object' })
+    .staticType(staticTypeTable.symbolPropertyAspect)
+    // Nested symbol property
+    .staticType(staticTypeTable.symbol)
+    .annotations({ s: 'Symbol(nested)' })
+    // Add the value (string 'nested')
+    .staticType(staticTypeTable.string)
+    .string('nested')
+    .staticType(staticTypeTable.terminator)
+    // Second symbol property with simple string value
+    .staticType(staticTypeTable.symbol)
+    .annotations({ s: 'Symbol(simple)' })
+    .staticType(staticTypeTable.string)
+    .string('simpleStringValue')
+    // End symbol properties
+    .staticType(staticTypeTable.terminator)
+
+  const expected = {
+    [Symbol('objectValue')]: {
+      [Symbol('nested')]: 'nested',
+    },
+    [Symbol('simple')]: 'simpleStringValue',
+  }
+
+  const representation = representValue(expected)
+
+  t.true(compareRepresentations(representation, deserialize(bytes)))
+  t.true(compareRepresentations(deserialize(bytes), representation))
 })

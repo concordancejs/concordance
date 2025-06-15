@@ -5,13 +5,7 @@ import { serialize } from '../serialize.ts'
 import { finished, partial, partialRequiringTerminator, type SerializationResult } from '../serialization-result.ts'
 import { staticTypeTable, version } from '../serialization-types.ts'
 import { ElementAccessor } from '../accessors/element.ts'
-import {
-  NamedPropertyAccessor,
-  NamedPropertyGroup,
-  SymbolPropertyAccessor,
-  SymbolPropertyGroup,
-  type PropertyGroup,
-} from '../accessors/property.ts'
+import { NamedPropertyAccessor, SymbolPropertyAccessor } from '../accessors/property.ts'
 import { MapEntryAccessor } from '../accessors/map-entry.ts'
 import { IteratorValueAccessor } from '../accessors/iterator-value.ts'
 import type { ValueRepresentation } from '../value.ts'
@@ -36,7 +30,7 @@ function decodeAllCbor(bytes: Uint8Array): unknown[] {
 
 // Mock ValueRepresentation for testing
 class MockValueRepresentation {
-  children: Array<ValueRepresentation | PropertyGroup>
+  children: ValueRepresentation[]
   deserialized = false
   pointer?: number
   readonly #serializeResult: SerializationResult
@@ -47,7 +41,7 @@ class MockValueRepresentation {
       pointer?: number
       serializeResult?: SerializationResult
       serializeImpl?: (encoder: Encoder) => SerializationResult
-      children?: Array<ValueRepresentation | PropertyGroup>
+      children?: ValueRepresentation[]
     } = {},
   ) {
     this.pointer = options.pointer
@@ -217,22 +211,17 @@ test('serialize handles NamedPropertyGroup objects', (t) => {
     },
   })
 
-  // Create a context for the property group
-  const context = new RealValueContext()
-
-  // Create a named property accessor group
   const namedProperties = [
     new NamedPropertyAccessor('prop1', propertyValue),
     new NamedPropertyAccessor('prop2', propertyValue),
   ]
-  const propertyGroup = new NamedPropertyGroup(context, namedProperties)
 
   const objectMock = new MockValueRepresentation({
     serializeImpl(encoder) {
       encoder.staticType(staticTypeTable.object)
       return partial
     },
-    children: [propertyGroup],
+    children: namedProperties,
   })
 
   const serialized = serialize(objectMock)
@@ -273,16 +262,13 @@ test('serialize handles SymbolPropertyGroup objects', (t) => {
     new SymbolPropertyAccessor(symbol2Rep, propertyValue),
   ]
 
-  // Create a symbol property group
-  const symbolPropertyGroup = new SymbolPropertyGroup(symbolAccessors)
-
   // Create object with the symbol property group
   const objectMock = new MockValueRepresentation({
     serializeImpl(encoder) {
       encoder.staticType(staticTypeTable.object)
       return partial
     },
-    children: [symbolPropertyGroup],
+    children: symbolAccessors,
   })
 
   const serialized = serialize(objectMock)

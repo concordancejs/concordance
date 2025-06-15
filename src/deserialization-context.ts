@@ -30,17 +30,11 @@ import { PromiseRepresentation } from './values/objects/promise.ts'
 import { WeakMapRepresentation } from './values/objects/weak-map.ts'
 import { WeakSetRepresentation } from './values/objects/weak-set.ts'
 import { ElementAccessor, SparseValueRepresentation } from './accessors/element.ts'
-import {
-  NamedPropertyAccessor,
-  NamedPropertyGroup,
-  SymbolPropertyAccessor,
-  SymbolPropertyGroup,
-} from './accessors/property.ts'
+import { NamedPropertyAccessor, SymbolPropertyAccessor } from './accessors/property.ts'
 import { MapEntryAccessor } from './accessors/map-entry.ts'
 import { IteratorValueAccessor } from './accessors/iterator-value.ts'
 import { type Decoder } from './decoder.ts'
 import { normalizeFlags, type Flags } from './flags.ts'
-import { fullyDeserialize } from './deserialize.ts'
 
 class PointerMap extends Map<number, ValueRepresentation> {
   readonly #byRepresentation = new WeakMap<ValueRepresentation, number>()
@@ -55,13 +49,12 @@ class IterationState {
   #elementAccessors: ElementAccessor[] | undefined
   #explicitlyNamedProperties: string[] | undefined
   #mapEntryAccessors: MapEntryAccessor[] | undefined
-  #namedPropertyGroup: NamedPropertyGroup | undefined
   #namedPropertyAccessors:
     | Array<{ name: string; accessor: NamedPropertyAccessor; value: ValueRepresentation }>
     | undefined
 
   #namedPropertyNotifiers: Map<string, { callback: PropertyAccessCallback; invoked: boolean }> | undefined
-  #symbolPropertyGroup: SymbolPropertyGroup | undefined
+  #symbolPropertyAccessors: SymbolPropertyAccessor[] | undefined
   #valueAccessors: IteratorValueAccessor[] | undefined
   #lastAspect?: AspectType
   #terminated = false
@@ -78,20 +71,8 @@ class IterationState {
     return this.#namedPropertyAccessors?.map(({ accessor }) => accessor)
   }
 
-  get namedPropertyGroup(): NamedPropertyGroup | undefined {
-    return this.#namedPropertyGroup
-  }
-
-  set namedPropertyGroup(value: NamedPropertyGroup) {
-    this.#namedPropertyGroup = value
-  }
-
-  get symbolPropertyGroup(): SymbolPropertyGroup | undefined {
-    return this.#symbolPropertyGroup
-  }
-
-  set symbolPropertyGroup(value: SymbolPropertyGroup) {
-    this.#symbolPropertyGroup = value
+  get symbolPropertyAccessors() {
+    return this.#symbolPropertyAccessors
   }
 
   get valueAccessors() {
@@ -180,6 +161,12 @@ class IterationState {
 
   resetNamedPropertyNotifiers() {
     this.#namedPropertyNotifiers?.clear()
+  }
+
+  addSymbolPropertyAccessor(accessor: SymbolPropertyAccessor): SymbolPropertyAccessor {
+    this.#symbolPropertyAccessors ??= []
+    this.#symbolPropertyAccessors.push(accessor)
+    return accessor
   }
 
   addValueAccessor(accessor: IteratorValueAccessor): IteratorValueAccessor {
@@ -437,15 +424,21 @@ export class DeserializationContext implements Context {
     } while (!state.terminated && state.lastAspect === staticTypeTable.elementAspect && !endedAspect)
   }
 
-  *iterateNamedProperties(value: NamedPropertyGroup): IterableIterator<NamedPropertyAccessor> {
-    const state = this.#iterationStates.get(value) ?? never('Unknown named property group')
+  *namedProperties(value: Opaque, ...include: string[]): IterableIterator<NamedPropertyAccessor> {
+    const state = this.#iterationStates.get(value) ?? new IterationState()
+    this.#iterationStates.set(value, state)
+
+    state.supportExplicitlyNamedPropertyNotifications(include)
+
     if (state.namedPropertyAccessors) {
       state.notifyForCachedNamedProperties()
       yield* state.namedPropertyAccessors
     }
 
+    if (state.terminated) return
+
     let endedAspect = false
-    while (!state.terminated && state.lastAspect === staticTypeTable.namedPropertyAspect && !endedAspect) {
+    do {
       // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
       switch (this.#decoder.peekStaticType()) {
         case staticTypeTable.terminator: {
@@ -462,10 +455,9 @@ export class DeserializationContext implements Context {
           break
         }
 
-        // For concistency with other iterators, we allow named property aspects to be repeated.
         case staticTypeTable.namedPropertyAspect: {
-          this.#decoder.aspectType()
-          continue
+          state.lastAspect = this.#decoder.aspectType() ?? never()
+          break
         }
 
         // Named properties are encoded as a sequence of CBOR strings and serialized values.
@@ -482,7 +474,7 @@ export class DeserializationContext implements Context {
           never(`Unexpected static type ${this.#decoder.peekStaticType()}`)
         }
       }
-    }
+    } while (!state.terminated && state.lastAspect === staticTypeTable.namedPropertyAspect && !endedAspect)
   }
 
   *iterateMapEntries(value: Opaque): IterableIterator<MapEntryAccessor> {
@@ -570,73 +562,6 @@ export class DeserializationContext implements Context {
     } while (!state.terminated && state.lastAspect === staticTypeTable.iteratorValueAspect && !endedAspect)
   }
 
-  namedProperties(value: Opaque, ...include: string[]): NamedPropertyGroup {
-    const state = this.#iterationStates.get(value) ?? new IterationState()
-    state.supportExplicitlyNamedPropertyNotifications(include)
-    this.#iterationStates.set(value, state)
-
-    if (state.terminated) {
-      state.namedPropertyGroup ??= new NamedPropertyGroup(this, [])
-      this.#iterationStates.set(state.namedPropertyGroup, state)
-    }
-
-    if (state.namedPropertyGroup) {
-      return state.namedPropertyGroup
-    }
-
-    let endedAspect = false
-    do {
-      // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
-      switch (this.#decoder.peekStaticType()) {
-        case staticTypeTable.terminator: {
-          this.#decoder.staticType()
-          state.terminate()
-          break
-        }
-
-        case staticTypeTable.elementAspect:
-        case staticTypeTable.iteratorValueAspect:
-        case staticTypeTable.mapEntryAspect:
-        case staticTypeTable.symbolPropertyAspect: {
-          endedAspect = true
-          break
-        }
-
-        case staticTypeTable.namedPropertyAspect: {
-          state.lastAspect = this.#decoder.aspectType() ?? never()
-          break
-        }
-
-        // Named properties are encoded as a sequence of CBOR strings and serialized values.
-        case undefined: {
-          assert.ok(state.lastAspect === staticTypeTable.namedPropertyAspect, 'Expected terminator or aspect')
-          assert.ok(this.#decoder.hasNext(), 'Expected property name')
-          const key = this.#decoder.string()
-          const value = this.next() ?? never('Expected value after property name')
-          // Instantiate the first property accessor and add it to the state.
-          // This also means the named property group will be created in a non-empty state.
-          const firstProperty = new NamedPropertyAccessor(key, value)
-          state.addNamedPropertyAccessor(key, firstProperty, value, false)
-          state.namedPropertyGroup = new NamedPropertyGroup(this, [firstProperty])
-          break
-        }
-
-        default: {
-          never(`Unexpected static type ${this.#decoder.peekStaticType()}`)
-        }
-      }
-    } while (
-      !state.terminated &&
-      !state.namedPropertyGroup &&
-      state.lastAspect === staticTypeTable.namedPropertyAspect &&
-      !endedAspect
-    )
-
-    state.namedPropertyGroup ??= new NamedPropertyGroup(this, [])
-    this.#iterationStates.set(state.namedPropertyGroup, state)
-    return state.namedPropertyGroup
-  }
-
   notifyNextExplicitlyNamedPropertyAccess(value: Opaque, name: string, callback: PropertyAccessCallback) {
     const state = this.#iterationStates.get(value) ?? new IterationState()
     this.#iterationStates.set(value, state)
@@ -649,20 +574,17 @@ export class DeserializationContext implements Context {
     state?.resetNamedPropertyNotifiers()
   }
 
-  symbolProperties(value: Opaque): SymbolPropertyGroup {
+  *symbolProperties(value: Opaque): IterableIterator<SymbolPropertyAccessor> {
     const state = this.#iterationStates.get(value) ?? new IterationState()
     this.#iterationStates.set(value, state)
 
-    if (state.terminated) {
-      state.symbolPropertyGroup ??= new SymbolPropertyGroup([])
+    if (state.symbolPropertyAccessors) {
+      yield* state.symbolPropertyAccessors
     }
 
-    if (state.symbolPropertyGroup) {
-      return state.symbolPropertyGroup
-    }
+    if (state.terminated) return
 
     let endedAspect = false
-    const properties: SymbolPropertyAccessor[] = []
     do {
       // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
       switch (this.#decoder.peekStaticType() ?? never('Expected terminator, aspect or property')) {
@@ -692,7 +614,7 @@ export class DeserializationContext implements Context {
           const key = SymbolRepresentation.deserialize(this, this.#decoder)
           assert.ok(this.#decoder.hasNext(), 'Expected value after property symbol')
           const value = this.next() ?? never('Expected value after property symbol')
-          properties.push(new SymbolPropertyAccessor(key, fullyDeserialize(value)))
+          yield state.addSymbolPropertyAccessor(new SymbolPropertyAccessor(key, value))
           break
         }
 
@@ -701,9 +623,6 @@ export class DeserializationContext implements Context {
         }
       }
     } while (!state.terminated && state.lastAspect === staticTypeTable.symbolPropertyAspect && !endedAspect)
-
-    state.symbolPropertyGroup = new SymbolPropertyGroup(properties)
-    return state.symbolPropertyGroup
   }
 
   length(value: Opaque): number {

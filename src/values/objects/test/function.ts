@@ -8,7 +8,7 @@ import { FunctionRepresentation } from '../function.ts'
 import { comparable, strictlyEqual, unequal } from '../../../comparison.ts'
 import { staticTypeTable } from '../../../serialization-types.ts'
 import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
-import { NamedPropertyGroup, NamedPropertyAccessor } from '../../../accessors/property.ts'
+import { NamedPropertyAccessor } from '../../../accessors/property.ts'
 import { Formatter } from '../../../formatter.ts'
 import { deriveTheme } from '../../../theme.ts'
 import type { StringRepresentation } from '../../primitives/string.ts'
@@ -134,14 +134,8 @@ test('iterateProperties yields the name property for functions', (t) => {
   const func = namedFunction
   const funcRep = context.represent(func) as FunctionRepresentation
 
-  const propertyGroups = [...funcRep.iterateProperties()]
-
-  t.is(propertyGroups.length, 1)
-  const [namedGroup] = propertyGroups
-  t.true(namedGroup instanceof NamedPropertyGroup)
-
   // We expect just the 'name' property for functions
-  const properties = [...namedGroup!]
+  const properties = [...funcRep.iterateProperties()]
   t.is(properties.length, 1)
 
   // Create property accessor for the expected property
@@ -163,9 +157,7 @@ test('iterateProperties works correctly with different function types', (t) => {
 
   // Named function
   const namedRep = context.represent(namedFunction) as FunctionRepresentation
-  const namedPropertyGroups = [...namedRep.iterateProperties()]
-  t.is(namedPropertyGroups.length, 1)
-  const namedProperties = [...namedPropertyGroups[0]!]
+  const namedProperties = [...namedRep.iterateProperties()]
   t.is(namedProperties.length, 1)
 
   // Create property accessor for the expected property
@@ -180,9 +172,7 @@ test('iterateProperties works correctly with different function types', (t) => {
 
   // Anonymous function
   const anonymousRep = context.represent(anonymousFunction) as FunctionRepresentation
-  const anonymousPropertyGroups = [...anonymousRep.iterateProperties()]
-  t.is(anonymousPropertyGroups.length, 1)
-  const anonymousProperties = [...anonymousPropertyGroups[0]!]
+  const anonymousProperties = [...anonymousRep.iterateProperties()]
   t.is(anonymousProperties.length, 1)
 
   // Create property accessor for the expected property
@@ -197,9 +187,7 @@ test('iterateProperties works correctly with different function types', (t) => {
 
   // Arrow function
   const arrowRep = context.represent(arrowFunction) as FunctionRepresentation
-  const arrowPropertyGroups = [...arrowRep.iterateProperties()]
-  t.is(arrowPropertyGroups.length, 1)
-  const arrowProperties = [...arrowPropertyGroups[0]!]
+  const arrowProperties = [...arrowRep.iterateProperties()]
   t.is(arrowProperties.length, 1)
 
   // Create property accessor for the expected property

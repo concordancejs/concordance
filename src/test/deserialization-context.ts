@@ -8,9 +8,8 @@ import { representValue } from '../represent.ts'
 import { RealValueContext } from '../real-value-context.ts'
 import { ElementAccessor, SparseValueRepresentation } from '../accessors/element.ts'
 import { IteratorValueAccessor } from '../accessors/iterator-value.ts'
-import { NamedPropertyAccessor, type NamedPropertyGroup, SymbolPropertyAccessor } from '../accessors/property.ts'
+import { NamedPropertyAccessor, SymbolPropertyAccessor } from '../accessors/property.ts'
 import { comparable, possiblyEqual, strictlyEqual, type Comparison } from '../comparison.ts'
-import type { ObjectRepresentation } from '../values/objects/object.ts'
 import { MapEntryAccessor } from '../accessors/map-entry.ts'
 import type { SymbolRepresentation } from '../values/primitives/symbol.ts'
 import * as testModuleNamespace from '../values/objects/test/fixtures/module-fixture.ts'
@@ -208,7 +207,6 @@ test('accessor methods correctly return object properties', (t) => {
 type IterationMethod =
   | 'iterateElements'
   | 'iterateMapEntries'
-  | 'iterateNamedProperties'
   | 'iterateValues'
   | 'symbolProperties'
   | 'namedProperties'
@@ -259,15 +257,7 @@ const iteration = test.macro<[IterationMethod, IterationOptions, IterationAssert
 
     // Get the representation
     const representation = context.next() ?? t.fail('Failed to get representation')
-    const getIterable = () => {
-      if (method === 'iterateNamedProperties') {
-        // For named properties, we need to get the group first
-        const group = context.namedProperties(representation)
-        return context.iterateNamedProperties(group)
-      }
-
-      return context[method](representation)
-    }
+    const getIterable = () => context[method](representation)
 
     if ('expectedThrows' in options) {
       t.throws(() => [...getIterable()], options.expectedThrows)
@@ -591,20 +581,6 @@ test(
   },
 )
 
-test('namedProperties returns cached NamedPropertyGroup instance on subsequent calls', (t) => {
-  const object = { a: 1, b: 2 }
-  const serialized = serialize(representValue(object))
-  const decoder = new Decoder(serialized.slice(1))
-  const context = new DeserializationContext(decoder)
-
-  const representation = context.next() as ObjectRepresentation
-
-  const firstCallResult = context.namedProperties(representation)
-  const secondCallResult = context.namedProperties(representation)
-
-  t.is(firstCallResult, secondCallResult, 'Should return the same NamedPropertyGroup instance on subsequent calls')
-})
-
 test('iterates empty property case correctly', iteration, 'namedProperties', {
   encode(encoder) {
     // Create a serialized object with namedPropertyAspect but no actual properties
@@ -792,23 +768,6 @@ test('allows named property aspect to be repeated', iteration, 'namedProperties'
   expectedCount: 2,
 })
 
-test('iterateNamedProperties throws when given unknown group', (t) => {
-  // Create a context
-  const decoder = new Decoder(new Uint8Array([]))
-  const context = new DeserializationContext(decoder)
-
-  // Should throw an assertion error when given a group the context doesn't recognize
-  t.throws(
-    () => {
-      context.iterateNamedProperties({} as unknown as NamedPropertyGroup).next()
-    },
-    {
-      name: 'AssertionError',
-      message: /Unknown named property group/,
-    },
-  )
-})
-
 for (const aspect of ['symbolPropertyAspect', 'elementAspect', 'iteratorValueAspect', 'mapEntryAspect'] satisfies Array<
   keyof typeof staticTypeTable
 >) {
@@ -910,23 +869,6 @@ test('throws when property name is not a string', iteration, 'namedProperties', 
     },
   )
 }
-
-test(
-  'returns cached SymbolPropertyGroup instance on subsequent calls',
-  iteration,
-  'symbolProperties',
-  {
-    value: { [Symbol('sym1')]: 'value' },
-    expectedCount: 1,
-  },
-  (t, _, context, representation) => {
-    // Get the group directly
-    const firstCallResult = context.symbolProperties(representation)
-    const secondCallResult = context.symbolProperties(representation)
-
-    t.is(firstCallResult, secondCallResult, 'Should return the same SymbolPropertyGroup instance on subsequent calls')
-  },
-)
 
 test('handles empty property case correctly', iteration, 'symbolProperties', {
   encode(encoder) {
@@ -1101,69 +1043,6 @@ test('handles well-known symbols correctly', iteration, 'symbolProperties', {
   },
   expectedCount: 2,
 })
-
-test(
-  'handles symbol properties with complex values requiring fullyDeserialize',
-  iteration,
-  'symbolProperties',
-  {
-    encode(encoder) {
-      encoder
-        .staticType(staticTypeTable.object)
-        .annotations({ p: 1 })
-        // Add symbol property aspect
-        .staticType(staticTypeTable.symbolPropertyAspect)
-        // First symbol property with array value (complex enough to test fullyDeserialize)
-        .staticType(staticTypeTable.symbol)
-        .annotations({ s: 'Symbol(objectValue)' })
-        // Array as the complex value
-        .staticType(staticTypeTable.object)
-        .annotations({ p: 2 })
-        .staticType(staticTypeTable.symbolPropertyAspect)
-        // Nested symbol property
-        .staticType(staticTypeTable.symbol)
-        .annotations({ s: 'Symbol(nested)' })
-        // Add the value (string 'nested')
-        .staticType(staticTypeTable.string)
-        .string('nested')
-        .staticType(staticTypeTable.terminator)
-        // Second symbol property with simple string value
-        .staticType(staticTypeTable.symbol)
-        .annotations({ s: 'Symbol(simple)' })
-        .staticType(staticTypeTable.string)
-        .string('simpleStringValue')
-        // End symbol properties
-        .staticType(staticTypeTable.terminator)
-    },
-    expectedCount: 2,
-  },
-  (t, properties) => {
-    // Should have exactly two symbol properties
-    t.is(properties.length, 2, 'Should have two symbol properties')
-
-    // First property with complex array value
-    const firstProperty = properties[0]!
-    t.assert(firstProperty instanceof SymbolPropertyAccessor, 'First property should be a SymbolPropertyAccessor')
-
-    // The complex value should be fully deserialized (this tests fullyDeserialize() call)
-    const firstValues = [...firstProperty]
-    t.is(firstValues.length, 1, 'First property should yield one value')
-
-    const complexValue = firstValues[0]!
-    t.true(complexValue.deserialized, 'Complex value should be deserialized')
-
-    // Second property with simple string value
-    const secondProperty = properties[1]!
-    t.assert(secondProperty instanceof SymbolPropertyAccessor, 'Second property should be a SymbolPropertyAccessor')
-
-    const secondValues = [...secondProperty]
-    t.is(secondValues.length, 1, 'Second property should yield one value')
-
-    const simpleValue = secondValues[0]! as StringRepresentation
-    const expectedValue = new StringRepresentation('simpleStringValue')
-    t.is(simpleValue.compare(expectedValue), strictlyEqual, 'Second property value should match expected string value')
-  },
-)
 
 for (const aspect of ['namedPropertyAspect', 'elementAspect', 'iteratorValueAspect', 'mapEntryAspect'] satisfies Array<
   keyof typeof staticTypeTable

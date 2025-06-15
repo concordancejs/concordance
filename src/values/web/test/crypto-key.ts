@@ -7,7 +7,7 @@ import { CryptoKeyRepresentation } from '../crypto-key.ts'
 import { possiblyEqual, strictlyEqual, unequal } from '../../../comparison.ts'
 import { staticTypeTable } from '../../../serialization-types.ts'
 import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
-import { NamedPropertyAccessor, NamedPropertyGroup } from '../../../accessors/property.ts'
+import { NamedPropertyAccessor } from '../../../accessors/property.ts'
 import { Formatter } from '../../../formatter.ts'
 import { deriveTheme } from '../../../theme.ts'
 
@@ -88,14 +88,7 @@ test('iterateProperties yields type, extractable, algorithm, and usages properti
   const cryptoKey = await generateCryptoKey()
   const cryptoKeyRep = context.represent(cryptoKey) as CryptoKeyRepresentation
 
-  const propertyGroups = [...cryptoKeyRep.iterateProperties()]
-
-  t.is(propertyGroups.length, 1)
-  const [namedGroup] = propertyGroups
-  t.true(namedGroup instanceof NamedPropertyGroup)
-
-  // Check if the group contains the expected properties
-  const properties = [...namedGroup!]
+  const properties = [...cryptoKeyRep.iterateProperties()]
   t.is(properties.length, 4)
 
   // Create property accessors for expected properties

@@ -8,7 +8,6 @@ import type {
 } from '../../value.d.ts'
 import type { ElementAccessor } from '../../accessors/element.ts'
 import type { IteratorValueAccessor } from '../../accessors/iterator-value.ts'
-import type { PropertyGroup } from '../../accessors/property.ts'
 import type { MapEntryAccessor } from '../../accessors/map-entry.ts'
 import { type Comparison, comparable, strictlyEqual, unequal } from '../../comparison.ts'
 import type { Context } from '../../context.d.ts'
@@ -120,7 +119,7 @@ export class ObjectRepresentation implements CommonRepresentation, DeepFunctiona
     return comparable
   }
 
-  *[Symbol.iterator](): IterableIterator<ValueRepresentation | PropertyGroup> {
+  *[Symbol.iterator](): IterableIterator<ValueRepresentation> {
     yield* this.iterateArrayLike()
     yield* this.iterateProperties()
     yield* this.iterateIterable()
@@ -134,11 +133,9 @@ export class ObjectRepresentation implements CommonRepresentation, DeepFunctiona
     yield* this.#context.iterateElements(this.#value)
   }
 
-  *iterateProperties(...include: string[]): IterableIterator<PropertyGroup> {
-    const namedProperties = this.#context.namedProperties(this.#value, ...include)
-    if (!namedProperties.empty) yield namedProperties
-    const symbolProperties = this.#context.symbolProperties(this.#value)
-    if (!symbolProperties.empty) yield symbolProperties
+  *iterateProperties(...include: string[]): IterableIterator<ValueRepresentation> {
+    yield* this.#context.namedProperties(this.#value, ...include)
+    yield* this.#context.symbolProperties(this.#value)
   }
 
   *iterateIterable(): IterableIterator<IteratorValueAccessor | MapEntryAccessor> {

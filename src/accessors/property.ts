@@ -1,26 +1,25 @@
-import {
-  type Comparison,
-  comparableAfterAlignment,
-  comparable,
-  strictlyEqual,
-  unequal,
-  possiblyEqual,
-} from '../comparison.ts'
-import { DeserializationContext } from '../deserialization-context.ts'
+import { type Comparison, comparable, strictlyEqual, unequal, possiblyEqual } from '../comparison.ts'
 import type { Encoder } from '../encoder.ts'
 import { type SerializationResult, partial } from '../serialization-result.ts'
 import type {
+  AccessorFunctionality,
   AccessorRepresentation,
   CommonRepresentation,
   DeepFunctionality,
+  GroupFunctionality,
+  GroupRepresentation,
   Opaque,
   ValueRepresentation,
 } from '../value.d.ts'
-import type { Context } from '../context.d.ts'
 import type { SymbolRepresentation } from '../values/primitives/symbol.ts'
 import type { Formatter } from '../formatter.ts'
+import type { TakeWhile } from '../stack.ts'
 
 export class NamedPropertyAccessor implements CommonRepresentation, DeepFunctionality {
+  static is(value: ValueRepresentation): value is NamedPropertyAccessor {
+    return #key in value
+  }
+
   readonly #key: string
   readonly #value: ValueRepresentation
 
@@ -73,7 +72,11 @@ void (NamedPropertyAccessor satisfies new (
   ...arguments_: ConstructorParameters<typeof NamedPropertyAccessor>
 ) => AccessorRepresentation)
 
-export class SymbolPropertyAccessor implements CommonRepresentation, DeepFunctionality {
+export class SymbolPropertyAccessor implements CommonRepresentation, DeepFunctionality, AccessorFunctionality {
+  static is(value: ValueRepresentation): value is SymbolPropertyAccessor {
+    return #key in value
+  }
+
   static orderByIntersection(
     lhs: SymbolPropertyAccessor[],
     rhs: SymbolPropertyAccessor[],
@@ -123,6 +126,15 @@ export class SymbolPropertyAccessor implements CommonRepresentation, DeepFunctio
     yield this.#value
   }
 
+  groupForComparison(takeWhile: TakeWhile, parent: ValueRepresentation): SymbolPropertyGroup | undefined {
+    if (SymbolPropertyGroup.is(parent)) {
+      return
+    }
+
+    const properties = [this, ...takeWhile((value) => SymbolPropertyAccessor.is(value))]
+    return new SymbolPropertyGroup(properties)
+  }
+
   compare(other: ValueRepresentation): Comparison {
     if (!(#value in other)) return unequal
     const comparison = this.#key.compare(other.#key)
@@ -152,40 +164,36 @@ void (SymbolPropertyAccessor satisfies new (
   ...arguments_: ConstructorParameters<typeof SymbolPropertyAccessor>
 ) => AccessorRepresentation)
 
-export type PropertyGroup = NamedPropertyGroup | SymbolPropertyGroup
-
-export class NamedPropertyGroup implements CommonRepresentation {
+export class NamedPropertyGroup implements CommonRepresentation, GroupFunctionality {
   static is(value: Opaque): value is NamedPropertyGroup {
     return #properties in value
   }
 
-  readonly #context: Context
   readonly #properties: NamedPropertyAccessor[]
 
-  constructor(context: Context, properties: NamedPropertyAccessor[]) {
-    this.#context = context
+  constructor(properties: NamedPropertyAccessor[]) {
     this.#properties = properties
   }
 
   get deserialized() {
-    return this.#context.deserialized
-  }
-
-  get empty() {
-    return this.#properties.length === 0
+    return this.#properties[0]?.deserialized === true
   }
 
   *[Symbol.iterator]() {
-    yield* DeserializationContext.is(this.#context) ? this.#context.iterateNamedProperties(this) : this.#properties
+    yield* this.#properties
   }
 
-  compare(other: ValueRepresentation | PropertyGroup): Comparison {
+  compare(other: ValueRepresentation): Comparison {
     return #properties in other ? comparable : unequal
   }
 }
 
-export class SymbolPropertyGroup implements CommonRepresentation {
-  static is(value: Opaque): value is NamedPropertyGroup {
+void (NamedPropertyGroup satisfies new (
+  ...arguments_: ConstructorParameters<typeof NamedPropertyGroup>
+) => GroupRepresentation)
+
+export class SymbolPropertyGroup implements CommonRepresentation, GroupFunctionality {
+  static is(value: Opaque): value is SymbolPropertyGroup {
     return #properties in value
   }
 
@@ -199,21 +207,21 @@ export class SymbolPropertyGroup implements CommonRepresentation {
     return this.#properties[0]?.deserialized === true
   }
 
-  get empty() {
-    return this.#properties.length === 0
-  }
-
   align(other: SymbolPropertyGroup) {
     const [aligned, otherAligned] = SymbolPropertyAccessor.orderByIntersection(this.#properties, other.#properties)
     this.#properties = aligned
     other.#properties = otherAligned
   }
 
-  compare(other: ValueRepresentation | PropertyGroup): Comparison {
-    return #properties in other ? comparableAfterAlignment : unequal
+  compare(other: ValueRepresentation): Comparison {
+    return #properties in other ? comparable : unequal
   }
 
   *[Symbol.iterator]() {
     yield* this.#properties
   }
 }
+
+void (SymbolPropertyGroup satisfies new (
+  ...arguments_: ConstructorParameters<typeof SymbolPropertyGroup>
+) => GroupRepresentation)

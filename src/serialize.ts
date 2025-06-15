@@ -3,7 +3,7 @@ import type { ValueRepresentation } from './value.d.ts'
 import { Stack } from './stack.ts'
 import { Encoder } from './encoder.ts'
 import { ElementAccessor } from './accessors/element.ts'
-import { NamedPropertyGroup, SymbolPropertyGroup } from './accessors/property.ts'
+import { NamedPropertyAccessor, SymbolPropertyAccessor } from './accessors/property.ts'
 import { IteratorValueAccessor } from './accessors/iterator-value.ts'
 import { MapEntryAccessor } from './accessors/map-entry.ts'
 import { finished, partial, partialRequiringTerminator } from './serialization-result.ts'
@@ -29,12 +29,12 @@ export function serialize(value: ValueRepresentation): Uint8Array {
           encoder.staticType(staticTypeTable.elementAspect)
           top.lastAspect = staticTypeTable.elementAspect
         }
-      } else if (NamedPropertyGroup.is(value)) {
+      } else if (NamedPropertyAccessor.is(value)) {
         if (top.lastAspect !== staticTypeTable.namedPropertyAspect) {
           encoder.staticType(staticTypeTable.namedPropertyAspect)
           top.lastAspect = staticTypeTable.namedPropertyAspect
         }
-      } else if (SymbolPropertyGroup.is(value)) {
+      } else if (SymbolPropertyAccessor.is(value)) {
         if (top.lastAspect !== staticTypeTable.symbolPropertyAspect) {
           encoder.staticType(staticTypeTable.symbolPropertyAspect)
           top.lastAspect = staticTypeTable.symbolPropertyAspect

@@ -4,19 +4,17 @@ import { NamedPropertyAccessor, SymbolPropertyAccessor, NamedPropertyGroup, Symb
 import { StringRepresentation } from '../../values/primitives/string.ts'
 import { NumberRepresentation } from '../../values/primitives/number.ts'
 import type { SymbolRepresentation } from '../../values/primitives/symbol.ts'
-import { strictlyEqual, unequal, comparable, comparableAfterAlignment, type Comparison } from '../../comparison.ts'
+import { strictlyEqual, unequal, comparable, type Comparison } from '../../comparison.ts'
 import { finished, partial } from '../../serialization-result.ts'
 import { RealValueContext } from '../../real-value-context.ts'
 import { Encoder } from '../../encoder.ts'
-import { Decoder } from '../../decoder.ts'
 import { deriveTheme } from '../../theme.ts'
 import { Formatter } from '../../formatter.ts'
-import { DeserializationContext } from '../../deserialization-context.ts'
-import { staticTypeTable } from '../../serialization-types.ts'
 import { representValue } from '../../represent.ts'
 import { serialize } from '../../serialize.ts'
 import { deserialize } from '../../deserialize.ts'
 import type { ValueRepresentation } from '../../value.d.ts'
+import type { TakeWhile } from '../../stack.ts'
 
 // NamedPropertyAccessor Tests
 test('NamedPropertyAccessor - constructor correctly sets key and value, which iterator yields', (t) => {
@@ -172,6 +170,22 @@ test('NamedPropertyAccessor - deserialized property delegates to value represent
   t.true(propWithDeserialized.deserialized)
 })
 
+test('NamedPropertyAccessor.is correctly identifies instances', (t) => {
+  const key = 'testKey'
+  const value = new StringRepresentation('value')
+  const namedProperty = new NamedPropertyAccessor(key, value)
+
+  t.true(NamedPropertyAccessor.is(namedProperty))
+  t.false(NamedPropertyAccessor.is(value))
+
+  // Test with SymbolPropertyAccessor (should return false)
+  const context = new RealValueContext()
+  const symbol = Symbol('test')
+  const symbolKey = context.represent(symbol) as SymbolRepresentation
+  const symbolProperty = new SymbolPropertyAccessor(symbolKey, value)
+  t.false(NamedPropertyAccessor.is(symbolProperty))
+})
+
 // SymbolPropertyAccessor Tests
 test('SymbolPropertyAccessor - constructor correctly sets key and value, which iterator yields', (t) => {
   const context = new RealValueContext()
@@ -312,6 +326,104 @@ test('SymbolPropertyAccessor - deserialized property delegates to value', (t) =>
   t.true(propWithDeserialized.deserialized)
 })
 
+test('SymbolPropertyAccessor.is correctly identifies instances', (t) => {
+  const context = new RealValueContext()
+  const symbol = Symbol('test')
+  const symbolKey = context.represent(symbol) as SymbolRepresentation
+  const value = new StringRepresentation('value')
+  const symbolProperty = new SymbolPropertyAccessor(symbolKey, value)
+
+  t.true(SymbolPropertyAccessor.is(symbolProperty))
+  t.false(SymbolPropertyAccessor.is(value))
+
+  // Test with NamedPropertyAccessor (should return false)
+  const namedProperty = new NamedPropertyAccessor('key', value)
+  t.false(SymbolPropertyAccessor.is(namedProperty))
+})
+
+test('SymbolPropertyAccessor - groupForComparison creates group with consecutive symbol properties', (t) => {
+  const context = new RealValueContext()
+
+  // Create symbols and their representations
+  const symbol1 = Symbol('symbol1')
+  const symbol2 = Symbol('symbol2')
+  const symbol3 = Symbol('symbol3')
+  const key1 = context.represent(symbol1) as SymbolRepresentation
+  const key2 = context.represent(symbol2) as SymbolRepresentation
+  const key3 = context.represent(symbol3) as SymbolRepresentation
+
+  const value = new StringRepresentation('value')
+  const prop1 = new SymbolPropertyAccessor(key1, value)
+  const prop2 = new SymbolPropertyAccessor(key2, value)
+  const prop3 = new SymbolPropertyAccessor(key3, value)
+  const nonSymbolProp = new NamedPropertyAccessor('regular', value)
+
+  // Mock takeWhile function that returns consecutive SymbolPropertyAccessors
+  const takeWhile: TakeWhile = function* (condition) {
+    for (const value of [prop2, prop3, nonSymbolProp]) {
+      if (!condition(value)) return
+
+      yield value
+    }
+  }
+
+  // Test groupForComparison
+  const parent = new StringRepresentation('parent')
+  const group = prop1.groupForComparison(takeWhile, parent)
+
+  if (t.truthy(group)) {
+    t.true(SymbolPropertyGroup.is(group))
+
+    // Verify the group contains the original property plus the ones from takeWhile
+    const groupedProperties = [...group]
+    t.is(groupedProperties.length, 3)
+    t.is(groupedProperties[0], prop1)
+    t.is(groupedProperties[1], prop2)
+    t.is(groupedProperties[2], prop3)
+  }
+})
+
+test('SymbolPropertyAccessor - groupForComparison returns undefined when parent is already a SymbolPropertyGroup', (t) => {
+  const context = new RealValueContext()
+  const symbol = Symbol('symbol')
+  const key = context.represent(symbol) as SymbolRepresentation
+  const value = new StringRepresentation('value')
+  const prop = new SymbolPropertyAccessor(key, value)
+
+  // Create a SymbolPropertyGroup as parent
+  const parent = new SymbolPropertyGroup([])
+  const takeWhile: TakeWhile = function* () {
+    // No-op
+  }
+
+  const result = prop.groupForComparison(takeWhile, parent)
+  t.is(result, undefined)
+})
+
+test('SymbolPropertyAccessor - groupForComparison works with empty takeWhile result', (t) => {
+  const context = new RealValueContext()
+  const symbol = Symbol('symbol')
+  const key = context.represent(symbol) as SymbolRepresentation
+  const value = new StringRepresentation('value')
+  const prop = new SymbolPropertyAccessor(key, value)
+
+  const parent = new StringRepresentation('parent')
+  // Mock takeWhile that returns no additional properties
+  const takeWhile: TakeWhile = function* () {
+    // No-op
+  }
+
+  const group = prop.groupForComparison(takeWhile, parent)
+  if (t.truthy(group)) {
+    t.true(SymbolPropertyGroup.is(group))
+
+    // Should contain just the original property
+    const groupedProperties = [...group]
+    t.is(groupedProperties.length, 1)
+    t.is(groupedProperties[0], prop)
+  }
+})
+
 // For the SymbolPropertyAccessor.orderByIntersection test
 test('SymbolPropertyAccessor.orderByIntersection orders properties by intersection', (t) => {
   const context = new RealValueContext()
@@ -366,11 +478,10 @@ test('SymbolPropertyAccessor.orderByIntersection orders properties by intersecti
 
 // NamedPropertyGroup Tests
 test('NamedPropertyGroup - constructor sets properties which iterator yields', (t) => {
-  const context = new RealValueContext()
   const prop1 = new NamedPropertyAccessor('prop1', new StringRepresentation('value1'))
   const prop2 = new NamedPropertyAccessor('prop2', new StringRepresentation('value2'))
 
-  const group = new NamedPropertyGroup(context, [prop1, prop2])
+  const group = new NamedPropertyGroup([prop1, prop2])
 
   const properties = [...group]
   t.is(properties.length, 2)
@@ -379,96 +490,41 @@ test('NamedPropertyGroup - constructor sets properties which iterator yields', (
 })
 
 test('NamedPropertyGroup.is correctly identifies instances', (t) => {
-  const context = new RealValueContext()
-  const group = new NamedPropertyGroup(context, [])
+  const group = new NamedPropertyGroup([])
 
   t.true(NamedPropertyGroup.is(group))
   t.false(NamedPropertyGroup.is({}))
 })
 
-test('NamedPropertyGroup - empty property returns true for empty groups', (t) => {
-  const context = new RealValueContext()
-  const emptyGroup = new NamedPropertyGroup(context, [])
-  const nonEmptyGroup = new NamedPropertyGroup(context, [
-    new NamedPropertyAccessor('prop', new StringRepresentation('value')),
-  ])
-
-  t.true(emptyGroup.empty)
-  t.false(nonEmptyGroup.empty)
-})
-
 test('NamedPropertyGroup - compare returns comparable for another NamedPropertyGroup', (t) => {
-  const context = new RealValueContext()
-  const group1 = new NamedPropertyGroup(context, [])
-  const group2 = new NamedPropertyGroup(context, [])
+  const group1 = new NamedPropertyGroup([])
+  const group2 = new NamedPropertyGroup([])
 
   t.is(group1.compare(group2), comparable)
 })
 
 test('NamedPropertyGroup - compare returns unequal for non-NamedPropertyGroup', (t) => {
-  const context = new RealValueContext()
-  const group = new NamedPropertyGroup(context, [])
+  const group = new NamedPropertyGroup([])
 
   t.is(group.compare(new StringRepresentation('')), unequal)
 })
 
-test('NamedPropertyGroup - iterator loads properties from DeserializationContext when deserialized', (t) => {
-  // Create properties to test with
-  const prop1 = new NamedPropertyAccessor('prop1', new StringRepresentation('value1'))
-  const prop2 = new NamedPropertyAccessor('prop2', new NumberRepresentation(42))
+test('NamedPropertyGroup - deserialized property returns false for empty group and checks first property when present', (t) => {
+  const arrayValue = representValue([])
+  const deserializedArrayValue = deserialize(serialize(arrayValue))
 
-  // Create a serialized representation of these properties
-  const encoder = new Encoder()
+  // Empty group returns false (no properties to check)
+  const emptyGroup = new NamedPropertyGroup([])
+  t.false(emptyGroup.deserialized)
 
-  // Encode the named property aspect type
-  encoder.staticType(staticTypeTable.namedPropertyAspect)
-
-  // Serialize the properties
-  prop1.serialize(encoder)
-  prop2.serialize(encoder)
-
-  // Add a terminator to end the properties
-  encoder.staticType(staticTypeTable.terminator)
-
-  // Create a deserialization context with our serialized data
-  const decoder = new Decoder(encoder.bytes)
-  const deserializationContext = new DeserializationContext(decoder)
-
-  // Create a NamedPropertyGroup with the deserialization context
-  // Use an empty array for properties - it should get them from the context
-  const group = deserializationContext.namedProperties([])
-
-  // Iterate over the group to load properties from the deserialization context
-  const properties = [...group]
-
-  // Verify we got the expected properties
-  t.is(properties.length, 2, 'Should load two properties from context')
-
-  // Find and verify prop1
-  const foundProp1 = properties.find(
-    (prop) =>
-      prop instanceof NamedPropertyAccessor &&
-      prop.compare(new NamedPropertyAccessor('prop1', new StringRepresentation('value1'))) === strictlyEqual,
-  )
-  t.truthy(foundProp1, 'Should find property with key "prop1" and value "value1"')
-
-  // Find and verify prop2
-  const foundProp2 = properties.find(
-    (prop) =>
-      prop instanceof NamedPropertyAccessor &&
-      prop.compare(new NamedPropertyAccessor('prop2', new NumberRepresentation(42))) === strictlyEqual,
-  )
-  t.truthy(foundProp2, 'Should find property with key "prop2" and value 42')
-})
-
-test('NamedPropertyGroup - deserialized property delegates to context', (t) => {
-  const realContext = new RealValueContext()
-  const deserializationContext = new DeserializationContext(new Decoder(new Uint8Array()))
-
-  const realGroup = new NamedPropertyGroup(realContext, [])
-  const deserializedGroup = new NamedPropertyGroup(deserializationContext, [])
-
+  // Group with real context property (first property not deserialized)
+  const realProperty = new NamedPropertyAccessor('key', arrayValue)
+  const realGroup = new NamedPropertyGroup([realProperty])
   t.false(realGroup.deserialized)
+
+  // Group with deserialized property (first property is deserialized)
+  const deserializedProperty = new NamedPropertyAccessor('key', deserializedArrayValue)
+  const deserializedGroup = new NamedPropertyGroup([deserializedProperty])
   t.true(deserializedGroup.deserialized)
 })
 
@@ -498,21 +554,6 @@ test('SymbolPropertyGroup.is correctly identifies instances', (t) => {
 
   t.true(SymbolPropertyGroup.is(group))
   t.false(SymbolPropertyGroup.is({}))
-})
-
-test('SymbolPropertyGroup - empty property returns true for empty groups', (t) => {
-  const emptyGroup = new SymbolPropertyGroup([])
-
-  const context = new RealValueContext()
-  const symbol = Symbol('test')
-  // Get symbol representation through context
-  const key = context.represent(symbol) as SymbolRepresentation
-  const prop = new SymbolPropertyAccessor(key, new StringRepresentation('value'))
-
-  const nonEmptyGroup = new SymbolPropertyGroup([prop])
-
-  t.true(emptyGroup.empty)
-  t.false(nonEmptyGroup.empty)
 })
 
 test('SymbolPropertyGroup - align reorders properties based on intersection', (t) => {
@@ -580,11 +621,11 @@ test('SymbolPropertyGroup - align reorders properties based on intersection', (t
   t.is(afterGroup2[3], propF, 'Non-intersecting property F should maintain its relative position')
 })
 
-test('SymbolPropertyGroup - compare returns comparableAfterAlignment for another SymbolPropertyGroup', (t) => {
+test('SymbolPropertyGroup - compare returns comparable for another SymbolPropertyGroup', (t) => {
   const group1 = new SymbolPropertyGroup([])
   const group2 = new SymbolPropertyGroup([])
 
-  t.is(group1.compare(group2), comparableAfterAlignment)
+  t.is(group1.compare(group2), comparable)
 })
 
 test('SymbolPropertyGroup - compare returns unequal for non-SymbolPropertyGroup', (t) => {

@@ -21,12 +21,7 @@ import { RegExpRepresentation } from './values/objects/regexp.ts'
 import { SetRepresentation } from './values/objects/set.ts'
 import { WeakMapRepresentation } from './values/objects/weak-map.ts'
 import { WeakSetRepresentation } from './values/objects/weak-set.ts'
-import {
-  NamedPropertyGroup,
-  NamedPropertyAccessor,
-  SymbolPropertyGroup,
-  SymbolPropertyAccessor,
-} from './accessors/property.ts'
+import { NamedPropertyAccessor, SymbolPropertyAccessor } from './accessors/property.ts'
 import { ElementAccessor } from './accessors/element.ts'
 import { BytesAccessor } from './accessors/bytes.ts'
 import { IteratorValueAccessor } from './accessors/iterator-value.ts'
@@ -176,7 +171,7 @@ export class RealValueContext implements Context {
       }
     }
 
-    return new NamedPropertyGroup(this, properties)
+    return properties
   }
 
   notifyNextExplicitlyNamedPropertyAccess(value: Opaque, name: string, callback: PropertyAccessCallback) {
@@ -200,21 +195,18 @@ export class RealValueContext implements Context {
   }
 
   symbolProperties(value: Opaque) {
-    // Comparators should verify symbols in an order-insensitive manner if
-    // possible.
-    const symbolCandidates = Object.getOwnPropertySymbols(value).filter((symbol) => {
-      return Object.getOwnPropertyDescriptor(value, symbol)?.enumerable ?? false
-    })
-
-    return new SymbolPropertyGroup(
-      symbolCandidates.map(
+    // N.B. Comparators should verify symbols in an order-insensitive manner if possible.
+    return Object.getOwnPropertySymbols(value)
+      .filter((symbol) => {
+        return Object.getOwnPropertyDescriptor(value, symbol)?.enumerable ?? false
+      })
+      .map(
         (symbol) =>
           new SymbolPropertyAccessor(
             this.represent(symbol) as SymbolRepresentation,
             this.represent((value as Record<symbol, unknown>)[symbol]),
           ),
-      ),
-    )
+      )
   }
 
   *iterateElements(value: Opaque) {

@@ -48,7 +48,7 @@ export class FunctionRepresentation extends ObjectRepresentation implements Deep
     this.#context.notifyNextExplicitlyNamedPropertyAccess(this.#value, 'name', (property, value) => {
       if (StringRepresentation.is(value)) {
         this.#iteratedName = {
-          property: property as NamedPropertyAccessor,
+          property,
           value,
         }
       }

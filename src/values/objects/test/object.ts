@@ -1,12 +1,10 @@
 import test from 'ava'
-import never from 'never'
 import { RealValueContext } from '../../../real-value-context.ts'
 import { Encoder } from '../../../encoder.ts'
 import { Decoder } from '../../../decoder.ts'
 import { DeserializationContext } from '../../../deserialization-context.ts'
 import { ObjectRepresentation, type ObjectAnnotations } from '../object.ts'
 import { strictlyEqual, comparable, unequal } from '../../../comparison.ts'
-import { NamedPropertyGroup, SymbolPropertyGroup } from '../../../accessors/property.ts'
 import { NullRepresentation } from '../../primitives/null.ts'
 import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
 import { staticTypeTable } from '../../../serialization-types.ts'
@@ -14,6 +12,7 @@ import { BytesAccessor } from '../../../accessors/bytes.ts'
 import { Formatter } from '../../../formatter.ts'
 import { deriveTheme } from '../../../theme.ts'
 import type { Opaque } from '../../../value.d.ts'
+import { NamedPropertyAccessor, SymbolPropertyAccessor } from '../../../accessors/property.ts'
 
 // Static method tests
 test('static is method correctly identifies ObjectRepresentation instances', (t) => {
@@ -180,7 +179,7 @@ test('iterateArrayLike yields no elements for non-array-like objects', (t) => {
 })
 
 // Property iteration tests
-test('iterateProperties yields property groups', (t) => {
+test('iterateProperties yields properties', (t) => {
   const object = {
     foo: 'bar',
     [Symbol('')]: 'thud',
@@ -189,14 +188,11 @@ test('iterateProperties yields property groups', (t) => {
   const context = new RealValueContext()
   const representation = context.represent(object) as ObjectRepresentation
 
-  const propertyGroups = [...representation.iterateProperties()]
+  const properties = [...representation.iterateProperties()]
 
-  t.is(propertyGroups.length, 2)
-  const [named = never(), symbols = never()] = propertyGroups
-  t.true(named instanceof NamedPropertyGroup)
-  t.true(symbols instanceof SymbolPropertyGroup)
-  t.is([...named].length, 1)
-  t.is([...symbols].length, 1)
+  t.is(properties.length, 2)
+  t.true(NamedPropertyAccessor.is(properties[0]!))
+  t.true(SymbolPropertyAccessor.is(properties[1]!))
 })
 
 test('iterateProperties ignores non-enumerable properties', (t) => {
@@ -212,12 +208,8 @@ test('iterateProperties ignores non-enumerable properties', (t) => {
   const context = new RealValueContext()
   const representation = context.represent(object) as ObjectRepresentation
 
-  // Include specific property
-  const propertyGroups = [...representation.iterateProperties()]
-
-  t.is(propertyGroups.length, 1)
-  const [named = never()] = propertyGroups
-  t.is([...named].length, 2)
+  const properties = [...representation.iterateProperties()]
+  t.is(properties.length, 2)
 })
 
 test('iterateProperties accepts specific property names to include', (t) => {
@@ -234,11 +226,8 @@ test('iterateProperties accepts specific property names to include', (t) => {
   const representation = context.represent(object) as ObjectRepresentation
 
   // Include specific property
-  const propertyGroups = [...representation.iterateProperties('foo')]
-
-  t.is(propertyGroups.length, 1)
-  const [named = never()] = propertyGroups
-  t.is([...named].length, 3)
+  const properties = [...representation.iterateProperties('foo')]
+  t.is(properties.length, 3)
 })
 
 // Iterable tests
@@ -307,8 +296,8 @@ test('Symbol.iterator yields array-like elements and property groups for array-l
 
   const allItems = [...rep]
 
-  // Should include array-like elements and property groups
-  t.is(allItems.length, 4) // At least array elements (2) + property group(s)
+  // Should include array-like elements and properties groups
+  t.is(allItems.length, 5) // At least array elements (2) + named properties (2) + symbol properties (1)
 })
 
 test('Symbol.iterator yields iterator values and property groups for iterable non-array-like objects', (t) => {
@@ -328,7 +317,7 @@ test('Symbol.iterator yields iterator values and property groups for iterable no
   const allItems = [...rep]
 
   // Should include iterator values and property groups
-  t.is(allItems.length, 5) // At least iterator values (3) + property groups
+  t.is(allItems.length, 6) // Three iterator values, one named property group, 2 symbol properties
 })
 
 // Serialization tests

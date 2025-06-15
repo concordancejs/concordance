@@ -1,7 +1,7 @@
 import type { BytesAccessor } from './accessors/bytes.ts'
 import type { IteratorValueAccessor } from './accessors/iterator-value.ts'
 import type { MapEntryAccessor } from './accessors/map-entry.ts'
-import type { NamedPropertyGroup, SymbolPropertyGroup } from './accessors/property.ts'
+import type { NamedPropertyAccessor, SymbolPropertyAccessor } from './accessors/property.ts'
 import type { Flags } from './flags.ts'
 import type { Opaque, ValueRepresentation } from './value.d.ts'
 
@@ -23,14 +23,14 @@ export type Context = {
   iterateMapEntries(value: Opaque): Iterable<MapEntryAccessor>
   iterateValues(value: Opaque): Iterable<IteratorValueAccessor>
   length(value: Opaque): number
-  namedProperties(value: Opaque, ...include: string[]): NamedPropertyGroup
+  namedProperties(value: Opaque, ...include: string[]): Iterable<NamedPropertyAccessor>
   notifyNextExplicitlyNamedPropertyAccess(value: Opaque, name: string, callback: PropertyAccessCallback): void
   pointer(representation: ValueRepresentation, value: Opaque): number | undefined
   representBytes(value: Opaque): BytesAccessor
   resetPropertyAccessNotifiers(value: Opaque): void
   size(value: Opaque): number
   stringTag(value: Opaque): string | undefined
-  symbolProperties(value: Opaque): SymbolPropertyGroup
+  symbolProperties(value: Opaque): Iterable<SymbolPropertyAccessor>
   valueOf(value: Opaque): unknown
 }
 
