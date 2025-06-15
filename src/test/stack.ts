@@ -20,7 +20,6 @@ test('push adds an entry to the stack', (t) => {
   stack.push(representation)
   t.false(stack.empty)
   t.is(stack.top?.representation, representation)
-  t.truthy(stack.top?.iterator)
 })
 
 test('push with fields adds fields to the entry', (t) => {

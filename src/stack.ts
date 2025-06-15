@@ -1,15 +1,20 @@
 import assert from 'node:assert'
+import never from 'never'
 import type { ValueRepresentation } from './value.d.ts'
 
 type OptionalFields = Partial<Record<string, unknown>>
 
-export type StackEntry<Fields extends OptionalFields> = {
+export type StackEntry<Fields extends OptionalFields> = Fields & {
   readonly representation: ValueRepresentation
-  readonly iterator?: IterableIterator<ValueRepresentation>
-} & Fields
+}
 
-export class Stack<Fields extends OptionalFields = Record<string, unknown>> {
+type InternalEntryState = {
+  readonly iterator?: IterableIterator<ValueRepresentation>
+}
+
+export class Stack<Fields extends OptionalFields = OptionalFields> {
   readonly #entries: Array<StackEntry<Fields>> = []
+  readonly #internal = new WeakMap<StackEntry<Fields>, InternalEntryState>()
   readonly #values = new Map<ValueRepresentation, number>()
 
   get empty() {
@@ -25,17 +30,22 @@ export class Stack<Fields extends OptionalFields = Record<string, unknown>> {
 
     this.#values.set(representation, this.#values.size + 1)
 
-    this.#entries.push({
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    const entry = {
       representation,
-      iterator: representation[Symbol.iterator]?.(),
       ...fields,
-    } as StackEntry<Fields>)
+    } as StackEntry<Fields>
+    this.#entries.push(entry)
+    this.#internal.set(entry, {
+      iterator: representation[Symbol.iterator]?.(),
+    })
   }
 
   pop(): Readonly<StackEntry<Fields>> | undefined {
     const entry = this.#entries.pop()
 
     if (entry?.representation) {
+      this.#internal.delete(entry)
       this.#values.delete(entry.representation)
     }
 
@@ -51,7 +61,11 @@ export class Stack<Fields extends OptionalFields = Record<string, unknown>> {
   }
 
   iterateNext(): ValueRepresentation | undefined {
-    const next = this.top?.iterator?.next()
+    const { top } = this
+    if (!top) return
+
+    const internal = this.#internal.get(top) ?? never('Internal state not found for stack entry')
+    const next = internal.iterator?.next()
     if (!next || next.done) return
 
     return next?.value
