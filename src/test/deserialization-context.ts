@@ -1638,9 +1638,9 @@ test(
 // Promise test
 test(typeDeserializationMacro, 'promise', Promise.resolve(42), comparable)
 
-// WeakMap and WeakSet tests (possiblyEqual)
-test(typeDeserializationMacro, 'weak map', new WeakMap([[{}, 'value']]), possiblyEqual)
-test(typeDeserializationMacro, 'weak set', new WeakSet([{}]), possiblyEqual)
+// WeakMap and WeakSet tests (comparable)
+test(typeDeserializationMacro, 'weak map', new WeakMap([[{}, 'value']]), comparable)
+test(typeDeserializationMacro, 'weak set', new WeakSet([{}]), comparable)
 
 test(typeDeserializationMacro, 'module namespace object', testModuleNamespace, comparable)
 
@@ -1669,8 +1669,8 @@ test('DeserializationContext correctly deserializes crypto key', async (t) => {
 
   t.is(
     original.compare(deserialized!),
-    possiblyEqual,
-    'CryptoKey should have possiblyEqual representation after serialization/deserialization',
+    comparable,
+    'CryptoKey should have comparable representation after serialization/deserialization',
   )
 })
 

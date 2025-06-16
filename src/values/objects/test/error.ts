@@ -29,7 +29,7 @@ test('deserialize creates a comparable ErrorRepresentation', (t) => {
   t.is(original.compare(deserialized), comparable)
 })
 
-// Compare method tests - ErrorRepresentation inherits all comparison logic
+// Compare method tests
 test('compare returns strictlyEqual when comparing the same error instance', (t) => {
   const context = new RealValueContext()
   const error = new Error('Test error')

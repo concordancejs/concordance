@@ -73,10 +73,10 @@ test('compare returns unequal when comparing arrays with different lengths', (t)
   t.is(arrayRep1.compare(arrayRep2), unequal)
 })
 
-test('compare returns comparable when comparing different array instances with same content', (t) => {
+test('compare returns comparable when comparing different array instances with same length', (t) => {
   const context = new RealValueContext()
   const array1 = [1, 2, 3]
-  const array2 = [1, 2, 3]
+  const array2 = [4, 5, 6]
 
   const arrayRep1 = context.represent(array1) as ArrayRepresentation
   const arrayRep2 = context.represent(array2) as ArrayRepresentation

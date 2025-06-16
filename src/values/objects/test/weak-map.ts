@@ -4,7 +4,7 @@ import { Encoder } from '../../../encoder.ts'
 import { Decoder } from '../../../decoder.ts'
 import { DeserializationContext } from '../../../deserialization-context.ts'
 import { WeakMapRepresentation } from '../weak-map.ts'
-import { possiblyEqual, strictlyEqual, unequal } from '../../../comparison.ts'
+import { comparable, strictlyEqual, unequal } from '../../../comparison.ts'
 import { staticTypeTable } from '../../../serialization-types.ts'
 import { Formatter } from '../../../formatter.ts'
 import { deriveTheme } from '../../../theme.ts'
@@ -25,8 +25,7 @@ test('deserialize creates a comparable WeakMapRepresentation', (t) => {
   const deserialized = WeakMapRepresentation.deserialize(deserializationContext, decoder)
 
   // The deserialized representation should be comparable to the original
-  // Since weak maps can't be iterated, the comparison will be possiblyEqual
-  t.is(original.compare(deserialized), possiblyEqual)
+  t.is(original.compare(deserialized), comparable)
 })
 
 // Compare method tests
@@ -51,40 +50,19 @@ test('compare returns unequal when comparing to non-WeakMapRepresentation', (t) 
   t.is(weakMapRep.compare(objectRep), unequal)
 })
 
-test('compare returns possiblyEqual when comparing different weakMap instances', (t) => {
+test('compare returns comparable when comparing different weakMap instances', (t) => {
   const context = new RealValueContext()
   const weakMap1 = new WeakMap()
   const weakMap2 = new WeakMap()
 
-  // Add some entries to both maps using the same key
-  const key = {}
-  weakMap1.set(key, 'value1')
-  weakMap2.set(key, 'value1')
+  // Add some entries to both maps
+  weakMap1.set({}, 'value1')
+  weakMap2.set({}, 'value1')
 
   const weakMapRep1 = context.represent(weakMap1) as WeakMapRepresentation
   const weakMapRep2 = context.represent(weakMap2) as WeakMapRepresentation
 
-  // Since we can't iterate over weak maps to compare their contents,
-  // the comparison result for different instances is possiblyEqual
-  t.is(weakMapRep1.compare(weakMapRep2), possiblyEqual)
-})
-
-test('compare returns unequal when comparing WeakMaps with different constructor names', (t) => {
-  const context = new RealValueContext()
-
-  // Create a regular WeakMap
-  const weakMap = new WeakMap()
-  const weakMapRep = context.represent(weakMap) as WeakMapRepresentation
-
-  // Create a subclass of WeakMap to get a different constructor name
-  class CustomWeakMap extends WeakMap {}
-  const customWeakMap = new CustomWeakMap()
-
-  // This will still be represented as WeakMapRepresentation but with a different constructor name
-  const customWeakMapRep = context.represent(customWeakMap) as WeakMapRepresentation
-
-  // We can now test handling of different constructor names
-  t.is(weakMapRep.compare(customWeakMapRep), unequal)
+  t.is(weakMapRep1.compare(weakMapRep2), comparable)
 })
 
 // Serialization test

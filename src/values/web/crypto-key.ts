@@ -1,4 +1,4 @@
-import { possiblyEqual, unequal } from '../../comparison.ts'
+import { unequal } from '../../comparison.ts'
 import type { Decoder } from '../../decoder.ts'
 import type { DeserializationContext } from '../../deserialization-context.ts'
 import type { Encoder } from '../../encoder.ts'
@@ -13,9 +13,11 @@ export class CryptoKeyRepresentation extends ObjectRepresentation {
     return new this(context, this.unpackAnnotations(objectAnnotations))
   }
 
+  readonly #stamp: undefined
+
   override compare(other: ValueRepresentation) {
-    if (!super.compare(other)) return unequal
-    return possiblyEqual
+    if (!(#stamp in other)) return unequal
+    return super.compare(other)
   }
 
   override *iterateProperties() {

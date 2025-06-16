@@ -4,7 +4,7 @@ import { Encoder } from '../../../encoder.ts'
 import { Decoder } from '../../../decoder.ts'
 import { DeserializationContext } from '../../../deserialization-context.ts'
 import { CryptoKeyRepresentation } from '../crypto-key.ts'
-import { possiblyEqual, strictlyEqual, unequal } from '../../../comparison.ts'
+import { comparable, strictlyEqual, unequal } from '../../../comparison.ts'
 import { staticTypeTable } from '../../../serialization-types.ts'
 import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
 import { NamedPropertyAccessor } from '../../../accessors/property.ts'
@@ -40,20 +40,18 @@ test('deserialize creates a comparable CryptoKeyRepresentation', async (t) => {
   const deserialized = CryptoKeyRepresentation.deserialize(deserializationContext, decoder)
 
   // The deserialized representation should be comparable to the original
-  t.is(original.compare(deserialized), possiblyEqual)
+  t.is(original.compare(deserialized), comparable)
 })
 
 // Compare method tests
-test('compare returns possiblyEqual when comparing the same cryptoKey instance', async (t) => {
+test('compare returns strictlyEqual when comparing the same cryptoKey instance', async (t) => {
   const context = new RealValueContext()
   const cryptoKey = await generateCryptoKey()
 
   const cryptoKeyRep1 = context.represent(cryptoKey) as CryptoKeyRepresentation
   const cryptoKeyRep2 = context.represent(cryptoKey) as CryptoKeyRepresentation
 
-  // CryptoKey objects always compare as possiblyEqual, even when identical
-  // This is because their internal state cannot be fully compared
-  t.is(cryptoKeyRep1.compare(cryptoKeyRep2), possiblyEqual)
+  t.is(cryptoKeyRep1.compare(cryptoKeyRep2), strictlyEqual)
 })
 
 test('compare returns unequal when comparing to non-CryptoKeyRepresentation', async (t) => {
@@ -67,7 +65,7 @@ test('compare returns unequal when comparing to non-CryptoKeyRepresentation', as
   t.is(cryptoKeyRep.compare(objectRep), unequal)
 })
 
-test('compare returns possiblyEqual when comparing different cryptoKey instances with same properties', async (t) => {
+test('compare returns comparable when comparing different cryptoKey instances', async (t) => {
   const context = new RealValueContext()
 
   // Generate two different keys with same algorithm
@@ -77,9 +75,7 @@ test('compare returns possiblyEqual when comparing different cryptoKey instances
   const rep1 = context.represent(cryptoKey1) as CryptoKeyRepresentation
   const rep2 = context.represent(cryptoKey2) as CryptoKeyRepresentation
 
-  // Even though they're different keys, they're considered possiblyEqual
-  // if super.compare() doesn't return unequal (i.e., same properties)
-  t.is(rep1.compare(rep2), possiblyEqual)
+  t.is(rep1.compare(rep2), comparable)
 })
 
 // IterateProperties test
@@ -157,7 +153,7 @@ test('serializing and deserializing a CryptoKey preserves its structure', async 
   const deserialized = CryptoKeyRepresentation.deserialize(deserializationContext, decoder)
 
   // The original and deserialized representations should be comparable
-  t.is(original.compare(deserialized), possiblyEqual)
+  t.is(original.compare(deserialized), comparable)
 })
 
 // FinalFormat tests

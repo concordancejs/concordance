@@ -74,84 +74,21 @@ test('compare returns unequal when comparing maps of different sizes', (t) => {
   t.is(mapRep1.compare(mapRep2), unequal)
 })
 
-test('compare returns comparable when comparing different map instances with same entries', (t) => {
+test('compare returns comparable when comparing different map instances with same size', (t) => {
   const context = new RealValueContext()
   const map1 = new Map([
     ['key1', 'value1'],
     ['key2', 'value2'],
   ])
   const map2 = new Map([
-    ['key1', 'value1'],
-    ['key2', 'value2'],
+    ['key3', 'value3'],
+    ['key4', 'value4'],
   ])
 
   const mapRep1 = context.represent(map1) as MapRepresentation
   const mapRep2 = context.represent(map2) as MapRepresentation
 
   // Should be comparable, not strictly equal, as they are different instances
-  t.is(mapRep1.compare(mapRep2), comparable)
-})
-
-test('compare returns comparable when comparing maps with same keys but different values', (t) => {
-  const context = new RealValueContext()
-  const map1 = new Map([
-    ['key1', 'value1'],
-    ['key2', 'value2'],
-  ])
-  const map2 = new Map([
-    ['key1', 'value1'],
-    ['key2', 'different'],
-  ])
-
-  const mapRep1 = context.represent(map1) as MapRepresentation
-  const mapRep2 = context.represent(map2) as MapRepresentation
-
-  // Further iteration is required to compare values (and keys).
-  t.is(mapRep1.compare(mapRep2), comparable)
-})
-
-test('compare returns comparable when comparing maps with different keys', (t) => {
-  const context = new RealValueContext()
-  const map1 = new Map([
-    ['key1', 'value1'],
-    ['key2', 'value2'],
-  ])
-  const map2 = new Map([
-    ['key1', 'value1'],
-    ['different', 'value2'],
-  ])
-
-  const mapRep1 = context.represent(map1) as MapRepresentation
-  const mapRep2 = context.represent(map2) as MapRepresentation
-
-  // Further iteration is required to compare values (and keys).
-  t.is(mapRep1.compare(mapRep2), comparable)
-})
-
-test('compare handles maps with complex keys and values', (t) => {
-  const context = new RealValueContext()
-
-  // Create maps with objects and arrays as keys and values
-  const key1 = { id: 1 }
-  const key2 = { id: 2 }
-  const value1 = ['a', 'b']
-  const value2 = ['c', 'd']
-
-  const map1 = new Map([
-    [key1, value1],
-    [key2, value2],
-  ])
-
-  // Same structure but different object instances
-  const map2 = new Map([
-    [{ id: 1 }, ['a', 'b']],
-    [{ id: 2 }, ['c', 'd']],
-  ])
-
-  const mapRep1 = context.represent(map1) as MapRepresentation
-  const mapRep2 = context.represent(map2) as MapRepresentation
-
-  // Further iteration is required to compare values (and keys).
   t.is(mapRep1.compare(mapRep2), comparable)
 })
 

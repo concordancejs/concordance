@@ -61,46 +61,15 @@ test('compare returns unequal when comparing sets of different sizes', (t) => {
   t.is(setRep1.compare(setRep2), unequal)
 })
 
-test('compare returns comparable when comparing different set instances with same values', (t) => {
+test('compare returns comparable when comparing different set instances with same size', (t) => {
   const context = new RealValueContext()
   const set1 = new Set(['value1', 'value2'])
-  const set2 = new Set(['value1', 'value2'])
+  const set2 = new Set(['value3', 'value4'])
 
   const setRep1 = context.represent(set1) as SetRepresentation
   const setRep2 = context.represent(set2) as SetRepresentation
 
   // Should be comparable, not strictly equal, as they are different instances
-  t.is(setRep1.compare(setRep2), comparable)
-})
-
-test('compare returns comparable when comparing sets with different values', (t) => {
-  const context = new RealValueContext()
-  const set1 = new Set(['value1', 'value2'])
-  const set2 = new Set(['value1', 'different'])
-
-  const setRep1 = context.represent(set1) as SetRepresentation
-  const setRep2 = context.represent(set2) as SetRepresentation
-
-  // Further iteration is required to compare values
-  t.is(setRep1.compare(setRep2), comparable)
-})
-
-test('compare handles sets with complex values', (t) => {
-  const context = new RealValueContext()
-
-  // Create sets with objects and arrays as values
-  const value1 = { id: 1 }
-  const value2 = { id: 2 }
-
-  const set1 = new Set([value1, value2])
-
-  // Same structure but different object instances
-  const set2 = new Set([{ id: 1 }, { id: 2 }])
-
-  const setRep1 = context.represent(set1) as SetRepresentation
-  const setRep2 = context.represent(set2) as SetRepresentation
-
-  // Further iteration is required to compare values
   t.is(setRep1.compare(setRep2), comparable)
 })
 

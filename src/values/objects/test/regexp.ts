@@ -30,7 +30,7 @@ test('deserialize creates a comparable RegExpRepresentation', (t) => {
   t.is(original.compare(deserialized), comparable)
 })
 
-// Compare method tests - just basic identity checks since comparison is inherited
+// Compare method tests
 test('compare returns strictlyEqual when comparing the same regexp instance', (t) => {
   const context = new RealValueContext()
   const regexp = /test/i
@@ -50,6 +50,15 @@ test('compare returns unequal when comparing to non-RegExpRepresentation', (t) =
   const objectRep = context.represent(object)
 
   t.is(regexpRep.compare(objectRep), unequal)
+})
+
+test('compare returns comparable when comparing different regexps', (t) => {
+  const context = new RealValueContext()
+  const regexp1 = /test/i
+  const regexp2 = /test/g
+  const regexpRep1 = context.represent(regexp1) as RegExpRepresentation
+  const regexpRep2 = context.represent(regexp2) as RegExpRepresentation
+  t.is(regexpRep1.compare(regexpRep2), comparable)
 })
 
 // The key test - verify that the right properties are included

@@ -1,4 +1,4 @@
-import { possiblyEqual, strictlyEqual, unequal } from '../../comparison.ts'
+import { unequal } from '../../comparison.ts'
 import type { Decoder } from '../../decoder.ts'
 import type { DeserializationContext } from '../../deserialization-context.ts'
 import type { Encoder } from '../../encoder.ts'
@@ -23,8 +23,7 @@ export class WeakSetRepresentation extends ObjectRepresentation {
 
   override compare(other: ValueRepresentation) {
     if (!(#value in other)) return unequal
-    if (this.#value === other.#value) return strictlyEqual
-    return super.compare(other) ? possiblyEqual : unequal
+    return super.compare(other)
   }
 
   override finalFormat(formatter: Formatter, options?: FinalFormatOptions) {

@@ -4,10 +4,11 @@ import type { DeserializationContext } from '../../deserialization-context.ts'
 import type { Encoder } from '../../encoder.ts'
 import { Formatter } from '../../formatter.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
-import type { DeepFunctionality, FinalFormatOptions, Opaque } from '../../value.d.ts'
+import type { DeepFunctionality, FinalFormatOptions, Opaque, ValueRepresentation } from '../../value.d.ts'
 import { StringRepresentation } from '../primitives/string.ts'
 import type { Context } from '../../context.d.ts'
 import { ObjectRepresentation, type ObjectAnnotations } from './object.ts'
+import { unequal } from '../../comparison.ts'
 
 export class RegExpRepresentation extends ObjectRepresentation implements DeepFunctionality {
   static override deserialize(context: DeserializationContext, decoder: Decoder): RegExpRepresentation {
@@ -24,6 +25,11 @@ export class RegExpRepresentation extends ObjectRepresentation implements DeepFu
     super(context, value)
     this.#context = context
     this.#value = value
+  }
+
+  override compare(other: ValueRepresentation) {
+    if (!(#value in other)) return unequal
+    return super.compare(other)
   }
 
   override *iterateProperties() {
