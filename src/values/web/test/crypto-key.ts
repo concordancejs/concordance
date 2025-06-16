@@ -40,7 +40,7 @@ test('deserialize creates a comparable CryptoKeyRepresentation', async (t) => {
   const deserialized = CryptoKeyRepresentation.deserialize(deserializationContext, decoder)
 
   // The deserialized representation should be comparable to the original
-  t.is(original.compare(deserialized), comparable)
+  t.is(original.compare(deserialized, 'comprehensive'), comparable)
 })
 
 // Compare method tests
@@ -51,10 +51,10 @@ test('compare returns strictlyEqual when comparing the same cryptoKey instance',
   const cryptoKeyRep1 = context.represent(cryptoKey) as CryptoKeyRepresentation
   const cryptoKeyRep2 = context.represent(cryptoKey) as CryptoKeyRepresentation
 
-  t.is(cryptoKeyRep1.compare(cryptoKeyRep2), strictlyEqual)
+  t.is(cryptoKeyRep1.compare(cryptoKeyRep2, 'comprehensive'), strictlyEqual)
 })
 
-test('compare returns unequal when comparing to non-CryptoKeyRepresentation', async (t) => {
+test('compare returns unequal when comparing to non-CryptoKeyRepresentation in comprehensive mode', async (t) => {
   const context = new RealValueContext()
   const cryptoKey = await generateCryptoKey()
   const object = {}
@@ -62,7 +62,34 @@ test('compare returns unequal when comparing to non-CryptoKeyRepresentation', as
   const cryptoKeyRep = context.represent(cryptoKey) as CryptoKeyRepresentation
   const objectRep = context.represent(object)
 
-  t.is(cryptoKeyRep.compare(objectRep), unequal)
+  t.is(cryptoKeyRep.compare(objectRep, 'comprehensive'), unequal)
+})
+
+test('compare returns comparable when comparing to non-CryptoKeyRepresentation in fuzzy mode', async (t) => {
+  const context = new RealValueContext()
+  const cryptoKey = await generateCryptoKey()
+  const object = {}
+
+  const cryptoKeyRep = context.represent(cryptoKey) as CryptoKeyRepresentation
+  const objectRep = context.represent(object)
+
+  t.is(cryptoKeyRep.compare(objectRep, 'fuzzy'), comparable)
+})
+
+test('compare returns unequal when comparing to non-plain object in fuzzy mode', async (t) => {
+  const context = new RealValueContext()
+  const cryptoKey = await generateCryptoKey()
+
+  // Create a custom class instance (not a plain object)
+  class CustomClass {
+    prop = 'value'
+  }
+  const customInstance = new CustomClass()
+
+  const cryptoKeyRep = context.represent(cryptoKey) as CryptoKeyRepresentation
+  const customRep = context.represent(customInstance)
+
+  t.is(cryptoKeyRep.compare(customRep, 'fuzzy'), unequal)
 })
 
 test('compare returns comparable when comparing different cryptoKey instances', async (t) => {
@@ -75,7 +102,7 @@ test('compare returns comparable when comparing different cryptoKey instances', 
   const rep1 = context.represent(cryptoKey1) as CryptoKeyRepresentation
   const rep2 = context.represent(cryptoKey2) as CryptoKeyRepresentation
 
-  t.is(rep1.compare(rep2), comparable)
+  t.is(rep1.compare(rep2, 'comprehensive'), comparable)
 })
 
 // IterateProperties test
@@ -100,19 +127,19 @@ test('iterateProperties yields type, extractable, algorithm, and usages properti
 
   // Find the expected properties
   const typeProperty = properties.find((prop) => {
-    return typeAccessor.compare(prop) === strictlyEqual
+    return typeAccessor.compare(prop, 'comprehensive') === strictlyEqual
   })
 
   const extractableProperty = properties.find((prop) => {
-    return extractableAccessor.compare(prop) === strictlyEqual
+    return extractableAccessor.compare(prop, 'comprehensive') === strictlyEqual
   })
 
   const algorithmProperty = properties.find((prop) => {
-    return algorithmAccessor.compare(prop) === strictlyEqual
+    return algorithmAccessor.compare(prop, 'comprehensive') === strictlyEqual
   })
 
   const usagesProperty = properties.find((prop) => {
-    return usagesAccessor.compare(prop) === strictlyEqual
+    return usagesAccessor.compare(prop, 'comprehensive') === strictlyEqual
   })
 
   // Verify that all expected properties were found
@@ -153,7 +180,7 @@ test('serializing and deserializing a CryptoKey preserves its structure', async 
   const deserialized = CryptoKeyRepresentation.deserialize(deserializationContext, decoder)
 
   // The original and deserialized representations should be comparable
-  t.is(original.compare(deserialized), comparable)
+  t.is(original.compare(deserialized, 'comprehensive'), comparable)
 })
 
 // FinalFormat tests

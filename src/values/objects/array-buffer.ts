@@ -1,6 +1,6 @@
 import type { Context } from '../../context.d.ts'
 import type { DeepFunctionality, FinalFormatOptions, Opaque, ValueRepresentation } from '../../value.d.ts'
-import { strictlyEqual, unequal } from '../../comparison.ts'
+import { strictlyEqual, unequal, type Mode } from '../../comparison.ts'
 import type { Encoder } from '../../encoder.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
 import type { Decoder } from '../../decoder.ts'
@@ -32,13 +32,13 @@ export class ArrayBufferRepresentation extends ObjectRepresentation implements D
     return this.#context.representBytes(this.#value)
   }
 
-  override compare(other: ValueRepresentation) {
+  override compare(other: ValueRepresentation, mode: Mode) {
     if (!(#value in other)) return unequal
     if (this.#value === other.#value) return strictlyEqual
     if (!this.#bytes.compare(other.#bytes)) return unequal
 
     // Compare iterated properties (see below) and string tags.
-    return super.compare(other)
+    return super.compare(other, mode)
   }
 
   override *iterateArrayLike() {

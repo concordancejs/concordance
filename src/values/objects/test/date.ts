@@ -28,7 +28,7 @@ test('deserialize creates a comparable DateRepresentation', (t) => {
   const deserialized = DateRepresentation.deserialize(deserializationContext, decoder)
 
   // The deserialized representation should be comparable to the original
-  t.is(original.compare(deserialized), comparable)
+  t.is(original.compare(deserialized, 'comprehensive'), comparable)
 })
 
 // Compare method tests
@@ -39,7 +39,7 @@ test('compare returns strictlyEqual when comparing the same date instance', (t) 
   const dateRep1 = context.represent(date) as DateRepresentation
   const dateRep2 = context.represent(date) as DateRepresentation
 
-  t.is(dateRep1.compare(dateRep2), strictlyEqual)
+  t.is(dateRep1.compare(dateRep2, 'comprehensive'), strictlyEqual)
 })
 
 test('compare returns unequal when comparing to non-DateRepresentation', (t) => {
@@ -50,7 +50,20 @@ test('compare returns unequal when comparing to non-DateRepresentation', (t) => 
   const dateRep = context.represent(date) as DateRepresentation
   const objectRep = context.represent(object)
 
-  t.is(dateRep.compare(objectRep), unequal)
+  t.is(dateRep.compare(objectRep, 'comprehensive'), unequal)
+  t.is(dateRep.compare(objectRep, 'fuzzy'), unequal)
+})
+
+test('compare returns comparable when comparing to a subclass instance in fuzzy mode', (t) => {
+  const context = new RealValueContext()
+  const date = firstCommitDate
+  class CustomDate extends Date {}
+  const customDate = new CustomDate(date.getTime())
+
+  const dateRep = context.represent(date) as DateRepresentation
+  const customDateRep = context.represent(customDate) as DateRepresentation
+
+  t.is(dateRep.compare(customDateRep, 'fuzzy'), comparable)
 })
 
 test('compare returns unequal when comparing dates with different timestamps', (t) => {
@@ -61,7 +74,7 @@ test('compare returns unequal when comparing dates with different timestamps', (
   const dateRep1 = context.represent(date1) as DateRepresentation
   const dateRep2 = context.represent(date2) as DateRepresentation
 
-  t.is(dateRep1.compare(dateRep2), unequal)
+  t.is(dateRep1.compare(dateRep2, 'comprehensive'), unequal)
 })
 
 test('compare returns comparable when comparing different date instances with same timestamp', (t) => {
@@ -74,7 +87,7 @@ test('compare returns comparable when comparing different date instances with sa
   const dateRep2 = context.represent(date2) as DateRepresentation
 
   // Should be comparable, not strictly equal, as they are different instances
-  t.is(dateRep1.compare(dateRep2), comparable)
+  t.is(dateRep1.compare(dateRep2, 'comprehensive'), comparable)
 })
 
 test('compare handles invalid dates correctly', (t) => {
@@ -92,13 +105,13 @@ test('compare handles invalid dates correctly', (t) => {
   const invalidDateRep2 = context.represent(invalidDate2) as DateRepresentation
 
   // Two invalid dates should be comparable
-  t.is(invalidDateRep1.compare(invalidDateRep2), comparable)
+  t.is(invalidDateRep1.compare(invalidDateRep2, 'comprehensive'), comparable)
 
   // An invalid date should be unequal to a valid date
   const validDate = firstCommitDate
   const validDateRep = context.represent(validDate) as DateRepresentation
 
-  t.is(invalidDateRep1.compare(validDateRep), unequal)
+  t.is(invalidDateRep1.compare(validDateRep, 'comprehensive'), unequal)
 })
 
 // IterateArrayLike and iterateIterable tests
@@ -165,7 +178,7 @@ test('serializing and deserializing a Date preserves its timestamp', (t) => {
     const deserialized = DateRepresentation.deserialize(deserializationContext, decoder)
 
     // The original and deserialized representations should be comparable
-    t.is(original.compare(deserialized), comparable, `Failed for date: ${String(date)}`)
+    t.is(original.compare(deserialized, 'comprehensive'), comparable, `Failed for date: ${String(date)}`)
   }
 })
 

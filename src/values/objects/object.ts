@@ -9,7 +9,7 @@ import type {
 import type { ElementAccessor } from '../../accessors/element.ts'
 import type { IteratorValueAccessor } from '../../accessors/iterator-value.ts'
 import type { MapEntryAccessor } from '../../accessors/map-entry.ts'
-import { type Comparison, comparable, strictlyEqual, unequal } from '../../comparison.ts'
+import { type Comparison, type Mode, comparable, strictlyEqual, unequal } from '../../comparison.ts'
 import type { Context } from '../../context.d.ts'
 import type { BytesAccessor } from '../../accessors/bytes.ts'
 import type { Annotations, Encoder } from '../../encoder.ts'
@@ -58,6 +58,18 @@ export class ObjectRepresentation implements CommonRepresentation, DeepFunctiona
     return #value in value
   }
 
+  static isPlain(value: Opaque): value is ObjectRepresentation {
+    if (!(#value in value)) return false
+
+    const context = value.#context
+    const opaque = value.#value
+    return (
+      !context.isNullProto(opaque) &&
+      context.constructorName(opaque) === 'Object' &&
+      context.stringTag(opaque) === undefined
+    )
+  }
+
   static unpackAnnotations(annotations: ObjectAnnotations): UnpackedAnnotations {
     const {
       a: isArrayLike = false,
@@ -100,9 +112,19 @@ export class ObjectRepresentation implements CommonRepresentation, DeepFunctiona
     return this.#context.pointer(this, this.#value) ?? never()
   }
 
-  compare(other: ValueRepresentation): Comparison {
+  compare(other: ValueRepresentation, mode: Mode): Comparison {
     if (!(#value in other)) return unequal
     if (this.#value === other.#value) return strictlyEqual
+
+    if (mode === 'fuzzy') {
+      // Allow *only* array-like objects to be compared against ArrayRepresentation
+      if (other.constructor.name === 'ArrayRepresentation') {
+        return this.#context.isArrayLike(this.#value) ? comparable : unequal
+      }
+
+      // Do not compare constructor name, string tag or prototype when doing fuzzy comparisons.
+      return comparable
+    }
 
     // Allow either value to have a null prototype so such objects can be compared against literals.
     if (

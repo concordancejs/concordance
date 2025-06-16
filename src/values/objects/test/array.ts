@@ -37,7 +37,7 @@ test('deserialize creates a comparable ArrayRepresentation', (t) => {
   const deserialized = ArrayRepresentation.deserialize(deserializationContext, decoder)
 
   // The deserialized representation should be comparable to the original
-  t.is(original.compare(deserialized), comparable)
+  t.is(original.compare(deserialized, 'comprehensive'), comparable)
 })
 
 // Compare method tests
@@ -48,7 +48,7 @@ test('compare returns strictlyEqual when comparing the same array instance', (t)
   const arrayRep1 = context.represent(array) as ArrayRepresentation
   const arrayRep2 = context.represent(array) as ArrayRepresentation
 
-  t.is(arrayRep1.compare(arrayRep2), strictlyEqual)
+  t.is(arrayRep1.compare(arrayRep2, 'comprehensive'), strictlyEqual)
 })
 
 test('compare returns unequal when comparing to non-ArrayRepresentation', (t) => {
@@ -59,10 +59,24 @@ test('compare returns unequal when comparing to non-ArrayRepresentation', (t) =>
   const arrayRep = context.represent(array) as ArrayRepresentation
   const objectRep = context.represent(object)
 
-  t.is(arrayRep.compare(objectRep), unequal)
+  t.is(arrayRep.compare(objectRep, 'comprehensive'), unequal)
+  t.is(arrayRep.compare(objectRep, 'fuzzy'), unequal)
 })
 
-test('compare returns unequal when comparing arrays with different lengths', (t) => {
+test('compare returns comparable when comparing to array subclass instances in fuzzy mode', (t) => {
+  const context = new RealValueContext()
+  const array = [1, 2, 3]
+  class SubArray extends Array {}
+  const sub = new SubArray()
+  sub.push(1, 2, 3)
+
+  const arrayRep = context.represent(array) as ArrayRepresentation
+  const subRep = context.represent(sub)
+
+  t.is(arrayRep.compare(subRep, 'fuzzy'), comparable)
+})
+
+test('compare returns unequal when comparing arrays with different lengths in comprehensive mode', (t) => {
   const context = new RealValueContext()
   const array1 = [1, 2, 3]
   const array2 = [1, 2, 3, 4]
@@ -70,10 +84,10 @@ test('compare returns unequal when comparing arrays with different lengths', (t)
   const arrayRep1 = context.represent(array1) as ArrayRepresentation
   const arrayRep2 = context.represent(array2) as ArrayRepresentation
 
-  t.is(arrayRep1.compare(arrayRep2), unequal)
+  t.is(arrayRep1.compare(arrayRep2, 'comprehensive'), unequal)
 })
 
-test('compare returns comparable when comparing different array instances with same length', (t) => {
+test('compare returns comparable when comparing different array instances with same length in comprehensive mode', (t) => {
   const context = new RealValueContext()
   const array1 = [1, 2, 3]
   const array2 = [4, 5, 6]
@@ -82,7 +96,47 @@ test('compare returns comparable when comparing different array instances with s
   const arrayRep2 = context.represent(array2) as ArrayRepresentation
 
   // Should be comparable, not strictly equal, as they are different instances
-  t.is(arrayRep1.compare(arrayRep2), comparable)
+  t.is(arrayRep1.compare(arrayRep2, 'comprehensive'), comparable)
+})
+
+test('compare returns comparable when comparing against shorter arrays in fuzzy mode', (t) => {
+  const context = new RealValueContext()
+  const longArray = [1, 2, 3, 4, 5]
+  const shortArray = [1, 2]
+
+  const longArrayRep = context.represent(longArray) as ArrayRepresentation
+  const shortArrayRep = context.represent(shortArray) as ArrayRepresentation
+
+  // Long array should be comparable to short array in fuzzy mode
+  t.is(longArrayRep.compare(shortArrayRep, 'fuzzy'), comparable)
+
+  // Short array should NOT be comparable to long array in fuzzy mode
+  t.is(shortArrayRep.compare(longArrayRep, 'fuzzy'), unequal)
+})
+
+test('compare returns comparable when comparing different array instances with the same length in fuzzy mode', (t) => {
+  const context = new RealValueContext()
+  const array1 = [1, 2, 3]
+  const array2 = [4, 5, 6]
+
+  const arrayRep1 = context.represent(array1) as ArrayRepresentation
+  const arrayRep2 = context.represent(array2) as ArrayRepresentation
+
+  // Equal length arrays should be comparable in fuzzy mode
+  t.is(arrayRep1.compare(arrayRep2, 'fuzzy'), comparable)
+  t.is(arrayRep2.compare(arrayRep1, 'fuzzy'), comparable)
+})
+
+test('compare returns unequal when comparing against longer arrays in fuzzy mode', (t) => {
+  const context = new RealValueContext()
+  const shortArray = [1, 2]
+  const longArray = [1, 2, 3, 4, 5]
+
+  const shortArrayRep = context.represent(shortArray) as ArrayRepresentation
+  const longArrayRep = context.represent(longArray) as ArrayRepresentation
+
+  // Short array cannot be compared to long array in fuzzy mode
+  t.is(shortArrayRep.compare(longArrayRep, 'fuzzy'), unequal)
 })
 
 // Length property test
@@ -187,7 +241,7 @@ test('serializing and deserializing an array preserves its structure', (t) => {
   const deserialized = ArrayRepresentation.deserialize(deserializationContext, decoder)
 
   // The original and deserialized representations should be comparable
-  t.is(original.compare(deserialized), comparable)
+  t.is(original.compare(deserialized, 'comprehensive'), comparable)
 
   // The deserialized representation should have the same length
   t.is(deserialized.length, array.length)

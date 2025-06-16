@@ -1,5 +1,5 @@
 import type { NamedPropertyAccessor } from './accessors/property.ts'
-import type { Comparison } from './comparison.ts'
+import type { Comparison, Mode } from './comparison.ts'
 import type { Encoder } from './encoder.ts'
 import type { Formatter } from './formatter.ts'
 import type { ShallowSerializationResult, SerializationResult } from './serialization-result.ts'
@@ -10,7 +10,7 @@ export type Opaque = object // eslint-disable-line @typescript-eslint/no-restric
 export type CommonRepresentation = {
   readonly deserialized: boolean
   readonly pointer?: number
-  compare(other: ValueRepresentation): Comparison
+  compare(other: ValueRepresentation, mode: Mode): Comparison
 }
 
 export type ShallowFunctionality = {
@@ -28,12 +28,12 @@ export type DeepFunctionality = {
 }
 
 export type GroupFunctionality = {
-  align?(other: ValueRepresentation): void
+  align?(other: ValueRepresentation, mode: Mode): void
   [Symbol.iterator]?(): IterableIterator<ValueRepresentation>
 }
 
 export type AccessorFunctionality = {
-  groupForComparison?(takeWhile: TakeWhile, parent: ValueRepresentation): GroupRepresentation | undefined
+  groupForComparison?(takeWhile: TakeWhile, parent: ValueRepresentation, mode: Mode): GroupRepresentation | undefined
 }
 
 type Shallow = ShallowFunctionality & {

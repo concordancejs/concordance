@@ -1,9 +1,12 @@
 import test from 'ava'
-import { ElementAccessor, SparseValueRepresentation } from '../element.ts'
+import { ElementAccessor, ElementGroup, SparseValueRepresentation } from '../element.ts'
 import { UndefinedRepresentation } from '../../values/primitives/undefined.ts'
 import { StringRepresentation } from '../../values/primitives/string.ts'
 import { Encoder } from '../../encoder.ts'
-import { strictlyEqual, unequal, deeplyEqual } from '../../comparison.ts'
+import { Decoder } from '../../decoder.ts'
+import { DeserializationContext } from '../../deserialization-context.ts'
+import type { ArrayRepresentation } from '../../values/objects/array.ts'
+import { strictlyEqual, unequal, deeplyEqual, comparable } from '../../comparison.ts'
 import { partial, finished } from '../../serialization-result.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
 import { deriveTheme } from '../../theme.ts'
@@ -12,6 +15,8 @@ import type { ValueRepresentation } from '../../value.d.ts'
 import { representValue } from '../../represent.ts'
 import { serialize } from '../../serialize.ts'
 import { deserialize } from '../../deserialize.ts'
+import { RealValueContext } from '../../real-value-context.ts'
+import type { TakeWhile } from '../../stack.ts'
 
 // SparseValueRepresentation Tests
 test('SparseValueRepresentation - compare returns strictlyEqual for other sparse values', (t) => {
@@ -108,7 +113,7 @@ test('ElementAccessor - compare returns unequal for non-ElementAccessor', (t) =>
     },
   }
 
-  t.is(element.compare(nonElement as unknown as ValueRepresentation), unequal)
+  t.is(element.compare(nonElement as unknown as ValueRepresentation, 'comprehensive'), unequal)
 })
 
 test('ElementAccessor - compare returns unequal for different indices', (t) => {
@@ -117,7 +122,7 @@ test('ElementAccessor - compare returns unequal for different indices', (t) => {
   const element1 = new ElementAccessor(5, value)
   const element2 = new ElementAccessor(10, value)
 
-  t.is(element1.compare(element2), unequal)
+  t.is(element1.compare(element2, 'comprehensive'), unequal)
 })
 
 test('ElementAccessor - compare delegates to value comparison when indices match', (t) => {
@@ -128,12 +133,12 @@ test('ElementAccessor - compare delegates to value comparison when indices match
   const element2 = new ElementAccessor(5, value2)
 
   // Should return whatever the string comparison returns (unequal in this case)
-  t.is(element1.compare(element2), unequal)
+  t.is(element1.compare(element2, 'comprehensive'), unequal)
 
   // When values are equal
   const value3 = new StringRepresentation('test')
   const element3 = new ElementAccessor(5, value3)
-  t.is(element1.compare(element3), strictlyEqual)
+  t.is(element1.compare(element3, 'comprehensive'), strictlyEqual)
 })
 
 test('ElementAccessor - serialize delegates to value serializeShallow if available', (t) => {
@@ -177,6 +182,30 @@ test('ElementAccessor - serialize returns partial when value has no serializeSha
   t.is(result, partial)
 })
 
+test('ElementAccessor - compare delegates comparison mode to value representation', (t) => {
+  const context = new RealValueContext()
+
+  // Create a plain object and a custom class instance
+  class CustomClass {
+    foo = 1
+    bar = 2
+  }
+  const plain = { foo: 1, bar: 2 }
+  const custom = new CustomClass()
+
+  // Create element accessors with same indices but different value types
+  const plainElement = new ElementAccessor(0, context.represent(plain))
+  const customElement = new ElementAccessor(0, context.represent(custom))
+
+  // In fuzzy mode, different object types should be comparable
+  t.is(plainElement.compare(customElement, 'fuzzy'), comparable)
+  t.is(customElement.compare(plainElement, 'fuzzy'), comparable)
+
+  // In comprehensive mode, different object types should be unequal
+  t.is(plainElement.compare(customElement, 'comprehensive'), unequal)
+  t.is(customElement.compare(plainElement, 'comprehensive'), unequal)
+})
+
 test('ElementAccessor - handles complex nesting', (t) => {
   // Create a chain of element accessors
   const innerValue = new StringRepresentation('test')
@@ -196,7 +225,7 @@ test('ElementAccessor - handles complex nesting', (t) => {
   const outer2 = new ElementAccessor(1, inner2)
 
   // Deep comparison should work
-  t.is(outer.compare(outer2), strictlyEqual)
+  t.is(outer.compare(outer2, 'comprehensive'), strictlyEqual)
 })
 
 test('ElementAccessor - finalFormat appends theme.element.after to formatter', (t) => {
@@ -225,4 +254,297 @@ test('ElementAccessor - deserialized property delegates to value representation'
 
   t.false(element.deserialized)
   t.true(elementWithDeserialized.deserialized)
+})
+
+// ElementAccessor groupForComparison Tests
+test('ElementAccessor - groupForComparison creates group with consecutive element accessors in fuzzy mode', (t) => {
+  const ctx = new RealValueContext()
+  const value1 = representValue('a', ctx)
+  const value2 = representValue('b', ctx)
+  const value3 = representValue('c', ctx)
+
+  const element1 = new ElementAccessor(0, value1)
+  const element2 = new ElementAccessor(1, value2)
+  const element3 = new ElementAccessor(2, value3)
+
+  // Mock takeWhile to return consecutive element accessors
+  const takeWhile: TakeWhile = function* (condition) {
+    for (const accessor of [element2, element3]) {
+      if (!condition(accessor)) return
+      yield accessor
+    }
+  }
+
+  // Mock parent that's not an ElementGroup
+  const parent = value1
+
+  const group = element1.groupForComparison(takeWhile, parent, 'fuzzy')
+
+  if (t.truthy(group)) {
+    t.true(ElementGroup.is(group))
+
+    const elements = [...group]
+    t.is(elements.length, 3)
+    t.true(ElementAccessor.is(elements[0]!))
+    t.true(ElementAccessor.is(elements[1]!))
+    t.true(ElementAccessor.is(elements[2]!))
+  }
+})
+
+test('ElementAccessor - groupForComparison returns undefined in comprehensive mode', (t) => {
+  const ctx = new RealValueContext()
+  const value = representValue('test', ctx)
+  const element = new ElementAccessor(0, value)
+
+  const takeWhile: TakeWhile = function* () {
+    // Empty generator
+  }
+
+  const parent = value
+
+  const result = element.groupForComparison(takeWhile, parent, 'comprehensive')
+
+  t.is(result, undefined)
+})
+
+test('ElementAccessor - groupForComparison returns undefined when parent is already an ElementGroup', (t) => {
+  const ctx = new RealValueContext()
+  const value = representValue('test', ctx)
+  const element = new ElementAccessor(0, value)
+  const parent = new ElementGroup([element])
+
+  const takeWhile: TakeWhile = function* () {
+    // Empty generator
+  }
+
+  const result = element.groupForComparison(takeWhile, parent, 'fuzzy')
+
+  t.is(result, undefined)
+})
+
+test('ElementAccessor - groupForComparison works with empty takeWhile result', (t) => {
+  const ctx = new RealValueContext()
+  const value = representValue('test', ctx)
+  const element = new ElementAccessor(0, value)
+
+  const takeWhile: TakeWhile = function* () {
+    // Empty generator
+  }
+
+  const parent = value
+
+  const group = element.groupForComparison(takeWhile, parent, 'fuzzy')
+
+  if (t.truthy(group)) {
+    const elements = [...group]
+    t.is(elements.length, 1)
+    t.true(ElementAccessor.is(elements[0]!))
+  }
+})
+
+test('ElementAccessor - groupForComparison fully deserializes its accessor', (t) => {
+  const { bytes } = new Encoder()
+    .staticType(staticTypeTable.array)
+    .annotations({ p: 1, c: 'Array', l: 2 })
+    // Add element aspect
+    .staticType(staticTypeTable.elementAspect)
+    // First element with nested array as value (complex enough to test fullyDeserialize)
+    .staticType(staticTypeTable.array)
+    .annotations({ p: 2, c: 'Array', l: 1 })
+    .staticType(staticTypeTable.elementAspect)
+    // Nested element
+    .staticType(staticTypeTable.string)
+    .string('nestedValue')
+    .staticType(staticTypeTable.terminator)
+    // Second element with simple string value
+    .staticType(staticTypeTable.string)
+    .string('simpleValue')
+    // End elements
+    .staticType(staticTypeTable.terminator)
+
+  const decoder = new Decoder(bytes)
+  const context = new DeserializationContext(decoder)
+
+  const arrayRep = context.next() as ArrayRepresentation
+  const iterator = arrayRep.iterateArrayLike()
+  const { value: accessor } = iterator.next() as { value: ValueRepresentation | undefined }
+  if (!accessor || !ElementAccessor.is(accessor) || !('groupForComparison' in accessor)) {
+    t.fail('Expected first element to be an ElementAccessor with groupForComparison method')
+    return
+  }
+
+  // Mock takeWhile that returns no additional values
+  const takeWhile: TakeWhile = function* () {
+    // No-op
+  }
+
+  const group = accessor.groupForComparison(takeWhile, arrayRep, 'fuzzy')
+  t.truthy(group, 'Group should be created from ElementAccessor')
+
+  const { value: nextAccessor } = iterator.next() as { value: ValueRepresentation | undefined }
+  if (!nextAccessor || !ElementAccessor.is(nextAccessor)) {
+    t.fail('Expected second element to be an ElementAccessor')
+    return
+  }
+
+  const expected = new ElementAccessor(1, new StringRepresentation('simpleValue'))
+  t.is(
+    expected.compare(nextAccessor, 'comprehensive'),
+    strictlyEqual,
+    'Next accessor should match expected simple accessor',
+  )
+})
+
+// ElementGroup Tests
+test('ElementGroup - is method identifies ElementGroup instances', (t) => {
+  const ctx = new RealValueContext()
+  const value = representValue('test', ctx)
+  const element = new ElementAccessor(0, value)
+  const group = new ElementGroup([element])
+
+  t.true(ElementGroup.is(group))
+  t.false(ElementGroup.is(element))
+  t.false(ElementGroup.is(value))
+})
+
+test('ElementGroup - compare returns unequal for non-ElementGroup values', (t) => {
+  const ctx = new RealValueContext()
+  const value = representValue('test', ctx)
+  const element = new ElementAccessor(0, value)
+  const group = new ElementGroup([element])
+
+  t.is(group.compare(value), unequal)
+  t.is(group.compare(element), unequal)
+})
+
+test('ElementGroup - compare returns comparable when lhs has equal elements as rhs', (t) => {
+  const ctx = new RealValueContext()
+  const value1 = representValue('a', ctx)
+  const value2 = representValue('b', ctx)
+
+  const element1 = new ElementAccessor(0, value1)
+  const element2 = new ElementAccessor(1, value2)
+
+  const group1 = new ElementGroup([element1, element2])
+  const group2 = new ElementGroup([element1])
+  const group3 = new ElementGroup([element1, element2])
+
+  t.is(group1.compare(group2), unequal)
+  t.is(group2.compare(group1), unequal)
+  t.is(group1.compare(group3), comparable)
+})
+
+test('ElementGroup - align slices lhs elements in fuzzy mode when lhs is longer', (t) => {
+  const ctx = new RealValueContext()
+  const value1 = representValue('a', ctx)
+  const value2 = representValue('b', ctx)
+  const value3 = representValue('c', ctx)
+
+  const element1 = new ElementAccessor(0, value1)
+  const element2 = new ElementAccessor(1, value2)
+  const element3 = new ElementAccessor(2, value3)
+
+  const lhsGroup = new ElementGroup([element1, element2, element3])
+  const rhsGroup = new ElementGroup([element1])
+
+  // Before alignment
+  t.is([...lhsGroup].length, 3)
+
+  lhsGroup.align(rhsGroup, 'fuzzy')
+
+  // After alignment, lhs should be sliced to match rhs length
+  t.is([...lhsGroup].length, 1)
+})
+
+test('ElementGroup - align does nothing when lhs is shorter or equal', (t) => {
+  const ctx = new RealValueContext()
+  const value1 = representValue('a', ctx)
+  const value2 = representValue('b', ctx)
+
+  const element1 = new ElementAccessor(0, value1)
+  const element2 = new ElementAccessor(1, value2)
+
+  const lhsGroup = new ElementGroup([element1])
+  const rhsGroup = new ElementGroup([element1, element2])
+
+  // Before alignment
+  t.is([...lhsGroup].length, 1)
+
+  lhsGroup.align(rhsGroup, 'fuzzy')
+
+  // After alignment, lhs should remain unchanged
+  t.is([...lhsGroup].length, 1)
+})
+
+test('ElementGroup - align does nothing in comprehensive mode', (t) => {
+  const ctx = new RealValueContext()
+  const value1 = representValue('a', ctx)
+  const value2 = representValue('b', ctx)
+  const value3 = representValue('c', ctx)
+
+  const element1 = new ElementAccessor(0, value1)
+  const element2 = new ElementAccessor(1, value2)
+  const element3 = new ElementAccessor(2, value3)
+
+  const lhsGroup = new ElementGroup([element1, element2, element3])
+  const rhsGroup = new ElementGroup([element1])
+
+  // Before alignment
+  t.is([...lhsGroup].length, 3)
+
+  lhsGroup.align(rhsGroup, 'comprehensive')
+
+  // After alignment in comprehensive mode, lhs should remain unchanged
+  t.is([...lhsGroup].length, 3)
+})
+
+test('ElementGroup - align does nothing for non-ElementGroup other', (t) => {
+  const ctx = new RealValueContext()
+  const value1 = representValue('a', ctx)
+  const value2 = representValue('b', ctx)
+
+  const element1 = new ElementAccessor(0, value1)
+  const element2 = new ElementAccessor(1, value2)
+
+  const group = new ElementGroup([element1, element2])
+  const other = value1
+
+  // Before alignment
+  t.is([...group].length, 2)
+
+  group.align(other, 'fuzzy')
+
+  // After alignment with non-group, should remain unchanged
+  t.is([...group].length, 2)
+})
+
+test('ElementGroup - deserialized property reflects first element', (t) => {
+  const ctx = new RealValueContext()
+  const value = representValue('test', ctx)
+  const element = new ElementAccessor(0, value)
+  const group = new ElementGroup([element])
+
+  t.is(group.deserialized, element.deserialized)
+})
+
+test('ElementGroup - deserialized property returns false for empty group', (t) => {
+  const group = new ElementGroup([])
+
+  t.is(group.deserialized, false)
+})
+
+test('ElementGroup - iterator yields all elements', (t) => {
+  const ctx = new RealValueContext()
+  const value1 = representValue('a', ctx)
+  const value2 = representValue('b', ctx)
+
+  const element1 = new ElementAccessor(0, value1)
+  const element2 = new ElementAccessor(1, value2)
+
+  const group = new ElementGroup([element1, element2])
+
+  const elements = [...group]
+  t.is(elements.length, 2)
+  t.is(elements[0], element1)
+  t.is(elements[1], element2)
 })

@@ -1,4 +1,4 @@
-import { unequal } from '../../comparison.ts'
+import { unequal, type Mode } from '../../comparison.ts'
 import type { Decoder } from '../../decoder.ts'
 import type { DeserializationContext } from '../../deserialization-context.ts'
 import type { Encoder } from '../../encoder.ts'
@@ -17,9 +17,15 @@ export class CryptoKeyRepresentation extends ObjectRepresentation {
 
   readonly #stamp: undefined
 
-  override compare(other: ValueRepresentation) {
+  override compare(other: ValueRepresentation, mode: Mode) {
+    // CryptoKeys are inherently hard to compare, since their private portions cannot be directly accessed. Therefore
+    // allow them to be partially compared with a plain object based on their properties alone.
+    if (mode === 'fuzzy' && ObjectRepresentation.isPlain(other)) {
+      return super.compare(other, mode)
+    }
+
     if (!(#stamp in other)) return unequal
-    return super.compare(other)
+    return super.compare(other, mode)
   }
 
   override *iterateProperties() {

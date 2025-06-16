@@ -19,6 +19,7 @@ import type { ValueRepresentation } from '../value.d.ts'
 import { StringRepresentation } from '../values/primitives/string.ts'
 import { deriveFlags } from '../flags.ts'
 import type { Context } from '../context.d.ts'
+import type { ExternalRepresentation } from '../values/nodejs/external.ts'
 
 // -----------------------------------------------------------------------------
 // Basic Instance and Property Tests
@@ -337,7 +338,7 @@ test(
 
     for (const element of elements) {
       const expectedElement = expectedElements.shift()!
-      t.is(element.compare(expectedElement), strictlyEqual)
+      t.is(element.compare(expectedElement, 'comprehensive'), strictlyEqual)
     }
   },
 )
@@ -464,7 +465,7 @@ test(
   },
   (t, elements) => {
     t.is(
-      elements[1]!.compare(new ElementAccessor(1, new SparseValueRepresentation())),
+      elements[1]!.compare(new ElementAccessor(1, new SparseValueRepresentation()), 'comprehensive'),
       strictlyEqual,
       '2nd element should be sparse',
     )
@@ -548,7 +549,7 @@ test(
 
     for (const [i, property] of properties.entries()) {
       t.is(
-        property.compare(expectedProperties[i]!),
+        property.compare(expectedProperties[i]!, 'comprehensive'),
         strictlyEqual,
         `Property at index ${i} should match expected value`,
       )
@@ -864,7 +865,7 @@ test('throws when property name is not a string', iteration, 'namedProperties', 
       for (const property of properties) {
         t.assert(expectedProperties.length > 0, 'Expected symbol properties should not be empty')
         const expectedProperty = expectedProperties.shift()!
-        t.is(property.compare(expectedProperty), strictlyEqual)
+        t.is(property.compare(expectedProperty, 'comprehensive'), strictlyEqual)
       }
     },
   )
@@ -1117,7 +1118,11 @@ test(
     ]
 
     for (const [i, entry] of entries.entries()) {
-      t.is(entry.compare(expectedEntries[i]!), strictlyEqual, `Entry at index ${i} should match expected value`)
+      t.is(
+        entry.compare(expectedEntries[i]!, 'comprehensive'),
+        strictlyEqual,
+        `Entry at index ${i} should match expected value`,
+      )
     }
   },
 )
@@ -1337,7 +1342,11 @@ test(
     ]
 
     for (const [i, value] of values.entries()) {
-      t.is(value.compare(expectedValues[i]!), strictlyEqual, `Value at index ${i} should match expected value`)
+      t.is(
+        value.compare(expectedValues[i]!, 'comprehensive'),
+        strictlyEqual,
+        `Value at index ${i} should match expected value`,
+      )
     }
   },
 )
@@ -1545,7 +1554,7 @@ const typeDeserializationMacro = test.macro<[string, unknown, Comparison]>({
 
     // Verify it matches the original with the correct equality type
     t.is(
-      original.compare(deserialized!),
+      original.compare(deserialized!, 'comprehensive'),
       expectedEquality,
       `Value should have ${expectedEquality === strictlyEqual ? 'strictly equal' : expectedEquality === possiblyEqual ? 'possibly equal' : 'comparable'} representation after serialization/deserialization`,
     )
@@ -1668,7 +1677,7 @@ test('DeserializationContext correctly deserializes crypto key', async (t) => {
   const deserialized = deserializationContext.next()
 
   t.is(
-    original.compare(deserialized!),
+    original.compare(deserialized!, 'comprehensive'),
     comparable,
     'CryptoKey should have comparable representation after serialization/deserialization',
   )
@@ -1681,11 +1690,10 @@ test('DeserializationContext correctly deserializes external value', async (t) =
 
   // Now proceed with the same pattern as the macro
   const originalContext = new RealValueContext()
-  const original = originalContext.represent(externalValue)
+  const original = originalContext.represent(externalValue) as ExternalRepresentation
 
   const encoder = new Encoder()
-  original.serialize?.(encoder)
-  original.serializeShallow?.(encoder)
+  original.serializeShallow(encoder)
 
   const decoder = new Decoder(encoder.bytes)
   const deserializationContext = new DeserializationContext(decoder)
@@ -1725,7 +1733,11 @@ test('notifyNextExplicitlyNamedPropertyAccess - basic functionality and argument
   // Verify callback arguments
   const [accessor, value] = callback.mock.calls[0]!.arguments
   t.is(accessor, properties[0]!, 'Correct accessor passed to callback')
-  t.is(value.compare(new StringRepresentation('test')), strictlyEqual, 'Correct value passed to callback')
+  t.is(
+    value.compare(new StringRepresentation('test'), 'comprehensive'),
+    strictlyEqual,
+    'Correct value passed to callback',
+  )
 })
 
 test('notifyNextExplicitlyNamedPropertyAccess - non-existent properties', (t) => {

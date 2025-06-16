@@ -19,3 +19,5 @@ export type Comparison =
   | typeof deeplyEqual
   | typeof possiblyEqual
   | typeof comparable
+
+export type Mode = 'comprehensive' | 'fuzzy'

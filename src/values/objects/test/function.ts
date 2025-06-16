@@ -41,7 +41,7 @@ test('deserialize creates a comparable FunctionRepresentation', (t) => {
   const deserialized = FunctionRepresentation.deserialize(deserializationContext, decoder)
 
   // The deserialized representation should be comparable to the original
-  t.is(original.compare(deserialized), comparable)
+  t.is(original.compare(deserialized, 'comprehensive'), comparable)
 })
 
 // Compare method tests
@@ -52,10 +52,10 @@ test('compare returns strictlyEqual when comparing the same function instance', 
   const funcRep1 = context.represent(func) as FunctionRepresentation
   const funcRep2 = context.represent(func) as FunctionRepresentation
 
-  t.is(funcRep1.compare(funcRep2), strictlyEqual)
+  t.is(funcRep1.compare(funcRep2, 'comprehensive'), strictlyEqual)
 })
 
-test('compare returns unequal when comparing to non-FunctionRepresentation', (t) => {
+test('compare returns unequal when comparing to non-FunctionRepresentation in comprehensive mode', (t) => {
   const context = new RealValueContext()
   const func = namedFunction
   const object = {}
@@ -63,7 +63,34 @@ test('compare returns unequal when comparing to non-FunctionRepresentation', (t)
   const funcRep = context.represent(func) as FunctionRepresentation
   const objectRep = context.represent(object)
 
-  t.is(funcRep.compare(objectRep), unequal)
+  t.is(funcRep.compare(objectRep, 'comprehensive'), unequal)
+})
+
+test('compare returns comparable when comparing to non-FunctionRepresentation in fuzzy mode', (t) => {
+  const context = new RealValueContext()
+  const func = namedFunction
+  const object = {}
+
+  const funcRep = context.represent(func) as FunctionRepresentation
+  const objectRep = context.represent(object)
+
+  t.is(funcRep.compare(objectRep, 'fuzzy'), comparable)
+})
+
+test('compare returns unequal when comparing to non-plain object in fuzzy mode', (t) => {
+  const context = new RealValueContext()
+  const func = namedFunction
+
+  // Create a custom class instance (not a plain object)
+  class CustomClass {
+    prop = 'value'
+  }
+  const customInstance = new CustomClass()
+
+  const funcRep = context.represent(func) as FunctionRepresentation
+  const customRep = context.represent(customInstance)
+
+  t.is(funcRep.compare(customRep, 'fuzzy'), unequal)
 })
 
 test('compare returns unequal when comparing different non-deserialized function instances', (t) => {
@@ -82,7 +109,7 @@ test('compare returns unequal when comparing different non-deserialized function
   const funcRep2 = context.represent(func2) as FunctionRepresentation
 
   // For non-deserialized functions, comparison is by reference only
-  t.is(funcRep1.compare(funcRep2), unequal)
+  t.is(funcRep1.compare(funcRep2, 'comprehensive'), unequal)
 })
 
 test('compare returns comparable when at least one function is deserialized', (t) => {
@@ -104,7 +131,7 @@ test('compare returns comparable when at least one function is deserialized', (t
   const newRep = newContext.represent(sameFunc) as FunctionRepresentation
 
   // When one is deserialized, they should be comparable
-  t.is(newRep.compare(deserialized), comparable)
+  t.is(newRep.compare(deserialized, 'comprehensive'), comparable)
 })
 
 // IterateArrayLike and iterateIterable tests
@@ -144,7 +171,7 @@ test('iterateProperties yields the name property for functions', (t) => {
 
   // Find the name property
   const nameProperty = properties.find((prop) => {
-    return nameAccessor.compare(prop) === strictlyEqual
+    return nameAccessor.compare(prop, 'comprehensive') === strictlyEqual
   })
 
   // Verify that the name property was found
@@ -166,7 +193,7 @@ test('iterateProperties works correctly with different function types', (t) => {
 
   // Find and verify the name property for named function
   const namedNameProperty = namedProperties.find((prop) => {
-    return namedNameAccessor.compare(prop) === strictlyEqual
+    return namedNameAccessor.compare(prop, 'comprehensive') === strictlyEqual
   })
   t.truthy(namedNameProperty, 'name property should be present for named function')
 
@@ -181,7 +208,7 @@ test('iterateProperties works correctly with different function types', (t) => {
 
   // Find and verify the name property for anonymous function
   const anonymousNameProperty = anonymousProperties.find((prop) => {
-    return anonymousNameAccessor.compare(prop) === strictlyEqual
+    return anonymousNameAccessor.compare(prop, 'comprehensive') === strictlyEqual
   })
   t.truthy(anonymousNameProperty, 'name property should be present for anonymous function')
 
@@ -196,7 +223,7 @@ test('iterateProperties works correctly with different function types', (t) => {
 
   // Find and verify the name property for arrow function
   const arrowNameProperty = arrowProperties.find((prop) => {
-    return arrowNameAccessor.compare(prop) === strictlyEqual
+    return arrowNameAccessor.compare(prop, 'comprehensive') === strictlyEqual
   })
   t.truthy(arrowNameProperty, 'name property should be present for arrow function')
 })

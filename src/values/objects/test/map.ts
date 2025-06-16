@@ -29,7 +29,7 @@ test('deserialize creates a comparable MapRepresentation', (t) => {
   const deserialized = MapRepresentation.deserialize(deserializationContext, decoder)
 
   // The deserialized representation should be comparable to the original
-  t.is(original.compare(deserialized), comparable)
+  t.is(original.compare(deserialized, 'comprehensive'), comparable)
 })
 
 // Compare method tests
@@ -43,7 +43,7 @@ test('compare returns strictlyEqual when comparing the same map instance', (t) =
   const mapRep1 = context.represent(map) as MapRepresentation
   const mapRep2 = context.represent(map) as MapRepresentation
 
-  t.is(mapRep1.compare(mapRep2), strictlyEqual)
+  t.is(mapRep1.compare(mapRep2, 'comprehensive'), strictlyEqual)
 })
 
 test('compare returns unequal when comparing to non-MapRepresentation', (t) => {
@@ -57,7 +57,8 @@ test('compare returns unequal when comparing to non-MapRepresentation', (t) => {
   const mapRep = context.represent(map) as MapRepresentation
   const objectRep = context.represent(object)
 
-  t.is(mapRep.compare(objectRep), unequal)
+  t.is(mapRep.compare(objectRep, 'comprehensive'), unequal)
+  t.is(mapRep.compare(objectRep, 'fuzzy'), unequal)
 })
 
 test('compare returns unequal when comparing maps of different sizes', (t) => {
@@ -71,7 +72,31 @@ test('compare returns unequal when comparing maps of different sizes', (t) => {
   const mapRep1 = context.represent(map1) as MapRepresentation
   const mapRep2 = context.represent(map2) as MapRepresentation
 
-  t.is(mapRep1.compare(mapRep2), unequal)
+  t.is(mapRep1.compare(mapRep2, 'comprehensive'), unequal)
+})
+
+test('compare allows different sizes in fuzzy mode', (t) => {
+  const context = new RealValueContext()
+
+  // Actual map (this) has more entries than expected map (other)
+  const actualMap = new Map([
+    ['key1', 'value1'],
+    ['key2', 'value2'],
+    ['key3', 'value3'],
+  ])
+  const expectedMap = new Map([
+    ['key1', 'value1'],
+    ['key2', 'value2'],
+  ])
+
+  const actualMapRep = context.represent(actualMap) as MapRepresentation
+  const expectedMapRep = context.represent(expectedMap) as MapRepresentation
+
+  // In fuzzy mode, actual can have more items than expected
+  t.is(actualMapRep.compare(expectedMapRep, 'fuzzy'), comparable)
+
+  // But in comprehensive mode, different sizes should be unequal
+  t.is(actualMapRep.compare(expectedMapRep, 'comprehensive'), unequal)
 })
 
 test('compare returns comparable when comparing different map instances with same size', (t) => {
@@ -89,7 +114,19 @@ test('compare returns comparable when comparing different map instances with sam
   const mapRep2 = context.represent(map2) as MapRepresentation
 
   // Should be comparable, not strictly equal, as they are different instances
-  t.is(mapRep1.compare(mapRep2), comparable)
+  t.is(mapRep1.compare(mapRep2, 'comprehensive'), comparable)
+})
+
+test('compare returns comparable when comparing against subclass instances in fuzzy mode', (t) => {
+  const context = new RealValueContext()
+  const map1 = new Map()
+  class SubMap extends Map {}
+  const map2 = new SubMap()
+
+  const mapRep1 = context.represent(map1) as MapRepresentation
+  const mapRep2 = context.represent(map2) as MapRepresentation
+
+  t.is(mapRep1.compare(mapRep2, 'fuzzy'), comparable)
 })
 
 // IterateArrayLike test
@@ -154,16 +191,16 @@ test('iterateIterable preserves entry order', (t) => {
   // The first entry from map1 should be key1/value1
   // The first entry from map2 should be key3/value3
   // They should be unequal
-  t.is(entries[0]!.compare(entries2[0]!), unequal)
+  t.is(entries[0]!.compare(entries2[0]!, 'comprehensive'), unequal)
 
   // The first entry of map1 should exactly match the second entry of map2 (both key1/value1)
-  t.is(entries[0]!.compare(entries2[1]!), strictlyEqual)
+  t.is(entries[0]!.compare(entries2[1]!, 'comprehensive'), strictlyEqual)
 
   // The second entry of map1 should match the third entry of map2 (both key2/value2)
-  t.is(entries[1]!.compare(entries2[2]!), strictlyEqual)
+  t.is(entries[1]!.compare(entries2[2]!, 'comprehensive'), strictlyEqual)
 
   // The third entry of map1 should match the first entry of map2 (both key3/value3)
-  t.is(entries[2]!.compare(entries2[0]!), strictlyEqual)
+  t.is(entries[2]!.compare(entries2[0]!, 'comprehensive'), strictlyEqual)
 })
 
 // Serialization tests
@@ -210,14 +247,14 @@ test('serializing and deserializing a Map preserves its structure', (t) => {
   const deserialized = MapRepresentation.deserialize(deserializationContext, decoder)
 
   // The original and deserialized representations should be comparable
-  t.is(original.compare(deserialized), comparable)
+  t.is(original.compare(deserialized, 'comprehensive'), comparable)
 
   // Create a map with different number of entries
   const differentSizeMap = new Map([['key1', 'value1']])
   const differentSizeRep = originalContext.represent(differentSizeMap) as MapRepresentation
 
   // The deserialized map should be unequal to a map with a different size
-  t.is(deserialized.compare(differentSizeRep), unequal)
+  t.is(deserialized.compare(differentSizeRep, 'comprehensive'), unequal)
 })
 
 test('handles empty maps correctly', (t) => {
@@ -240,7 +277,7 @@ test('handles empty maps correctly', (t) => {
   const anotherEmptyMap = new Map()
   const anotherEmptyMapRep = context.represent(anotherEmptyMap) as MapRepresentation
 
-  t.is(emptyMapRep.compare(anotherEmptyMapRep), comparable)
+  t.is(emptyMapRep.compare(anotherEmptyMapRep, 'comprehensive'), comparable)
 })
 
 // FinalFormat tests

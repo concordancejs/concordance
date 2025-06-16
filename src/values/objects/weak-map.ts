@@ -1,4 +1,4 @@
-import { unequal } from '../../comparison.ts'
+import { unequal, type Mode } from '../../comparison.ts'
 import type { Decoder } from '../../decoder.ts'
 import type { DeserializationContext } from '../../deserialization-context.ts'
 import type { Encoder } from '../../encoder.ts'
@@ -21,9 +21,16 @@ export class WeakMapRepresentation extends ObjectRepresentation {
     this.#value = value
   }
 
-  override compare(other: ValueRepresentation) {
+  override compare(other: ValueRepresentation, mode: Mode) {
+    // Since WeakMaps are not enumerable, requiring an actual WeakMap in a fuzzy comparison does not add much value.
+    // Allow fuzzy comparison based on properties alone, which means WeakMaps can be partially compared to a plain
+    // object.
+    if (mode === 'fuzzy' && ObjectRepresentation.isPlain(other)) {
+      return super.compare(other, mode)
+    }
+
     if (!(#value in other)) return unequal
-    return super.compare(other)
+    return super.compare(other, mode)
   }
 
   override finalFormat(formatter: Formatter, options?: FinalFormatOptions) {

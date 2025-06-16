@@ -26,7 +26,7 @@ test('deserialize creates a comparable ModuleNamespaceObjectRepresentation', (t)
   const deserialized = ModuleNamespaceObjectRepresentation.deserialize(deserializationContext, decoder)
 
   // The deserialized representation should be comparable to the original
-  t.is(original.compare(deserialized), comparable)
+  t.is(original.compare(deserialized, 'comprehensive'), comparable)
 })
 
 // Compare method tests
@@ -36,17 +36,42 @@ test('compare returns strictlyEqual when comparing the same module namespace obj
   const moduleRep1 = context.represent(moduleNamespace) as ModuleNamespaceObjectRepresentation
   const moduleRep2 = context.represent(moduleNamespace) as ModuleNamespaceObjectRepresentation
 
-  t.is(moduleRep1.compare(moduleRep2), strictlyEqual)
+  t.is(moduleRep1.compare(moduleRep2, 'comprehensive'), strictlyEqual)
 })
 
-test('compare returns unequal when comparing to non-ModuleNamespaceObjectRepresentation', (t) => {
+test('compare returns unequal when comparing to non-ModuleNamespaceObjectRepresentation in comprehensive mode', (t) => {
   const context = new RealValueContext()
   const object = {}
 
   const moduleRep = context.represent(moduleNamespace) as ModuleNamespaceObjectRepresentation
   const objectRep = context.represent(object)
 
-  t.is(moduleRep.compare(objectRep), unequal)
+  t.is(moduleRep.compare(objectRep, 'comprehensive'), unequal)
+})
+
+test('compare returns comparable when comparing to non-ModuleNamespaceObjectRepresentation in fuzzy mode', (t) => {
+  const context = new RealValueContext()
+  const object = {}
+
+  const moduleRep = context.represent(moduleNamespace) as ModuleNamespaceObjectRepresentation
+  const objectRep = context.represent(object)
+
+  t.is(moduleRep.compare(objectRep, 'fuzzy'), comparable)
+})
+
+test('compare returns unequal when comparing to non-plain object in fuzzy mode', (t) => {
+  const context = new RealValueContext()
+
+  // Create a custom class instance (not a plain object)
+  class CustomClass {
+    prop = 'value'
+  }
+  const customInstance = new CustomClass()
+
+  const moduleRep = context.represent(moduleNamespace) as ModuleNamespaceObjectRepresentation
+  const customRep = context.represent(customInstance)
+
+  t.is(moduleRep.compare(customRep, 'fuzzy'), unequal)
 })
 
 // Module namespace objects from the same module are identical
@@ -61,7 +86,7 @@ test('compare returns strictlyEqual when importing the same module multiple time
   const moduleRep2 = context.represent(duplicateNamespace) as ModuleNamespaceObjectRepresentation
 
   // Should be strictly equal since they're the same object
-  t.is(moduleRep1.compare(moduleRep2), strictlyEqual)
+  t.is(moduleRep1.compare(moduleRep2, 'comprehensive'), strictlyEqual)
 
   // We can also verify they're the same object
   t.is(moduleNamespace, duplicateNamespace)
@@ -78,7 +103,7 @@ test('compare returns unequal when comparing different module namespace objects'
   const moduleRep2 = context.represent(differentModuleNamespace) as ModuleNamespaceObjectRepresentation
 
   // Different module namespace objects should be unequal
-  t.is(moduleRep1.compare(moduleRep2), unequal)
+  t.is(moduleRep1.compare(moduleRep2, 'comprehensive'), unequal)
 })
 
 // Serialization test
@@ -111,7 +136,7 @@ test('serializing and deserializing a module namespace object preserves its stru
   const deserialized = ModuleNamespaceObjectRepresentation.deserialize(deserializationContext, decoder)
 
   // The original and deserialized representations should be comparable
-  t.is(original.compare(deserialized), comparable)
+  t.is(original.compare(deserialized, 'comprehensive'), comparable)
 })
 
 // FinalFormat tests

@@ -1,6 +1,6 @@
 import never from 'never'
 import { ElementAccessor, SparseValueRepresentation } from '../../accessors/element.ts'
-import { strictlyEqual, unequal } from '../../comparison.ts'
+import { strictlyEqual, unequal, comparable, type Mode } from '../../comparison.ts'
 import { RealValueContext } from '../../real-value-context.ts'
 import type { Decoder } from '../../decoder.ts'
 import { DeserializationContext } from '../../deserialization-context.ts'
@@ -34,12 +34,23 @@ export class ArrayRepresentation extends ObjectRepresentation {
     return this.#context.length(this.#value)
   }
 
-  override compare(other: ValueRepresentation) {
+  override compare(other: ValueRepresentation, mode: Mode) {
     if (!(#value in other)) return unequal
     if (this.#value === other.#value) return strictlyEqual
+
+    if (mode === 'fuzzy') {
+      // In fuzzy mode, allow this array to have >= length as other
+      if (this.#context.length(this.#value) >= other.#context.length(other.#value)) {
+        return comparable
+      }
+
+      return unequal
+    }
+
+    // In comprehensive mode, lengths must match exactly
     if (this.#context.length(this.#value) !== other.#context.length(other.#value)) return unequal
 
-    return super.compare(other)
+    return super.compare(other, mode)
   }
 
   override *iterateArrayLike() {

@@ -1,4 +1,4 @@
-import { type Comparison, strictlyEqual, unequal } from '../../comparison.ts'
+import { type Comparison, type Mode, strictlyEqual, unequal } from '../../comparison.ts'
 import type { Decoder } from '../../decoder.ts'
 import type { DeserializationContext } from '../../deserialization-context.ts'
 import type { Encoder } from '../../encoder.ts'
@@ -23,14 +23,21 @@ export class PromiseRepresentation extends ObjectRepresentation {
     this.#value = value
   }
 
-  override compare(other: ValueRepresentation): Comparison {
+  override compare(other: ValueRepresentation, mode: Mode): Comparison {
+    // Partial comparison of promises is only sensible when you don't have a reference to the actual promise prior
+    // to the comparison. Therefore allow fuzzy comparison based on properties alone. This means that promises can
+    // be partially compared to a plain object.
+    if (mode === 'fuzzy' && ObjectRepresentation.isPlain(other)) {
+      return super.compare(other, mode)
+    }
+
     if (!(#value in other)) return unequal
 
     // Promises can only be compared by reference, however if either value is deserialized this won't be possible.
     // Check whether they're comparable as objects. The comparison algorithm should then proceed to compare properties,
     // if any.
     if (this.#context.deserialized || other.#context.deserialized) {
-      return super.compare(other)
+      return super.compare(other, mode)
     }
 
     return this.#value === other.#value ? strictlyEqual : unequal

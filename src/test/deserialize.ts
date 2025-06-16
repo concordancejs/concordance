@@ -242,7 +242,11 @@ test('fullyDeserialize advances decoder to next value in sequence', (t) => {
   const markerRepresentation = context.next()!
   // The marker can only be read if fullyDeserialize processed all nested data
   const expectedMarker = new StringRepresentation('MARKER_AFTER_NESTED')
-  t.is(markerRepresentation.compare(expectedMarker), strictlyEqual, 'Next value should be the marker string')
+  t.is(
+    markerRepresentation.compare(expectedMarker, 'comprehensive'),
+    strictlyEqual,
+    'Next value should be the marker string',
+  )
 })
 
 test('fullyDeserialize returns the input representation', (t) => {
@@ -289,7 +293,11 @@ test('fullyDeserialize handles circular references without infinite loops', (t) 
   // Decoder should be positioned at marker
   const markerRepresentation = context.next()!
   const expectedMarker = new StringRepresentation('CIRCULAR_HANDLED')
-  t.is(markerRepresentation.compare(expectedMarker), strictlyEqual, 'Circular reference was handled correctly')
+  t.is(
+    markerRepresentation.compare(expectedMarker, 'comprehensive'),
+    strictlyEqual,
+    'Circular reference was handled correctly',
+  )
 })
 
 test('fullyDeserialize does not reprocess same representation', (t) => {
@@ -306,7 +314,7 @@ test('fullyDeserialize does not reprocess same representation', (t) => {
   // Verify decoder advanced to first marker
   const marker1 = context.next()!
   const expectedMarker1 = new StringRepresentation('MARKER_AFTER_NESTED')
-  t.is(marker1.compare(expectedMarker1), strictlyEqual)
+  t.is(marker1.compare(expectedMarker1, 'comprehensive'), strictlyEqual)
 
   // Second call to fullyDeserialize on SAME representation should use WeakSet early return
   // and NOT advance the decoder further
@@ -315,5 +323,9 @@ test('fullyDeserialize does not reprocess same representation', (t) => {
   // Decoder should still be positioned at the second marker (not advanced)
   const marker2 = context.next()!
   const expectedMarker2 = new StringRepresentation('SECOND_MARKER')
-  t.is(marker2.compare(expectedMarker2), strictlyEqual, 'Second fullyDeserialize call should not advance decoder')
+  t.is(
+    marker2.compare(expectedMarker2, 'comprehensive'),
+    strictlyEqual,
+    'Second fullyDeserialize call should not advance decoder',
+  )
 })

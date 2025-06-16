@@ -1,4 +1,4 @@
-import { deeplyEqual, strictlyEqual, unequal } from '../comparison.ts'
+import { deeplyEqual, strictlyEqual, unequal, comparable, type Mode, type Comparison } from '../comparison.ts'
 import type { Encoder } from '../encoder.ts'
 import { staticTypeTable } from '../serialization-types.ts'
 import {
@@ -11,13 +11,18 @@ import type {
   AccessorRepresentation,
   CommonRepresentation,
   DeepFunctionality,
+  GroupFunctionality,
   Opaque,
   PrimitiveRepresentation,
   ShallowFunctionality,
   ValueRepresentation,
+  GroupRepresentation,
+  AccessorFunctionality,
 } from '../value.d.ts'
 import { UndefinedRepresentation } from '../values/primitives/undefined.ts'
 import type { Formatter } from '../formatter.ts'
+import type { TakeWhile } from '../stack.ts'
+import { fullyDeserialize } from '../deserialize.ts'
 
 export class SparseValueRepresentation implements CommonRepresentation, ShallowFunctionality {
   readonly #sparse: undefined
@@ -47,7 +52,7 @@ void (SparseValueRepresentation satisfies new (
   ...arguments_: ConstructorParameters<typeof SparseValueRepresentation>
 ) => PrimitiveRepresentation)
 
-export class ElementAccessor implements CommonRepresentation, DeepFunctionality {
+export class ElementAccessor implements CommonRepresentation, DeepFunctionality, AccessorFunctionality {
   static is(value: Opaque): value is ElementAccessor {
     return #value in value
   }
@@ -68,10 +73,19 @@ export class ElementAccessor implements CommonRepresentation, DeepFunctionality 
     yield this.#value
   }
 
-  compare(other: ValueRepresentation) {
+  groupForComparison(takeWhile: TakeWhile, parent: ValueRepresentation, mode: Mode): ElementGroup | undefined {
+    if (mode === 'comprehensive' || ElementGroup.is(parent)) {
+      return
+    }
+
+    const elements: ElementAccessor[] = [fullyDeserialize(this), ...takeWhile((value) => ElementAccessor.is(value))]
+    return new ElementGroup(elements)
+  }
+
+  compare(other: ValueRepresentation, mode: Mode) {
     if (!(#value in other)) return unequal
     if (this.#index !== other.#index) return unequal
-    return this.#value.compare(other.#value)
+    return this.#value.compare(other.#value, mode)
   }
 
   finalFormat(formatter: Formatter): void {
@@ -86,3 +100,40 @@ export class ElementAccessor implements CommonRepresentation, DeepFunctionality 
 void (ElementAccessor satisfies new (
   ...arguments_: ConstructorParameters<typeof ElementAccessor>
 ) => AccessorRepresentation)
+
+export class ElementGroup implements CommonRepresentation, GroupFunctionality {
+  static is(value: ValueRepresentation): value is ElementGroup {
+    return #elements in value
+  }
+
+  #elements: ElementAccessor[]
+
+  constructor(elements: ElementAccessor[]) {
+    this.#elements = elements
+  }
+
+  get deserialized() {
+    return this.#elements[0]?.deserialized ?? false
+  }
+
+  *[Symbol.iterator]() {
+    yield* this.#elements
+  }
+
+  align(other: ValueRepresentation, mode: Mode): void {
+    if (mode === 'comprehensive' || !ElementGroup.is(other)) return
+
+    // In fuzzy mode, drop elements from lhs so that lhs.length <= rhs.length
+    if (this.#elements.length > other.#elements.length) {
+      this.#elements = this.#elements.slice(0, other.#elements.length)
+    }
+  }
+
+  compare(other: ValueRepresentation): Comparison {
+    if (!(#elements in other)) return unequal
+
+    return this.#elements.length === other.#elements.length ? comparable : unequal
+  }
+}
+
+void (ElementGroup satisfies new (...arguments_: ConstructorParameters<typeof ElementGroup>) => GroupRepresentation)

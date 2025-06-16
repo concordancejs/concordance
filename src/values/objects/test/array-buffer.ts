@@ -29,7 +29,7 @@ test('deserialize creates a comparable ArrayBufferRepresentation', (t) => {
   const deserialized = ArrayBufferRepresentation.deserialize(deserializationContext, decoder)
 
   // The deserialized representation should be comparable to the original
-  t.is(original.compare(deserialized), comparable)
+  t.is(original.compare(deserialized, 'comprehensive'), comparable)
 })
 
 // Compare method tests
@@ -40,7 +40,7 @@ test('compare returns strictlyEqual when comparing the same array buffer instanc
   const bufferRep1 = context.represent(buffer) as ArrayBufferRepresentation
   const bufferRep2 = context.represent(buffer) as ArrayBufferRepresentation
 
-  t.is(bufferRep1.compare(bufferRep2), strictlyEqual)
+  t.is(bufferRep1.compare(bufferRep2, 'comprehensive'), strictlyEqual)
 })
 
 test('compare returns unequal when comparing to non-ArrayBufferRepresentation', (t) => {
@@ -51,7 +51,8 @@ test('compare returns unequal when comparing to non-ArrayBufferRepresentation', 
   const bufferRep = context.represent(buffer) as ArrayBufferRepresentation
   const objectRep = context.represent(object)
 
-  t.is(bufferRep.compare(objectRep), unequal)
+  t.is(bufferRep.compare(objectRep, 'comprehensive'), unequal)
+  t.is(bufferRep.compare(objectRep, 'fuzzy'), unequal)
 })
 
 test('compare returns unequal when comparing array buffers with different content', (t) => {
@@ -64,7 +65,7 @@ test('compare returns unequal when comparing array buffers with different conten
   const bufferRep1 = context.represent(buffer1) as ArrayBufferRepresentation
   const bufferRep2 = context.represent(buffer2) as ArrayBufferRepresentation
 
-  t.is(bufferRep1.compare(bufferRep2), unequal)
+  t.is(bufferRep1.compare(bufferRep2, 'comprehensive'), unequal)
 })
 
 test('compare returns comparable when comparing different array buffer instances with same content', (t) => {
@@ -78,7 +79,21 @@ test('compare returns comparable when comparing different array buffer instances
   const bufferRep2 = context.represent(buffer2) as ArrayBufferRepresentation
 
   // Should be comparable, not strictly equal, as they are different instances
-  t.is(bufferRep1.compare(bufferRep2), comparable)
+  t.is(bufferRep1.compare(bufferRep2, 'comprehensive'), comparable)
+})
+
+test('compare returns comparable when comparing shared & regular array buffer instances in fuzzy mode', (t) => {
+  const context = new RealValueContext()
+  const buffer1 = new ArrayBuffer(4)
+  new Uint8Array(buffer1).set([1, 2, 3, 4])
+  const buffer2 = new SharedArrayBuffer(4)
+  new Uint8Array(buffer2).set([1, 2, 3, 4])
+
+  const bufferRep1 = context.represent(buffer1) as ArrayBufferRepresentation
+  const bufferRep2 = context.represent(buffer2) as ArrayBufferRepresentation
+
+  // Should be comparable because constructors are not considered in fuzzy mode
+  t.is(bufferRep1.compare(bufferRep2, 'fuzzy'), comparable)
 })
 
 test('compare returns unequal when comparing array buffer to array buffer view', (t) => {
@@ -90,7 +105,7 @@ test('compare returns unequal when comparing array buffer to array buffer view',
   const bufferRep = context.represent(buffer) as ArrayBufferRepresentation
   const viewRep = context.represent(view) as ArrayBufferViewRepresentation
 
-  t.is(bufferRep.compare(viewRep), unequal)
+  t.is(bufferRep.compare(viewRep, 'comprehensive'), unequal)
 })
 
 test('compare correctly handles empty array buffers', (t) => {
@@ -104,9 +119,9 @@ test('compare correctly handles empty array buffers', (t) => {
   const nonEmptyRep = context.represent(nonEmptyBuffer) as ArrayBufferRepresentation
 
   // Two empty buffers should be comparable (but not strictly equal)
-  t.is(emptyRep1.compare(emptyRep2), comparable)
+  t.is(emptyRep1.compare(emptyRep2, 'comprehensive'), comparable)
   // Empty buffer should be unequal to non-empty buffer
-  t.is(emptyRep1.compare(nonEmptyRep), unequal)
+  t.is(emptyRep1.compare(nonEmptyRep, 'comprehensive'), unequal)
 
   // Test serialization and comparison with deserialized empty buffer
   const encoder = new Encoder()
@@ -118,7 +133,7 @@ test('compare correctly handles empty array buffers', (t) => {
   const deserialized = ArrayBufferRepresentation.deserialize(deserializationContext, decoder)
 
   // Should be comparable to the original empty buffer
-  t.is(emptyRep1.compare(deserialized), comparable)
+  t.is(emptyRep1.compare(deserialized, 'comprehensive'), comparable)
 })
 
 // IterateArrayLike and iterateIterable tests
@@ -161,11 +176,11 @@ test('iterateProperties yields properties for ArrayBuffer instances', (t) => {
 
   // Find the expected properties
   const maxByteLengthProperty = properties.find((prop) => {
-    return maxByteLengthAccessor.compare(prop) === strictlyEqual
+    return maxByteLengthAccessor.compare(prop, 'comprehensive') === strictlyEqual
   })
 
   const resizableProperty = properties.find((prop) => {
-    return resizableAccessor.compare(prop) === strictlyEqual
+    return resizableAccessor.compare(prop, 'comprehensive') === strictlyEqual
   })
 
   // Verify that both expected properties were found
@@ -191,11 +206,11 @@ test('iterateProperties yields properties for SharedArrayBuffer instances', (t) 
 
   // Find the expected properties
   const maxByteLengthProperty = properties.find((prop) => {
-    return maxByteLengthAccessor.compare(prop) === strictlyEqual
+    return maxByteLengthAccessor.compare(prop, 'comprehensive') === strictlyEqual
   })
 
   const growableProperty = properties.find((prop) => {
-    return growableAccessor.compare(prop) === strictlyEqual
+    return growableAccessor.compare(prop, 'comprehensive') === strictlyEqual
   })
 
   // Verify that both expected properties were found

@@ -1,7 +1,7 @@
 import { mock } from 'node:test'
 import test from 'ava'
 import { compare, compareRepresentations } from '../compare.ts'
-import { comparable, deeplyEqual, unequal, strictlyEqual, type Comparison } from '../comparison.ts'
+import { comparable, deeplyEqual, unequal, strictlyEqual, type Comparison, type Mode } from '../comparison.ts'
 import { finished, type SerializationResult } from '../serialization-result.ts'
 import type {
   AccessorFunctionality,
@@ -11,10 +11,6 @@ import type {
   ValueRepresentation,
 } from '../value.ts'
 import type { TakeWhile } from '../stack.ts'
-import { Encoder } from '../encoder.ts'
-import { staticTypeTable, version } from '../serialization-types.ts'
-import { deserialize } from '../deserialize.ts'
-import { representValue } from '../represent.ts'
 
 // Mock ValueRepresentation implementation
 class MockValueRepresentation implements CommonRepresentation, DeepFunctionality {
@@ -27,7 +23,7 @@ class MockValueRepresentation implements CommonRepresentation, DeepFunctionality
     this.children = children
   }
 
-  compare(): Comparison {
+  compare(_other: ValueRepresentation, _mode: Mode): Comparison {
     return this.#compareResult
   }
 
@@ -71,7 +67,7 @@ class MockGroupableRepresentation implements CommonRepresentation, AccessorFunct
     return finished
   }
 
-  groupForComparison(takeWhile: TakeWhile, parent: ValueRepresentation): GroupRepresentation | undefined {
+  groupForComparison(takeWhile: TakeWhile, parent: ValueRepresentation, _mode: Mode): GroupRepresentation | undefined {
     if (MockGroupRepresentation.is(parent)) return undefined
     if (!this.#groupToReturn) return undefined
 
@@ -114,7 +110,7 @@ class MockGroupRepresentation implements GroupRepresentation {
     return this.#compareResult
   }
 
-  align(_other: ValueRepresentation): void {
+  align(_other: ValueRepresentation, _mode: Mode): void {
     // Default implementation does nothing
     // Tests can spy on this method if needed
   }
@@ -325,52 +321,328 @@ test('compareDescriptors handles asymmetric grouping', (t) => {
   const ungroupedLhsItem = new MockGroupableRepresentation(comparable) // This won't be grouped
   const groupedRhsItem = new MockGroupableRepresentation(comparable, rhsGroup) // This will be grouped
 
-  const ungroupedLhs = new MockValueRepresentation(comparable, [ungroupedLhsItem])
+  const ungroupgedLhs = new MockValueRepresentation(comparable, [ungroupedLhsItem])
   const groupedRhs = new MockValueRepresentation(comparable, [groupedRhsItem])
 
-  t.false(compareRepresentations(ungroupedLhs, groupedRhs), 'Should fail when RHS is grouped but LHS is not')
+  t.false(compareRepresentations(ungroupgedLhs, groupedRhs), 'Should fail when RHS is grouped but LHS is not')
 })
 
-test('representations are fully deserialized before grouping', (t) => {
-  // Rather than using mocks, perform an actual comparison that is expected to succeed only when full deserialization
-  // is performed.
-  const { bytes } = new Encoder()
-    .int(version)
-    .staticType(staticTypeTable.object)
-    .annotations({ p: 1, c: 'Object' })
-    // Add symbol property aspect
-    .staticType(staticTypeTable.symbolPropertyAspect)
-    // First symbol property with object value (complex enough to test fullyDeserialize)
-    .staticType(staticTypeTable.symbol)
-    .annotations({ s: 'Symbol(objectValue)' })
-    // Object as the complex value
-    .staticType(staticTypeTable.object)
-    .annotations({ p: 2, c: 'Object' })
-    .staticType(staticTypeTable.symbolPropertyAspect)
-    // Nested symbol property
-    .staticType(staticTypeTable.symbol)
-    .annotations({ s: 'Symbol(nested)' })
-    // Add the value (string 'nested')
-    .staticType(staticTypeTable.string)
-    .string('nested')
-    .staticType(staticTypeTable.terminator)
-    // Second symbol property with simple string value
-    .staticType(staticTypeTable.symbol)
-    .annotations({ s: 'Symbol(simple)' })
-    .staticType(staticTypeTable.string)
-    .string('simpleStringValue')
-    // End symbol properties
-    .staticType(staticTypeTable.terminator)
+test('compareDescriptors passes default mode to compare, groupForComparison, and align', (t) => {
+  const group = new MockGroupRepresentation(comparable)
+  const groupable = new MockGroupableRepresentation(comparable, group)
+  const lhs = new MockValueRepresentation(comparable, [groupable])
+  const rhs = new MockValueRepresentation(comparable, [groupable])
 
-  const expected = {
-    [Symbol('objectValue')]: {
-      [Symbol('nested')]: 'nested',
+  const compareSpy = mock.method(lhs, 'compare')
+  const groupForComparisonSpy = mock.method(groupable, 'groupForComparison')
+  const alignSpy = mock.method(group, 'align')
+
+  compareRepresentations(lhs, rhs)
+
+  t.is(compareSpy.mock.calls[0]?.arguments[1], 'comprehensive', 'compare called with default mode')
+  t.is(
+    groupForComparisonSpy.mock.calls[0]?.arguments[2],
+    'comprehensive',
+    'groupForComparison called with default mode',
+  )
+  t.is(alignSpy.mock.calls[0]?.arguments[1], 'comprehensive', 'align called with default mode')
+})
+
+test('compareDescriptors forwards explicit mode to compare, groupForComparison, and align', (t) => {
+  const group = new MockGroupRepresentation(comparable)
+  const groupable = new MockGroupableRepresentation(comparable, group)
+  const lhs = new MockValueRepresentation(comparable, [groupable])
+  const rhs = new MockValueRepresentation(comparable, [groupable])
+
+  const compareSpy = mock.method(lhs, 'compare')
+  const groupForComparisonSpy = mock.method(groupable, 'groupForComparison')
+  const alignSpy = mock.method(group, 'align')
+
+  compareRepresentations(lhs, rhs, 'fuzzy')
+
+  t.is(compareSpy.mock.calls[0]?.arguments[1], 'fuzzy', 'compare called with explicit mode')
+  t.is(groupForComparisonSpy.mock.calls[0]?.arguments[2], 'fuzzy', 'groupForComparison called with explicit mode')
+  t.is(alignSpy.mock.calls[0]?.arguments[1], 'fuzzy', 'align called with explicit mode')
+})
+
+// Tests for fuzzy comparison mode
+// In fuzzy mode:
+// - Objects: Only intersecting properties are compared (actual can have extra properties)
+// - Sets/Maps: Only intersecting elements are compared, but all expected elements must exist in actual
+// - Arrays: Still treated as ordered structures
+// - Order doesn't matter for Sets, Maps, and object properties
+
+test('fuzzy: object properties - subset matching', (t) => {
+  // Expected has subset of actual properties - should pass
+  const actual = { a: 1, b: 2, c: 3 }
+  const expected = { a: 1, c: 3 }
+
+  t.true(compare(actual, expected, { mode: 'fuzzy' }).pass)
+  t.false(compare(expected, actual, { mode: 'fuzzy' }).pass) // Reversed should fail
+})
+
+test('fuzzy: object properties - missing property in actual', (t) => {
+  // Expected has property not in actual - should fail
+  const actual = { a: 1, b: 2 }
+  const expected = { a: 1, c: 3 }
+
+  t.false(compare(actual, expected, { mode: 'fuzzy' }).pass)
+})
+
+test('fuzzy: object properties - value mismatch', (t) => {
+  // Expected property has different value - should fail
+  const actual = { a: 1, b: 2 }
+  const expected = { a: 1, b: 3 }
+
+  t.false(compare(actual, expected, { mode: 'fuzzy' }).pass)
+})
+
+test('fuzzy: symbol properties - subset matching', (t) => {
+  // Expected has subset of actual symbol properties - should pass
+  const sym1 = Symbol('sym1')
+  const sym2 = Symbol('sym2')
+  const sym3 = Symbol('sym3')
+
+  const actual = { [sym1]: 'value1', [sym2]: 'value2', [sym3]: 'value3' }
+  const expected = { [sym1]: 'value1', [sym3]: 'value3' }
+
+  t.true(compare(actual, expected, { mode: 'fuzzy' }).pass)
+  t.false(compare(expected, actual, { mode: 'fuzzy' }).pass) // Reversed should fail
+})
+
+test('fuzzy: symbol properties - missing symbol in actual', (t) => {
+  // Expected has symbol not in actual - should fail
+  const sym1 = Symbol('sym1')
+  const sym2 = Symbol('sym2')
+  const sym3 = Symbol('sym3')
+
+  const actual = { [sym1]: 'value1', [sym2]: 'value2' }
+  const expected = { [sym1]: 'value1', [sym3]: 'value3' }
+
+  t.false(compare(actual, expected, { mode: 'fuzzy' }).pass)
+})
+
+test('fuzzy: Set values - subset matching', (t) => {
+  // Only intersection of values should be compared
+  const actual = new Set([1, 2, 3, 4])
+  const expected = new Set([2, 4]) // Only these values will be compared
+
+  t.true(compare(actual, expected, { mode: 'fuzzy' }).pass)
+})
+
+test('fuzzy: Set values - missing value in actual', (t) => {
+  // Expected has value not in actual - should fail
+  const actual = new Set([1, 2, 3])
+  const expected = new Set([1, 4]) // 4 is not in actual
+
+  t.false(compare(actual, expected, { mode: 'fuzzy' }).pass)
+})
+
+test('fuzzy: Set values - unordered matching', (t) => {
+  // Order shouldn't matter in Sets
+  const actual = new Set([1, 2, 3, 4])
+  const expected = new Set([4, 2]) // Different order, subset of actual
+
+  t.true(compare(actual, expected, { mode: 'fuzzy' }).pass)
+})
+
+test('fuzzy: Map entries - subset matching', (t) => {
+  // Expected has subset of actual Map entries - should pass
+  const actual = new Map([
+    ['a', 1],
+    ['b', 2],
+    ['c', 3],
+  ])
+  const expected = new Map([
+    ['a', 1],
+    ['c', 3],
+  ]) // Subset of actual
+
+  t.true(compare(actual, expected, { mode: 'fuzzy' }).pass)
+  t.false(compare(expected, actual, { mode: 'fuzzy' }).pass) // Reversed should fail
+})
+
+test('fuzzy: Map entries - missing key in actual', (t) => {
+  // Expected has key not in actual - should fail
+  const actual = new Map([
+    ['a', 1],
+    ['b', 2],
+  ])
+  const expected = new Map([
+    ['a', 1],
+    ['c', 3],
+  ]) // 'c' key not in actual
+
+  t.false(compare(actual, expected, { mode: 'fuzzy' }).pass)
+})
+
+test('fuzzy: Map entries - key exists but value differs', (t) => {
+  // Expected has same key but different value - should fail
+  const actual = new Map([
+    ['a', 1],
+    ['b', 2],
+    ['c', 3],
+  ])
+  const expected = new Map([
+    ['a', 1],
+    ['b', 99],
+  ]) // 'b' has different value
+
+  t.false(compare(actual, expected, { mode: 'fuzzy' }).pass)
+})
+
+test('fuzzy: Map entries - unordered matching', (t) => {
+  // Order shouldn't matter in Maps
+  const actual = new Map([
+    ['a', 1],
+    ['b', 2],
+    ['c', 3],
+  ])
+  const expected = new Map([
+    ['c', 3],
+    ['a', 1],
+  ]) // Different order, subset of actual
+
+  t.true(compare(actual, expected, { mode: 'fuzzy' }).pass)
+})
+
+test('fuzzy: nested objects - subset matching', (t) => {
+  // Expected has subset at multiple nesting levels - should pass
+  const actual = {
+    level1: {
+      a: 1,
+      b: 2,
+      level2: {
+        x: 10,
+        y: 20,
+        z: 30,
+      },
     },
-    [Symbol('simple')]: 'simpleStringValue',
+    other: 'value',
   }
 
-  const representation = representValue(expected)
+  const expected = {
+    level1: {
+      a: 1,
+      level2: {
+        x: 10,
+        z: 30,
+      },
+    },
+  }
 
-  t.true(compareRepresentations(representation, deserialize(bytes)))
-  t.true(compareRepresentations(deserialize(bytes), representation))
+  t.true(compare(actual, expected, { mode: 'fuzzy' }).pass)
+})
+
+test('fuzzy: nested objects - missing nested property', (t) => {
+  // Expected has property not in actual at nested level - should fail
+  const actual = {
+    level1: {
+      a: 1,
+      level2: {
+        x: 10,
+        y: 20,
+      },
+    },
+  }
+
+  const expected = {
+    level1: {
+      a: 1,
+      level2: {
+        x: 10,
+        z: 30, // This property doesn't exist in actual
+      },
+    },
+  }
+
+  t.false(compare(actual, expected, { mode: 'fuzzy' }).pass)
+})
+
+test('fuzzy: nested structures with Sets and Maps', (t) => {
+  // Complex nested structure with objects, Sets, and Maps
+  const actual = {
+    data: new Set([1, 2, 3]),
+    mapping: new Map([
+      ['key1', 'value1'],
+      ['key2', 'value2'],
+      ['key3', 'value3'],
+    ]),
+    nested: {
+      innerSet: new Set(['a', 'b', 'c']),
+      innerMap: new Map([
+        [1, 'one'],
+        [2, 'two'],
+        [3, 'three'],
+      ]),
+    },
+    extra: 'ignored',
+  }
+
+  const expected = {
+    data: new Set([2, 3]), // Subset of actual Set
+    mapping: new Map([
+      ['key1', 'value1'],
+      ['key3', 'value3'],
+    ]), // Subset of actual Map
+    nested: {
+      innerSet: new Set(['a', 'c']), // Subset of actual inner Set
+      innerMap: new Map([
+        [1, 'one'],
+        [3, 'three'],
+      ]), // Subset of actual inner Map
+    },
+  }
+
+  t.true(compare(actual, expected, { mode: 'fuzzy' }).pass)
+})
+
+test('fuzzy: arrays are treated as ordered structures', (t) => {
+  // Arrays should still be treated as ordered, not like Sets
+  const actual = [1, 2, 3, 4]
+  const expected = [1, 3, 2, 4] // Unequal elements at index 1 and 2
+
+  t.false(compare(actual, expected, { mode: 'fuzzy' }).pass)
+})
+
+test('fuzzy: primitives use exact comparison', (t) => {
+  // Primitive values should use exact comparison regardless of mode
+  t.true(compare(42, 42, { mode: 'fuzzy' }).pass)
+  t.false(compare(42, 43, { mode: 'fuzzy' }).pass)
+  t.false(compare('hello', 'world', { mode: 'fuzzy' }).pass)
+  t.true(compare(null, null, { mode: 'fuzzy' }).pass)
+  t.false(compare(null, undefined, { mode: 'fuzzy' }).pass)
+})
+
+test('fuzzy: edge case - empty expected structures', (t) => {
+  // Empty expected should match any actual (vacuous truth)
+  t.true(compare({ a: 1, b: 2 }, {}, { mode: 'fuzzy' }).pass)
+  t.true(compare(new Set([1, 2, 3]), new Set(), { mode: 'fuzzy' }).pass)
+  t.true(compare(new Map([['a', 1]]), new Map(), { mode: 'fuzzy' }).pass)
+})
+
+test('fuzzy: edge case - identical structures', (t) => {
+  // Identical structures should always pass
+  const structure = {
+    obj: { a: 1, b: 2 },
+    set: new Set([1, 2, 3]),
+    map: new Map([
+      ['x', 10],
+      ['y', 20],
+    ]),
+  }
+
+  t.true(compare(structure, structure, { mode: 'fuzzy' }).pass)
+
+  // Deep copy should also pass
+  const copy = {
+    obj: { a: 1, b: 2 },
+    set: new Set([1, 2, 3]),
+    map: new Map([
+      ['x', 10],
+      ['y', 20],
+    ]),
+  }
+
+  t.true(compare(structure, copy, { mode: 'fuzzy' }).pass)
 })

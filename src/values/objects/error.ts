@@ -1,4 +1,4 @@
-import { unequal } from '../../comparison.ts'
+import { unequal, type Mode } from '../../comparison.ts'
 import type { Decoder } from '../../decoder.ts'
 import type { DeserializationContext } from '../../deserialization-context.ts'
 import type { Encoder } from '../../encoder.ts'
@@ -15,9 +15,15 @@ export class ErrorRepresentation extends ObjectRepresentation {
 
   readonly #stamp: undefined
 
-  override compare(other: ValueRepresentation) {
+  override compare(other: ValueRepresentation, mode: Mode) {
+    // It can be hard to construct a partial error that is still an actual error. Allow fuzzy comparison based on
+    // properties alone. This means that errors can be partially compared to a plain object.
+    if (mode === 'fuzzy' && ObjectRepresentation.isPlain(other)) {
+      return super.compare(other, mode)
+    }
+
     if (!(#stamp in other)) return unequal
-    return super.compare(other)
+    return super.compare(other, mode)
   }
 
   override *iterateProperties() {

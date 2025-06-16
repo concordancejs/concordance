@@ -498,9 +498,9 @@ test('iterateElements iterates through array-like elements', (t) => {
   const expectedElement2 = new ElementAccessor(2, context.represent(3))
 
   // Compare using accessor's compare method
-  t.is(elements[0]!.compare(expectedElement0), strictlyEqual)
-  t.is(elements[1]!.compare(expectedElement1), strictlyEqual)
-  t.is(elements[2]!.compare(expectedElement2), strictlyEqual)
+  t.is(elements[0]!.compare(expectedElement0, 'comprehensive'), strictlyEqual)
+  t.is(elements[1]!.compare(expectedElement1, 'comprehensive'), strictlyEqual)
+  t.is(elements[2]!.compare(expectedElement2, 'comprehensive'), strictlyEqual)
 })
 
 test('iterateMapEntries iterates through map entries', (t) => {
@@ -519,8 +519,8 @@ test('iterateMapEntries iterates through map entries', (t) => {
   const expectedEntry1 = new MapEntryAccessor(context, context.represent('key2'), context.represent('value2'))
 
   // Compare using accessor's compare method
-  t.is(entries[0]!.compare(expectedEntry0), strictlyEqual)
-  t.is(entries[1]!.compare(expectedEntry1), strictlyEqual)
+  t.is(entries[0]!.compare(expectedEntry0, 'comprehensive'), strictlyEqual)
+  t.is(entries[1]!.compare(expectedEntry1, 'comprehensive'), strictlyEqual)
 })
 
 test('iterateValues handles objects with and without Symbol.iterator', (t) => {
@@ -585,15 +585,15 @@ test('namedProperties handles property accessors correctly', (t) => {
   const expectedEnumProp = new NamedPropertyAccessor('enumProp', context.represent('visible'))
 
   // Some property should compare equal to our expected enumProp accessor
-  t.true(props.some((p) => p.compare(expectedEnumProp) === strictlyEqual))
+  t.true(props.some((p) => p.compare(expectedEnumProp, 'comprehensive') === strictlyEqual))
 
   // None of the properties should compare equal to a nonEnumProp accessor
   const expectedNonEnumProp = new NamedPropertyAccessor('nonEnumProp', context.represent('hidden'))
-  t.false(props.some((p) => p.compare(expectedNonEnumProp) === strictlyEqual))
+  t.false(props.some((p) => p.compare(expectedNonEnumProp, 'comprehensive') === strictlyEqual))
 
   // Test with include parameter to force inclusion of non-enumerable properties
   const propsWithForced = [...context.namedProperties(object, { include: ['nonEnumProp'] })]
-  t.true(propsWithForced.some((p) => p.compare(expectedNonEnumProp) === strictlyEqual))
+  t.true(propsWithForced.some((p) => p.compare(expectedNonEnumProp, 'comprehensive') === strictlyEqual))
 })
 
 test('namedProperties excludes specified property names', (t) => {
@@ -609,9 +609,9 @@ test('namedProperties excludes specified property names', (t) => {
   const expectedC = new NamedPropertyAccessor('c', context.represent(3))
   const expectedB = new NamedPropertyAccessor('b', context.represent(2))
 
-  t.true(props.some((p) => p.compare(expectedA) === strictlyEqual))
-  t.true(props.some((p) => p.compare(expectedC) === strictlyEqual))
-  t.false(props.some((p) => p.compare(expectedB) === strictlyEqual))
+  t.true(props.some((p) => p.compare(expectedA, 'comprehensive') === strictlyEqual))
+  t.true(props.some((p) => p.compare(expectedC, 'comprehensive') === strictlyEqual))
+  t.false(props.some((p) => p.compare(expectedB, 'comprehensive') === strictlyEqual))
 })
 
 test('namedProperties filters out numeric indices for array-like objects', (t) => {
@@ -639,7 +639,7 @@ test('namedProperties filters out numeric indices for array-like objects', (t) =
   const expectedExtraProp = new NamedPropertyAccessor('extraProp', context.represent('extra'))
 
   // Should include 'extraProp'
-  t.true(props.some((p) => p.compare(expectedExtraProp) === strictlyEqual))
+  t.true(props.some((p) => p.compare(expectedExtraProp, 'comprehensive') === strictlyEqual))
 
   // Create expected property accessors for the numeric indices
   const expectedProp0 = new NamedPropertyAccessor('0', context.represent('zero'))
@@ -647,9 +647,9 @@ test('namedProperties filters out numeric indices for array-like objects', (t) =
   const expectedProp2 = new NamedPropertyAccessor('2', context.represent('two'))
 
   // Should not include any of the numeric indices
-  t.false(props.some((p) => p.compare(expectedProp0) === strictlyEqual))
-  t.false(props.some((p) => p.compare(expectedProp1) === strictlyEqual))
-  t.false(props.some((p) => p.compare(expectedProp2) === strictlyEqual))
+  t.false(props.some((p) => p.compare(expectedProp0, 'comprehensive') === strictlyEqual))
+  t.false(props.some((p) => p.compare(expectedProp1, 'comprehensive') === strictlyEqual))
+  t.false(props.some((p) => p.compare(expectedProp2, 'comprehensive') === strictlyEqual))
 
   // Boundary case: a numeric index at exactly the length
   const arrayLikeWithBoundary = {
@@ -673,7 +673,7 @@ test('namedProperties filters out numeric indices for array-like objects', (t) =
   const expectedBoundaryProp = new NamedPropertyAccessor('2', context.represent('boundary'))
 
   // Should include the boundary index
-  t.true(boundaryProps.some((p) => p.compare(expectedBoundaryProp) === strictlyEqual))
+  t.true(boundaryProps.some((p) => p.compare(expectedBoundaryProp, 'comprehensive') === strictlyEqual))
 })
 
 test('symbolProperties handles objects with symbol properties', (t) => {

@@ -27,7 +27,7 @@ test('deserialize creates a comparable RegExpRepresentation', (t) => {
   const deserialized = RegExpRepresentation.deserialize(deserializationContext, decoder)
 
   // The deserialized representation should be comparable to the original
-  t.is(original.compare(deserialized), comparable)
+  t.is(original.compare(deserialized, 'comprehensive'), comparable)
 })
 
 // Compare method tests
@@ -38,7 +38,7 @@ test('compare returns strictlyEqual when comparing the same regexp instance', (t
   const regexpRep1 = context.represent(regexp) as RegExpRepresentation
   const regexpRep2 = context.represent(regexp) as RegExpRepresentation
 
-  t.is(regexpRep1.compare(regexpRep2), strictlyEqual)
+  t.is(regexpRep1.compare(regexpRep2, 'comprehensive'), strictlyEqual)
 })
 
 test('compare returns unequal when comparing to non-RegExpRepresentation', (t) => {
@@ -49,7 +49,7 @@ test('compare returns unequal when comparing to non-RegExpRepresentation', (t) =
   const regexpRep = context.represent(regexp) as RegExpRepresentation
   const objectRep = context.represent(object)
 
-  t.is(regexpRep.compare(objectRep), unequal)
+  t.is(regexpRep.compare(objectRep, 'comprehensive'), unequal)
 })
 
 test('compare returns comparable when comparing different regexps', (t) => {
@@ -58,7 +58,21 @@ test('compare returns comparable when comparing different regexps', (t) => {
   const regexp2 = /test/g
   const regexpRep1 = context.represent(regexp1) as RegExpRepresentation
   const regexpRep2 = context.represent(regexp2) as RegExpRepresentation
-  t.is(regexpRep1.compare(regexpRep2), comparable)
+  t.is(regexpRep1.compare(regexpRep2, 'comprehensive'), comparable)
+})
+
+test('compare returns comparable when comparing against subclass instances in fuzzy mode', (t) => {
+  const context = new RealValueContext()
+  const regexp1 = /test/i
+  class CustomRegExp extends RegExp {
+    constructor() {
+      super('test', 'i')
+    }
+  }
+  const regexp2 = new CustomRegExp()
+  const regexpRep1 = context.represent(regexp1) as RegExpRepresentation
+  const regexpRep2 = context.represent(regexp2) as RegExpRepresentation
+  t.is(regexpRep1.compare(regexpRep2, 'fuzzy'), comparable)
 })
 
 // The key test - verify that the right properties are included
@@ -81,12 +95,12 @@ test('iterateProperties yields flags and source properties for regexps', (t) => 
   // Find the flags property from the regexp
   const flagsProperty = properties.find((prop) => {
     // We can use our manually created accessor to compare
-    return flagsAccessor.compare(prop) === strictlyEqual
+    return flagsAccessor.compare(prop, 'comprehensive') === strictlyEqual
   })
 
   // Find the source property from the regexp
   const sourceProperty = properties.find((prop) => {
-    return sourceAccessor.compare(prop) === strictlyEqual
+    return sourceAccessor.compare(prop, 'comprehensive') === strictlyEqual
   })
 
   // Verify that both properties were found
@@ -125,7 +139,7 @@ test('serializing and deserializing a RegExp preserves its structure', (t) => {
   const deserialized = RegExpRepresentation.deserialize(deserializationContext, decoder)
 
   // The original and deserialized representations should be comparable
-  t.is(original.compare(deserialized), comparable)
+  t.is(original.compare(deserialized, 'comprehensive'), comparable)
 })
 
 // Preformat test

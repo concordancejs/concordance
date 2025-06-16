@@ -25,7 +25,7 @@ test('deserialize creates a comparable PromiseRepresentation', (t) => {
   const deserialized = PromiseRepresentation.deserialize(deserializationContext, decoder)
 
   // The deserialized representation should be comparable to the original
-  t.is(original.compare(deserialized), comparable)
+  t.is(original.compare(deserialized, 'comprehensive'), comparable)
 })
 
 // Compare method tests
@@ -36,10 +36,10 @@ test('compare returns strictlyEqual when comparing the same promise instance', (
   const promiseRep1 = context.represent(promise) as PromiseRepresentation
   const promiseRep2 = context.represent(promise) as PromiseRepresentation
 
-  t.is(promiseRep1.compare(promiseRep2), strictlyEqual)
+  t.is(promiseRep1.compare(promiseRep2, 'comprehensive'), strictlyEqual)
 })
 
-test('compare returns unequal when comparing to non-PromiseRepresentation', (t) => {
+test('compare returns unequal when comparing to non-PromiseRepresentation in comprehensive mode', (t) => {
   const context = new RealValueContext()
   const promise = Promise.resolve('value')
   const object = {}
@@ -47,7 +47,34 @@ test('compare returns unequal when comparing to non-PromiseRepresentation', (t) 
   const promiseRep = context.represent(promise) as PromiseRepresentation
   const objectRep = context.represent(object)
 
-  t.is(promiseRep.compare(objectRep), unequal)
+  t.is(promiseRep.compare(objectRep, 'comprehensive'), unequal)
+})
+
+test('compare returns comparable when comparing to non-PromiseRepresentation in fuzzy mode', (t) => {
+  const context = new RealValueContext()
+  const promise = Promise.resolve('value')
+  const object = {}
+
+  const promiseRep = context.represent(promise) as PromiseRepresentation
+  const objectRep = context.represent(object)
+
+  t.is(promiseRep.compare(objectRep, 'fuzzy'), comparable)
+})
+
+test('compare returns unequal when comparing to non-plain object in fuzzy mode', (t) => {
+  const context = new RealValueContext()
+  const promise = Promise.resolve('value')
+
+  // Create a custom class instance (not a plain object)
+  class CustomClass {
+    prop = 'value'
+  }
+  const customInstance = new CustomClass()
+
+  const promiseRep = context.represent(promise) as PromiseRepresentation
+  const customRep = context.represent(customInstance)
+
+  t.is(promiseRep.compare(customRep, 'fuzzy'), unequal)
 })
 
 test('compare returns unequal when comparing different promise instances', (t) => {
@@ -61,7 +88,7 @@ test('compare returns unequal when comparing different promise instances', (t) =
   const promiseRep2 = context.represent(promise2) as PromiseRepresentation
 
   // For non-deserialized promises, comparison is by reference only
-  t.is(promiseRep1.compare(promiseRep2), unequal)
+  t.is(promiseRep1.compare(promiseRep2, 'comprehensive'), unequal)
 })
 
 test('compare returns comparable when at least one promise is deserialized', (t) => {
@@ -83,8 +110,8 @@ test('compare returns comparable when at least one promise is deserialized', (t)
   const differentRep = newContext.represent(differentPromise) as PromiseRepresentation
 
   // When one is deserialized, they should fall back to object comparison
-  t.is(deserialized.compare(differentRep), comparable)
-  t.is(differentRep.compare(deserialized), comparable)
+  t.is(deserialized.compare(differentRep, 'comprehensive'), comparable)
+  t.is(differentRep.compare(deserialized, 'comprehensive'), comparable)
 })
 
 // Serialization test

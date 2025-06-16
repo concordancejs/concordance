@@ -1,5 +1,5 @@
 import never from 'never'
-import { strictlyEqual, unequal } from '../../comparison.ts'
+import { strictlyEqual, unequal, type Mode } from '../../comparison.ts'
 import type { Decoder } from '../../decoder.ts'
 import type { DeserializationContext } from '../../deserialization-context.ts'
 import type { Encoder } from '../../encoder.ts'
@@ -32,11 +32,11 @@ export class BoxedPrimitiveRepresentation extends ObjectRepresentation implement
     this.#value = value
   }
 
-  override compare(other: ValueRepresentation) {
+  override compare(other: ValueRepresentation, mode: Mode) {
     if (!(#value in other)) return unequal
     if (this.#value === other.#value) return strictlyEqual
-    if (!this.#primitive.compare(other.#primitive)) return unequal
-    return super.compare(other)
+    if (!this.#primitive.compare(other.#primitive, mode)) return unequal
+    return super.compare(other, mode)
   }
 
   preformat(formatter: Formatter) {

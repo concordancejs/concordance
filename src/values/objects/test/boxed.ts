@@ -37,7 +37,7 @@ test('deserialize creates a comparable BoxedRepresentation', (t) => {
   const deserialized = BoxedRepresentation.deserialize(deserializationContext, decoder)
 
   // The deserialized representation should be comparable to the original
-  t.is(original.compare(deserialized), comparable)
+  t.is(original.compare(deserialized, 'comprehensive'), comparable)
 })
 
 test('deserialize fails if the primitive value is missing', (t) => {
@@ -65,7 +65,7 @@ test('compare returns strictlyEqual when comparing the same boxed instance', (t)
   const boxedRep1 = context.represent(boxed) as BoxedRepresentation
   const boxedRep2 = context.represent(boxed) as BoxedRepresentation
 
-  t.is(boxedRep1.compare(boxedRep2), strictlyEqual)
+  t.is(boxedRep1.compare(boxedRep2, 'comprehensive'), strictlyEqual)
 })
 
 test('compare returns unequal when comparing to non-BoxedRepresentation', (t) => {
@@ -76,7 +76,20 @@ test('compare returns unequal when comparing to non-BoxedRepresentation', (t) =>
   const boxedRep = context.represent(boxed) as BoxedRepresentation
   const objectRep = context.represent(object)
 
-  t.is(boxedRep.compare(objectRep), unequal)
+  t.is(boxedRep.compare(objectRep, 'comprehensive'), unequal)
+  t.is(boxedRep.compare(objectRep, 'fuzzy'), unequal)
+})
+
+test('compare returns comparable when comparing a boxed string with a subclass instance in fuzzy mode', (t) => {
+  const context = new RealValueContext()
+  const boxedString = new String('test')
+  class SubString extends String {}
+  const subString = new SubString('test')
+
+  const boxedRep = context.represent(boxedString) as BoxedRepresentation
+  const subStringRep = context.represent(subString)
+
+  t.is(boxedRep.compare(subStringRep, 'fuzzy'), comparable)
 })
 
 test('compare returns unequal when comparing boxed values with different primitive values', (t) => {
@@ -87,7 +100,7 @@ test('compare returns unequal when comparing boxed values with different primiti
   const boxedRep1 = context.represent(boxed1) as BoxedRepresentation
   const boxedRep2 = context.represent(boxed2) as BoxedRepresentation
 
-  t.is(boxedRep1.compare(boxedRep2), unequal)
+  t.is(boxedRep1.compare(boxedRep2, 'comprehensive'), unequal)
 })
 
 test('compare returns comparable when comparing different boxed instances with same primitive value', (t) => {
@@ -99,7 +112,7 @@ test('compare returns comparable when comparing different boxed instances with s
   const boxedRep2 = context.represent(boxed2) as BoxedRepresentation
 
   // Should be comparable, not strictly equal, as they are different instances
-  t.is(boxedRep1.compare(boxedRep2), comparable)
+  t.is(boxedRep1.compare(boxedRep2, 'comprehensive'), comparable)
 })
 
 test('compare compares different boxed primitive types correctly', (t) => {
@@ -115,16 +128,16 @@ test('compare compares different boxed primitive types correctly', (t) => {
   const bigintRep = context.represent(values.bigint) as BoxedRepresentation
 
   // All different types should be unequal to each other
-  t.is(numberRep.compare(stringRep), unequal)
-  t.is(numberRep.compare(booleanRep), unequal)
-  t.is(numberRep.compare(symbolRep), unequal)
-  t.is(numberRep.compare(bigintRep), unequal)
-  t.is(stringRep.compare(booleanRep), unequal)
-  t.is(stringRep.compare(symbolRep), unequal)
-  t.is(stringRep.compare(bigintRep), unequal)
-  t.is(booleanRep.compare(symbolRep), unequal)
-  t.is(booleanRep.compare(bigintRep), unequal)
-  t.is(symbolRep.compare(bigintRep), unequal)
+  t.is(numberRep.compare(stringRep, 'comprehensive'), unequal)
+  t.is(numberRep.compare(booleanRep, 'comprehensive'), unequal)
+  t.is(numberRep.compare(symbolRep, 'comprehensive'), unequal)
+  t.is(numberRep.compare(bigintRep, 'comprehensive'), unequal)
+  t.is(stringRep.compare(booleanRep, 'comprehensive'), unequal)
+  t.is(stringRep.compare(symbolRep, 'comprehensive'), unequal)
+  t.is(stringRep.compare(bigintRep, 'comprehensive'), unequal)
+  t.is(booleanRep.compare(symbolRep, 'comprehensive'), unequal)
+  t.is(booleanRep.compare(bigintRep, 'comprehensive'), unequal)
+  t.is(symbolRep.compare(bigintRep, 'comprehensive'), unequal)
 })
 
 // IterateArrayLike test
@@ -185,7 +198,7 @@ test('serializing and deserializing different boxed primitive types', (t) => {
     const deserialized = BoxedRepresentation.deserialize(deserializationContext, decoder)
 
     // The original and deserialized representations should be comparable
-    t.is(original.compare(deserialized), comparable, `Failed for boxed ${type}`)
+    t.is(original.compare(deserialized, 'comprehensive'), comparable, `Failed for boxed ${type}`)
   }
 })
 

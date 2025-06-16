@@ -1,4 +1,4 @@
-import { type Comparison, comparable, strictlyEqual, unequal, possiblyEqual } from '../comparison.ts'
+import { type Comparison, comparable, strictlyEqual, unequal, possiblyEqual, type Mode } from '../comparison.ts'
 import type { Encoder } from '../encoder.ts'
 import { type SerializationResult, partial } from '../serialization-result.ts'
 import type {
@@ -14,10 +14,44 @@ import type {
 import type { SymbolRepresentation } from '../values/primitives/symbol.ts'
 import type { Formatter } from '../formatter.ts'
 import type { TakeWhile } from '../stack.ts'
+import { fullyDeserialize } from '../deserialize.ts'
 
 export class NamedPropertyAccessor implements CommonRepresentation, DeepFunctionality {
   static is(value: ValueRepresentation): value is NamedPropertyAccessor {
     return #key in value
+  }
+
+  static alignForComparison(
+    lhs: NamedPropertyAccessor[],
+    rhs: NamedPropertyAccessor[],
+    mode: Mode,
+  ): [NamedPropertyAccessor[], NamedPropertyAccessor[]] {
+    const lhsOrdered: NamedPropertyAccessor[] = []
+    const rhsOrdered: NamedPropertyAccessor[] = []
+    const lhsNonIntersecting: NamedPropertyAccessor[] = []
+
+    const rhsNonIntersecting = new Set(rhs)
+    for (const lhsProperty of lhs) {
+      let intersected = false
+      for (const rhsProperty of rhsNonIntersecting) {
+        if (lhsProperty.#key === rhsProperty.#key) {
+          lhsOrdered.push(lhsProperty)
+          rhsOrdered.push(rhsProperty)
+          rhsNonIntersecting.delete(rhsProperty)
+          intersected = true
+          break
+        }
+      }
+
+      if (!intersected) {
+        lhsNonIntersecting.push(lhsProperty)
+      }
+    }
+
+    return [
+      mode === 'comprehensive' ? [...lhsOrdered, ...lhsNonIntersecting] : lhsOrdered,
+      [...rhsOrdered, ...rhsNonIntersecting],
+    ]
   }
 
   readonly #key: string
@@ -36,11 +70,20 @@ export class NamedPropertyAccessor implements CommonRepresentation, DeepFunction
     yield this.#value
   }
 
-  compare(other: ValueRepresentation): Comparison {
+  groupForComparison(takeWhile: TakeWhile, parent: ValueRepresentation, mode: Mode): NamedPropertyGroup | undefined {
+    if (mode === 'comprehensive' || NamedPropertyGroup.is(parent)) {
+      return
+    }
+
+    const properties = [fullyDeserialize(this), ...takeWhile((value) => NamedPropertyAccessor.is(value))]
+    return new NamedPropertyGroup(properties)
+  }
+
+  compare(other: ValueRepresentation, mode: Mode): Comparison {
     if (!(#value in other)) return unequal
     if (this.#key !== other.#key) return unequal
 
-    return this.#value.compare(other.#value)
+    return this.#value.compare(other.#value, mode)
   }
 
   preformat(formatter: Formatter) {
@@ -77,9 +120,10 @@ export class SymbolPropertyAccessor implements CommonRepresentation, DeepFunctio
     return #key in value
   }
 
-  static orderByIntersection(
+  static alignForComparison(
     lhs: SymbolPropertyAccessor[],
     rhs: SymbolPropertyAccessor[],
+    mode: Mode,
   ): [SymbolPropertyAccessor[], SymbolPropertyAccessor[]] {
     const lhsOrdered: SymbolPropertyAccessor[] = []
     const rhsOrdered: SymbolPropertyAccessor[] = []
@@ -105,7 +149,7 @@ export class SymbolPropertyAccessor implements CommonRepresentation, DeepFunctio
     }
 
     return [
-      [...lhsOrdered, ...lhsNonIntersecting],
+      mode === 'comprehensive' ? [...lhsOrdered, ...lhsNonIntersecting] : lhsOrdered,
       [...rhsOrdered, ...rhsNonIntersecting],
     ]
   }
@@ -131,16 +175,16 @@ export class SymbolPropertyAccessor implements CommonRepresentation, DeepFunctio
       return
     }
 
-    const properties = [this, ...takeWhile((value) => SymbolPropertyAccessor.is(value))]
+    const properties = [fullyDeserialize(this), ...takeWhile((value) => SymbolPropertyAccessor.is(value))]
     return new SymbolPropertyGroup(properties)
   }
 
-  compare(other: ValueRepresentation): Comparison {
+  compare(other: ValueRepresentation, mode: Mode): Comparison {
     if (!(#value in other)) return unequal
     const comparison = this.#key.compare(other.#key)
     if (comparison !== strictlyEqual && comparison !== possiblyEqual) return unequal
 
-    return this.#value.compare(other.#value)
+    return this.#value.compare(other.#value, mode)
   }
 
   preformat(formatter: Formatter) {
@@ -169,7 +213,7 @@ export class NamedPropertyGroup implements CommonRepresentation, GroupFunctional
     return #properties in value
   }
 
-  readonly #properties: NamedPropertyAccessor[]
+  #properties: NamedPropertyAccessor[]
 
   constructor(properties: NamedPropertyAccessor[]) {
     this.#properties = properties
@@ -177,6 +221,16 @@ export class NamedPropertyGroup implements CommonRepresentation, GroupFunctional
 
   get deserialized() {
     return this.#properties[0]?.deserialized === true
+  }
+
+  align(other: ValueRepresentation, mode: Mode) {
+    if (!NamedPropertyGroup.is(other)) {
+      return
+    }
+
+    const [aligned, otherAligned] = NamedPropertyAccessor.alignForComparison(this.#properties, other.#properties, mode)
+    this.#properties = aligned
+    other.#properties = otherAligned
   }
 
   *[Symbol.iterator]() {
@@ -207,8 +261,12 @@ export class SymbolPropertyGroup implements CommonRepresentation, GroupFunctiona
     return this.#properties[0]?.deserialized === true
   }
 
-  align(other: SymbolPropertyGroup) {
-    const [aligned, otherAligned] = SymbolPropertyAccessor.orderByIntersection(this.#properties, other.#properties)
+  align(other: ValueRepresentation, mode: Mode) {
+    if (!SymbolPropertyGroup.is(other)) {
+      return
+    }
+
+    const [aligned, otherAligned] = SymbolPropertyAccessor.alignForComparison(this.#properties, other.#properties, mode)
     this.#properties = aligned
     other.#properties = otherAligned
   }

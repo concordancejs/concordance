@@ -24,6 +24,19 @@ test('static is method correctly identifies ObjectRepresentation instances', (t)
   t.false(ObjectRepresentation.is({}))
 })
 
+test('static isPlain method correctly identifies ObjectRepresentation instances of plain objects', (t) => {
+  const context = new RealValueContext()
+  const object = { a: 1 }
+  const rep = context.represent(object) as ObjectRepresentation
+
+  t.true(ObjectRepresentation.isPlain(rep))
+  t.false(ObjectRepresentation.isPlain(context.represent([])))
+  class CustomClass {
+    a = 1
+  }
+  t.false(ObjectRepresentation.isPlain(context.represent(new CustomClass())))
+})
+
 test('unpackAnnotations correctly unpacks object annotations', (t) => {
   const annotations = {
     a: true,
@@ -68,14 +81,14 @@ test('compare returns strictlyEqual for same object instance', (t) => {
   const a = context.represent(object) as ObjectRepresentation
   const b = context.represent(object) as ObjectRepresentation
 
-  t.is(a.compare(b), strictlyEqual)
+  t.is(a.compare(b, 'comprehensive'), strictlyEqual)
 })
 
 test('compare returns unequal for non-ObjectRepresentation values', (t) => {
   const context = new RealValueContext()
   const a = context.represent({}) as ObjectRepresentation
 
-  t.is(a.compare(new NullRepresentation()), unequal)
+  t.is(a.compare(new NullRepresentation(), 'comprehensive'), unequal)
 })
 
 test('compare returns unequal by default when one object has a null prototype and the other does not', (t) => {
@@ -86,8 +99,8 @@ test('compare returns unequal by default when one object has a null prototype an
   const a = context.represent(nullProtoObject) as ObjectRepresentation
   const b = context.represent(regularObject) as ObjectRepresentation
 
-  t.is(a.compare(b), unequal)
-  t.is(b.compare(a), unequal)
+  t.is(a.compare(b, 'comprehensive'), unequal)
+  t.is(b.compare(a, 'comprehensive'), unequal)
 })
 
 test('compare returns comparable when compareNullProtoToObjectProto flag is true', (t) => {
@@ -98,8 +111,8 @@ test('compare returns comparable when compareNullProtoToObjectProto flag is true
   const a = context.represent(nullProtoObject) as ObjectRepresentation
   const b = context.represent(regularObject) as ObjectRepresentation
 
-  t.is(a.compare(b), comparable)
-  t.is(b.compare(a), comparable)
+  t.is(a.compare(b, 'comprehensive'), comparable)
+  t.is(b.compare(a, 'comprehensive'), comparable)
 })
 
 test('compare returns unequal for objects with different string tags', (t) => {
@@ -116,7 +129,7 @@ test('compare returns unequal for objects with different string tags', (t) => {
   const a = context.represent(object1) as ObjectRepresentation
   const b = context.represent(object2) as ObjectRepresentation
 
-  t.is(a.compare(b), unequal)
+  t.is(a.compare(b, 'comprehensive'), unequal)
 })
 
 test('compare returns unequal for objects with different constructor names', (t) => {
@@ -132,7 +145,7 @@ test('compare returns unequal for objects with different constructor names', (t)
   const a = context.represent(new Custom1()) as ObjectRepresentation
   const b = context.represent(new Custom2()) as ObjectRepresentation
 
-  t.is(a.compare(b), unequal)
+  t.is(a.compare(b, 'comprehensive'), unequal)
 })
 
 test('compare returns unequal when comparing objects with empty string vs undefined constructor names', (t) => {
@@ -150,7 +163,22 @@ test('compare returns unequal when comparing objects with empty string vs undefi
   const b = context.represent(objectWithUndefinedConstructorName) as ObjectRepresentation
 
   // They should be treated as unequal since empty string and undefined are different
-  t.is(a.compare(b), unequal)
+  t.is(a.compare(b, 'comprehensive'), unequal)
+})
+
+test('compare returns comparable for plain object vs custom class instance in fuzzy mode', (t) => {
+  class CustomClass {
+    foo = 1
+    bar = 2
+  }
+  const plain = { foo: 1, bar: 2 }
+  const context = new RealValueContext()
+  const a = context.represent(plain) as ObjectRepresentation
+  const b = context.represent(new CustomClass()) as ObjectRepresentation
+  t.is(a.compare(b, 'fuzzy'), comparable)
+  t.is(b.compare(a, 'fuzzy'), comparable)
+  t.is(a.compare(b, 'comprehensive'), unequal)
+  t.is(b.compare(a, 'comprehensive'), unequal)
 })
 
 // Array-like objects tests
@@ -391,7 +419,7 @@ test('compare returns comparable for deserialized objects with same structure', 
   const deserialized = ObjectRepresentation.deserialize(deserializationContext, decoder)
 
   // The deserialized representation should be comparable to the original but not strictly equal
-  t.is(representation.compare(deserialized), comparable)
+  t.is(representation.compare(deserialized, 'comprehensive'), comparable)
 })
 
 // FinalFormat tests
@@ -809,4 +837,39 @@ test('deserialized property delegates to context', (t) => {
 
   t.false(realRep.deserialized)
   t.true(deserializedRep.deserialized)
+})
+
+// Fuzzy comparison with ArrayRepresentation tests
+test('ObjectRepresentation - fuzzy compare allows array-like objects to compare with ArrayRepresentation', (t) => {
+  const context = new RealValueContext()
+
+  // Create an array-like object (arguments object simulation)
+  const arrayLikeObject: Record<string | number, unknown> = { length: 2 }
+  arrayLikeObject[0] = 'a'
+  arrayLikeObject[1] = 'b'
+
+  // Create a real array
+  const realArray = ['a', 'b']
+
+  const arrayLikeRep = context.represent(arrayLikeObject)
+  const arrayRep = context.represent(realArray)
+
+  // In fuzzy mode, array-like objects should be comparable to arrays
+  t.is(arrayLikeRep.compare(arrayRep, 'fuzzy'), comparable)
+})
+
+test('ObjectRepresentation - fuzzy compare does not allow non-array-like objects to compare with ArrayRepresentation', (t) => {
+  const context = new RealValueContext()
+
+  // Create a regular object
+  const regularObject = { foo: 'bar' }
+
+  // Create a real array
+  const realArray = ['a', 'b']
+
+  const objectRep = context.represent(regularObject)
+  const arrayRep = context.represent(realArray)
+
+  // In fuzzy mode, regular objects should still be unequal to arrays
+  t.is(objectRep.compare(arrayRep, 'fuzzy'), unequal)
 })

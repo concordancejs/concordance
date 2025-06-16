@@ -1,6 +1,6 @@
 import type { Context } from '../../context.d.ts'
 import type { FinalFormatOptions, Opaque, ValueRepresentation } from '../../value.d.ts'
-import { strictlyEqual, unequal } from '../../comparison.ts'
+import { strictlyEqual, unequal, type Mode } from '../../comparison.ts'
 import type { Encoder } from '../../encoder.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
 import type { Decoder } from '../../decoder.ts'
@@ -23,12 +23,16 @@ export class MapRepresentation extends ObjectRepresentation {
     this.#context = context
   }
 
-  override compare(other: ValueRepresentation) {
+  override compare(other: ValueRepresentation, mode: Mode) {
     if (!(#value in other)) return unequal
     if (this.#value === other.#value) return strictlyEqual
-    if (this.#context.size(this.#value) !== other.#context.size(other.#value)) return unequal
 
-    return super.compare(other)
+    // In fuzzy mode, the actual (this) can have more items than expected (other)
+    if (mode !== 'fuzzy' && this.#context.size(this.#value) !== other.#context.size(other.#value)) {
+      return unequal
+    }
+
+    return super.compare(other, mode)
   }
 
   override *iterateIterable() {

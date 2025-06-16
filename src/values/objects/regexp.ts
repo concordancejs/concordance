@@ -7,8 +7,8 @@ import { staticTypeTable } from '../../serialization-types.ts'
 import type { DeepFunctionality, FinalFormatOptions, Opaque, ValueRepresentation } from '../../value.d.ts'
 import { StringRepresentation } from '../primitives/string.ts'
 import type { Context } from '../../context.d.ts'
+import { unequal, type Mode } from '../../comparison.ts'
 import { ObjectRepresentation, type ObjectAnnotations } from './object.ts'
-import { unequal } from '../../comparison.ts'
 
 const includeProperties = { include: ['flags', 'source'] }
 
@@ -29,9 +29,9 @@ export class RegExpRepresentation extends ObjectRepresentation implements DeepFu
     this.#value = value
   }
 
-  override compare(other: ValueRepresentation) {
+  override compare(other: ValueRepresentation, mode: Mode) {
     if (!(#value in other)) return unequal
-    return super.compare(other)
+    return super.compare(other, mode)
   }
 
   override *iterateProperties() {

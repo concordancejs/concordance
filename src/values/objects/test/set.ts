@@ -10,6 +10,17 @@ import { Formatter } from '../../../formatter.ts'
 import { deriveTheme } from '../../../theme.ts'
 import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
 
+// Static methods tests
+test('is method correctly identifies SetRepresentation instances', (t) => {
+  const context = new RealValueContext()
+  const set = new Set([1, 2, 3])
+  const setRep = context.represent(set) as SetRepresentation
+  const objectRep = context.represent({})
+
+  t.true(SetRepresentation.is(setRep))
+  t.false(SetRepresentation.is(objectRep))
+})
+
 // Deserialize method test
 test('deserialize creates a comparable SetRepresentation', (t) => {
   const originalContext = new RealValueContext()
@@ -25,7 +36,7 @@ test('deserialize creates a comparable SetRepresentation', (t) => {
   const deserialized = SetRepresentation.deserialize(deserializationContext, decoder)
 
   // The deserialized representation should be comparable to the original
-  t.is(original.compare(deserialized), comparable)
+  t.is(original.compare(deserialized, 'comprehensive'), comparable)
 })
 
 // Compare method tests
@@ -36,7 +47,7 @@ test('compare returns strictlyEqual when comparing the same set instance', (t) =
   const setRep1 = context.represent(set) as SetRepresentation
   const setRep2 = context.represent(set) as SetRepresentation
 
-  t.is(setRep1.compare(setRep2), strictlyEqual)
+  t.is(setRep1.compare(setRep2, 'comprehensive'), strictlyEqual)
 })
 
 test('compare returns unequal when comparing to non-SetRepresentation', (t) => {
@@ -47,7 +58,8 @@ test('compare returns unequal when comparing to non-SetRepresentation', (t) => {
   const setRep = context.represent(set) as SetRepresentation
   const objectRep = context.represent(object)
 
-  t.is(setRep.compare(objectRep), unequal)
+  t.is(setRep.compare(objectRep, 'comprehensive'), unequal)
+  t.is(setRep.compare(objectRep, 'fuzzy'), unequal)
 })
 
 test('compare returns unequal when comparing sets of different sizes', (t) => {
@@ -58,7 +70,24 @@ test('compare returns unequal when comparing sets of different sizes', (t) => {
   const setRep1 = context.represent(set1) as SetRepresentation
   const setRep2 = context.represent(set2) as SetRepresentation
 
-  t.is(setRep1.compare(setRep2), unequal)
+  t.is(setRep1.compare(setRep2, 'comprehensive'), unequal)
+})
+
+test('compare allows different sizes in fuzzy mode', (t) => {
+  const context = new RealValueContext()
+
+  // Actual set (this) has more values than expected set (other)
+  const actualSet = new Set(['value1', 'value2', 'value3'])
+  const expectedSet = new Set(['value1', 'value2'])
+
+  const actualSetRep = context.represent(actualSet) as SetRepresentation
+  const expectedSetRep = context.represent(expectedSet) as SetRepresentation
+
+  // In fuzzy mode, actual can have more items than expected
+  t.is(actualSetRep.compare(expectedSetRep, 'fuzzy'), comparable)
+
+  // But in comprehensive mode, different sizes should be unequal
+  t.is(actualSetRep.compare(expectedSetRep, 'comprehensive'), unequal)
 })
 
 test('compare returns comparable when comparing different set instances with same size', (t) => {
@@ -70,7 +99,19 @@ test('compare returns comparable when comparing different set instances with sam
   const setRep2 = context.represent(set2) as SetRepresentation
 
   // Should be comparable, not strictly equal, as they are different instances
-  t.is(setRep1.compare(setRep2), comparable)
+  t.is(setRep1.compare(setRep2, 'comprehensive'), comparable)
+})
+
+test('compare returns comparable when comparing against subclass instances in fuzzy mode', (t) => {
+  const context = new RealValueContext()
+  const set1 = new Set()
+  class SubSet extends Set {}
+  const set2 = new SubSet()
+
+  const setRep1 = context.represent(set1) as SetRepresentation
+  const setRep2 = context.represent(set2) as SetRepresentation
+
+  t.is(setRep1.compare(setRep2, 'fuzzy'), comparable)
 })
 
 // IterateArrayLike test
@@ -104,8 +145,8 @@ test('iterateIterable yields values for sets', (t) => {
   const stringValue2 = context.represent('value2')
 
   // For string values, we can check for strict equality in the comparison
-  const hasValue1 = values.some((value) => value.compare(stringValue1) === strictlyEqual)
-  const hasValue2 = values.some((value) => value.compare(stringValue2) === strictlyEqual)
+  const hasValue1 = values.some((value) => value.compare(stringValue1, 'comprehensive') === strictlyEqual)
+  const hasValue2 = values.some((value) => value.compare(stringValue2, 'comprehensive') === strictlyEqual)
 
   t.true(hasValue1, 'Set should contain value1')
   t.true(hasValue2, 'Set should contain value2')
@@ -146,14 +187,14 @@ test('iterateIterable preserves insertion order', (t) => {
   const value3Rep = context.represent('value3')
 
   // Check first set's order
-  t.is(values[0]!.compare(value1Rep), strictlyEqual) // First is 'value1'
-  t.is(values[1]!.compare(value2Rep), strictlyEqual) // Second is 'value2'
-  t.is(values[2]!.compare(value3Rep), strictlyEqual) // Third is 'value3'
+  t.is(values[0]!.compare(value1Rep, 'comprehensive'), strictlyEqual) // First is 'value1'
+  t.is(values[1]!.compare(value2Rep, 'comprehensive'), strictlyEqual) // Second is 'value2'
+  t.is(values[2]!.compare(value3Rep, 'comprehensive'), strictlyEqual) // Third is 'value3'
 
   // Check second set's order
-  t.is(values2[0]!.compare(value3Rep), strictlyEqual) // First is 'value3'
-  t.is(values2[1]!.compare(value1Rep), strictlyEqual) // Second is 'value1'
-  t.is(values2[2]!.compare(value2Rep), strictlyEqual) // Third is 'value2'
+  t.is(values2[0]!.compare(value3Rep, 'comprehensive'), strictlyEqual) // First is 'value3'
+  t.is(values2[1]!.compare(value1Rep, 'comprehensive'), strictlyEqual) // Second is 'value1'
+  t.is(values2[2]!.compare(value2Rep, 'comprehensive'), strictlyEqual) // Third is 'value2'
 })
 
 // Serialization tests
@@ -194,14 +235,14 @@ test('serializing and deserializing a Set preserves its structure', (t) => {
   const deserialized = SetRepresentation.deserialize(deserializationContext, decoder)
 
   // The original and deserialized representations should be comparable
-  t.is(original.compare(deserialized), comparable)
+  t.is(original.compare(deserialized, 'comprehensive'), comparable)
 
   // Create a set with different number of values
   const differentSizeSet = new Set(['value1'])
   const differentSizeRep = originalContext.represent(differentSizeSet) as SetRepresentation
 
   // The deserialized set should be unequal to a set with a different size
-  t.is(deserialized.compare(differentSizeRep), unequal)
+  t.is(deserialized.compare(differentSizeRep, 'comprehensive'), unequal)
 })
 
 test('handles empty sets correctly', (t) => {
@@ -224,7 +265,7 @@ test('handles empty sets correctly', (t) => {
   const anotherEmptySet = new Set()
   const anotherEmptySetRep = context.represent(anotherEmptySet) as SetRepresentation
 
-  t.is(emptySetRep.compare(anotherEmptySetRep), comparable)
+  t.is(emptySetRep.compare(anotherEmptySetRep, 'comprehensive'), comparable)
 })
 
 // FinalFormat tests

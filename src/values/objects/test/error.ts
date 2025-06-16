@@ -26,7 +26,7 @@ test('deserialize creates a comparable ErrorRepresentation', (t) => {
   const deserialized = ErrorRepresentation.deserialize(deserializationContext, decoder)
 
   // The deserialized representation should be comparable to the original
-  t.is(original.compare(deserialized), comparable)
+  t.is(original.compare(deserialized, 'comprehensive'), comparable)
 })
 
 // Compare method tests
@@ -37,10 +37,10 @@ test('compare returns strictlyEqual when comparing the same error instance', (t)
   const errorRep1 = context.represent(error) as ErrorRepresentation
   const errorRep2 = context.represent(error) as ErrorRepresentation
 
-  t.is(errorRep1.compare(errorRep2), strictlyEqual)
+  t.is(errorRep1.compare(errorRep2, 'comprehensive'), strictlyEqual)
 })
 
-test('compare returns unequal when comparing to non-ErrorRepresentation', (t) => {
+test('compare returns unequal when comparing to non-ErrorRepresentation in comprehensive mode', (t) => {
   const context = new RealValueContext()
   const error = new Error('Test error')
   const object = {}
@@ -48,7 +48,34 @@ test('compare returns unequal when comparing to non-ErrorRepresentation', (t) =>
   const errorRep = context.represent(error) as ErrorRepresentation
   const objectRep = context.represent(object)
 
-  t.is(errorRep.compare(objectRep), unequal)
+  t.is(errorRep.compare(objectRep, 'comprehensive'), unequal)
+})
+
+test('compare returns comparable when comparing to non-ErrorRepresentation in fuzzy mode', (t) => {
+  const context = new RealValueContext()
+  const error = new Error('Test error')
+  const object = {}
+
+  const errorRep = context.represent(error) as ErrorRepresentation
+  const objectRep = context.represent(object)
+
+  t.is(errorRep.compare(objectRep, 'fuzzy'), comparable)
+})
+
+test('compare returns unequal when comparing to non-plain object in fuzzy mode', (t) => {
+  const context = new RealValueContext()
+  const error = new Error('Test error')
+
+  // Create a custom class instance (not a plain object)
+  class CustomClass {
+    prop = 'value'
+  }
+  const customInstance = new CustomClass()
+
+  const errorRep = context.represent(error) as ErrorRepresentation
+  const customRep = context.represent(customInstance)
+
+  t.is(errorRep.compare(customRep, 'fuzzy'), unequal)
 })
 
 test('compare returns comparable when comparing different error instances', (t) => {
@@ -60,7 +87,7 @@ test('compare returns comparable when comparing different error instances', (t) 
   const errorRep2 = context.represent(error2) as ErrorRepresentation
 
   // Should return comparable for different error instances regardless of properties
-  t.is(errorRep1.compare(errorRep2), comparable)
+  t.is(errorRep1.compare(errorRep2, 'comprehensive'), comparable)
 })
 
 // IterateArrayLike and iterateIterable tests
@@ -102,11 +129,11 @@ test('iterateProperties yields name and message properties for errors', (t) => {
 
   // Find the expected properties
   const nameProperty = properties.find((prop) => {
-    return nameAccessor.compare(prop) === strictlyEqual
+    return nameAccessor.compare(prop, 'comprehensive') === strictlyEqual
   })
 
   const messageProperty = properties.find((prop) => {
-    return messageAccessor.compare(prop) === strictlyEqual
+    return messageAccessor.compare(prop, 'comprehensive') === strictlyEqual
   })
 
   // Verify that both expected properties were found
@@ -137,15 +164,15 @@ test('iterateProperties includes cause property when set', (t) => {
 
   // Find the expected properties
   const nameProperty = properties.find((prop) => {
-    return nameAccessor.compare(prop) === strictlyEqual
+    return nameAccessor.compare(prop, 'comprehensive') === strictlyEqual
   })
 
   const messageProperty = properties.find((prop) => {
-    return messageAccessor.compare(prop) === strictlyEqual
+    return messageAccessor.compare(prop, 'comprehensive') === strictlyEqual
   })
 
   const causeProperty = properties.find((prop) => {
-    return causeAccessor.compare(prop) === strictlyEqual
+    return causeAccessor.compare(prop, 'comprehensive') === strictlyEqual
   })
 
   // Verify that all expected properties were found
@@ -191,11 +218,11 @@ test('iterateProperties includes name and message even when non-enumerable', (t)
 
   // Find the expected properties
   const nameProperty = properties.find((prop) => {
-    return nameAccessor.compare(prop) === strictlyEqual
+    return nameAccessor.compare(prop, 'comprehensive') === strictlyEqual
   })
 
   const messageProperty = properties.find((prop) => {
-    return messageAccessor.compare(prop) === strictlyEqual
+    return messageAccessor.compare(prop, 'comprehensive') === strictlyEqual
   })
 
   // Verify that both expected properties were found
@@ -221,7 +248,7 @@ test('iterateProperties excludes stack property even if enumerable', (t) => {
 
   // Should NOT include stack
   t.false(
-    properties.some((prop) => stackAccessor.compare(prop) === strictlyEqual),
+    properties.some((prop) => stackAccessor.compare(prop, 'comprehensive') === strictlyEqual),
     'stack property should NOT be present',
   )
 })
@@ -244,7 +271,7 @@ test('iterateProperties includes code property even when non-enumerable', (t) =>
 
   // Should include code
   t.true(
-    properties.some((prop) => codeAccessor.compare(prop, 'full') === strictlyEqual),
+    properties.some((prop) => codeAccessor.compare(prop, 'comprehensive') === strictlyEqual),
     'code property should be present',
   )
 })

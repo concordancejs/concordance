@@ -19,7 +19,7 @@ test('compare returns strictlyEqual when comparing the same array buffer view in
   const viewRep1 = context.represent(view) as ArrayBufferViewRepresentation
   const viewRep2 = context.represent(view) as ArrayBufferViewRepresentation
 
-  t.is(viewRep1.compare(viewRep2), strictlyEqual)
+  t.is(viewRep1.compare(viewRep2, 'comprehensive'), strictlyEqual)
 })
 
 test('compare returns unequal when comparing to non-ArrayBufferViewRepresentation', (t) => {
@@ -30,7 +30,8 @@ test('compare returns unequal when comparing to non-ArrayBufferViewRepresentatio
   const viewRep = context.represent(view) as ArrayBufferViewRepresentation
   const objectRep = context.represent(object)
 
-  t.is(viewRep.compare(objectRep), unequal)
+  t.is(viewRep.compare(objectRep, 'comprehensive'), unequal)
+  t.is(viewRep.compare(objectRep, 'fuzzy'), unequal)
 })
 
 test('compare returns unequal when comparing array buffer views with different content', (t) => {
@@ -41,7 +42,7 @@ test('compare returns unequal when comparing array buffer views with different c
   const viewRep1 = context.represent(view1) as ArrayBufferViewRepresentation
   const viewRep2 = context.represent(view2) as ArrayBufferViewRepresentation
 
-  t.is(viewRep1.compare(viewRep2), unequal)
+  t.is(viewRep1.compare(viewRep2, 'comprehensive'), unequal)
 })
 
 test('compare considers offset and length within the underlying buffer', (t) => {
@@ -59,7 +60,7 @@ test('compare considers offset and length within the underlying buffer', (t) => 
   const viewRep1 = context.represent(view1) as ArrayBufferViewRepresentation
   const viewRep2 = context.represent(view2) as ArrayBufferViewRepresentation
 
-  t.is(viewRep1.compare(viewRep2), unequal)
+  t.is(viewRep1.compare(viewRep2, 'comprehensive'), unequal)
 })
 
 test('compare returns unequal for array buffer views with same content but different types', (t) => {
@@ -74,7 +75,22 @@ test('compare returns unequal for array buffer views with same content but diffe
   const int32Rep = context.represent(new Int32Array(buffer)) as ArrayBufferViewRepresentation
 
   // They should be unequal because they have different constructors
-  t.is(uint8Rep.compare(int32Rep), unequal)
+  t.is(uint8Rep.compare(int32Rep, 'comprehensive'), unequal)
+})
+
+test('compare returns comparable for array buffer views with same content but different types, in fuzzy mode', (t) => {
+  const context = new RealValueContext()
+
+  // Create two different view types on the same content
+  const buffer = new ArrayBuffer(4)
+  const uint8 = new Uint8Array(buffer)
+  uint8.set([1, 0, 0, 0]) // Little-endian representation of 1 as int32
+
+  const uint8Rep = context.represent(uint8) as ArrayBufferViewRepresentation
+  const int32Rep = context.represent(new Int32Array(buffer)) as ArrayBufferViewRepresentation
+
+  // Different constructors are ignored in fuzzy mode
+  t.is(uint8Rep.compare(int32Rep, 'fuzzy'), comparable)
 })
 
 test('compare returns comparable when comparing against a deserialized representation', (t) => {
@@ -93,7 +109,7 @@ test('compare returns comparable when comparing against a deserialized represent
   t.true(deserialized instanceof ArrayBufferViewRepresentation)
 
   // The deserialized representation should be comparable to the original
-  t.is(original.compare(deserialized), comparable)
+  t.is(original.compare(deserialized, 'comprehensive'), comparable)
 })
 
 test('compare correctly handles empty array buffer views', (t) => {
@@ -111,10 +127,10 @@ test('compare correctly handles empty array buffer views', (t) => {
   const nonEmptyRep = context.represent(nonEmptyView) as ArrayBufferViewRepresentation
 
   // Two empty views of the same type should be comparable (but not strictly equal)
-  t.is(emptyRep1.compare(emptyRep2), comparable)
+  t.is(emptyRep1.compare(emptyRep2, 'comprehensive'), comparable)
 
   // Empty view should be unequal to non-empty view
-  t.is(emptyRep1.compare(nonEmptyRep), unequal)
+  t.is(emptyRep1.compare(nonEmptyRep, 'comprehensive'), unequal)
 
   // Test serialization and comparison with deserialized empty view
   const encoder = new Encoder()
@@ -126,7 +142,7 @@ test('compare correctly handles empty array buffer views', (t) => {
   const deserialized = ArrayBufferViewRepresentation.deserialize(deserializationContext, decoder)
 
   // Should be comparable to the original empty view
-  t.is(emptyRep1.compare(deserialized), comparable)
+  t.is(emptyRep1.compare(deserialized, 'comprehensive'), comparable)
 })
 
 // IterateArrayLike and iterateIterable tests

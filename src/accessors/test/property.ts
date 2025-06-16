@@ -3,7 +3,7 @@ import test from 'ava'
 import { NamedPropertyAccessor, SymbolPropertyAccessor, NamedPropertyGroup, SymbolPropertyGroup } from '../property.ts'
 import { StringRepresentation } from '../../values/primitives/string.ts'
 import { NumberRepresentation } from '../../values/primitives/number.ts'
-import type { SymbolRepresentation } from '../../values/primitives/symbol.ts'
+import { type SymbolRepresentation } from '../../values/primitives/symbol.ts'
 import { strictlyEqual, unequal, comparable, type Comparison } from '../../comparison.ts'
 import { finished, partial } from '../../serialization-result.ts'
 import { RealValueContext } from '../../real-value-context.ts'
@@ -15,6 +15,10 @@ import { serialize } from '../../serialize.ts'
 import { deserialize } from '../../deserialize.ts'
 import type { ValueRepresentation } from '../../value.d.ts'
 import type { TakeWhile } from '../../stack.ts'
+import { staticTypeTable } from '../../serialization-types.ts'
+import { DeserializationContext } from '../../deserialization-context.ts'
+import { Decoder } from '../../decoder.ts'
+import type { ObjectRepresentation } from '../../values/objects/object.ts'
 
 // NamedPropertyAccessor Tests
 test('NamedPropertyAccessor - constructor correctly sets key and value, which iterator yields', (t) => {
@@ -42,7 +46,7 @@ test('NamedPropertyAccessor - compare returns unequal for non-NamedPropertyAcces
   const value = new StringRepresentation('value')
   const property = new NamedPropertyAccessor(key, value)
 
-  t.is(property.compare(value), unequal)
+  t.is(property.compare(value, 'comprehensive'), unequal)
 })
 
 test('NamedPropertyAccessor - compare returns unequal for different keys', (t) => {
@@ -51,7 +55,7 @@ test('NamedPropertyAccessor - compare returns unequal for different keys', (t) =
   const property1 = new NamedPropertyAccessor('prop1', value)
   const property2 = new NamedPropertyAccessor('prop2', value)
 
-  t.is(property1.compare(property2), unequal)
+  t.is(property1.compare(property2, 'comprehensive'), unequal)
 })
 
 test('NamedPropertyAccessor - compare delegates to value comparison when keys match', (t) => {
@@ -63,12 +67,37 @@ test('NamedPropertyAccessor - compare delegates to value comparison when keys ma
   const property2 = new NamedPropertyAccessor(key, value2)
 
   // Should return result of comparing values (unequal in this case)
-  t.is(property1.compare(property2), unequal)
+  t.is(property1.compare(property2, 'comprehensive'), unequal)
 
   // When values are equal
   const value3 = new StringRepresentation('value1')
   const property3 = new NamedPropertyAccessor(key, value3)
-  t.is(property1.compare(property3), strictlyEqual)
+  t.is(property1.compare(property3, 'comprehensive'), strictlyEqual)
+})
+
+test('NamedPropertyAccessor - compare delegates comparison mode to value representation', (t) => {
+  const context = new RealValueContext()
+  const key = 'propertyName'
+
+  // Create a plain object and a custom class instance
+  class CustomClass {
+    foo = 1
+    bar = 2
+  }
+  const plain = { foo: 1, bar: 2 }
+  const custom = new CustomClass()
+
+  // Create property accessors with same keys but different value types
+  const plainProperty = new NamedPropertyAccessor(key, context.represent(plain))
+  const customProperty = new NamedPropertyAccessor(key, context.represent(custom))
+
+  // In fuzzy mode, different object types should be comparable
+  t.is(plainProperty.compare(customProperty, 'fuzzy'), comparable)
+  t.is(customProperty.compare(plainProperty, 'fuzzy'), comparable)
+
+  // In comprehensive mode, different object types should be unequal
+  t.is(plainProperty.compare(customProperty, 'comprehensive'), unequal)
+  t.is(customProperty.compare(plainProperty, 'comprehensive'), unequal)
 })
 
 test('NamedPropertyAccessor - serialize encodes key as string and delegates to value.serializeShallow', (t) => {
@@ -186,6 +215,208 @@ test('NamedPropertyAccessor.is correctly identifies instances', (t) => {
   t.false(NamedPropertyAccessor.is(symbolProperty))
 })
 
+test('NamedPropertyAccessor - groupForComparison creates group with consecutive named properties', (t) => {
+  // Create named property accessors
+  const value = new StringRepresentation('value')
+  const prop1 = new NamedPropertyAccessor('prop1', value)
+  const prop2 = new NamedPropertyAccessor('prop2', value)
+  const prop3 = new NamedPropertyAccessor('prop3', value)
+  const context = new RealValueContext()
+  const symbolProp = new SymbolPropertyAccessor(context.represent(Symbol('symbol')) as SymbolRepresentation, value)
+
+  // Mock takeWhile function that returns consecutive NamedPropertyAccessors
+  const takeWhile: TakeWhile = function* (condition) {
+    for (const value of [prop2, prop3, symbolProp]) {
+      if (!condition(value)) return
+
+      yield value
+    }
+  }
+
+  // Test groupForComparison
+  const parent = new StringRepresentation('parent')
+  const group = prop1.groupForComparison(takeWhile, parent, 'fuzzy')
+
+  if (t.truthy(group)) {
+    t.true(NamedPropertyGroup.is(group))
+
+    // Verify the group contains the original property plus the ones from takeWhile
+    const groupedProperties = [...group]
+    t.is(groupedProperties.length, 3)
+    t.is(groupedProperties[0], prop1)
+    t.is(groupedProperties[1], prop2)
+    t.is(groupedProperties[2], prop3)
+  }
+})
+
+test('NamedPropertyAccessor - groupForComparison returns undefined when mode is full', (t) => {
+  const prop = new NamedPropertyAccessor('prop', new StringRepresentation('value'))
+  const parent = new StringRepresentation('parent')
+  const takeWhile: TakeWhile = function* () {
+    // No-op
+  }
+
+  const result = prop.groupForComparison(takeWhile, parent, 'comprehensive')
+  t.is(result, undefined)
+})
+
+test('NamedPropertyAccessor - groupForComparison returns undefined when parent is already a NamedPropertyGroup', (t) => {
+  const prop = new NamedPropertyAccessor('prop', new StringRepresentation('value'))
+
+  // Create a NamedPropertyGroup as parent
+  const parent = new NamedPropertyGroup([])
+  const takeWhile: TakeWhile = function* () {
+    // No-op
+  }
+
+  const result = prop.groupForComparison(takeWhile, parent, 'fuzzy')
+  t.is(result, undefined)
+})
+
+test('NamedPropertyAccessor - groupForComparison works with empty takeWhile result', (t) => {
+  const prop = new NamedPropertyAccessor('prop', new StringRepresentation('value'))
+
+  const parent = new StringRepresentation('parent')
+  // Mock takeWhile that returns no additional properties
+  const takeWhile: TakeWhile = function* () {
+    // No-op
+  }
+
+  const group = prop.groupForComparison(takeWhile, parent, 'fuzzy')
+  if (t.truthy(group)) {
+    t.true(NamedPropertyGroup.is(group))
+
+    // Should contain just the original property
+    const groupedProperties = [...group]
+    t.is(groupedProperties.length, 1)
+    t.is(groupedProperties[0], prop)
+  }
+})
+
+test('NamedPropertyAccessor - groupForComparison fully deserializes its accessor', (t) => {
+  const { bytes } = new Encoder()
+    .staticType(staticTypeTable.object)
+    .annotations({ p: 1, c: 'Object' })
+    // Add named property aspect
+    .staticType(staticTypeTable.namedPropertyAspect)
+    // First property with object value (complex enough to test fullyDeserialize)
+    .string('objectValue')
+    // Object as the complex value
+    .staticType(staticTypeTable.object)
+    .annotations({ p: 2, c: 'Object' })
+    .staticType(staticTypeTable.namedPropertyAspect)
+    // Nested property
+    .string('nested')
+    // Add the value (string 'nestedStringValue')
+    .staticType(staticTypeTable.string)
+    .string('nestedStringValue')
+    .staticType(staticTypeTable.terminator)
+    // Second property with simple string value
+    .string('simple')
+    .staticType(staticTypeTable.string)
+    .string('simpleStringValue')
+    // End properties
+    .staticType(staticTypeTable.terminator)
+
+  const decoder = new Decoder(bytes)
+  const context = new DeserializationContext(decoder)
+
+  const objectRep = context.next() as ObjectRepresentation
+  const iterator = objectRep[Symbol.iterator]()
+  const { value: prop } = iterator.next() as { value: ValueRepresentation | undefined }
+  if (!prop || !NamedPropertyAccessor.is(prop) || !('groupForComparison' in prop)) {
+    t.fail('Expected first property to be a NamedPropertyAccessor with groupForComparison method')
+    return
+  }
+
+  // Mock takeWhile that returns no additional properties
+  const takeWhile: TakeWhile = function* () {
+    // No-op
+  }
+
+  const group = prop.groupForComparison(takeWhile, objectRep, 'fuzzy')
+  t.truthy(group, 'Group should be created from NamedPropertyAccessor')
+
+  const { value: nextProp } = iterator.next() as { value: ValueRepresentation | undefined }
+  if (!nextProp || !NamedPropertyAccessor.is(nextProp)) {
+    t.fail('Expected second property to be a NamedPropertyAccessor')
+    return
+  }
+
+  const expected = new NamedPropertyAccessor('simple', new StringRepresentation('simpleStringValue'))
+  t.is(
+    expected.compare(nextProp, 'comprehensive'),
+    strictlyEqual,
+    'Next property should match expected simple property',
+  )
+})
+
+test('NamedPropertyAccessor.alignForComparison orders properties by intersection', (t) => {
+  const value = new StringRepresentation('value')
+
+  const propA = new NamedPropertyAccessor('A', value)
+  const propB = new NamedPropertyAccessor('B', value)
+  const propC = new NamedPropertyAccessor('C', value)
+  const propD = new NamedPropertyAccessor('D', value)
+  const propE = new NamedPropertyAccessor('E', value)
+  const propF = new NamedPropertyAccessor('F', value)
+
+  // LHS: [A, B, C, D]
+  // RHS: [E, B, F, D]
+  // Intersection: B and D (should be placed first in result, in the order they appear in LHS)
+  const lhsProps = [propA, propB, propC, propD]
+  const rhsProps = [propE, propB, propF, propD]
+
+  // Order by intersection
+  const [lhsOrdered, rhsOrdered] = NamedPropertyAccessor.alignForComparison(lhsProps, rhsProps, 'comprehensive')
+
+  // Verify the matching properties are first, in the order they appear in LHS
+  t.is(lhsOrdered[0], propB, 'First intersection (B) should be first in LHS result')
+  t.is(lhsOrdered[1], propD, 'Second intersection (D) should be second in LHS result')
+  t.is(rhsOrdered[0], propB, 'First intersection (B) should be first in RHS result')
+  t.is(rhsOrdered[1], propD, 'Second intersection (D) should be second in RHS result')
+
+  // Verify non-intersecting properties maintain their original order
+  t.is(lhsOrdered[2], propA, 'Non-intersecting property A should maintain its relative position')
+  t.is(lhsOrdered[3], propC, 'Non-intersecting property C should maintain its relative position')
+
+  t.is(rhsOrdered[2], propE, 'Non-intersecting property E should maintain its relative position')
+  t.is(rhsOrdered[3], propF, 'Non-intersecting property F should maintain its relative position')
+})
+
+test('NamedPropertyAccessor.alignForComparison drops non-intersecting lhs properties in fuzzy mode', (t) => {
+  const value = new StringRepresentation('value')
+
+  const propA = new NamedPropertyAccessor('A', value)
+  const propB = new NamedPropertyAccessor('B', value)
+  const propC = new NamedPropertyAccessor('C', value)
+  const propD = new NamedPropertyAccessor('D', value)
+  const propE = new NamedPropertyAccessor('E', value)
+  const propF = new NamedPropertyAccessor('F', value)
+
+  // LHS: [A, B, C, D]
+  // RHS: [E, B, F, D]
+  // Intersection: B and D (should be placed first in result, in the order they appear in LHS)
+  const lhsProps = [propA, propB, propC, propD]
+  const rhsProps = [propE, propB, propF, propD]
+
+  // Order by intersection
+  const [lhsOrdered, rhsOrdered] = NamedPropertyAccessor.alignForComparison(lhsProps, rhsProps, 'fuzzy')
+
+  // Verify the matching properties are first, in the order they appear in LHS
+  t.is(lhsOrdered[0], propB, 'First intersection (B) should be first in LHS result')
+  t.is(lhsOrdered[1], propD, 'Second intersection (D) should be second in LHS result')
+  t.is(rhsOrdered[0], propB, 'First intersection (B) should be first in RHS result')
+  t.is(rhsOrdered[1], propD, 'Second intersection (D) should be second in RHS result')
+
+  // Verify non-intersecting properties are dropped from lhs in fuzzy mode
+  t.is(lhsOrdered.length, 2, 'LHS should only contain intersecting properties in fuzzy mode')
+
+  // Verify non-intersecting properties maintain their original order
+  t.is(rhsOrdered[2], propE, 'Non-intersecting property E should maintain its relative position')
+  t.is(rhsOrdered[3], propF, 'Non-intersecting property F should maintain its relative position')
+})
+
 // SymbolPropertyAccessor Tests
 test('SymbolPropertyAccessor - constructor correctly sets key and value, which iterator yields', (t) => {
   const context = new RealValueContext()
@@ -220,7 +451,7 @@ test('SymbolPropertyAccessor - compare returns unequal for non-SymbolPropertyAcc
 
   const property = new SymbolPropertyAccessor(key, value)
 
-  t.is(property.compare(value), unequal)
+  t.is(property.compare(value, 'comprehensive'), unequal)
 })
 
 test('SymbolPropertyAccessor - compare returns unequal for different symbol keys', (t) => {
@@ -237,7 +468,7 @@ test('SymbolPropertyAccessor - compare returns unequal for different symbol keys
   const property1 = new SymbolPropertyAccessor(key1, value)
   const property2 = new SymbolPropertyAccessor(key2, value)
 
-  t.is(property1.compare(property2), unequal)
+  t.is(property1.compare(property2, 'comprehensive'), unequal)
 })
 
 test('SymbolPropertyAccessor - compare delegates to value comparison when symbol keys match', (t) => {
@@ -254,12 +485,38 @@ test('SymbolPropertyAccessor - compare delegates to value comparison when symbol
   const property2 = new SymbolPropertyAccessor(key, value2)
 
   // Should return result of comparing values (unequal in this case)
-  t.is(property1.compare(property2), unequal)
+  t.is(property1.compare(property2, 'comprehensive'), unequal)
 
   // When values are equal
   const value3 = new StringRepresentation('value1')
   const property3 = new SymbolPropertyAccessor(key, value3)
-  t.is(property1.compare(property3), strictlyEqual)
+  t.is(property1.compare(property3, 'comprehensive'), strictlyEqual)
+})
+
+test('SymbolPropertyAccessor - compare delegates comparison mode to value representation', (t) => {
+  const context = new RealValueContext()
+  const symbol = Symbol('testSymbol')
+  const key = context.represent(symbol) as SymbolRepresentation
+
+  // Create a plain object and a custom class instance
+  class CustomClass {
+    foo = 1
+    bar = 2
+  }
+  const plain = { foo: 1, bar: 2 }
+  const custom = new CustomClass()
+
+  // Create symbol property accessors with same keys but different value types
+  const plainProperty = new SymbolPropertyAccessor(key, context.represent(plain))
+  const customProperty = new SymbolPropertyAccessor(key, context.represent(custom))
+
+  // In fuzzy mode, different object types should be comparable
+  t.is(plainProperty.compare(customProperty, 'fuzzy'), comparable)
+  t.is(customProperty.compare(plainProperty, 'fuzzy'), comparable)
+
+  // In comprehensive mode, different object types should be unequal
+  t.is(plainProperty.compare(customProperty, 'comprehensive'), unequal)
+  t.is(customProperty.compare(plainProperty, 'comprehensive'), unequal)
 })
 
 test('SymbolPropertyAccessor - serialize encodes key and returns partial', (t) => {
@@ -424,8 +681,72 @@ test('SymbolPropertyAccessor - groupForComparison works with empty takeWhile res
   }
 })
 
-// For the SymbolPropertyAccessor.orderByIntersection test
-test('SymbolPropertyAccessor.orderByIntersection orders properties by intersection', (t) => {
+test('SymbolPropertyAccessor - groupForComparison fully deserializes its accessor', (t) => {
+  const { bytes } = new Encoder()
+    .staticType(staticTypeTable.object)
+    .annotations({ p: 1, c: 'Object' })
+    // Add symbol property aspect
+    .staticType(staticTypeTable.symbolPropertyAspect)
+    // First symbol property with object value (complex enough to test fullyDeserialize)
+    .staticType(staticTypeTable.symbol)
+    .annotations({ s: 'Symbol(objectValue)' })
+    // Object as the complex value
+    .staticType(staticTypeTable.object)
+    .annotations({ p: 2, c: 'Object' })
+    .staticType(staticTypeTable.symbolPropertyAspect)
+    // Nested symbol property
+    .staticType(staticTypeTable.symbol)
+    .annotations({ s: 'Symbol(nested)' })
+    // Add the value (string 'nested')
+    .staticType(staticTypeTable.string)
+    .string('nested')
+    .staticType(staticTypeTable.terminator)
+    // Second symbol property with simple string value
+    .staticType(staticTypeTable.symbol)
+    .annotations({ s: 'Symbol(simple)' })
+    .staticType(staticTypeTable.string)
+    .string('simpleStringValue')
+    // End symbol properties
+    .staticType(staticTypeTable.terminator)
+
+  const decoder = new Decoder(bytes)
+  const context = new DeserializationContext(decoder)
+
+  const objectRep = context.next() as ObjectRepresentation
+  const iterator = objectRep[Symbol.iterator]()
+  const { value: prop } = iterator.next() as { value: ValueRepresentation | undefined }
+  if (!prop || !SymbolPropertyAccessor.is(prop) || !('groupForComparison' in prop)) {
+    t.fail('Expected first property to be a SymbolPropertyAccessor with groupForComparison method')
+    return
+  }
+
+  // Mock takeWhile that returns no additional properties
+  const takeWhile: TakeWhile = function* () {
+    // No-op
+  }
+
+  const group = prop.groupForComparison(takeWhile, objectRep)
+  t.truthy(group, 'Group should be created from SymbolPropertyAccessor')
+
+  const { value: nextProp } = iterator.next() as { value: ValueRepresentation | undefined }
+  if (!nextProp || !SymbolPropertyAccessor.is(nextProp)) {
+    t.fail('Expected second property to be a SymbolPropertyAccessor')
+    return
+  }
+
+  const expected = new SymbolPropertyAccessor(
+    representValue(Symbol('simple')) as SymbolRepresentation,
+    new StringRepresentation('simpleStringValue'),
+  )
+  t.is(
+    expected.compare(nextProp, 'comprehensive'),
+    strictlyEqual,
+    'Next property should match expected simple property',
+  )
+})
+
+// For the SymbolPropertyAccessor.alignByComparison test
+test('SymbolPropertyAccessor.alignByComparison orders properties by intersection', (t) => {
   const context = new RealValueContext()
 
   // Create symbols
@@ -460,7 +781,7 @@ test('SymbolPropertyAccessor.orderByIntersection orders properties by intersecti
   const rhsProps = [propE, propB, propF, propD]
 
   // Order by intersection
-  const [lhsOrdered, rhsOrdered] = SymbolPropertyAccessor.orderByIntersection(lhsProps, rhsProps)
+  const [lhsOrdered, rhsOrdered] = SymbolPropertyAccessor.alignForComparison(lhsProps, rhsProps, 'comprehensive')
 
   // Verify the matching properties are first, in the order they appear in LHS
   t.is(lhsOrdered[0], propB, 'First intersection (B) should be first in LHS result')
@@ -472,6 +793,57 @@ test('SymbolPropertyAccessor.orderByIntersection orders properties by intersecti
   t.is(lhsOrdered[2], propA, 'Non-intersecting property A should maintain its relative position')
   t.is(lhsOrdered[3], propC, 'Non-intersecting property C should maintain its relative position')
 
+  t.is(rhsOrdered[2], propE, 'Non-intersecting property E should maintain its relative position')
+  t.is(rhsOrdered[3], propF, 'Non-intersecting property F should maintain its relative position')
+})
+
+test('SymbolPropertyAccessor.alignByComparison drops non-intersecting lhs properties in fuzzy mode', (t) => {
+  const context = new RealValueContext()
+
+  // Create symbols
+  const symbolA = Symbol('symbolA')
+  const symbolB = Symbol('symbolB')
+  const symbolC = Symbol('symbolC')
+  const symbolD = Symbol('symbolD')
+  const symbolE = Symbol('symbolE')
+  const symbolF = Symbol('symbolF')
+
+  // Get symbol representations through context
+  const keyA = context.represent(symbolA) as SymbolRepresentation
+  const keyB = context.represent(symbolB) as SymbolRepresentation
+  const keyC = context.represent(symbolC) as SymbolRepresentation
+  const keyD = context.represent(symbolD) as SymbolRepresentation
+  const keyE = context.represent(symbolE) as SymbolRepresentation
+  const keyF = context.represent(symbolF) as SymbolRepresentation
+
+  const value = new StringRepresentation('value')
+
+  const propA = new SymbolPropertyAccessor(keyA, value)
+  const propB = new SymbolPropertyAccessor(keyB, value)
+  const propC = new SymbolPropertyAccessor(keyC, value)
+  const propD = new SymbolPropertyAccessor(keyD, value)
+  const propE = new SymbolPropertyAccessor(keyE, value)
+  const propF = new SymbolPropertyAccessor(keyF, value)
+
+  // LHS: [A, B, C, D]
+  // RHS: [E, B, F, D]
+  // Intersection: B and D (should be placed first in result, in the order they appear in LHS)
+  const lhsProps = [propA, propB, propC, propD]
+  const rhsProps = [propE, propB, propF, propD]
+
+  // Order by intersection
+  const [lhsOrdered, rhsOrdered] = SymbolPropertyAccessor.alignForComparison(lhsProps, rhsProps, 'fuzzy')
+
+  // Verify the matching properties are first, in the order they appear in LHS
+  t.is(lhsOrdered[0], propB, 'First intersection (B) should be first in LHS result')
+  t.is(lhsOrdered[1], propD, 'Second intersection (D) should be second in LHS result')
+  t.is(rhsOrdered[0], propB, 'First intersection (B) should be first in RHS result')
+  t.is(rhsOrdered[1], propD, 'Second intersection (D) should be second in RHS result')
+
+  // Verify non-intersecting properties are dropped from lhs in fuzzy mode
+  t.is(lhsOrdered.length, 2, 'LHS should only contain intersecting properties in fuzzy mode')
+
+  // Verify non-intersecting properties maintain their original order
   t.is(rhsOrdered[2], propE, 'Non-intersecting property E should maintain its relative position')
   t.is(rhsOrdered[3], propF, 'Non-intersecting property F should maintain its relative position')
 })
@@ -526,6 +898,120 @@ test('NamedPropertyGroup - deserialized property returns false for empty group a
   const deserializedProperty = new NamedPropertyAccessor('key', deserializedArrayValue)
   const deserializedGroup = new NamedPropertyGroup([deserializedProperty])
   t.true(deserializedGroup.deserialized)
+})
+
+test('NamedPropertyGroup - align reorders properties based on intersection', (t) => {
+  const value = new StringRepresentation('value')
+
+  const propA = new NamedPropertyAccessor('A', value)
+  const propB = new NamedPropertyAccessor('B', value)
+  const propC = new NamedPropertyAccessor('C', value)
+  const propD = new NamedPropertyAccessor('D', value)
+  const propE = new NamedPropertyAccessor('E', value)
+  const propF = new NamedPropertyAccessor('F', value)
+
+  // Group 1: [A, B, C, D]
+  // Group 2: [E, B, F, D]
+  // Intersection: B and D (should be placed first, in the order they appear in group1)
+  const group1 = new NamedPropertyGroup([propA, propB, propC, propD])
+  const group2 = new NamedPropertyGroup([propE, propB, propF, propD])
+
+  // Before alignment
+  const beforeGroup1 = [...group1]
+  t.is(beforeGroup1[0], propA)
+  t.is(beforeGroup1[1], propB)
+  t.is(beforeGroup1[2], propC)
+  t.is(beforeGroup1[3], propD)
+
+  const beforeGroup2 = [...group2]
+  t.is(beforeGroup2[0], propE)
+  t.is(beforeGroup2[1], propB)
+  t.is(beforeGroup2[2], propF)
+  t.is(beforeGroup2[3], propD)
+
+  // Perform alignment
+  group1.align(group2, 'comprehensive')
+
+  // After alignment:
+  // - Matching properties should be first, in the order they appear in group2
+  // - Non-matching properties should maintain their original order
+  const afterGroup1 = [...group1]
+  t.is(afterGroup1[0], propB, 'First intersection (B) should be first in group1')
+  t.is(afterGroup1[1], propD, 'Second intersection (D) should be second in group1')
+  t.is(afterGroup1[2], propA, 'Non-intersecting property A should maintain its relative position')
+  t.is(afterGroup1[3], propC, 'Non-intersecting property C should maintain its relative position')
+
+  const afterGroup2 = [...group2]
+  t.is(afterGroup2[0], propB, 'First intersection (B) should be first in group2')
+  t.is(afterGroup2[1], propD, 'Second intersection (D) should be second in group2')
+  t.is(afterGroup2[2], propE, 'Non-intersecting property E should maintain its relative position')
+  t.is(afterGroup2[3], propF, 'Non-intersecting property F should maintain its relative position')
+})
+
+test('NamedPropertyGroup - align does nothing when other is not a NamedPropertyGroup', (t) => {
+  const value = new StringRepresentation('value')
+  const propA = new NamedPropertyAccessor('A', value)
+  const propB = new NamedPropertyAccessor('B', value)
+
+  const group = new NamedPropertyGroup([propA, propB])
+  const originalProperties = [...group]
+
+  // Try to align with a non-NamedPropertyGroup (should do nothing)
+  group.align(new StringRepresentation('not a group'), 'comprehensive')
+
+  // Verify properties remain unchanged
+  const afterProperties = [...group]
+  t.is(afterProperties.length, 2)
+  t.is(afterProperties[0], propA)
+  t.is(afterProperties[1], propB)
+  t.deepEqual(afterProperties, originalProperties)
+})
+
+test('NamedPropertyGroup - align drops non-intersecting lhs properties in fuzzy mode', (t) => {
+  const value = new StringRepresentation('value')
+
+  const propA = new NamedPropertyAccessor('A', value)
+  const propB = new NamedPropertyAccessor('B', value)
+  const propC = new NamedPropertyAccessor('C', value)
+  const propD = new NamedPropertyAccessor('D', value)
+  const propE = new NamedPropertyAccessor('E', value)
+  const propF = new NamedPropertyAccessor('F', value)
+
+  // Group 1: [A, B, C, D]
+  // Group 2: [E, B, F, D]
+  // Intersection: B and D (should be placed first, in the order they appear in group2)
+  const group1 = new NamedPropertyGroup([propA, propB, propC, propD])
+  const group2 = new NamedPropertyGroup([propE, propB, propF, propD])
+
+  // Before alignment
+  const beforeGroup1 = [...group1]
+  t.is(beforeGroup1[0], propA)
+  t.is(beforeGroup1[1], propB)
+  t.is(beforeGroup1[2], propC)
+  t.is(beforeGroup1[3], propD)
+
+  const beforeGroup2 = [...group2]
+  t.is(beforeGroup2[0], propE)
+  t.is(beforeGroup2[1], propB)
+  t.is(beforeGroup2[2], propF)
+  t.is(beforeGroup2[3], propD)
+
+  // Perform alignment
+  group1.align(group2, 'fuzzy')
+
+  // After alignment:
+  // - Matching properties should be first, in the order they appear in group2
+  // - Non-matching properties should maintain their original order
+  const afterGroup1 = [...group1]
+  t.is(afterGroup1.length, 2, 'Group1 should only contain intersecting properties in fuzzy mode')
+  t.is(afterGroup1[0], propB, 'First intersection (B) should be first in group1')
+  t.is(afterGroup1[1], propD, 'Second intersection (D) should be second in group1')
+
+  const afterGroup2 = [...group2]
+  t.is(afterGroup2[0], propB, 'First intersection (B) should be first in group2')
+  t.is(afterGroup2[1], propD, 'Second intersection (D) should be second in group2')
+  t.is(afterGroup2[2], propE, 'Non-intersecting property E should maintain its relative position')
+  t.is(afterGroup2[3], propF, 'Non-intersecting property F should maintain its relative position')
 })
 
 // SymbolPropertyGroup Tests
@@ -603,7 +1089,7 @@ test('SymbolPropertyGroup - align reorders properties based on intersection', (t
   t.is(beforeGroup2[3], propD)
 
   // Perform alignment
-  group1.align(group2)
+  group1.align(group2, 'comprehensive')
 
   // After alignment:
   // - Matching properties should be first, in the order they appear in group2
@@ -619,6 +1105,96 @@ test('SymbolPropertyGroup - align reorders properties based on intersection', (t
   t.is(afterGroup2[1], propD, 'Second intersection (D) should be second in group2')
   t.is(afterGroup2[2], propE, 'Non-intersecting property E should maintain its relative position')
   t.is(afterGroup2[3], propF, 'Non-intersecting property F should maintain its relative position')
+})
+
+test('SymbolPropertyGroup - align drops non-intersecting lhs properties in fuzzy mode', (t) => {
+  const context = new RealValueContext()
+
+  // Create symbols and get their representations through context
+  const symbolA = Symbol('symbolA')
+  const symbolB = Symbol('symbolB')
+  const symbolC = Symbol('symbolC')
+  const symbolD = Symbol('symbolD')
+  const symbolE = Symbol('symbolE')
+  const symbolF = Symbol('symbolF')
+
+  const keyA = context.represent(symbolA) as SymbolRepresentation
+  const keyB = context.represent(symbolB) as SymbolRepresentation
+  const keyC = context.represent(symbolC) as SymbolRepresentation
+  const keyD = context.represent(symbolD) as SymbolRepresentation
+  const keyE = context.represent(symbolE) as SymbolRepresentation
+  const keyF = context.represent(symbolF) as SymbolRepresentation
+
+  const value = new StringRepresentation('value')
+
+  const propA = new SymbolPropertyAccessor(keyA, value)
+  const propB = new SymbolPropertyAccessor(keyB, value)
+  const propC = new SymbolPropertyAccessor(keyC, value)
+  const propD = new SymbolPropertyAccessor(keyD, value)
+  const propE = new SymbolPropertyAccessor(keyE, value)
+  const propF = new SymbolPropertyAccessor(keyF, value)
+
+  // Group 1: [A, B, C, D]
+  // Group 2: [E, B, F, D]
+  // Intersection: B and D (should be placed first, in the order they appear in group2)
+  const group1 = new SymbolPropertyGroup([propA, propB, propC, propD])
+  const group2 = new SymbolPropertyGroup([propE, propB, propF, propD])
+
+  // Before alignment
+  const beforeGroup1 = [...group1]
+  t.is(beforeGroup1[0], propA)
+  t.is(beforeGroup1[1], propB)
+  t.is(beforeGroup1[2], propC)
+  t.is(beforeGroup1[3], propD)
+
+  const beforeGroup2 = [...group2]
+  t.is(beforeGroup2[0], propE)
+  t.is(beforeGroup2[1], propB)
+  t.is(beforeGroup2[2], propF)
+  t.is(beforeGroup2[3], propD)
+
+  // Perform alignment
+  group1.align(group2, 'fuzzy')
+
+  // After alignment:
+  // - Matching properties should be first, in the order they appear in group2
+  // - Non-matching properties should maintain their original order
+  const afterGroup1 = [...group1]
+  t.is(afterGroup1.length, 2, 'Group1 should only contain intersecting properties in fuzzy mode')
+  t.is(afterGroup1[0], propB, 'First intersection (B) should be first in group1')
+  t.is(afterGroup1[1], propD, 'Second intersection (D) should be second in group1')
+
+  const afterGroup2 = [...group2]
+  t.is(afterGroup2[0], propB, 'First intersection (B) should be first in group2')
+  t.is(afterGroup2[1], propD, 'Second intersection (D) should be second in group2')
+  t.is(afterGroup2[2], propE, 'Non-intersecting property E should maintain its relative position')
+  t.is(afterGroup2[3], propF, 'Non-intersecting property F should maintain its relative position')
+})
+
+test('SymbolPropertyGroup - align does nothing when other is not a SymbolPropertyGroup', (t) => {
+  const context = new RealValueContext()
+  const symbol1 = Symbol('symbol1')
+  const symbol2 = Symbol('symbol2')
+
+  const key1 = context.represent(symbol1) as SymbolRepresentation
+  const key2 = context.represent(symbol2) as SymbolRepresentation
+  const value = new StringRepresentation('value')
+
+  const propA = new SymbolPropertyAccessor(key1, value)
+  const propB = new SymbolPropertyAccessor(key2, value)
+
+  const group = new SymbolPropertyGroup([propA, propB])
+  const originalProperties = [...group]
+
+  // Try to align with a non-SymbolPropertyGroup (should do nothing)
+  group.align(new StringRepresentation('not a group'), 'comprehensive')
+
+  // Verify properties remain unchanged
+  const afterProperties = [...group]
+  t.is(afterProperties.length, 2)
+  t.is(afterProperties[0], propA)
+  t.is(afterProperties[1], propB)
+  t.deepEqual(afterProperties, originalProperties)
 })
 
 test('SymbolPropertyGroup - compare returns comparable for another SymbolPropertyGroup', (t) => {

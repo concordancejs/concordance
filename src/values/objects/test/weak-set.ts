@@ -25,7 +25,7 @@ test('deserialize creates a comparable WeakSetRepresentation', (t) => {
   const deserialized = WeakSetRepresentation.deserialize(deserializationContext, decoder)
 
   // The deserialized representation should be comparable to the original
-  t.is(original.compare(deserialized), comparable)
+  t.is(original.compare(deserialized, 'comprehensive'), comparable)
 })
 
 // Compare method tests
@@ -36,10 +36,10 @@ test('compare returns strictlyEqual when comparing the same weakSet instance', (
   const weakSetRep1 = context.represent(weakSet) as WeakSetRepresentation
   const weakSetRep2 = context.represent(weakSet) as WeakSetRepresentation
 
-  t.is(weakSetRep1.compare(weakSetRep2), strictlyEqual)
+  t.is(weakSetRep1.compare(weakSetRep2, 'comprehensive'), strictlyEqual)
 })
 
-test('compare returns unequal when comparing to non-WeakSetRepresentation', (t) => {
+test('compare returns unequal when comparing to non-WeakSetRepresentation in comprehensive mode', (t) => {
   const context = new RealValueContext()
   const weakSet = new WeakSet()
   const object = {}
@@ -47,7 +47,34 @@ test('compare returns unequal when comparing to non-WeakSetRepresentation', (t) 
   const weakSetRep = context.represent(weakSet) as WeakSetRepresentation
   const objectRep = context.represent(object)
 
-  t.is(weakSetRep.compare(objectRep), unequal)
+  t.is(weakSetRep.compare(objectRep, 'comprehensive'), unequal)
+})
+
+test('compare returns comparable when comparing to non-WeakSetRepresentation in fuzzy mode', (t) => {
+  const context = new RealValueContext()
+  const weakSet = new WeakSet()
+  const object = {}
+
+  const weakSetRep = context.represent(weakSet) as WeakSetRepresentation
+  const objectRep = context.represent(object)
+
+  t.is(weakSetRep.compare(objectRep, 'fuzzy'), comparable)
+})
+
+test('compare returns unequal when comparing to non-plain object in fuzzy mode', (t) => {
+  const context = new RealValueContext()
+  const weakSet = new WeakSet()
+
+  // Create a custom class instance (not a plain object)
+  class CustomClass {
+    prop = 'value'
+  }
+  const customInstance = new CustomClass()
+
+  const weakSetRep = context.represent(weakSet) as WeakSetRepresentation
+  const customRep = context.represent(customInstance)
+
+  t.is(weakSetRep.compare(customRep, 'fuzzy'), unequal)
 })
 
 test('compare returns comparable when comparing different weakSet instances', (t) => {
@@ -62,7 +89,7 @@ test('compare returns comparable when comparing different weakSet instances', (t
   const weakSetRep1 = context.represent(weakSet1) as WeakSetRepresentation
   const weakSetRep2 = context.represent(weakSet2) as WeakSetRepresentation
 
-  t.is(weakSetRep1.compare(weakSetRep2), comparable)
+  t.is(weakSetRep1.compare(weakSetRep2, 'comprehensive'), comparable)
 })
 
 // Serialization test
