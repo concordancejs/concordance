@@ -226,6 +226,29 @@ test('iterateProperties excludes stack property even if enumerable', (t) => {
   )
 })
 
+test('iterateProperties includes code property even when non-enumerable', (t) => {
+  const context = new RealValueContext()
+  const error = new Error('Test error')
+  Object.defineProperty(error, 'code', {
+    value: 'E_CUSTOM',
+    enumerable: false,
+    configurable: true,
+    writable: true,
+  })
+
+  const errorRep = context.represent(error) as ErrorRepresentation
+  const properties = [...errorRep.iterateProperties()]
+
+  // Create property accessors for expected properties
+  const codeAccessor = new NamedPropertyAccessor('code', context.represent('E_CUSTOM'))
+
+  // Should include code
+  t.true(
+    properties.some((prop) => codeAccessor.compare(prop, 'full') === strictlyEqual),
+    'code property should be present',
+  )
+})
+
 // Serialization test
 test('serialize uses error static type', (t) => {
   const context = new RealValueContext()

@@ -21,7 +21,7 @@ export class ErrorRepresentation extends ObjectRepresentation {
   }
 
   override *iterateProperties() {
-    yield* super.iterateProperties({ exclude: ['stack'], include: ['name', 'cause', 'message'] })
+    yield* super.iterateProperties({ exclude: ['stack'], include: ['name', 'cause', 'code', 'message'] })
   }
 
   override finalFormat(formatter: Formatter, options?: FinalFormatOptions) {
