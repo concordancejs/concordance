@@ -1719,7 +1719,7 @@ test('notifyNextExplicitlyNamedPropertyAccess - basic functionality and argument
   t.is(callback.mock.callCount(), 0, 'Callbacks should not be called for regular property access')
 
   // Access property explicitly to trigger callback
-  const properties = [...context.namedProperties(representation, 'name')]
+  const properties = [...context.namedProperties(representation, { include: ['name'] })]
   t.is(callback.mock.callCount(), 1, 'Callback should be called once')
 
   // Verify callback arguments
@@ -1742,7 +1742,7 @@ test('notifyNextExplicitlyNamedPropertyAccess - non-existent properties', (t) =>
     'nonExistent',
     nonExistentCallback,
   )
-  void [...nonExistentContext.namedProperties(nonExistentRepresentation, 'nonExistent')]
+  void [...nonExistentContext.namedProperties(nonExistentRepresentation, { include: ['nonExistent'] })]
 
   t.is(nonExistentCallback.mock.callCount(), 0, 'Callback not called for non-existent property')
 })
@@ -1777,7 +1777,7 @@ test('notifyNextExplicitlyNamedPropertyAccess - duplicate registration', (t) => 
   })
 
   // Access properties to verify callbacks work
-  void [...context.namedProperties(representation, 'key', 'count')]
+  void [...context.namedProperties(representation, { include: ['key', 'count'] })]
   t.is(callback1.mock.callCount(), 1, 'First callback called once for key')
   t.is(callback2.mock.callCount(), 1, 'Second callback called once for count')
 })
@@ -1795,15 +1795,15 @@ test('notifyNextExplicitlyNamedPropertyAccess - callback invocation tracking', (
   trackingContext.notifyNextExplicitlyNamedPropertyAccess(trackingRepresentation, 'prop2', trackingCallback)
 
   // First access
-  void [...trackingContext.namedProperties(trackingRepresentation, 'prop1')]
+  void [...trackingContext.namedProperties(trackingRepresentation, { include: ['prop1'] })]
   t.is(trackingCallback.mock.callCount(), 1, 'Callback called for first property')
 
   // Second access to same property - should NOT trigger again
-  void [...trackingContext.namedProperties(trackingRepresentation, 'prop1')]
+  void [...trackingContext.namedProperties(trackingRepresentation, { include: ['prop1'] })]
   t.is(trackingCallback.mock.callCount(), 1, 'Callback should not be called again for cached property')
 
   // Access to different property
-  void [...trackingContext.namedProperties(trackingRepresentation, 'prop2')]
+  void [...trackingContext.namedProperties(trackingRepresentation, { include: ['prop2'] })]
   t.is(trackingCallback.mock.callCount(), 2, 'Callback called for second property')
 })
 
@@ -1823,7 +1823,7 @@ test('resetPropertyAccessNotifiers - cleanup and re-registration', (t) => {
   // Register callbacks and verify they work
   context.notifyNextExplicitlyNamedPropertyAccess(representation, 'name', nameCallback)
   context.notifyNextExplicitlyNamedPropertyAccess(representation, 'value', valueCallback)
-  void [...context.namedProperties(representation, 'name', 'value')]
+  void [...context.namedProperties(representation, { include: ['name', 'value'] })]
   t.is(nameCallback.mock.callCount(), 1, 'Name callback should be called before reset')
   t.is(valueCallback.mock.callCount(), 1, 'Value callback should be called before reset')
 
@@ -1839,7 +1839,7 @@ test('resetPropertyAccessNotifiers - cleanup and re-registration', (t) => {
   }, 'Should be able to register new callback after reset')
 
   // Verify new callback works and old callbacks are not called again
-  void [...context.namedProperties(representation, 'name')]
+  void [...context.namedProperties(representation, { include: ['name'] })]
   t.is(newNameCallback.mock.callCount(), 1, 'New callback should be called after reset')
   t.is(nameCallback.mock.callCount(), 1, 'Old name callback should not be called after reset')
   t.is(valueCallback.mock.callCount(), 1, 'Old value callback should not be called after reset')

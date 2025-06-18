@@ -23,7 +23,10 @@ export type Context = {
   iterateMapEntries(value: Opaque): Iterable<MapEntryAccessor>
   iterateValues(value: Opaque): Iterable<IteratorValueAccessor>
   length(value: Opaque): number
-  namedProperties(value: Opaque, ...include: string[]): Iterable<NamedPropertyAccessor>
+  namedProperties(
+    value: Opaque,
+    excludeInclude?: { exclude?: string[]; include?: string[] },
+  ): Iterable<NamedPropertyAccessor>
   notifyNextExplicitlyNamedPropertyAccess(value: Opaque, name: string, callback: PropertyAccessCallback): void
   pointer(representation: ValueRepresentation, value: Opaque): number | undefined
   representBytes(value: Opaque): BytesAccessor

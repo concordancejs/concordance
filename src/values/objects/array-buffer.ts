@@ -9,6 +9,7 @@ import type { BytesAccessor } from '../../accessors/bytes.ts'
 import type { Formatter } from '../../formatter.ts'
 import { ObjectRepresentation, type ObjectAnnotations } from './object.ts'
 
+const includeProperties = { include: ['maxByteLength', 'growable', 'resizable'] }
 export class ArrayBufferRepresentation extends ObjectRepresentation implements DeepFunctionality {
   static override deserialize(context: DeserializationContext, decoder: Decoder): ArrayBufferRepresentation {
     const { b: bytes, ...objectAnnotations } = decoder.annotations<ObjectAnnotations & { b: BytesAccessor }>()
@@ -51,7 +52,7 @@ export class ArrayBufferRepresentation extends ObjectRepresentation implements D
   override *iterateProperties() {
     // For ArrayBuffers, this yields maxByteLength and resizable.
     // For SharedArrayBuffers, this yields maxByteLength and growable.
-    yield* super.iterateProperties('maxByteLength', 'growable', 'resizable')
+    yield* super.iterateProperties(includeProperties)
   }
 
   preformat(formatter: Formatter) {

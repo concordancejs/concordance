@@ -7,6 +7,8 @@ import { staticTypeTable } from '../../serialization-types.ts'
 import type { FinalFormatOptions, ValueRepresentation } from '../../value.d.ts'
 import { ObjectRepresentation, type ObjectAnnotations } from '../objects/object.ts'
 
+const includeProperties = { include: ['type', 'extractable', 'algorithm', 'usages'] }
+
 export class CryptoKeyRepresentation extends ObjectRepresentation {
   static override deserialize(context: DeserializationContext, decoder: Decoder): CryptoKeyRepresentation {
     const objectAnnotations = decoder.annotations<ObjectAnnotations>()
@@ -21,7 +23,7 @@ export class CryptoKeyRepresentation extends ObjectRepresentation {
   }
 
   override *iterateProperties() {
-    yield* super.iterateProperties('type', 'extractable', 'algorithm', 'usages')
+    yield* super.iterateProperties(includeProperties)
   }
 
   override finalFormat(formatter: Formatter, options?: FinalFormatOptions) {

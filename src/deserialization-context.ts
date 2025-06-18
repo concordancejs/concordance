@@ -107,7 +107,7 @@ class IterationState {
     return accessor
   }
 
-  supportExplicitlyNamedPropertyNotifications(names: string[]) {
+  supportExplicitlyNamedPropertyNotifications(names?: string[]) {
     this.#explicitlyNamedProperties = names
   }
 
@@ -424,11 +424,14 @@ export class DeserializationContext implements Context {
     } while (!state.terminated && state.lastAspect === staticTypeTable.elementAspect && !endedAspect)
   }
 
-  *namedProperties(value: Opaque, ...include: string[]): IterableIterator<NamedPropertyAccessor> {
+  *namedProperties(
+    value: Opaque,
+    excludeInclude?: { exclude?: string[]; include?: string[] },
+  ): IterableIterator<NamedPropertyAccessor> {
     const state = this.#iterationStates.get(value) ?? new IterationState()
     this.#iterationStates.set(value, state)
 
-    state.supportExplicitlyNamedPropertyNotifications(include)
+    state.supportExplicitlyNamedPropertyNotifications(excludeInclude?.include)
 
     if (state.namedPropertyAccessors) {
       state.notifyForCachedNamedProperties()

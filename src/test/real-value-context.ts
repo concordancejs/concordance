@@ -592,8 +592,26 @@ test('namedProperties handles property accessors correctly', (t) => {
   t.false(props.some((p) => p.compare(expectedNonEnumProp) === strictlyEqual))
 
   // Test with include parameter to force inclusion of non-enumerable properties
-  const propsWithForced = [...context.namedProperties(object, 'nonEnumProp')]
+  const propsWithForced = [...context.namedProperties(object, { include: ['nonEnumProp'] })]
   t.true(propsWithForced.some((p) => p.compare(expectedNonEnumProp) === strictlyEqual))
+})
+
+test('namedProperties excludes specified property names', (t) => {
+  const context = new RealValueContext()
+  const object = { a: 1, b: 2, c: 3 }
+
+  // Exclude 'b'
+  const props = [...context.namedProperties(object, { exclude: ['b'] })]
+
+  // Should only have 'a' and 'c'
+  t.is(props.length, 2)
+  const expectedA = new NamedPropertyAccessor('a', context.represent(1))
+  const expectedC = new NamedPropertyAccessor('c', context.represent(3))
+  const expectedB = new NamedPropertyAccessor('b', context.represent(2))
+
+  t.true(props.some((p) => p.compare(expectedA) === strictlyEqual))
+  t.true(props.some((p) => p.compare(expectedC) === strictlyEqual))
+  t.false(props.some((p) => p.compare(expectedB) === strictlyEqual))
 })
 
 test('namedProperties filters out numeric indices for array-like objects', (t) => {
@@ -774,7 +792,7 @@ test('notifyNextExplicitlyNamedPropertyAccess - basic functionality and argument
   t.is(callback.mock.callCount(), 0, 'Callbacks should not be called for regular property access')
 
   // Should trigger callbacks when explicitly including properties
-  const propertyGroup = context.namedProperties(object, 'name')
+  const propertyGroup = context.namedProperties(object, { include: ['name'] })
   t.is(callback.mock.callCount(), 1, 'Callback should be called once for explicitly named property')
 
   // Verify callback arguments are correct
@@ -792,7 +810,7 @@ test('notifyNextExplicitlyNamedPropertyAccess - non-existent properties', (t) =>
   const objectWithMissingProp = { existing: true }
 
   context.notifyNextExplicitlyNamedPropertyAccess(objectWithMissingProp, 'nonExistent', nonExistentCallback)
-  context.namedProperties(objectWithMissingProp, 'nonExistent')
+  context.namedProperties(objectWithMissingProp, { include: ['nonExistent'] })
 
   t.is(nonExistentCallback.mock.callCount(), 0, 'Callback should not be called for non-existent properties')
 })
@@ -810,7 +828,7 @@ test('notifyNextExplicitlyNamedPropertyAccess - non-enumerable properties', (t) 
   context.namedProperties(nonEnumObject)
   t.is(hiddenCallback.mock.callCount(), 0, 'Callback should not be called without explicit inclusion')
 
-  context.namedProperties(nonEnumObject, 'hidden')
+  context.namedProperties(nonEnumObject, { include: ['hidden'] })
   t.is(hiddenCallback.mock.callCount(), 1, 'Callback should be called for explicitly included non-enumerable property')
 })
 
@@ -844,7 +862,7 @@ test('notifyNextExplicitlyNamedPropertyAccess - duplicate registration', (t) => 
   })
 
   // Verify both callbacks work for their respective properties
-  context.namedProperties(object, 'key', 'count')
+  context.namedProperties(object, { include: ['key', 'count'] })
   t.is(firstCallback.mock.callCount(), 1, 'First callback should be called for key')
   t.is(secondCallback.mock.callCount(), 1, 'Second callback should be called for count')
 })
@@ -870,8 +888,8 @@ test('notifyNextExplicitlyNamedPropertyAccess - isolation', (t) => {
   context.notifyNextExplicitlyNamedPropertyAccess(object2, 'name', object2Callback)
 
   // Access properties to verify isolation
-  context.namedProperties(object1, 'name')
-  context.namedProperties(object2, 'name')
+  context.namedProperties(object1, { include: ['name'] })
+  context.namedProperties(object2, { include: ['name'] })
 
   t.is(object1NameCallback.mock.callCount(), 1, 'obj1 name callback should be called')
   t.is(object1ValueCallback.mock.callCount(), 0, 'obj1 value callback should not be called')
@@ -887,10 +905,10 @@ test('notifyNextExplicitlyNamedPropertyAccess - callback invocation tracking', (
 
   context.notifyNextExplicitlyNamedPropertyAccess(trackingObject, 'name', trackingCallback)
 
-  context.namedProperties(trackingObject, 'name')
+  context.namedProperties(trackingObject, { include: ['name'] })
   t.is(trackingCallback.mock.callCount(), 1, 'Callback should be called once on first access')
 
-  context.namedProperties(trackingObject, 'name')
+  context.namedProperties(trackingObject, { include: ['name'] })
   t.is(trackingCallback.mock.callCount(), 1, 'Callback should not be called again on second access')
 })
 
@@ -909,7 +927,7 @@ test('resetPropertyAccessNotifiers - cleanup and re-registration', (t) => {
   context.notifyNextExplicitlyNamedPropertyAccess(object, 'name', nameCallback)
   context.notifyNextExplicitlyNamedPropertyAccess(object, 'value', valueCallback)
 
-  context.namedProperties(object, 'name', 'value')
+  context.namedProperties(object, { include: ['name', 'value'] })
   t.is(nameCallback.mock.callCount(), 1, 'Name callback should be called before reset')
   t.is(valueCallback.mock.callCount(), 1, 'Value callback should be called before reset')
 
@@ -925,7 +943,7 @@ test('resetPropertyAccessNotifiers - cleanup and re-registration', (t) => {
   }, 'Should be able to register new callback after reset')
 
   // Verify new callback works and old callbacks are not called again
-  context.namedProperties(object, 'name')
+  context.namedProperties(object, { include: ['name'] })
   t.is(newNameCallback.mock.callCount(), 1, 'New callback should be called after reset')
   t.is(nameCallback.mock.callCount(), 1, 'Old name callback should not be called after reset')
   t.is(valueCallback.mock.callCount(), 1, 'Old value callback should not be called after reset')

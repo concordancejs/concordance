@@ -133,8 +133,11 @@ export class ObjectRepresentation implements CommonRepresentation, DeepFunctiona
     yield* this.#context.iterateElements(this.#value)
   }
 
-  *iterateProperties(...include: string[]): IterableIterator<ValueRepresentation> {
-    yield* this.#context.namedProperties(this.#value, ...include)
+  *iterateProperties(excludeInclude?: {
+    exclude?: string[]
+    include?: string[]
+  }): IterableIterator<ValueRepresentation> {
+    yield* this.#context.namedProperties(this.#value, excludeInclude)
     yield* this.#context.symbolProperties(this.#value)
   }
 

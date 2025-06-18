@@ -203,6 +203,29 @@ test('iterateProperties includes name and message even when non-enumerable', (t)
   t.truthy(messageProperty, 'message property should be present')
 })
 
+test('iterateProperties excludes stack property even if enumerable', (t) => {
+  const context = new RealValueContext()
+  const error = new Error('Test error')
+  Object.defineProperty(error, 'stack', {
+    value: 'fake stack',
+    enumerable: true,
+    configurable: true,
+    writable: true,
+  })
+
+  const errorRep = context.represent(error) as ErrorRepresentation
+  const properties = [...errorRep.iterateProperties()]
+
+  // Create property accessors for unexpected properties
+  const stackAccessor = new NamedPropertyAccessor('stack', context.represent('fake stack'))
+
+  // Should NOT include stack
+  t.false(
+    properties.some((prop) => stackAccessor.compare(prop) === strictlyEqual),
+    'stack property should NOT be present',
+  )
+})
+
 // Serialization test
 test('serialize uses error static type', (t) => {
   const context = new RealValueContext()

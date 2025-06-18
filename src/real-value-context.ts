@@ -132,14 +132,14 @@ export class RealValueContext implements Context {
     return (value as { size: number }).size
   }
 
-  namedProperties(value: Opaque, ...include: string[]) {
+  namedProperties(value: Opaque, excludeInclude?: { exclude?: string[]; include?: string[] }) {
     // Sort property names, they should never be order-sensitive. For array-like objects, reject names that are an
     // index.
     const isArrayLike = this.isArrayLike(value)
     const minNonArrayLikeIndex = isArrayLike ? this.length(value) : 0
     const nameCandidates = Object.getOwnPropertyNames(value)
       .filter((name) => {
-        if (include.includes(name)) {
+        if (excludeInclude?.include?.includes(name) === true || excludeInclude?.exclude?.includes(name)) {
           return false
         }
 
@@ -152,7 +152,7 @@ export class RealValueContext implements Context {
 
         return Object.getOwnPropertyDescriptor(value, name)?.enumerable ?? false
       })
-      .concat(include.filter((name) => Reflect.has(value, name))) // eslint-disable-line unicorn/prefer-spread
+      .concat(excludeInclude?.include?.filter((name) => Reflect.has(value, name)) ?? []) // eslint-disable-line unicorn/prefer-spread
       .sort()
 
     const properties: NamedPropertyAccessor[] = []
@@ -161,7 +161,7 @@ export class RealValueContext implements Context {
       const propertyValue = this.represent((value as Record<string, unknown>)[name])
       const accessor = new NamedPropertyAccessor(name, propertyValue)
       properties.push(accessor)
-      if (objectNotifiers && include.includes(name)) {
+      if (objectNotifiers && excludeInclude?.include?.includes(name)) {
         const notifier = objectNotifiers.get(name)
         if (notifier?.invoked === false) {
           const { callback } = notifier

@@ -10,6 +10,8 @@ import type { NamedPropertyAccessor } from '../../accessors/property.ts'
 import { StringRepresentation } from '../primitives/string.ts'
 import { ObjectRepresentation, type ObjectAnnotations } from './object.ts'
 
+const includeProperties = { include: ['name'] }
+
 export class FunctionRepresentation extends ObjectRepresentation implements DeepFunctionality {
   static override deserialize(context: DeserializationContext, decoder: Decoder): FunctionRepresentation {
     const objectAnnotations = decoder.annotations<ObjectAnnotations>()
@@ -41,7 +43,7 @@ export class FunctionRepresentation extends ObjectRepresentation implements Deep
   }
 
   override *iterateProperties() {
-    yield* super.iterateProperties('name')
+    yield* super.iterateProperties(includeProperties)
   }
 
   preformat() {

@@ -226,8 +226,17 @@ test('iterateProperties accepts specific property names to include', (t) => {
   const representation = context.represent(object) as ObjectRepresentation
 
   // Include specific property
-  const properties = [...representation.iterateProperties('foo')]
+  const properties = [...representation.iterateProperties({ include: ['foo'] })]
   t.is(properties.length, 3)
+})
+
+test('iterateProperties yields no properties when all are excluded', (t) => {
+  const object = { only: 123 }
+  const context = new RealValueContext()
+  const representation = context.represent(object) as ObjectRepresentation
+
+  const properties = [...representation.iterateProperties({ exclude: ['only'] })]
+  t.is(properties.length, 0)
 })
 
 // Iterable tests

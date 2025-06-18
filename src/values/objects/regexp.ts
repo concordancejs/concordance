@@ -10,6 +10,8 @@ import type { Context } from '../../context.d.ts'
 import { ObjectRepresentation, type ObjectAnnotations } from './object.ts'
 import { unequal } from '../../comparison.ts'
 
+const includeProperties = { include: ['flags', 'source'] }
+
 export class RegExpRepresentation extends ObjectRepresentation implements DeepFunctionality {
   static override deserialize(context: DeserializationContext, decoder: Decoder): RegExpRepresentation {
     const objectAnnotations = decoder.annotations<ObjectAnnotations>()
@@ -33,7 +35,7 @@ export class RegExpRepresentation extends ObjectRepresentation implements DeepFu
   }
 
   override *iterateProperties() {
-    yield* super.iterateProperties('flags', 'source')
+    yield* super.iterateProperties(includeProperties)
   }
 
   preformat() {
