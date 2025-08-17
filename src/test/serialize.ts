@@ -54,6 +54,10 @@ class MockValueRepresentation {
     return this.#serializeImpl?.(encoder) ?? this.#serializeResult
   }
 
+  acceptsComparisonFrom(): never {
+    throw new Error('Not implemented for serialization tests')
+  }
+
   compare(): never {
     throw new Error('Not implemented for serialization tests')
   }

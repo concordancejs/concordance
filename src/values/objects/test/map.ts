@@ -189,6 +189,37 @@ test('iterateIterable preserves entry order', (t) => {
   t.is(entries[2]!.compare(entries2[0]!, 'comprehensive'), strictlyEqual)
 })
 
+test('acceptsComparisonFrom returns true for MapRepresentation', (t) => {
+  const context = new RealValueContext()
+  const map1 = context.represent(
+    new Map([
+      ['a', 1],
+      ['b', 2],
+    ]),
+  ) as MapRepresentation
+  const map2 = context.represent(
+    new Map([
+      ['c', 3],
+      ['d', 4],
+    ]),
+  ) as MapRepresentation
+
+  t.true(map1.acceptsComparisonFrom(map2))
+})
+
+test('acceptsComparisonFrom returns false for non-MapRepresentation', (t) => {
+  const context = new RealValueContext()
+  const mapRep = context.represent(
+    new Map([
+      ['a', 1],
+      ['b', 2],
+    ]),
+  ) as MapRepresentation
+  const objectRep = context.represent({ a: 1, b: 2 })
+
+  t.false(mapRep.acceptsComparisonFrom(objectRep))
+})
+
 // Serialization tests
 test('serialize uses map static type and includes size annotation', (t) => {
   const context = new RealValueContext()

@@ -30,6 +30,20 @@ test('compare returns unequal for non-BigIntRepresentation values', (t) => {
   t.is(a.compare(nonBigInt), unequal)
 })
 
+test('acceptsComparisonFrom returns true for BigIntRepresentation', (t) => {
+  const bigint1 = new BigIntRepresentation(42n)
+  const bigint2 = new BigIntRepresentation(24n)
+
+  t.true(bigint1.acceptsComparisonFrom(bigint2))
+})
+
+test('acceptsComparisonFrom returns false for non-BigIntRepresentation', (t) => {
+  const bigintRep = new BigIntRepresentation(42n)
+  const stringRep = new StringRepresentation('test')
+
+  t.false(bigintRep.acceptsComparisonFrom(stringRep))
+})
+
 test('serializeShallow correctly encodes a bigint', (t) => {
   const representation = new BigIntRepresentation(123n)
   const encoder = new Encoder()

@@ -106,6 +106,7 @@ test('NamedPropertyAccessor - serialize encodes key as string and delegates to v
   // Create a mock value with serializeShallow
   const mockValue = {
     deserialized: false,
+    acceptsComparisonFrom: () => true,
     compare: (): Comparison => strictlyEqual,
     formatShallow() {
       // No-op
@@ -136,6 +137,7 @@ test('NamedPropertyAccessor - serialize returns partial when value has no serial
   // Create a value without serializeShallow
   const mockValue = {
     deserialized: false,
+    acceptsComparisonFrom: () => true,
     compare: () => strictlyEqual,
     finalFormat() {
       // No-op
@@ -415,6 +417,23 @@ test('NamedPropertyAccessor.alignForComparison drops non-intersecting lhs proper
   // Verify non-intersecting properties maintain their original order
   t.is(rhsOrdered[2], propE, 'Non-intersecting property E should maintain its relative position')
   t.is(rhsOrdered[3], propF, 'Non-intersecting property F should maintain its relative position')
+})
+
+test('NamedPropertyAccessor - acceptsComparisonFrom returns true for NamedPropertyAccessor', (t) => {
+  const value1 = new StringRepresentation('value1')
+  const value2 = new StringRepresentation('value2')
+  const property1 = new NamedPropertyAccessor('key1', value1)
+  const property2 = new NamedPropertyAccessor('key2', value2)
+
+  t.true(property1.acceptsComparisonFrom(property2))
+})
+
+test('NamedPropertyAccessor - acceptsComparisonFrom returns false for non-NamedPropertyAccessor', (t) => {
+  const value = new StringRepresentation('value')
+  const property = new NamedPropertyAccessor('key', value)
+  const stringRep = new StringRepresentation('test')
+
+  t.false(property.acceptsComparisonFrom(stringRep))
 })
 
 // SymbolPropertyAccessor Tests
@@ -848,6 +867,28 @@ test('SymbolPropertyAccessor.alignByComparison drops non-intersecting lhs proper
   t.is(rhsOrdered[3], propF, 'Non-intersecting property F should maintain its relative position')
 })
 
+test('SymbolPropertyAccessor - acceptsComparisonFrom returns true for SymbolPropertyAccessor', (t) => {
+  const context = new RealValueContext()
+  const symbol1 = context.represent(Symbol('test1')) as SymbolRepresentation
+  const symbol2 = context.represent(Symbol('test2')) as SymbolRepresentation
+  const value1 = new StringRepresentation('value1')
+  const value2 = new StringRepresentation('value2')
+  const property1 = new SymbolPropertyAccessor(symbol1, value1)
+  const property2 = new SymbolPropertyAccessor(symbol2, value2)
+
+  t.true(property1.acceptsComparisonFrom(property2))
+})
+
+test('SymbolPropertyAccessor - acceptsComparisonFrom returns false for non-SymbolPropertyAccessor', (t) => {
+  const context = new RealValueContext()
+  const symbol = context.represent(Symbol('test')) as SymbolRepresentation
+  const value = new StringRepresentation('value')
+  const property = new SymbolPropertyAccessor(symbol, value)
+  const stringRep = new StringRepresentation('test')
+
+  t.false(property.acceptsComparisonFrom(stringRep))
+})
+
 // NamedPropertyGroup Tests
 test('NamedPropertyGroup - constructor sets properties which iterator yields', (t) => {
   const prop1 = new NamedPropertyAccessor('prop1', new StringRepresentation('value1'))
@@ -1012,6 +1053,23 @@ test('NamedPropertyGroup - align drops non-intersecting lhs properties in fuzzy 
   t.is(afterGroup2[1], propD, 'Second intersection (D) should be second in group2')
   t.is(afterGroup2[2], propE, 'Non-intersecting property E should maintain its relative position')
   t.is(afterGroup2[3], propF, 'Non-intersecting property F should maintain its relative position')
+})
+
+test('NamedPropertyGroup - acceptsComparisonFrom returns true for NamedPropertyGroup', (t) => {
+  const prop1 = new NamedPropertyAccessor('prop1', new StringRepresentation('value1'))
+  const prop2 = new NamedPropertyAccessor('prop2', new StringRepresentation('value2'))
+  const group1 = new NamedPropertyGroup([prop1])
+  const group2 = new NamedPropertyGroup([prop2])
+
+  t.true(group1.acceptsComparisonFrom(group2))
+})
+
+test('NamedPropertyGroup - acceptsComparisonFrom returns false for non-NamedPropertyGroup', (t) => {
+  const prop = new NamedPropertyAccessor('prop', new StringRepresentation('value'))
+  const group = new NamedPropertyGroup([prop])
+  const stringRep = new StringRepresentation('test')
+
+  t.false(group.acceptsComparisonFrom(stringRep))
 })
 
 // SymbolPropertyGroup Tests
@@ -1232,4 +1290,26 @@ test('SymbolPropertyGroup - deserialized property returns false for empty group 
   const deserializedProperty = new SymbolPropertyAccessor(symbolKey, deserializedArrayValue)
   const deserializedGroup = new SymbolPropertyGroup([deserializedProperty])
   t.true(deserializedGroup.deserialized)
+})
+
+test('SymbolPropertyGroup - acceptsComparisonFrom returns true for SymbolPropertyGroup', (t) => {
+  const context = new RealValueContext()
+  const symbol1 = context.represent(Symbol('test1')) as SymbolRepresentation
+  const symbol2 = context.represent(Symbol('test2')) as SymbolRepresentation
+  const prop1 = new SymbolPropertyAccessor(symbol1, new StringRepresentation('value1'))
+  const prop2 = new SymbolPropertyAccessor(symbol2, new StringRepresentation('value2'))
+  const group1 = new SymbolPropertyGroup([prop1])
+  const group2 = new SymbolPropertyGroup([prop2])
+
+  t.true(group1.acceptsComparisonFrom(group2))
+})
+
+test('SymbolPropertyGroup - acceptsComparisonFrom returns false for non-SymbolPropertyGroup', (t) => {
+  const context = new RealValueContext()
+  const symbol = context.represent(Symbol('test')) as SymbolRepresentation
+  const prop = new SymbolPropertyAccessor(symbol, new StringRepresentation('value'))
+  const group = new SymbolPropertyGroup([prop])
+  const stringRep = new StringRepresentation('test')
+
+  t.false(group.acceptsComparisonFrom(stringRep))
 })

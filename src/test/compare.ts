@@ -23,6 +23,11 @@ class MockValueRepresentation implements CommonRepresentation, DeepFunctionality
     this.children = children
   }
 
+  acceptsComparisonFrom(): boolean {
+    // For testing, we assume all comparisons are accepted
+    return true
+  }
+
   compare(_other: ValueRepresentation, _mode: Mode): Comparison {
     return this.#compareResult
   }
@@ -49,6 +54,11 @@ class MockGroupableRepresentation implements CommonRepresentation, AccessorFunct
   constructor(compareResult: Comparison = strictlyEqual, groupToReturn?: MockGroupRepresentation) {
     this.#compareResult = compareResult
     this.#groupToReturn = groupToReturn
+  }
+
+  acceptsComparisonFrom(): boolean {
+    // For testing, we assume all comparisons are accepted
+    return true
   }
 
   compare(): Comparison {
@@ -90,6 +100,11 @@ class MockGroupRepresentation implements GroupRepresentation {
   constructor(compareResult: Comparison = comparable) {
     this.#compareResult = compareResult
     this.children = [] // Start empty, items will be added via groupForComparison
+  }
+
+  acceptsComparisonFrom(): boolean {
+    // For testing, we assume all comparisons are accepted
+    return true
   }
 
   compare(other?: ValueRepresentation): Comparison {

@@ -216,6 +216,28 @@ test('MapEntryAccessor - compare handles possiblyEqual keys correctly', (t) => {
   t.is(mapEntry1.compare(mapEntry3, 'comprehensive'), strictlyEqual)
 })
 
+test('MapEntryAccessor - acceptsComparisonFrom returns true for MapEntryAccessor', (t) => {
+  const context = new RealValueContext()
+  const key1 = new StringRepresentation('key1')
+  const value1 = new StringRepresentation('value1')
+  const key2 = new StringRepresentation('key2')
+  const value2 = new StringRepresentation('value2')
+  const mapEntry1 = new MapEntryAccessor(context, key1, value1)
+  const mapEntry2 = new MapEntryAccessor(context, key2, value2)
+
+  t.true(mapEntry1.acceptsComparisonFrom(mapEntry2))
+})
+
+test('MapEntryAccessor - acceptsComparisonFrom returns false for non-MapEntryAccessor', (t) => {
+  const context = new RealValueContext()
+  const key = new StringRepresentation('key')
+  const value = new StringRepresentation('value')
+  const mapEntry = new MapEntryAccessor(context, key, value)
+  const stringRep = new StringRepresentation('other')
+
+  t.false(mapEntry.acceptsComparisonFrom(stringRep))
+})
+
 test('MapEntryAccessor - serialize always returns partial', (t) => {
   const context = new RealValueContext()
   const key = new StringRepresentation('key')
@@ -737,4 +759,36 @@ test('MapEntryGroup - align drops non-intersecting lhs entries in fuzzy mode', (
   t.is(group2Entries.length, 2)
   t.is(group2Entries[0], entryB, 'B should be first in group2')
   t.is(group2Entries[1], entryD, 'D should be second in group2')
+})
+
+test('MapEntryGroup - acceptsComparisonFrom returns true for MapEntryGroup', (t) => {
+  const context = new RealValueContext()
+  const key1 = new StringRepresentation('key1')
+  const value1 = new StringRepresentation('value1')
+  const accessor1 = new MapEntryAccessor(context, key1, value1)
+
+  const key2 = new StringRepresentation('key2')
+  const value2 = new StringRepresentation('value2')
+  const accessor2 = new MapEntryAccessor(context, key2, value2)
+
+  const key3 = new StringRepresentation('key3')
+  const value3 = new StringRepresentation('value3')
+  const accessor3 = new MapEntryAccessor(context, key3, value3)
+
+  const group1 = new MapEntryGroup([accessor1, accessor2])
+  const group2 = new MapEntryGroup([accessor3])
+
+  t.true(group1.acceptsComparisonFrom(group2))
+})
+
+test('MapEntryGroup - acceptsComparisonFrom returns false for non-MapEntryGroup', (t) => {
+  const context = new RealValueContext()
+  const key = new StringRepresentation('key')
+  const value = new StringRepresentation('value')
+  const mapEntryAccessor = new MapEntryAccessor(context, key, value)
+  const group = new MapEntryGroup([mapEntryAccessor])
+
+  const nonMapEntryGroupValue = new StringRepresentation('test')
+
+  t.false(group.acceptsComparisonFrom(nonMapEntryGroupValue))
 })

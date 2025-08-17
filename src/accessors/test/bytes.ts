@@ -1,10 +1,12 @@
 import test from 'ava'
 import { BytesAccessor } from '../bytes.ts'
+import { ElementAccessor } from '../element.ts'
 import { strictlyEqual, unequal } from '../../comparison.ts'
 import { Encoder } from '../../encoder.ts'
 import { finished } from '../../serialization-result.ts'
 import { deriveTheme } from '../../theme.ts'
 import { Formatter } from '../../formatter.ts'
+import { StringRepresentation } from '../../values/primitives/string.ts'
 import type { ValueRepresentation } from '../../value.d.ts'
 
 // Test constructor and basic properties
@@ -111,6 +113,24 @@ test('compare handles different buffer but same content', (t) => {
 
   // Both should contain [3, 4, 5]
   t.is(accessor1.compare(accessor2), strictlyEqual)
+})
+
+test('acceptsComparisonFrom returns true for BytesAccessor', (t) => {
+  const buffer1 = new ArrayBuffer(4)
+  const buffer2 = new ArrayBuffer(4)
+  const accessor1 = new BytesAccessor(buffer1, 0, 4)
+  const accessor2 = new BytesAccessor(buffer2, 0, 4)
+
+  t.true(accessor1.acceptsComparisonFrom(accessor2))
+})
+
+test('acceptsComparisonFrom returns false for non-BytesAccessor', (t) => {
+  const buffer = new ArrayBuffer(4)
+  const accessor = new BytesAccessor(buffer, 0, 4)
+  const stringValue = new StringRepresentation('test')
+  const elementAccessor = new ElementAccessor(0, stringValue)
+
+  t.false(accessor.acceptsComparisonFrom(elementAccessor))
 })
 
 // Test is static method

@@ -27,6 +27,10 @@ export class BytesAccessor implements CommonRepresentation, ShallowFunctionality
     return false
   }
 
+  acceptsComparisonFrom(other: ValueRepresentation): boolean {
+    return #bytes in other
+  }
+
   compare(other: ValueRepresentation) {
     if (!(#bytes in other)) return unequal
     if (this.#byteLength !== other.#byteLength) return unequal

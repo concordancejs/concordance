@@ -166,6 +166,29 @@ test('serialize uses cryptoKey static type', async (t) => {
   t.is(decoder.staticType(), staticTypeTable.cryptoKey)
 })
 
+test('CryptoKeyRepresentation - acceptsComparisonFrom returns true for CryptoKeyRepresentation', async (t) => {
+  const context = new RealValueContext()
+  const cryptoKey1 = await generateCryptoKey()
+  const cryptoKey2 = await generateCryptoKey()
+
+  const cryptoKeyRep1 = context.represent(cryptoKey1) as CryptoKeyRepresentation
+  const cryptoKeyRep2 = context.represent(cryptoKey2) as CryptoKeyRepresentation
+
+  t.true(cryptoKeyRep1.acceptsComparisonFrom(cryptoKeyRep2))
+})
+
+test('CryptoKeyRepresentation - acceptsComparisonFrom returns false for non-CryptoKeyRepresentation', async (t) => {
+  const context = new RealValueContext()
+  const cryptoKey = await generateCryptoKey()
+  const cryptoKeyRep = context.represent(cryptoKey) as CryptoKeyRepresentation
+
+  const stringRep = context.represent('test')
+  const objectRep = context.represent({})
+
+  t.false(cryptoKeyRep.acceptsComparisonFrom(stringRep))
+  t.false(cryptoKeyRep.acceptsComparisonFrom(objectRep))
+})
+
 test('serializing and deserializing a CryptoKey preserves its structure', async (t) => {
   const originalContext = new RealValueContext()
   const cryptoKey = await generateCryptoKey()

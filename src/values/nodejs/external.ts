@@ -31,6 +31,10 @@ export class ExternalRepresentation implements CommonRepresentation, ShallowFunc
     return this.#context.pointer(this, this.#value) ?? never()
   }
 
+  acceptsComparisonFrom(other: ValueRepresentation): boolean {
+    return #value in other
+  }
+
   compare(other: ValueRepresentation): Comparison {
     if (!(#value in other)) return unequal
     if (this.#context.deserialized || other.#context.deserialized) {

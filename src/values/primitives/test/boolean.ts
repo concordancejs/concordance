@@ -30,6 +30,20 @@ test('compare returns unequal for non-BooleanRepresentation values', (t) => {
   t.is(a.compare(nonBoolean), unequal)
 })
 
+test('acceptsComparisonFrom returns true for BooleanRepresentation', (t) => {
+  const boolean1 = new BooleanRepresentation(true)
+  const boolean2 = new BooleanRepresentation(false)
+
+  t.true(boolean1.acceptsComparisonFrom(boolean2))
+})
+
+test('acceptsComparisonFrom returns false for non-BooleanRepresentation', (t) => {
+  const booleanRep = new BooleanRepresentation(true)
+  const stringRep = new StringRepresentation('test')
+
+  t.false(booleanRep.acceptsComparisonFrom(stringRep))
+})
+
 test('serializeShallow correctly encodes a boolean', (t) => {
   const representation = new BooleanRepresentation(true)
   const encoder = new Encoder()

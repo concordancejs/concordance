@@ -58,10 +58,10 @@ test('compare returns comparable when comparing arguments object to array with s
   const argsRep = context.represent(argsObject) as ArgumentsRepresentation
   const arrayRep = context.represent(array) as ArrayRepresentation
 
-  t.is(argsRep.compare(arrayRep), comparable)
+  t.is(argsRep.compare(arrayRep, 'comprehensive'), comparable)
 })
 
-test('compare returns unequal when comparing arguments object to array with different length', (t) => {
+test('compare returns comparable when comparing arguments object to array with different length', (t) => {
   const context = new RealValueContext({ flags: { compareArgumentsToArrays: true } })
   const argsObject = getArgumentsObject('a', 'b', 'c')
   const array = ['a', 'b']
@@ -69,7 +69,7 @@ test('compare returns unequal when comparing arguments object to array with diff
   const argsRep = context.represent(argsObject) as ArgumentsRepresentation
   const arrayRep = context.represent(array) as ArrayRepresentation
 
-  t.is(argsRep.compare(arrayRep), unequal)
+  t.is(argsRep.compare(arrayRep, 'comprehensive'), comparable)
 })
 
 test('compare returns unequal when comparing arguments object to array with default flags (compareArgumentsToArrays disabled)', (t) => {
@@ -82,7 +82,7 @@ test('compare returns unequal when comparing arguments object to array with defa
   const arrayRep = context.represent(array) as ArrayRepresentation
 
   // With default flags (compareArgumentsToArrays: false), comparing arguments to array should return unequal
-  t.is(argsRep.compare(arrayRep), unequal)
+  t.is(argsRep.compare(arrayRep, 'comprehensive'), unequal)
 })
 
 test('compare returns unequal when comparing arguments object to array with explicitly disabled compareArgumentsToArrays flag', (t) => {
@@ -95,7 +95,7 @@ test('compare returns unequal when comparing arguments object to array with expl
   const arrayRep = context.represent(array) as ArrayRepresentation
 
   // Should return unequal since the flag is explicitly disabled
-  t.is(argsRep.compare(arrayRep), unequal)
+  t.is(argsRep.compare(arrayRep, 'comprehensive'), unequal)
 })
 
 test('compare returns unequal when comparing to non-ArgumentsRepresentation and non-ArrayRepresentation', (t) => {
@@ -107,7 +107,7 @@ test('compare returns unequal when comparing to non-ArgumentsRepresentation and 
   const argsRep = context.represent(argsObject) as ArgumentsRepresentation
   const objectRep = context.represent(object)
 
-  t.is(argsRep.compare(objectRep), unequal)
+  t.is(argsRep.compare(objectRep, 'comprehensive'), unequal)
 })
 
 test('compare returns strictlyEqual when comparing to same instance', (t) => {
@@ -117,7 +117,7 @@ test('compare returns strictlyEqual when comparing to same instance', (t) => {
   const argsRep1 = context.represent(argsObject) as ArgumentsRepresentation
   const argsRep2 = context.represent(argsObject) as ArgumentsRepresentation
 
-  t.is(argsRep1.compare(argsRep2), strictlyEqual)
+  t.is(argsRep1.compare(argsRep2, 'comprehensive'), strictlyEqual)
 })
 
 test('compare returns unequal when comparing different arguments objects with different lengths', (t) => {
@@ -128,7 +128,7 @@ test('compare returns unequal when comparing different arguments objects with di
   const argsRep1 = context.represent(argsObject1) as ArgumentsRepresentation
   const argsRep2 = context.represent(argsObject2) as ArgumentsRepresentation
 
-  t.is(argsRep1.compare(argsRep2), unequal)
+  t.is(argsRep1.compare(argsRep2, 'comprehensive'), unequal)
 })
 
 test('compare returns comparable when comparing different arguments objects with same length', (t) => {
@@ -139,7 +139,7 @@ test('compare returns comparable when comparing different arguments objects with
   const argsRep1 = context.represent(argsObject1) as ArgumentsRepresentation
   const argsRep2 = context.represent(argsObject2) as ArgumentsRepresentation
 
-  t.is(argsRep1.compare(argsRep2), comparable)
+  t.is(argsRep1.compare(argsRep2, 'comprehensive'), comparable)
 })
 
 // IterateElements tests
@@ -182,6 +182,29 @@ test('serialize uses arguments static type', (t) => {
   // Ensure the correct static type was used
   const decoder = new Decoder(encoder.bytes)
   t.is(decoder.staticType(), staticTypeTable.arguments)
+})
+
+test('ArgumentsRepresentation - acceptsComparisonFrom returns true for ArgumentsRepresentation', (t) => {
+  const context = new RealValueContext()
+  const argsObject1 = getArgumentsObject('a', 'b', 'c')
+  const argsObject2 = getArgumentsObject('x', 'y', 'z')
+
+  const argsRep1 = context.represent(argsObject1) as ArgumentsRepresentation
+  const argsRep2 = context.represent(argsObject2) as ArgumentsRepresentation
+
+  t.true(argsRep1.acceptsComparisonFrom(argsRep2))
+})
+
+test('ArgumentsRepresentation - acceptsComparisonFrom returns false for non-ArgumentsRepresentation', (t) => {
+  const context = new RealValueContext()
+  const argsObject = getArgumentsObject('a', 'b', 'c')
+  const argsRep = context.represent(argsObject) as ArgumentsRepresentation
+
+  const stringRep = context.represent('test')
+  const arrayRep = context.represent(['a', 'b', 'c'])
+
+  t.false(argsRep.acceptsComparisonFrom(stringRep))
+  t.false(argsRep.acceptsComparisonFrom(arrayRep))
 })
 
 // FinalFormat tests

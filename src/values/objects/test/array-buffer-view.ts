@@ -185,6 +185,29 @@ test('serialize uses arrayBufferView static type and includes bytes annotation',
   t.truthy(annotations.b, 'Bytes annotation "b" should exist')
 })
 
+test('ArrayBufferViewRepresentation - acceptsComparisonFrom returns true for ArrayBufferViewRepresentation', (t) => {
+  const context = new RealValueContext()
+  const view1 = new Uint8Array([1, 2, 3, 4])
+  const view2 = new Int32Array([5, 6, 7, 8])
+
+  const viewRep1 = context.represent(view1) as ArrayBufferViewRepresentation
+  const viewRep2 = context.represent(view2) as ArrayBufferViewRepresentation
+
+  t.true(viewRep1.acceptsComparisonFrom(viewRep2))
+})
+
+test('ArrayBufferViewRepresentation - acceptsComparisonFrom returns false for non-ArrayBufferViewRepresentation', (t) => {
+  const context = new RealValueContext()
+  const view = new Uint8Array([1, 2, 3, 4])
+  const viewRep = context.represent(view) as ArrayBufferViewRepresentation
+
+  const stringRep = context.represent('test')
+  const arrayRep = context.represent([1, 2, 3, 4])
+
+  t.false(viewRep.acceptsComparisonFrom(stringRep))
+  t.false(viewRep.acceptsComparisonFrom(arrayRep))
+})
+
 // Formatter tests
 test('preformat appends formatted bytes', (t) => {
   const context = new RealValueContext()

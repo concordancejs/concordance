@@ -125,6 +125,25 @@ test('serializeShallow uses the external static type', (t) => {
   t.is(decoder.staticType(), staticTypeTable.external)
 })
 
+test('ExternalRepresentation - acceptsComparisonFrom returns true for ExternalRepresentation', (t) => {
+  const context = new RealValueContext()
+  const externalRep1 = context.represent(externalValue) as ExternalRepresentation
+  const externalRep2 = context.represent(externalValue) as ExternalRepresentation
+
+  t.true(externalRep1.acceptsComparisonFrom(externalRep2))
+})
+
+test('ExternalRepresentation - acceptsComparisonFrom returns false for non-ExternalRepresentation', (t) => {
+  const context = new RealValueContext()
+  const externalRep = context.represent(externalValue) as ExternalRepresentation
+
+  const stringRep = context.represent('test')
+  const objectRep = context.represent({})
+
+  t.false(externalRep.acceptsComparisonFrom(stringRep))
+  t.false(externalRep.acceptsComparisonFrom(objectRep))
+})
+
 test('deserialized property delegates to context', (t) => {
   const realContext = new RealValueContext()
   const deserializationContext = new DeserializationContext(new Decoder(new Uint8Array()))

@@ -127,6 +127,23 @@ test('IteratorValueAccessor - compare delegates comparison mode to value represe
   t.is(customIteratorValue.compare(plainIteratorValue, 'comprehensive'), unequal)
 })
 
+test('IteratorValueAccessor - acceptsComparisonFrom returns true for IteratorValueAccessor', (t) => {
+  const value1 = new StringRepresentation('test1')
+  const value2 = new StringRepresentation('test2')
+  const iteratorValue1 = new IteratorValueAccessor(0, value1)
+  const iteratorValue2 = new IteratorValueAccessor(1, value2)
+
+  t.true(iteratorValue1.acceptsComparisonFrom(iteratorValue2))
+})
+
+test('IteratorValueAccessor - acceptsComparisonFrom returns false for non-IteratorValueAccessor', (t) => {
+  const value = new StringRepresentation('test')
+  const iteratorValue = new IteratorValueAccessor(0, value)
+  const stringRep = new StringRepresentation('other')
+
+  t.false(iteratorValue.acceptsComparisonFrom(stringRep))
+})
+
 test('IteratorValueAccessor - serialize delegates to value serializeShallow if available', (t) => {
   // Create a mock value with serializeShallow
   const mockValue = {
@@ -585,4 +602,24 @@ test('IteratorValueGroup - align drops non-intersecting lhs values in fuzzy mode
   t.is(values2After.length, 2)
   t.is(values2After[0], iteratorB)
   t.is(values2After[1], iteratorC)
+})
+
+test('IteratorValueGroup - acceptsComparisonFrom returns true for IteratorValueGroup', (t) => {
+  const value1 = new StringRepresentation('value1')
+  const value2 = new StringRepresentation('value2')
+  const iteratorValue1 = new IteratorValueAccessor(0, value1)
+  const iteratorValue2 = new IteratorValueAccessor(1, value2)
+  const group1 = new IteratorValueGroup([iteratorValue1])
+  const group2 = new IteratorValueGroup([iteratorValue2])
+
+  t.true(group1.acceptsComparisonFrom(group2))
+})
+
+test('IteratorValueGroup - acceptsComparisonFrom returns false for non-IteratorValueGroup', (t) => {
+  const value = new StringRepresentation('value')
+  const iteratorValue = new IteratorValueAccessor(0, value)
+  const group = new IteratorValueGroup([iteratorValue])
+  const stringRep = new StringRepresentation('other')
+
+  t.false(group.acceptsComparisonFrom(stringRep))
 })

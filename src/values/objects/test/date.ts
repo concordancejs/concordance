@@ -114,6 +114,22 @@ test('compare handles invalid dates correctly', (t) => {
   t.is(invalidDateRep1.compare(validDateRep, 'comprehensive'), unequal)
 })
 
+test('acceptsComparisonFrom returns true for DateRepresentation', (t) => {
+  const context = new RealValueContext()
+  const date1 = context.represent(new Date()) as DateRepresentation
+  const date2 = context.represent(new Date()) as DateRepresentation
+
+  t.true(date1.acceptsComparisonFrom(date2))
+})
+
+test('acceptsComparisonFrom returns false for non-DateRepresentation', (t) => {
+  const context = new RealValueContext()
+  const dateRep = context.represent(new Date()) as DateRepresentation
+  const objectRep = context.represent({})
+
+  t.false(dateRep.acceptsComparisonFrom(objectRep))
+})
+
 // Serialization tests
 test('serialize uses date static type and includes valueOf annotation', (t) => {
   const context = new RealValueContext()

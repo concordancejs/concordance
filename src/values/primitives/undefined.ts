@@ -1,4 +1,4 @@
-import { type Comparison, strictlyEqual, unequal } from '../../comparison.ts'
+import { type Comparison, type Condition, type Mode, strictlyEqual, unequal } from '../../comparison.ts'
 import type { Encoder } from '../../encoder.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
 import { type ShallowSerializationResult, finished } from '../../serialization-result.ts'
@@ -11,14 +11,14 @@ import type {
 import type { Formatter } from '../../formatter.ts'
 
 export class UndefinedRepresentation implements CommonRepresentation, ShallowFunctionality {
-  static is(other: ValueRepresentation): other is UndefinedRepresentation {
-    return #undefined in other
-  }
-
   readonly #undefined: undefined
 
   get deserialized() {
     return false
+  }
+
+  acceptsComparisonFrom(other: ValueRepresentation, _mode: Mode, condition?: Condition) {
+    return condition === 'from-sparse' || #undefined in other
   }
 
   compare(other: ValueRepresentation): Comparison {

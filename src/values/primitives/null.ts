@@ -17,6 +17,10 @@ export class NullRepresentation implements CommonRepresentation, ShallowFunction
     return false
   }
 
+  acceptsComparisonFrom(other: ValueRepresentation): boolean {
+    return #null in other
+  }
+
   compare(other: ValueRepresentation) {
     return #null in other ? strictlyEqual : unequal
   }

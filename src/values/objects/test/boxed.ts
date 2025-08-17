@@ -165,6 +165,29 @@ test('serialize uses boxed static type and includes primitive value annotation',
   t.is(decoder.staticType(), staticTypeTable.boxedPrimitive)
 })
 
+test('BoxedPrimitiveRepresentation - acceptsComparisonFrom returns true for BoxedPrimitiveRepresentation', (t) => {
+  const context = new RealValueContext()
+  const boxed1 = new Number(42)
+  const boxed2 = new String('test')
+
+  const boxedRep1 = context.represent(boxed1) as BoxedRepresentation
+  const boxedRep2 = context.represent(boxed2) as BoxedRepresentation
+
+  t.true(boxedRep1.acceptsComparisonFrom(boxedRep2))
+})
+
+test('BoxedPrimitiveRepresentation - acceptsComparisonFrom returns false for non-BoxedPrimitiveRepresentation', (t) => {
+  const context = new RealValueContext()
+  const boxed = new Number(42)
+  const boxedRep = context.represent(boxed) as BoxedRepresentation
+
+  const stringRep = context.represent('test')
+  const numberRep = context.represent(42)
+
+  t.false(boxedRep.acceptsComparisonFrom(stringRep))
+  t.false(boxedRep.acceptsComparisonFrom(numberRep))
+})
+
 test('serializing and deserializing different boxed primitive types', (t) => {
   const originalContext = new RealValueContext()
   const values = createBoxedValues()

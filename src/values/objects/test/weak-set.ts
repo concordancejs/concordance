@@ -109,6 +109,29 @@ test('serialize uses weakSet static type', (t) => {
   t.is(decoder.staticType(), staticTypeTable.weakSet)
 })
 
+test('WeakSetRepresentation - acceptsComparisonFrom returns true for WeakSetRepresentation', (t) => {
+  const context = new RealValueContext()
+  const weakSet1 = new WeakSet()
+  const weakSet2 = new WeakSet()
+
+  const weakSetRep1 = context.represent(weakSet1) as WeakSetRepresentation
+  const weakSetRep2 = context.represent(weakSet2) as WeakSetRepresentation
+
+  t.true(weakSetRep1.acceptsComparisonFrom(weakSetRep2))
+})
+
+test('WeakSetRepresentation - acceptsComparisonFrom returns false for non-WeakSetRepresentation', (t) => {
+  const context = new RealValueContext()
+  const weakSet = new WeakSet()
+  const weakSetRep = context.represent(weakSet) as WeakSetRepresentation
+
+  const stringRep = context.represent('test')
+  const setRep = context.represent(new Set())
+
+  t.false(weakSetRep.acceptsComparisonFrom(stringRep))
+  t.false(weakSetRep.acceptsComparisonFrom(setRep))
+})
+
 // FinalFormat tests
 test('finalFormat passes object brackets and does not include disambiguation hint by default', (t) => {
   const context = new RealValueContext()

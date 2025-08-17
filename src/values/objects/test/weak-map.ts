@@ -109,6 +109,29 @@ test('serialize uses weakMap static type', (t) => {
   t.is(decoder.staticType(), staticTypeTable.weakMap)
 })
 
+test('WeakMapRepresentation - acceptsComparisonFrom returns true for WeakMapRepresentation', (t) => {
+  const context = new RealValueContext()
+  const weakMap1 = new WeakMap()
+  const weakMap2 = new WeakMap()
+
+  const weakMapRep1 = context.represent(weakMap1) as WeakMapRepresentation
+  const weakMapRep2 = context.represent(weakMap2) as WeakMapRepresentation
+
+  t.true(weakMapRep1.acceptsComparisonFrom(weakMapRep2))
+})
+
+test('WeakMapRepresentation - acceptsComparisonFrom returns false for non-WeakMapRepresentation', (t) => {
+  const context = new RealValueContext()
+  const weakMap = new WeakMap()
+  const weakMapRep = context.represent(weakMap) as WeakMapRepresentation
+
+  const stringRep = context.represent('test')
+  const mapRep = context.represent(new Map())
+
+  t.false(weakMapRep.acceptsComparisonFrom(stringRep))
+  t.false(weakMapRep.acceptsComparisonFrom(mapRep))
+})
+
 // FinalFormat tests
 test('finalFormat passes object brackets and does not include disambiguation hint by default', (t) => {
   const context = new RealValueContext()

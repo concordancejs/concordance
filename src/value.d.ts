@@ -1,5 +1,5 @@
 import type { NamedPropertyAccessor } from './accessors/property.ts'
-import type { Comparison, Mode } from './comparison.ts'
+import type { Comparison, Condition, Mode } from './comparison.ts'
 import type { Encoder } from './encoder.ts'
 import type { Formatter } from './formatter.ts'
 import type { ShallowSerializationResult, SerializationResult } from './serialization-result.ts'
@@ -10,6 +10,7 @@ export type Opaque = object // eslint-disable-line @typescript-eslint/no-restric
 export type CommonRepresentation = {
   readonly deserialized: boolean
   readonly pointer?: number
+  acceptsComparisonFrom(other: ValueRepresentation, mode: Mode, condition?: Condition): boolean
   compare(other: ValueRepresentation, mode: Mode): Comparison
 }
 

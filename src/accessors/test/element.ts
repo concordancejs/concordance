@@ -23,21 +23,21 @@ test('SparseValueRepresentation - compare returns strictlyEqual for other sparse
   const sparse1 = new SparseValueRepresentation()
   const sparse2 = new SparseValueRepresentation()
 
-  t.is(sparse1.compare(sparse2), strictlyEqual)
+  t.is(sparse1.compare(sparse2, 'comprehensive'), strictlyEqual)
 })
 
 test('SparseValueRepresentation - compare returns deeplyEqual for undefined representations', (t) => {
   const sparse = new SparseValueRepresentation()
   const undef = new UndefinedRepresentation()
 
-  t.is(sparse.compare(undef), deeplyEqual)
+  t.is(sparse.compare(undef, 'comprehensive'), deeplyEqual)
 })
 
 test('SparseValueRepresentation - compare returns unequal for other values', (t) => {
   const sparse = new SparseValueRepresentation()
   const string = new StringRepresentation('test')
 
-  t.is(sparse.compare(string), unequal)
+  t.is(sparse.compare(string, 'comprehensive'), unequal)
 })
 
 test('SparseValueRepresentation - formatShallow formats as sparse', (t) => {
@@ -69,6 +69,20 @@ test('SparseValueRepresentation - serializeShallow encodes as undefined', (t) =>
 test('SparseValueRepresentation - deserialized property returns false', (t) => {
   const sparse = new SparseValueRepresentation()
   t.false(sparse.deserialized)
+})
+
+test('SparseValueRepresentation - acceptsComparisonFrom returns true for SparseValueRepresentation', (t) => {
+  const sparse1 = new SparseValueRepresentation()
+  const sparse2 = new SparseValueRepresentation()
+
+  t.true(sparse1.acceptsComparisonFrom(sparse2))
+})
+
+test('SparseValueRepresentation - acceptsComparisonFrom returns false for non-SparseValueRepresentation', (t) => {
+  const sparse = new SparseValueRepresentation()
+  const stringRep = new StringRepresentation('test')
+
+  t.false(sparse.acceptsComparisonFrom(stringRep))
 })
 
 // ElementAccessor Tests
@@ -395,6 +409,23 @@ test('ElementAccessor - groupForComparison fully deserializes its accessor', (t)
   )
 })
 
+test('ElementAccessor - acceptsComparisonFrom returns true for ElementAccessor', (t) => {
+  const value1 = new StringRepresentation('test1')
+  const value2 = new StringRepresentation('test2')
+  const element1 = new ElementAccessor(0, value1)
+  const element2 = new ElementAccessor(1, value2)
+
+  t.true(element1.acceptsComparisonFrom(element2))
+})
+
+test('ElementAccessor - acceptsComparisonFrom returns false for non-ElementAccessor', (t) => {
+  const value = new StringRepresentation('test')
+  const element = new ElementAccessor(0, value)
+  const sparse = new SparseValueRepresentation()
+
+  t.false(element.acceptsComparisonFrom(sparse))
+})
+
 // ElementGroup Tests
 test('ElementGroup - is method identifies ElementGroup instances', (t) => {
   const ctx = new RealValueContext()
@@ -547,4 +578,28 @@ test('ElementGroup - iterator yields all elements', (t) => {
   t.is(elements.length, 2)
   t.is(elements[0], element1)
   t.is(elements[1], element2)
+})
+
+test('ElementGroup - acceptsComparisonFrom returns true for ElementGroup', (t) => {
+  const ctx = new RealValueContext()
+  const value1 = representValue('a', ctx)
+  const value2 = representValue('b', ctx)
+
+  const element1 = new ElementAccessor(0, value1)
+  const element2 = new ElementAccessor(1, value2)
+
+  const group1 = new ElementGroup([element1])
+  const group2 = new ElementGroup([element2])
+
+  t.true(group1.acceptsComparisonFrom(group2))
+})
+
+test('ElementGroup - acceptsComparisonFrom returns false for non-ElementGroup', (t) => {
+  const ctx = new RealValueContext()
+  const value = representValue('a', ctx)
+  const element = new ElementAccessor(0, value)
+  const group = new ElementGroup([element])
+  const sparse = new SparseValueRepresentation()
+
+  t.false(group.acceptsComparisonFrom(sparse))
 })

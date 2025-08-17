@@ -34,6 +34,10 @@ export class SymbolRepresentation implements CommonRepresentation, ShallowFuncti
     return this.#context.deserialized
   }
 
+  acceptsComparisonFrom(other: ValueRepresentation): boolean {
+    return #value in other
+  }
+
   compare(other: ValueRepresentation): Comparison {
     if (!(#value in other)) return unequal
     if (this.#value === other.#value) return strictlyEqual

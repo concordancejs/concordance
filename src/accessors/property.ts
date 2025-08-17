@@ -79,6 +79,10 @@ export class NamedPropertyAccessor implements CommonRepresentation, DeepFunction
     return new NamedPropertyGroup(properties)
   }
 
+  acceptsComparisonFrom(other: ValueRepresentation) {
+    return #value in other
+  }
+
   compare(other: ValueRepresentation, mode: Mode): Comparison {
     if (!(#value in other)) return unequal
     if (this.#key !== other.#key) return unequal
@@ -179,6 +183,10 @@ export class SymbolPropertyAccessor implements CommonRepresentation, DeepFunctio
     return new SymbolPropertyGroup(properties)
   }
 
+  acceptsComparisonFrom(other: ValueRepresentation) {
+    return #value in other
+  }
+
   compare(other: ValueRepresentation, mode: Mode): Comparison {
     if (!(#value in other)) return unequal
     const comparison = this.#key.compare(other.#key)
@@ -237,6 +245,10 @@ export class NamedPropertyGroup implements CommonRepresentation, GroupFunctional
     yield* this.#properties
   }
 
+  acceptsComparisonFrom(other: ValueRepresentation) {
+    return #properties in other
+  }
+
   compare(other: ValueRepresentation): Comparison {
     return #properties in other ? comparable : unequal
   }
@@ -269,6 +281,10 @@ export class SymbolPropertyGroup implements CommonRepresentation, GroupFunctiona
     const [aligned, otherAligned] = SymbolPropertyAccessor.alignForComparison(this.#properties, other.#properties, mode)
     this.#properties = aligned
     other.#properties = otherAligned
+  }
+
+  acceptsComparisonFrom(other: ValueRepresentation) {
+    return #properties in other
   }
 
   compare(other: ValueRepresentation): Comparison {

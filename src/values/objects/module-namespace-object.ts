@@ -3,7 +3,7 @@ import type { DeserializationContext } from '../../deserialization-context.ts'
 import type { Encoder } from '../../encoder.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
 import type { Opaque, ValueRepresentation } from '../../value.d.ts'
-import { strictlyEqual, unequal, type Mode } from '../../comparison.ts'
+import { comparable, strictlyEqual, unequal, type Mode } from '../../comparison.ts'
 import type { Context } from '../../context.d.ts'
 import { Formatter } from '../../formatter.ts'
 import { ObjectRepresentation, type ObjectAnnotations } from './object.ts'
@@ -23,12 +23,16 @@ export class ModuleNamespaceObjectRepresentation extends ObjectRepresentation {
     this.#value = value
   }
 
+  override acceptsComparisonFrom(other: ValueRepresentation) {
+    return #value in other
+  }
+
   override compare(other: ValueRepresentation, mode: Mode) {
-    // Module namespace objects are special objects that represent the exports of a module. When used in a partial
-    // comparison, requiring an actual module namespace object is not helpful. Allow fuzzy comparison based on
-    // properties alone, which means that module namespace objects can be partially compared to a plain object.
-    if (mode === 'fuzzy' && ObjectRepresentation.isPlain(other)) {
-      return super.compare(other, mode)
+    // Module namespace objects are special objects that represent the exports of a module. When used in a fuzzy
+    // comparison, requiring an actual module namespace object is not helpful. Allow fuzzy comparison when `other`
+    // accepts a plain-object comparison.
+    if (mode === 'fuzzy' && other.acceptsComparisonFrom(this, mode, 'if-plain')) {
+      return comparable
     }
 
     if (!(#value in other)) return unequal

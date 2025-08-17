@@ -1,6 +1,6 @@
 import never from 'never'
 import { ElementAccessor, SparseValueRepresentation } from '../../accessors/element.ts'
-import { strictlyEqual, unequal, comparable, type Mode } from '../../comparison.ts'
+import { strictlyEqual, unequal, comparable, type Mode, type Condition } from '../../comparison.ts'
 import { RealValueContext } from '../../real-value-context.ts'
 import type { Decoder } from '../../decoder.ts'
 import { DeserializationContext } from '../../deserialization-context.ts'
@@ -17,10 +17,6 @@ export class ArrayRepresentation extends ObjectRepresentation {
     return new this(context, this.unpackAnnotations(objectAnnotations))
   }
 
-  static override is(value: Opaque): value is ArrayRepresentation {
-    return #value in value
-  }
-
   readonly #value: Opaque
   readonly #context: Context
 
@@ -30,12 +26,23 @@ export class ArrayRepresentation extends ObjectRepresentation {
     this.#context = context
   }
 
-  get length() {
-    return this.#context.length(this.#value)
-  }
-
   override get isArrayLike(): boolean {
     return false
+  }
+
+  override acceptsComparisonFrom(other: ValueRepresentation, mode: Mode, condition?: Condition): boolean {
+    if (mode === 'fuzzy' && condition === 'from-array-like') {
+      // In fuzzy mode, we allow comparisons with objects that are array-like.
+      return true
+    }
+
+    // Allow comparison from an arguments objects, this is useful in deep-equal tests where it's hard to recreate an
+    // arguments object.
+    if (condition === 'from-arguments-object') {
+      return this.#context.flags.compareArgumentsToArrays
+    }
+
+    return #value in other
   }
 
   override compare(other: ValueRepresentation, mode: Mode) {

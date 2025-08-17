@@ -37,6 +37,10 @@ export class StringRepresentation implements CommonRepresentation, ShallowFuncti
     return false
   }
 
+  acceptsComparisonFrom(other: ValueRepresentation): boolean {
+    return #value in other
+  }
+
   compare(other: ValueRepresentation): Comparison {
     return #value in other && this.#value === other.#value ? strictlyEqual : unequal
   }

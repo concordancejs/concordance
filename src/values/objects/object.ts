@@ -9,7 +9,7 @@ import type {
 import type { ElementAccessor } from '../../accessors/element.ts'
 import type { IteratorValueAccessor } from '../../accessors/iterator-value.ts'
 import type { MapEntryAccessor } from '../../accessors/map-entry.ts'
-import { type Comparison, type Mode, comparable, strictlyEqual, unequal } from '../../comparison.ts'
+import { type Comparison, type Condition, type Mode, comparable, strictlyEqual, unequal } from '../../comparison.ts'
 import type { Context } from '../../context.d.ts'
 import type { BytesAccessor } from '../../accessors/bytes.ts'
 import type { Annotations, Encoder } from '../../encoder.ts'
@@ -58,22 +58,6 @@ export type SerializationAnnotations = Annotations &
   KnownAnnotations
 
 export class ObjectRepresentation implements CommonRepresentation, DeepFunctionality {
-  static is(value: Opaque): value is ObjectRepresentation {
-    return #value in value
-  }
-
-  static isPlain(value: Opaque): value is ObjectRepresentation {
-    if (!(#value in value)) return false
-
-    const context = value.#context
-    const opaque = value.#value
-    return (
-      !context.isNullProto(opaque) &&
-      context.constructorName(opaque) === 'Object' &&
-      context.stringTag(opaque) === undefined
-    )
-  }
-
   static unpackAnnotations(annotations: ObjectAnnotations): UnpackedAnnotations {
     const {
       a: isArrayLike = false,
@@ -120,17 +104,38 @@ export class ObjectRepresentation implements CommonRepresentation, DeepFunctiona
     return this.#context.isArrayLike(this.#value)
   }
 
+  get isPlain(): boolean {
+    return (
+      !this.#context.isNullProto(this.#value) &&
+      this.#context.isObjectProto(this.#value) &&
+      this.#context.constructorName(this.#value) === 'Object' &&
+      this.#context.stringTag(this.#value) === undefined
+    )
+  }
+
+  acceptsComparisonFrom(other: ValueRepresentation, mode: Mode, condition?: Condition): boolean {
+    if (mode === 'fuzzy' && condition === 'if-plain') {
+      return this.isPlain
+    }
+
+    if (condition !== undefined) {
+      return false
+    }
+
+    return #value in other
+  }
+
   compare(other: ValueRepresentation, mode: Mode): Comparison {
+    if (!other.acceptsComparisonFrom(this, mode, this.isArrayLike ? 'from-array-like' : undefined)) {
+      return unequal
+    }
+
     if (!(#value in other)) return unequal
     if (this.#value === other.#value) return strictlyEqual
 
     if (mode === 'fuzzy') {
-      // Allow *only* array-like objects to be compared against ArrayRepresentation
-      if (other.constructor.name === 'ArrayRepresentation') {
-        return this.#context.isArrayLike(this.#value) ? comparable : unequal
-      }
-
       // Do not compare constructor name, string tag or prototype when doing fuzzy comparisons.
+      // Compare with any representation that allows comparisons from us in fuzzy mode.
       return comparable
     }
 

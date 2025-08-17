@@ -1,6 +1,6 @@
 import type { Context } from '../../context.d.ts'
 import type { DeepFunctionality, FinalFormatOptions, Opaque, ValueRepresentation } from '../../value.d.ts'
-import { type Comparison, type Mode, strictlyEqual, unequal } from '../../comparison.ts'
+import { comparable, type Comparison, type Mode, strictlyEqual, unequal } from '../../comparison.ts'
 import type { Encoder } from '../../encoder.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
 import type { Decoder } from '../../decoder.ts'
@@ -32,12 +32,15 @@ export class FunctionRepresentation extends ObjectRepresentation implements Deep
     return false
   }
 
+  override acceptsComparisonFrom(other: ValueRepresentation) {
+    return #value in other
+  }
+
   override compare(other: ValueRepresentation, mode: Mode): Comparison {
-    // Partial comparison of functions is only sensible when you don't have a reference to the actual function prior
-    // to the comparison. Therefore allow fuzzy comparison based on properties alone. This means that functions can
-    // be partially compared to a plain object.
-    if (mode === 'fuzzy' && ObjectRepresentation.isPlain(other)) {
-      return super.compare(other, mode)
+    // Fuzzy comparison of functions is only sensible when you don't have a reference to the actual function prior to
+    // the comparison. Treat as comparable when `other` accepts a plain-object comparison.
+    if (mode === 'fuzzy' && other.acceptsComparisonFrom(this, mode, 'if-plain')) {
+      return comparable
     }
 
     if (!(#value in other)) return unequal

@@ -11,17 +11,6 @@ import { ElementAccessor } from '../../../accessors/element.ts'
 import { Formatter } from '../../../formatter.ts'
 import { deriveTheme } from '../../../theme.ts'
 
-// Static methods tests
-test('is method correctly identifies ArrayRepresentation instances', (t) => {
-  const context = new RealValueContext()
-  const array = [1, 2, 3]
-  const arrayRep = context.represent(array) as ArrayRepresentation
-  const objectRep = context.represent({})
-
-  t.true(ArrayRepresentation.is(arrayRep))
-  t.false(ArrayRepresentation.is(objectRep))
-})
-
 // Deserialize method test
 test('deserialize creates a comparable ArrayRepresentation', (t) => {
   const originalContext = new RealValueContext()
@@ -38,6 +27,52 @@ test('deserialize creates a comparable ArrayRepresentation', (t) => {
 
   // The deserialized representation should be comparable to the original
   t.is(original.compare(deserialized, 'comprehensive'), comparable)
+})
+
+// AcceptsComparisonFrom tests
+test('acceptsComparisonFrom returns true for other ArrayRepresentation', (t) => {
+  const context = new RealValueContext()
+  const array1 = context.represent([1, 2, 3]) as ArrayRepresentation
+  const array2 = context.represent([4, 5, 6]) as ArrayRepresentation
+
+  t.true(array1.acceptsComparisonFrom(array2, 'comprehensive'))
+  t.true(array1.acceptsComparisonFrom(array2, 'fuzzy'))
+})
+
+test('acceptsComparisonFrom returns false for non-ArrayRepresentation without condition', (t) => {
+  const context = new RealValueContext()
+  const arrayRep = context.represent([1, 2, 3]) as ArrayRepresentation
+  const objectRep = context.represent({})
+
+  t.false(arrayRep.acceptsComparisonFrom(objectRep, 'comprehensive'))
+  t.false(arrayRep.acceptsComparisonFrom(objectRep, 'fuzzy'))
+})
+
+test('acceptsComparisonFrom returns true with from-array-like condition in fuzzy mode', (t) => {
+  const context = new RealValueContext()
+  const arrayRep = context.represent([1, 2, 3]) as ArrayRepresentation
+  const objectRep = context.represent({}) // Any object, condition matters more than type
+
+  t.true(arrayRep.acceptsComparisonFrom(objectRep, 'fuzzy', 'from-array-like'))
+})
+
+test('acceptsComparisonFrom returns false with from-array-like condition in comprehensive mode', (t) => {
+  const context = new RealValueContext()
+  const arrayRep = context.represent([1, 2, 3]) as ArrayRepresentation
+  const objectRep = context.represent({})
+
+  t.false(arrayRep.acceptsComparisonFrom(objectRep, 'comprehensive', 'from-array-like'))
+})
+
+test('acceptsComparisonFrom with from-arguments-object condition depends on context flags', (t) => {
+  for (const flag of [true, false]) {
+    const context = new RealValueContext({ flags: { compareArgumentsToArrays: flag } })
+    const arrayRep = context.represent([1, 2, 3]) as ArrayRepresentation
+    const objectRep = context.represent({}) // Any object
+
+    // The result depends on context.flags.compareArgumentsToArrays
+    t.is(arrayRep.acceptsComparisonFrom(objectRep, 'comprehensive', 'from-arguments-object'), flag)
+  }
 })
 
 // Compare method tests
@@ -109,9 +144,6 @@ test('compare returns comparable when comparing against shorter arrays in fuzzy 
 
   // Long array should be comparable to short array in fuzzy mode
   t.is(longArrayRep.compare(shortArrayRep, 'fuzzy'), comparable)
-
-  // Short array should NOT be comparable to long array in fuzzy mode
-  t.is(shortArrayRep.compare(longArrayRep, 'fuzzy'), unequal)
 })
 
 test('compare returns comparable when comparing different array instances with the same length in fuzzy mode', (t) => {
@@ -137,19 +169,6 @@ test('compare returns unequal when comparing against longer arrays in fuzzy mode
 
   // Short array cannot be compared to long array in fuzzy mode
   t.is(shortArrayRep.compare(longArrayRep, 'fuzzy'), unequal)
-})
-
-// Length property test
-test('length property returns correct array length', (t) => {
-  const context = new RealValueContext()
-  const array = [1, 2, 3]
-  const emptyArray: any[] = []
-
-  const arrayRep = context.represent(array) as ArrayRepresentation
-  const emptyArrayRep = context.represent(emptyArray) as ArrayRepresentation
-
-  t.is(arrayRep.length, 3)
-  t.is(emptyArrayRep.length, 0)
 })
 
 // IterateElements tests
@@ -243,8 +262,8 @@ test('serializing and deserializing an array preserves its structure', (t) => {
   // The original and deserialized representations should be comparable
   t.is(original.compare(deserialized, 'comprehensive'), comparable)
 
-  // The deserialized representation should have the same length
-  t.is(deserialized.length, array.length)
+  // The deserialized representation should be unequal to an array with a different length
+  t.is(deserialized.compare(originalContext.represent([1]), 'comprehensive'), unequal)
 })
 
 // FinalFormat tests

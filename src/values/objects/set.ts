@@ -14,7 +14,7 @@ export class SetRepresentation extends ObjectRepresentation {
     return new this(context, { size, ...this.unpackAnnotations(objectAnnotations) })
   }
 
-  static override is(value: ValueRepresentation): value is SetRepresentation {
+  static is(value: ValueRepresentation): value is SetRepresentation {
     return #value in value
   }
 
@@ -25,6 +25,10 @@ export class SetRepresentation extends ObjectRepresentation {
     super(context, value)
     this.#context = context
     this.#value = value
+  }
+
+  override acceptsComparisonFrom(other: ValueRepresentation) {
+    return #value in other
   }
 
   override compare(other: ValueRepresentation, mode: Mode) {

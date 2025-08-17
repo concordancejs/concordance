@@ -35,6 +35,10 @@ export class ArrayBufferViewRepresentation extends ObjectRepresentation implemen
     return false
   }
 
+  override acceptsComparisonFrom(other: ValueRepresentation) {
+    return #value in other
+  }
+
   override compare(other: ValueRepresentation, mode: Mode) {
     if (!(#value in other)) return unequal
     if (this.#value === other.#value) return strictlyEqual

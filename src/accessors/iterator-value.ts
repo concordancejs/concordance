@@ -81,6 +81,10 @@ export class IteratorValueAccessor implements CommonRepresentation, DeepFunction
     return new IteratorValueGroup(values)
   }
 
+  acceptsComparisonFrom(other: ValueRepresentation): boolean {
+    return #value in other
+  }
+
   compare(other: ValueRepresentation, mode: Mode) {
     if (!(#value in other)) return unequal
     if (mode === 'comprehensive' && this.#index !== other.#index) return unequal
@@ -124,6 +128,10 @@ export class IteratorValueGroup implements CommonRepresentation, GroupFunctional
     const [aligned, otherAligned] = IteratorValueAccessor.alignForComparison(this.#values, other.#values, mode)
     this.#values = aligned
     other.#values = otherAligned
+  }
+
+  acceptsComparisonFrom(other: ValueRepresentation): boolean {
+    return #values in other
   }
 
   compare(other: ValueRepresentation) {

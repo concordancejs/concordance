@@ -38,6 +38,20 @@ test('compare returns unequal for non-NumberRepresentation values', (t) => {
   t.is(a.compare(nonNumber), unequal)
 })
 
+test('acceptsComparisonFrom returns true for NumberRepresentation', (t) => {
+  const number1 = new NumberRepresentation(42)
+  const number2 = new NumberRepresentation(24)
+
+  t.true(number1.acceptsComparisonFrom(number2))
+})
+
+test('acceptsComparisonFrom returns false for non-NumberRepresentation', (t) => {
+  const numberRep = new NumberRepresentation(42)
+  const stringRep = new StringRepresentation('test')
+
+  t.false(numberRep.acceptsComparisonFrom(stringRep))
+})
+
 test('serializeShallow correctly encodes a number', (t) => {
   const representation = new NumberRepresentation(123)
   const encoder = new Encoder()

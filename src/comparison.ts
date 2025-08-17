@@ -20,4 +20,6 @@ export type Comparison =
   | typeof possiblyEqual
   | typeof comparable
 
+export type Condition = 'if-plain' | 'from-array-like' | 'from-arguments-object' | 'from-sparse'
+
 export type Mode = 'comprehensive' | 'fuzzy'

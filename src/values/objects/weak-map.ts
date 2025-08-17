@@ -21,11 +21,14 @@ export class WeakMapRepresentation extends ObjectRepresentation {
     this.#value = value
   }
 
+  override acceptsComparisonFrom(other: ValueRepresentation) {
+    return #value in other
+  }
+
   override compare(other: ValueRepresentation, mode: Mode) {
     // Since WeakMaps are not enumerable, requiring an actual WeakMap in a fuzzy comparison does not add much value.
-    // Allow fuzzy comparison based on properties alone, which means WeakMaps can be partially compared to a plain
-    // object.
-    if (mode === 'fuzzy' && ObjectRepresentation.isPlain(other)) {
+    // Allow fuzzy comparison based when `other` accepts a plain-object comparison.
+    if (mode === 'fuzzy' && other.acceptsComparisonFrom(this, mode, 'if-plain')) {
       return super.compare(other, mode)
     }
 

@@ -30,6 +30,20 @@ test('compare returns unequal for non-StringRepresentation values', (t) => {
   t.is(a.compare(nonString), unequal)
 })
 
+test('acceptsComparisonFrom returns true for StringRepresentation', (t) => {
+  const string1 = new StringRepresentation('test')
+  const string2 = new StringRepresentation('other')
+
+  t.true(string1.acceptsComparisonFrom(string2))
+})
+
+test('acceptsComparisonFrom returns false for non-StringRepresentation', (t) => {
+  const stringRep = new StringRepresentation('test')
+  const numberRep = new NumberRepresentation(42)
+
+  t.false(stringRep.acceptsComparisonFrom(numberRep))
+})
+
 test('static is correctly identifies StringRepresentation instances', (t) => {
   const string = new StringRepresentation('test')
   const number = new NumberRepresentation(42)

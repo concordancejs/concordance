@@ -17,10 +17,14 @@ export class CryptoKeyRepresentation extends ObjectRepresentation {
 
   readonly #stamp: undefined
 
+  override acceptsComparisonFrom(other: ValueRepresentation) {
+    return #stamp in other
+  }
+
   override compare(other: ValueRepresentation, mode: Mode) {
     // CryptoKeys are inherently hard to compare, since their private portions cannot be directly accessed. Therefore
-    // allow them to be partially compared with a plain object based on their properties alone.
-    if (mode === 'fuzzy' && ObjectRepresentation.isPlain(other)) {
+    // allow them to be fuzzily compared when `other` accepts a plain-object comparison.
+    if (mode === 'fuzzy' && other.acceptsComparisonFrom(this, mode, 'if-plain')) {
       return super.compare(other, mode)
     }
 

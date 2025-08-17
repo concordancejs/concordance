@@ -1,4 +1,4 @@
-import { comparable, strictlyEqual, unequal } from '../../comparison.ts'
+import { comparable, strictlyEqual, unequal, type Mode } from '../../comparison.ts'
 import type { Decoder } from '../../decoder.ts'
 import type { DeserializationContext } from '../../deserialization-context.ts'
 import type { Encoder } from '../../encoder.ts'
@@ -28,19 +28,19 @@ export class ArgumentsRepresentation extends ObjectRepresentation {
     return false
   }
 
-  override compare(other: ValueRepresentation) {
-    // Allow comparing arguments objects to arrays, this is useful in deep-equal tests where it's hard to recreate an
-    // arguments object.
-    if (this.#context.flags.compareArgumentsToArrays && ArrayRepresentation.is(other)) {
-      if (this.#context.length(this.#value) !== other.length) return unequal
+  override acceptsComparisonFrom(other: ValueRepresentation) {
+    return #value in other
+  }
 
-      return comparable
+  override compare(other: ValueRepresentation, mode: Mode) {
+    if (!other.acceptsComparisonFrom(this, mode, 'from-arguments-object')) return unequal
+    if (#value in other) {
+      if (this.#value === other.#value) return strictlyEqual
+      // N.B. Fuzzy mode is not implemented for arguments objects, expect both sides to have the same length.
+      if (this.#context.length(this.#value) !== other.#context.length(other.#value)) return unequal
     }
 
-    if (!(#value in other)) return unequal
-    if (this.#value === other.#value) return strictlyEqual
-    if (this.#context.length(this.#value) !== other.#context.length(other.#value)) return unequal
-
+    // If other is not an arguments object, but it does accept a comparison, assume it is comparable.
     return comparable
   }
 

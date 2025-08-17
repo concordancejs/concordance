@@ -30,14 +30,28 @@ test('compare returns unequal for NullRepresentation', (t) => {
   t.is(undefinedRepr.compare(nullRepr), unequal)
 })
 
-test('static is() correctly identifies UndefinedRepresentation instances', (t) => {
-  const undefinedRepr = new UndefinedRepresentation()
-  const string = new StringRepresentation('undefined')
-  const nullRepr = new NullRepresentation()
+test('acceptsComparisonFrom returns true for UndefinedRepresentation', (t) => {
+  const undefined1 = new UndefinedRepresentation()
+  const undefined2 = new UndefinedRepresentation()
 
-  t.true(UndefinedRepresentation.is(undefinedRepr))
-  t.false(UndefinedRepresentation.is(string))
-  t.false(UndefinedRepresentation.is(nullRepr))
+  t.true(undefined1.acceptsComparisonFrom(undefined2, 'comprehensive'))
+  t.true(undefined1.acceptsComparisonFrom(undefined2, 'fuzzy'))
+})
+
+test('acceptsComparisonFrom returns false for non-UndefinedRepresentation', (t) => {
+  const undefinedRep = new UndefinedRepresentation()
+  const nullRep = new NullRepresentation()
+
+  t.false(undefinedRep.acceptsComparisonFrom(nullRep, 'comprehensive'))
+  t.false(undefinedRep.acceptsComparisonFrom(nullRep, 'fuzzy'))
+})
+
+test('acceptsComparisonFrom returns true for from-sparse condition', (t) => {
+  const undefinedRep = new UndefinedRepresentation()
+  const nullRep = new NullRepresentation()
+
+  t.true(undefinedRep.acceptsComparisonFrom(nullRep, 'comprehensive', 'from-sparse'))
+  t.true(undefinedRep.acceptsComparisonFrom(nullRep, 'fuzzy', 'from-sparse'))
 })
 
 test('serializeShallow correctly encodes an undefined value', (t) => {

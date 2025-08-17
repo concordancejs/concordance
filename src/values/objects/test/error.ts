@@ -272,6 +272,29 @@ test('serialize uses error static type', (t) => {
   t.is(decoder.staticType(), staticTypeTable.error)
 })
 
+test('ErrorRepresentation - acceptsComparisonFrom returns true for ErrorRepresentation', (t) => {
+  const context = new RealValueContext()
+  const error1 = new Error('Test error 1')
+  const error2 = new TypeError('Test error 2')
+
+  const errorRep1 = context.represent(error1) as ErrorRepresentation
+  const errorRep2 = context.represent(error2) as ErrorRepresentation
+
+  t.true(errorRep1.acceptsComparisonFrom(errorRep2))
+})
+
+test('ErrorRepresentation - acceptsComparisonFrom returns false for non-ErrorRepresentation', (t) => {
+  const context = new RealValueContext()
+  const error = new Error('Test error')
+  const errorRep = context.represent(error) as ErrorRepresentation
+
+  const stringRep = context.represent('test')
+  const objectRep = context.represent({})
+
+  t.false(errorRep.acceptsComparisonFrom(stringRep))
+  t.false(errorRep.acceptsComparisonFrom(objectRep))
+})
+
 // FinalFormat tests
 test('finalFormat uses object brackets by default', (t) => {
   const context = new RealValueContext()

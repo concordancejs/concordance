@@ -29,6 +29,10 @@ export class RegExpRepresentation extends ObjectRepresentation implements DeepFu
     this.#value = value
   }
 
+  override acceptsComparisonFrom(other: ValueRepresentation) {
+    return #value in other
+  }
+
   override compare(other: ValueRepresentation, mode: Mode) {
     if (!(#value in other)) return unequal
     return super.compare(other, mode)

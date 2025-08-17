@@ -21,11 +21,14 @@ export class WeakSetRepresentation extends ObjectRepresentation {
     this.#value = value
   }
 
+  override acceptsComparisonFrom(other: ValueRepresentation) {
+    return #value in other
+  }
+
   override compare(other: ValueRepresentation, mode: Mode) {
-    // Since WeakSets are not enumerable, requiring an actual WeakSet in a fuzzy comparison does not add much value.
-    // Allow fuzzy comparison based on properties alone, which means WeakSets can be partially compared to a plain
-    // object.
-    if (mode === 'fuzzy' && ObjectRepresentation.isPlain(other)) {
+    // Since WeakSets are not enumerable, requiring an actual WeakSet in a fuzzy comparison does not add much value. //
+    // Allow fuzzy comparison based when `other` accepts a plain-object comparison.
+    if (mode === 'fuzzy' && other.acceptsComparisonFrom(this, mode, 'if-plain')) {
       return super.compare(other, mode)
     }
 

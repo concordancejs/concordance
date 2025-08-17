@@ -22,6 +22,20 @@ test('compare returns unequal for non-NullRepresentation values', (t) => {
   t.is(a.compare(nonNull), unequal)
 })
 
+test('acceptsComparisonFrom returns true for NullRepresentation', (t) => {
+  const null1 = new NullRepresentation()
+  const null2 = new NullRepresentation()
+
+  t.true(null1.acceptsComparisonFrom(null2))
+})
+
+test('acceptsComparisonFrom returns false for non-NullRepresentation', (t) => {
+  const nullRep = new NullRepresentation()
+  const stringRep = new StringRepresentation('test')
+
+  t.false(nullRep.acceptsComparisonFrom(stringRep))
+})
+
 test('serializeShallow correctly encodes a null value', (t) => {
   const representation = new NullRepresentation()
   const encoder = new Encoder()

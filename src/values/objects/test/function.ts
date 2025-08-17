@@ -215,6 +215,22 @@ test('iterateProperties works correctly with different function types', (t) => {
   t.truthy(arrowNameProperty, 'name property should be present for arrow function')
 })
 
+test('acceptsComparisonFrom returns true for FunctionRepresentation', (t) => {
+  const context = new RealValueContext()
+  const func1 = context.represent(namedFunction) as FunctionRepresentation
+  const func2 = context.represent(anonymousFunction) as FunctionRepresentation
+
+  t.true(func1.acceptsComparisonFrom(func2))
+})
+
+test('acceptsComparisonFrom returns false for non-FunctionRepresentation', (t) => {
+  const context = new RealValueContext()
+  const funcRep = context.represent(namedFunction) as FunctionRepresentation
+  const objectRep = context.represent({})
+
+  t.false(funcRep.acceptsComparisonFrom(objectRep))
+})
+
 // Serialization test
 test('serialize uses function static type', (t) => {
   const context = new RealValueContext()

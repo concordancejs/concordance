@@ -19,7 +19,6 @@ import type {
   GroupRepresentation,
   AccessorFunctionality,
 } from '../value.d.ts'
-import { UndefinedRepresentation } from '../values/primitives/undefined.ts'
 import type { Formatter } from '../formatter.ts'
 import type { TakeWhile } from '../stack.ts'
 import { fullyDeserialize } from '../deserialize.ts'
@@ -31,11 +30,13 @@ export class SparseValueRepresentation implements CommonRepresentation, ShallowF
     return false
   }
 
-  compare(other: ValueRepresentation) {
+  acceptsComparisonFrom(other: ValueRepresentation): boolean {
+    return #sparse in other
+  }
+
+  compare(other: ValueRepresentation, mode: Mode) {
     if (#sparse in other) return strictlyEqual
-    // Allow sparse values to be equal to undefined.
-    if (UndefinedRepresentation.is(other)) return deeplyEqual
-    return unequal
+    return other.acceptsComparisonFrom(this, mode, 'from-sparse') ? deeplyEqual : unequal
   }
 
   formatShallow(formatter: Formatter): void {
@@ -80,6 +81,10 @@ export class ElementAccessor implements CommonRepresentation, DeepFunctionality,
 
     const elements: ElementAccessor[] = [fullyDeserialize(this), ...takeWhile((value) => ElementAccessor.is(value))]
     return new ElementGroup(elements)
+  }
+
+  acceptsComparisonFrom(other: ValueRepresentation): boolean {
+    return #value in other
   }
 
   compare(other: ValueRepresentation, mode: Mode) {
@@ -127,6 +132,10 @@ export class ElementGroup implements CommonRepresentation, GroupFunctionality {
     if (this.#elements.length > other.#elements.length) {
       this.#elements = this.#elements.slice(0, other.#elements.length)
     }
+  }
+
+  acceptsComparisonFrom(other: ValueRepresentation): boolean {
+    return #elements in other
   }
 
   compare(other: ValueRepresentation): Comparison {

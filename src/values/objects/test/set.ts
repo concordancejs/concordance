@@ -186,6 +186,22 @@ test('iterateIterable preserves insertion order', (t) => {
   t.is(values2[2]!.compare(value2Rep, 'comprehensive'), strictlyEqual) // Third is 'value2'
 })
 
+test('acceptsComparisonFrom returns true for SetRepresentation', (t) => {
+  const context = new RealValueContext()
+  const set1 = context.represent(new Set(['a', 'b'])) as SetRepresentation
+  const set2 = context.represent(new Set(['c', 'd'])) as SetRepresentation
+
+  t.true(set1.acceptsComparisonFrom(set2))
+})
+
+test('acceptsComparisonFrom returns false for non-SetRepresentation', (t) => {
+  const context = new RealValueContext()
+  const setRep = context.represent(new Set(['a', 'b'])) as SetRepresentation
+  const arrayRep = context.represent(['a', 'b'])
+
+  t.false(setRep.acceptsComparisonFrom(arrayRep))
+})
+
 // Serialization tests
 test('serialize uses set static type and includes size annotation', (t) => {
   const context = new RealValueContext()

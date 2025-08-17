@@ -15,26 +15,121 @@ import type { Opaque } from '../../../value.d.ts'
 import { NamedPropertyAccessor, SymbolPropertyAccessor } from '../../../accessors/property.ts'
 
 // Static method tests
-test('static is method correctly identifies ObjectRepresentation instances', (t) => {
+test('isPlain identifies instances of plain objects', (t) => {
   const context = new RealValueContext()
   const object = { a: 1 }
-  const rep = context.represent(object) as ObjectRepresentation
+  const plain = context.represent(object) as ObjectRepresentation
 
-  t.true(ObjectRepresentation.is(rep))
-  t.false(ObjectRepresentation.is({}))
-})
-
-test('static isPlain method correctly identifies ObjectRepresentation instances of plain objects', (t) => {
-  const context = new RealValueContext()
-  const object = { a: 1 }
-  const rep = context.represent(object) as ObjectRepresentation
-
-  t.true(ObjectRepresentation.isPlain(rep))
-  t.false(ObjectRepresentation.isPlain(context.represent([])))
+  t.true(plain.isPlain)
   class CustomClass {
     a = 1
   }
-  t.false(ObjectRepresentation.isPlain(context.represent(new CustomClass())))
+  const custom = context.represent(new CustomClass()) as ObjectRepresentation
+  t.false(custom.isPlain)
+})
+
+test('isPlain returns false for objects with null prototype', (t) => {
+  const context = new RealValueContext()
+  const nullProtoObject = Object.create(null) as Record<string, never>
+  const representation = context.represent(nullProtoObject) as ObjectRepresentation
+
+  t.false(representation.isPlain)
+})
+
+test('isPlain returns false for objects with custom string tag', (t) => {
+  const context = new RealValueContext()
+  const object = {}
+  Object.defineProperty(object, Symbol.toStringTag, {
+    value: 'CustomTag',
+    enumerable: false,
+  })
+  const representation = context.represent(object) as ObjectRepresentation
+
+  t.false(representation.isPlain)
+})
+
+test('isPlain returns false for objects with empty string tag', (t) => {
+  const context = new RealValueContext()
+  const object = {}
+  Object.defineProperty(object, Symbol.toStringTag, {
+    value: '',
+    enumerable: false,
+  })
+  const representation = context.represent(object) as ObjectRepresentation
+
+  t.false(representation.isPlain)
+})
+
+test('isPlain returns false for built-in objects', (t) => {
+  const context = new RealValueContext()
+
+  // Array
+  const array = context.represent([1, 2, 3]) as ObjectRepresentation
+  t.false(array.isPlain)
+
+  // Date
+  const date = context.represent(new Date()) as ObjectRepresentation
+  t.false(date.isPlain)
+
+  // RegExp
+  const regex = context.represent(/test/) as ObjectRepresentation
+  t.false(regex.isPlain)
+
+  // Error
+  const error = context.represent(new Error('test')) as ObjectRepresentation
+  t.false(error.isPlain)
+})
+
+test('isPlain returns false for objects created with Object.create with custom prototype', (t) => {
+  const context = new RealValueContext()
+  const customProto = { customMethod: () => 'test' }
+  const objectWithCustomProto = Object.create(customProto) as Record<string, never>
+  const representation = context.represent(objectWithCustomProto) as ObjectRepresentation
+
+  t.false(representation.isPlain)
+})
+
+test('isPlain returns true for objects created with Object.create(Object.prototype)', (t) => {
+  const context = new RealValueContext()
+  const objectWithObjectProto = Object.create(Object.prototype) as Record<string, never>
+  const representation = context.represent(objectWithObjectProto) as ObjectRepresentation
+
+  t.true(representation.isPlain)
+})
+
+test('isPlain returns false for objects with modified constructor property', (t) => {
+  const context = new RealValueContext()
+  const object = {}
+  // Modify the constructor property to point to a different constructor
+  Object.defineProperty(object, 'constructor', {
+    value: Array,
+    writable: true,
+    enumerable: false,
+    configurable: true,
+  })
+  const representation = context.represent(object) as ObjectRepresentation
+
+  t.false(representation.isPlain)
+})
+
+test('isPlain returns false for objects created by constructors with Object name', (t) => {
+  const context = new RealValueContext()
+
+  // Create a constructor function - even if named similarly to Object, it won't be plain
+  class CustomObjectLike {
+    value = 42
+  }
+  Object.defineProperty(CustomObjectLike, 'name', {
+    value: 'Object', // Simulate a constructor named 'Object'
+    writable: false,
+    enumerable: false,
+    configurable: true,
+  })
+  const instance = new CustomObjectLike()
+  const representation = context.represent(instance) as ObjectRepresentation
+
+  // This should be false because it doesn't have Object.prototype and constructor name isn't 'Object'
+  t.false(representation.isPlain)
 })
 
 test('unpackAnnotations correctly unpacks object annotations', (t) => {
@@ -179,6 +274,69 @@ test('compare returns comparable for plain object vs custom class instance in fu
   t.is(b.compare(a, 'fuzzy'), comparable)
   t.is(a.compare(b, 'comprehensive'), unequal)
   t.is(b.compare(a, 'comprehensive'), unequal)
+})
+
+test('acceptsComparisonFrom returns true for ObjectRepresentation', (t) => {
+  const context = new RealValueContext()
+  const object1 = context.represent({}) as ObjectRepresentation
+  const object2 = context.represent({}) as ObjectRepresentation
+
+  t.true(object1.acceptsComparisonFrom(object2, 'comprehensive'))
+  t.true(object1.acceptsComparisonFrom(object2, 'fuzzy'))
+})
+
+test('acceptsComparisonFrom returns true for subclassed representation without condition', (t) => {
+  const context = new RealValueContext()
+  const objectRep = context.represent({}) as ObjectRepresentation
+  const arrayRep = context.represent([])
+
+  t.true(objectRep.acceptsComparisonFrom(arrayRep, 'comprehensive'))
+  t.true(objectRep.acceptsComparisonFrom(arrayRep, 'fuzzy'))
+})
+
+test('acceptsComparisonFrom returns false for unrelated representation without condition', (t) => {
+  const context = new RealValueContext()
+  const objectRep = context.represent({}) as ObjectRepresentation
+  const stringRep = context.represent('hello')
+
+  t.false(objectRep.acceptsComparisonFrom(stringRep, 'comprehensive'))
+  t.false(objectRep.acceptsComparisonFrom(stringRep, 'fuzzy'))
+})
+
+test('acceptsComparisonFrom returns true with if-plain condition in fuzzy mode for plain objects', (t) => {
+  const context = new RealValueContext()
+  const plainObject = context.represent({}) as ObjectRepresentation
+  const otherRep = context.represent([]) // Any representation
+
+  t.true(plainObject.acceptsComparisonFrom(otherRep, 'fuzzy', 'if-plain'))
+})
+
+test('acceptsComparisonFrom returns false with if-plain condition in comprehensive mode', (t) => {
+  const context = new RealValueContext()
+  const plainObject = context.represent({}) as ObjectRepresentation
+  const otherRep = context.represent([])
+
+  t.false(plainObject.acceptsComparisonFrom(otherRep, 'comprehensive', 'if-plain'))
+})
+
+test('acceptsComparisonFrom returns false with if-plain condition for non-plain objects', (t) => {
+  const context = new RealValueContext()
+  class CustomClass {
+    value = 42 // Add a property to satisfy no-extraneous-class rule
+  }
+  const nonPlainObject = context.represent(new CustomClass()) as ObjectRepresentation
+  const otherRep = context.represent([])
+
+  t.false(nonPlainObject.acceptsComparisonFrom(otherRep, 'fuzzy', 'if-plain'))
+})
+
+test('acceptsComparisonFrom returns false with unhandled condition', (t) => {
+  const context = new RealValueContext()
+  const objectRep = context.represent({}) as ObjectRepresentation
+  const otherRep = context.represent([])
+
+  // Use a valid condition that should return false for objects
+  t.false(objectRep.acceptsComparisonFrom(otherRep, 'fuzzy', 'from-arguments-object'))
 })
 
 // Array-like objects tests

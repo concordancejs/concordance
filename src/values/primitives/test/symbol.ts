@@ -109,6 +109,25 @@ test('compare returns possiblyEqual for regular symbols with same string represe
   t.is(original.compare(deserialized), possiblyEqual)
 })
 
+test('acceptsComparisonFrom returns true for SymbolRepresentation', (t) => {
+  const context = new RealValueContext()
+  const symbol1 = Symbol('test1')
+  const symbol2 = Symbol('test2')
+  const symbolRep1 = new SymbolRepresentation(context, symbol1 as unknown as Record<string, unknown>)
+  const symbolRep2 = new SymbolRepresentation(context, symbol2 as unknown as Record<string, unknown>)
+
+  t.true(symbolRep1.acceptsComparisonFrom(symbolRep2))
+})
+
+test('acceptsComparisonFrom returns false for non-SymbolRepresentation', (t) => {
+  const context = new RealValueContext()
+  const symbol = Symbol('test')
+  const symbolRep = new SymbolRepresentation(context, symbol as unknown as Record<string, unknown>)
+  const stringRep = new StringRepresentation('test')
+
+  t.false(symbolRep.acceptsComparisonFrom(stringRep))
+})
+
 test('serializeShallow correctly encodes a symbol', (t) => {
   const symbol = Symbol.for('test')
   const context = new RealValueContext()

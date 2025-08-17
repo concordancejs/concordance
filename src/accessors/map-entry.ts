@@ -89,6 +89,10 @@ export class MapEntryAccessor implements CommonRepresentation, DeepFunctionality
     return new MapEntryGroup(entries)
   }
 
+  acceptsComparisonFrom(other: ValueRepresentation): boolean {
+    return #value in other
+  }
+
   compare(other: ValueRepresentation, mode: Mode) {
     if (!(#value in other)) return unequal
 
@@ -144,6 +148,10 @@ export class MapEntryGroup implements CommonRepresentation, GroupFunctionality {
     const [aligned, otherAligned] = MapEntryAccessor.alignForComparison(this.#entries, other.#entries, mode)
     this.#entries = aligned
     other.#entries = otherAligned
+  }
+
+  acceptsComparisonFrom(other: ValueRepresentation) {
+    return #entries in other
   }
 
   compare(other: ValueRepresentation): Comparison {

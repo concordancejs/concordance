@@ -26,6 +26,10 @@ export class BigIntRepresentation implements CommonRepresentation, ShallowFuncti
     return false
   }
 
+  acceptsComparisonFrom(other: ValueRepresentation): boolean {
+    return #value in other
+  }
+
   compare(other: ValueRepresentation) {
     return #value in other && Object.is(this.#value, other.#value) ? strictlyEqual : unequal
   }
