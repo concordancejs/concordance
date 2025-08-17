@@ -136,27 +136,6 @@ test('compare correctly handles empty array buffers', (t) => {
   t.is(emptyRep1.compare(deserialized, 'comprehensive'), comparable)
 })
 
-// IterateArrayLike and iterateIterable tests
-test('iterateArrayLike yields no elements for array buffers', (t) => {
-  const context = new RealValueContext()
-  const buffer = new ArrayBuffer(4)
-  const bufferRep = context.represent(buffer) as ArrayBufferRepresentation
-
-  const elements = [...bufferRep.iterateArrayLike()]
-
-  t.is(elements.length, 0)
-})
-
-test('iterateIterable yields no elements for array buffers', (t) => {
-  const context = new RealValueContext()
-  const buffer = new ArrayBuffer(4)
-  const bufferRep = context.represent(buffer) as ArrayBufferRepresentation
-
-  const iterables = [...bufferRep.iterateIterable()]
-
-  t.is(iterables.length, 0)
-})
-
 // IterateProperties test
 test('iterateProperties yields properties for ArrayBuffer instances', (t) => {
   const context = new RealValueContext()

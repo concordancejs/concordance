@@ -6,8 +6,8 @@ import { staticTypeTable } from '../../serialization-types.ts'
 import type { Context } from '../../context.d.ts'
 import type { FinalFormatOptions, Opaque, ValueRepresentation } from '../../value.d.ts'
 import type { Formatter } from '../../formatter.ts'
-import { ArrayRepresentation } from './array.ts'
 import { ObjectRepresentation, type ObjectAnnotations } from './object.ts'
+import type { ElementAccessor } from '../../accessors/element.ts'
 
 export class ArgumentsRepresentation extends ObjectRepresentation {
   static override deserialize(context: DeserializationContext, decoder: Decoder): ArgumentsRepresentation {
@@ -22,6 +22,10 @@ export class ArgumentsRepresentation extends ObjectRepresentation {
     super(context, value)
     this.#context = context
     this.#value = value
+  }
+
+  override get isArrayLike() {
+    return false
   }
 
   override compare(other: ValueRepresentation) {
@@ -40,6 +44,10 @@ export class ArgumentsRepresentation extends ObjectRepresentation {
     return comparable
   }
 
+  override *iterateElements(): IterableIterator<ElementAccessor> {
+    yield* this.#context.iterateElements(this.#value)
+  }
+
   override *iterateIterable() {
     // Not used for arguments objects. Override to make a no-op.
   }
@@ -52,6 +60,6 @@ export class ArgumentsRepresentation extends ObjectRepresentation {
   }
 
   override serialize(encoder: Encoder) {
-    return super.serialize(encoder, staticTypeTable.arguments)
+    return super.serialize(encoder, staticTypeTable.arguments, { l: this.#context.length(this.#value) })
   }
 }

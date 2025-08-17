@@ -28,6 +28,10 @@ export class FunctionRepresentation extends ObjectRepresentation implements Deep
     this.#value = value
   }
 
+  override get isArrayLike() {
+    return false
+  }
+
   override compare(other: ValueRepresentation, mode: Mode): Comparison {
     // Partial comparison of functions is only sensible when you don't have a reference to the actual function prior
     // to the comparison. Therefore allow fuzzy comparison based on properties alone. This means that functions can

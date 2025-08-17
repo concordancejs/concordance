@@ -11,6 +11,7 @@ import { staticTypeTable } from '../../../serialization-types.ts'
 import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
 import { Formatter } from '../../../formatter.ts'
 import { deriveTheme } from '../../../theme.ts'
+import { ElementAccessor } from '../../../accessors/element.ts'
 
 // Helper function to create an arguments object
 function getArgumentsObject(...args: unknown[]) {
@@ -38,6 +39,14 @@ test('deserialize creates an ArgumentsRepresentation from decoder data', (t) => 
   const deserialized = ArgumentsRepresentation.deserialize(deserializationContext, decoder)
 
   t.true(deserialized instanceof ArgumentsRepresentation)
+})
+
+// Never array-like
+test('isArrayLike returns false for ArgumentsRepresentation', (t) => {
+  const context = new RealValueContext()
+  const argsObject = getArgumentsObject('a', 'b', 'c')
+  const argsRep = context.represent(argsObject) as ArgumentsRepresentation
+  t.false(argsRep.isArrayLike)
 })
 
 // Compare method tests - focusing on the overridden behavior
@@ -131,6 +140,20 @@ test('compare returns comparable when comparing different arguments objects with
   const argsRep2 = context.represent(argsObject2) as ArgumentsRepresentation
 
   t.is(argsRep1.compare(argsRep2), comparable)
+})
+
+// IterateElements tests
+test('iterateElements yields elements', (t) => {
+  const context = new RealValueContext()
+  const argsObject = getArgumentsObject('a', 'b', 'c')
+  const argsRep = context.represent(argsObject) as ArgumentsRepresentation
+
+  const elements = [...argsRep.iterateElements()]
+
+  t.is(elements.length, 3)
+  t.true(elements[0] instanceof ElementAccessor)
+  t.true(elements[1] instanceof ElementAccessor)
+  t.true(elements[2] instanceof ElementAccessor)
 })
 
 // IterateIterable method test - should be a no-op

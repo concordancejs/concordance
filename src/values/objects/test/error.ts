@@ -90,27 +90,6 @@ test('compare returns comparable when comparing different error instances', (t) 
   t.is(errorRep1.compare(errorRep2, 'comprehensive'), comparable)
 })
 
-// IterateArrayLike and iterateIterable tests
-test('iterateArrayLike yields no elements for errors', (t) => {
-  const context = new RealValueContext()
-  const error = new Error('Test error')
-  const errorRep = context.represent(error) as ErrorRepresentation
-
-  const elements = [...errorRep.iterateArrayLike()]
-
-  t.is(elements.length, 0)
-})
-
-test('iterateIterable yields no elements for errors', (t) => {
-  const context = new RealValueContext()
-  const error = new Error('Test error')
-  const errorRep = context.represent(error) as ErrorRepresentation
-
-  const iterables = [...errorRep.iterateIterable()]
-
-  t.is(iterables.length, 0)
-})
-
 // IterateProperties test
 test('iterateProperties yields name and message properties for errors', (t) => {
   const context = new RealValueContext()

@@ -114,27 +114,6 @@ test('compare handles invalid dates correctly', (t) => {
   t.is(invalidDateRep1.compare(validDateRep, 'comprehensive'), unequal)
 })
 
-// IterateArrayLike and iterateIterable tests
-test('iterateArrayLike yields no elements for dates', (t) => {
-  const context = new RealValueContext()
-  const date = firstCommitDate
-  const dateRep = context.represent(date) as DateRepresentation
-
-  const elements = [...dateRep.iterateArrayLike()]
-
-  t.is(elements.length, 0)
-})
-
-test('iterateIterable yields no elements for dates', (t) => {
-  const context = new RealValueContext()
-  const date = firstCommitDate
-  const dateRep = context.represent(date) as DateRepresentation
-
-  const iterables = [...dateRep.iterateIterable()]
-
-  t.is(iterables.length, 0)
-})
-
 // Serialization tests
 test('serialize uses date static type and includes valueOf annotation', (t) => {
   const context = new RealValueContext()

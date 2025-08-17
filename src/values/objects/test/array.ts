@@ -152,13 +152,13 @@ test('length property returns correct array length', (t) => {
   t.is(emptyArrayRep.length, 0)
 })
 
-// IterateArrayLike tests
-test('iterateArrayLike yields elements for dense arrays', (t) => {
+// IterateElements tests
+test('iterateElements yields elements for dense arrays', (t) => {
   const context = new RealValueContext()
   const array = [1, 2, 3]
   const arrayRep = context.represent(array) as ArrayRepresentation
 
-  const elements = [...arrayRep.iterateArrayLike()]
+  const elements = [...arrayRep.iterateElements()]
 
   t.is(elements.length, 3)
   t.true(elements[0] instanceof ElementAccessor)
@@ -166,7 +166,7 @@ test('iterateArrayLike yields elements for dense arrays', (t) => {
   t.true(elements[2] instanceof ElementAccessor)
 })
 
-test('iterateArrayLike handles sparse arrays', (t) => {
+test('iterateElements handles sparse arrays', (t) => {
   const context = new RealValueContext()
   // Create a sparse array with holes
   const sparseArray: any[] = []
@@ -176,7 +176,7 @@ test('iterateArrayLike handles sparse arrays', (t) => {
 
   const arrayRep = context.represent(sparseArray) as ArrayRepresentation
 
-  const elements = [...arrayRep.iterateArrayLike()]
+  const elements = [...arrayRep.iterateElements()]
 
   // Should have 4 elements (including sparse ones)
   t.is(elements.length, 4)

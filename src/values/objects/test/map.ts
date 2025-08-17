@@ -129,20 +129,6 @@ test('compare returns comparable when comparing against subclass instances in fu
   t.is(mapRep1.compare(mapRep2, 'fuzzy'), comparable)
 })
 
-// IterateArrayLike test
-test('iterateArrayLike yields no elements for maps', (t) => {
-  const context = new RealValueContext()
-  const map = new Map([
-    ['key1', 'value1'],
-    ['key2', 'value2'],
-  ])
-  const mapRep = context.represent(map) as MapRepresentation
-
-  const elements = [...mapRep.iterateArrayLike()]
-
-  t.is(elements.length, 0)
-})
-
 // IterateIterable test
 test('iterateIterable yields entries for maps', (t) => {
   const context = new RealValueContext()

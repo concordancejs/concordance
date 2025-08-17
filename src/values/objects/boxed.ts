@@ -32,6 +32,10 @@ export class BoxedPrimitiveRepresentation extends ObjectRepresentation implement
     this.#value = value
   }
 
+  override get isArrayLike() {
+    return false
+  }
+
   override compare(other: ValueRepresentation, mode: Mode) {
     if (!(#value in other)) return unequal
     if (this.#value === other.#value) return strictlyEqual
@@ -53,9 +57,5 @@ export class BoxedPrimitiveRepresentation extends ObjectRepresentation implement
     super.serialize(encoder, staticTypeTable.boxedPrimitive)
     this.#primitive.serializeShallow(encoder)
     return partialRequiringTerminator
-  }
-
-  override *iterateArrayLike() {
-    // No-op
   }
 }

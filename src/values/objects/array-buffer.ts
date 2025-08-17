@@ -41,14 +41,6 @@ export class ArrayBufferRepresentation extends ObjectRepresentation implements D
     return super.compare(other, mode)
   }
 
-  override *iterateArrayLike() {
-    // No-op
-  }
-
-  override *iterateIterable() {
-    // No-op
-  }
-
   override *iterateProperties() {
     // For ArrayBuffers, this yields maxByteLength and resizable.
     // For SharedArrayBuffers, this yields maxByteLength and growable.

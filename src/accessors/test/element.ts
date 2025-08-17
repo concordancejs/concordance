@@ -366,7 +366,7 @@ test('ElementAccessor - groupForComparison fully deserializes its accessor', (t)
   const context = new DeserializationContext(decoder)
 
   const arrayRep = context.next() as ArrayRepresentation
-  const iterator = arrayRep.iterateArrayLike()
+  const iterator = arrayRep.iterateElements()
   const { value: accessor } = iterator.next() as { value: ValueRepresentation | undefined }
   if (!accessor || !ElementAccessor.is(accessor) || !('groupForComparison' in accessor)) {
     t.fail('Expected first element to be an ElementAccessor with groupForComparison method')

@@ -44,6 +44,14 @@ test('deserialize creates a comparable FunctionRepresentation', (t) => {
   t.is(original.compare(deserialized, 'comprehensive'), comparable)
 })
 
+// Never array-like
+test('isArrayLike returns false for FunctionRepresentation', (t) => {
+  const context = new RealValueContext()
+  const func = namedFunction
+  const funcRep = context.represent(func) as FunctionRepresentation
+  t.false(funcRep.isArrayLike)
+})
+
 // Compare method tests
 test('compare returns strictlyEqual when comparing the same function instance', (t) => {
   const context = new RealValueContext()
@@ -132,27 +140,6 @@ test('compare returns comparable when at least one function is deserialized', (t
 
   // When one is deserialized, they should be comparable
   t.is(newRep.compare(deserialized, 'comprehensive'), comparable)
-})
-
-// IterateArrayLike and iterateIterable tests
-test('iterateArrayLike yields no elements for functions', (t) => {
-  const context = new RealValueContext()
-  const func = namedFunction
-  const funcRep = context.represent(func) as FunctionRepresentation
-
-  const elements = [...funcRep.iterateArrayLike()]
-
-  t.is(elements.length, 0)
-})
-
-test('iterateIterable yields no elements for functions', (t) => {
-  const context = new RealValueContext()
-  const func = namedFunction
-  const funcRep = context.represent(func) as FunctionRepresentation
-
-  const iterables = [...funcRep.iterateIterable()]
-
-  t.is(iterables.length, 0)
 })
 
 // IterateProperties test

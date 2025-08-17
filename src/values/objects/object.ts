@@ -22,7 +22,7 @@ import { Formatter } from '../../formatter.ts'
 export type ObjectAnnotations = {
   a?: true // Is array like
   c?: string // Constructor name; elided in favor of `q` if equal to the string tag
-  l?: number // Length of array-like
+  l?: number // Length of array or array-like
   n?: true // Has null prototype
   o?: true // Has object prototype
   p: number // Pointer
@@ -42,6 +42,7 @@ type UnpackedAnnotations = {
 
 type KnownAnnotations = {
   b?: BytesAccessor // Bytes
+  l?: number // Length of array
   s?: number // Size of map or set
   v?: boolean | number | string // "value of"
 }
@@ -49,9 +50,12 @@ type KnownAnnotations = {
 // This is a sentinel value used to indicate that the annotation is reserved for internal use. Because it's not
 // exported, calling code cannot assign it to the reserved properties.
 const reserved = Symbol('Sentinel value for reserved annotations')
-type Reserved<T> = { [K in keyof Required<T>]?: typeof reserved }
+// eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
+type Reserved<T, Excluded extends keyof any = never> = { [K in Exclude<keyof Required<T>, Excluded>]?: typeof reserved }
 
-export type SerializationAnnotations = Annotations & Reserved<ObjectAnnotations> & KnownAnnotations
+export type SerializationAnnotations = Annotations &
+  Reserved<ObjectAnnotations, keyof KnownAnnotations> &
+  KnownAnnotations
 
 export class ObjectRepresentation implements CommonRepresentation, DeepFunctionality {
   static is(value: Opaque): value is ObjectRepresentation {
@@ -112,6 +116,10 @@ export class ObjectRepresentation implements CommonRepresentation, DeepFunctiona
     return this.#context.pointer(this, this.#value) ?? never()
   }
 
+  get isArrayLike(): boolean {
+    return this.#context.isArrayLike(this.#value)
+  }
+
   compare(other: ValueRepresentation, mode: Mode): Comparison {
     if (!(#value in other)) return unequal
     if (this.#value === other.#value) return strictlyEqual
@@ -142,13 +150,13 @@ export class ObjectRepresentation implements CommonRepresentation, DeepFunctiona
   }
 
   *[Symbol.iterator](): IterableIterator<ValueRepresentation> {
-    yield* this.iterateArrayLike()
+    yield* this.iterateElements()
     yield* this.iterateProperties()
     yield* this.iterateIterable()
   }
 
-  *iterateArrayLike(): IterableIterator<ElementAccessor> {
-    if (!this.#context.isArrayLike(this.#value)) {
+  *iterateElements(): IterableIterator<ElementAccessor> {
+    if (!this.isArrayLike) {
       return
     }
 
@@ -164,7 +172,7 @@ export class ObjectRepresentation implements CommonRepresentation, DeepFunctiona
   }
 
   *iterateIterable(): IterableIterator<IteratorValueAccessor | MapEntryAccessor> {
-    if (this.#context.isArrayLike(this.#value)) {
+    if (this.isArrayLike) {
       return
     }
 
@@ -177,7 +185,7 @@ export class ObjectRepresentation implements CommonRepresentation, DeepFunctiona
     const { empty, maxDepthReached } = formatter
     const stringTag = this.#context.stringTag(this.#value)
     const isNullProto = this.#context.isNullProto(this.#value)
-    const asArray = options?.array === true || this.#context.isArrayLike(this.#value)
+    const asArray = options?.array === true || this.isArrayLike
 
     const includeConstructorName =
       constructorName !== undefined &&
@@ -256,10 +264,11 @@ export class ObjectRepresentation implements CommonRepresentation, DeepFunctiona
     // Pack annotations such that recurring values have a stable prefix, which can be used to optimize compression.
     //
     // Note that the encoder elides undefined values.
-    const a = annotations.b ? undefined : this.#context.isArrayLike(this.#value) || undefined
+    const a = annotations.b ? undefined : this.isArrayLike || undefined
     const c = this.#context.constructorName(this.#value)
     const t = this.#context.stringTag(this.#value)
     const q = c === t ? c : undefined
+    const { l = a && this.#context.length(this.#value), s, v, b, ...remainingAnnotations } = annotations
 
     encoder.staticType(staticType).annotations({
       c: q === undefined ? c : undefined,
@@ -269,11 +278,14 @@ export class ObjectRepresentation implements CommonRepresentation, DeepFunctiona
       o: this.#context.isObjectProto(this.#value) || undefined,
       a,
       // Only insert annotations from the calling code here; they technically could override other properties but the
-      // types disallow that. Calling code should take care to order annotations so contribute to the stable
+      // types disallow that. Calling code should take care to order annotations to contribute to the stable
       // prefix.
-      ...annotations,
+      ...remainingAnnotations,
+      b, // Different for most values, but certain common values could still contribute to a stable prefix.
+      l, // Different for most values, but certain common values could still contribute to a stable prefix.
+      s, // Different for most values, but certain common values could still contribute to a stable prefix.
+      v, // Different for most values, but certain common values could still contribute to a stable prefix.
       p: this.pointer, // Different for most values, so the stable prefix ends after the `p` property.
-      l: a && this.#context.length(this.#value),
     } as Annotations)
     return partialRequiringTerminator
   }

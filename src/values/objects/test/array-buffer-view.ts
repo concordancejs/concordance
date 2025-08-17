@@ -11,6 +11,14 @@ import type { BytesAccessor } from '../../../accessors/bytes.ts'
 import { Formatter } from '../../../formatter.ts'
 import { deriveTheme } from '../../../theme.ts'
 
+// Never array-like
+test('isArrayLike returns false for ArrayBufferViewRepresentation', (t) => {
+  const context = new RealValueContext()
+  const view = new Uint8Array([1, 2, 3, 4])
+  const viewRep = context.represent(view) as ArrayBufferViewRepresentation
+  t.false(viewRep.isArrayLike)
+})
+
 // Compare method tests
 test('compare returns strictlyEqual when comparing the same array buffer view instance', (t) => {
   const context = new RealValueContext()
@@ -145,17 +153,7 @@ test('compare correctly handles empty array buffer views', (t) => {
   t.is(emptyRep1.compare(deserialized, 'comprehensive'), comparable)
 })
 
-// IterateArrayLike and iterateIterable tests
-test('iterateArrayLike yields no elements for array buffer views', (t) => {
-  const context = new RealValueContext()
-  const view = new Uint8Array([1, 2, 3, 4])
-  const viewRep = context.represent(view) as ArrayBufferViewRepresentation
-
-  const elements = [...viewRep.iterateArrayLike()]
-
-  t.is(elements.length, 0)
-})
-
+// IterateIterable tests
 test('iterateIterable yields no elements for array buffer views', (t) => {
   const context = new RealValueContext()
   const view = new Uint8Array([1, 2, 3, 4])

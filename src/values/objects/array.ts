@@ -34,6 +34,10 @@ export class ArrayRepresentation extends ObjectRepresentation {
     return this.#context.length(this.#value)
   }
 
+  override get isArrayLike(): boolean {
+    return false
+  }
+
   override compare(other: ValueRepresentation, mode: Mode) {
     if (!(#value in other)) return unequal
     if (this.#value === other.#value) return strictlyEqual
@@ -53,7 +57,7 @@ export class ArrayRepresentation extends ObjectRepresentation {
     return super.compare(other, mode)
   }
 
-  override *iterateArrayLike() {
+  override *iterateElements() {
     if (DeserializationContext.is(this.#context)) {
       yield* this.#context.iterateElements(this.#value)
       return
@@ -88,6 +92,6 @@ export class ArrayRepresentation extends ObjectRepresentation {
   }
 
   override serialize(encoder: Encoder) {
-    return super.serialize(encoder, staticTypeTable.array)
+    return super.serialize(encoder, staticTypeTable.array, { l: this.#context.length(this.#value) })
   }
 }

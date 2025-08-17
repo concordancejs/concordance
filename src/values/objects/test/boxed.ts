@@ -57,6 +57,14 @@ test('deserialize fails if the primitive value is missing', (t) => {
   })
 })
 
+// Never array-like
+test('isArrayLike returns false for BoxedRepresentation', (t) => {
+  const context = new RealValueContext()
+  const boxed = new String('test')
+  const boxedRep = context.represent(boxed) as BoxedRepresentation
+  t.false(boxedRep.isArrayLike)
+})
+
 // Compare method tests
 test('compare returns strictlyEqual when comparing the same boxed instance', (t) => {
   const context = new RealValueContext()
@@ -138,30 +146,6 @@ test('compare compares different boxed primitive types correctly', (t) => {
   t.is(booleanRep.compare(symbolRep, 'comprehensive'), unequal)
   t.is(booleanRep.compare(bigintRep, 'comprehensive'), unequal)
   t.is(symbolRep.compare(bigintRep, 'comprehensive'), unequal)
-})
-
-// IterateArrayLike test
-test('iterateArrayLike yields no elements for boxed strings (which are array like)', (t) => {
-  const context = new RealValueContext()
-  const boxedString = new String('abc')
-  const boxedStringRep = context.represent(boxedString) as BoxedRepresentation
-
-  const elements = [...boxedStringRep.iterateArrayLike()]
-
-  // Boxed string should have array-like elements for each character
-  t.is(elements.length, 0)
-})
-
-// IterateIterable test
-test('iterateIterable yields no elements for boxed primitives', (t) => {
-  const context = new RealValueContext()
-  const values = createBoxedValues()
-
-  // None of the boxed primitives should have iterable elements
-  for (const value of Object.values(values)) {
-    const boxedRep = context.represent(value) as BoxedRepresentation
-    t.is([...boxedRep.iterateIterable()].length, 0)
-  }
 })
 
 // Serialization tests

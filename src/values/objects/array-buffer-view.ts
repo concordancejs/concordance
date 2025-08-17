@@ -31,6 +31,10 @@ export class ArrayBufferViewRepresentation extends ObjectRepresentation implemen
     return this.#context.representBytes(this.#value)
   }
 
+  override get isArrayLike() {
+    return false
+  }
+
   override compare(other: ValueRepresentation, mode: Mode) {
     if (!(#value in other)) return unequal
     if (this.#value === other.#value) return strictlyEqual
@@ -38,10 +42,6 @@ export class ArrayBufferViewRepresentation extends ObjectRepresentation implemen
 
     // Compare iterated properties (see below) and string tags.
     return super.compare(other, mode)
-  }
-
-  override *iterateArrayLike() {
-    // No-op
   }
 
   override *iterateIterable() {

@@ -114,17 +114,6 @@ test('compare returns comparable when comparing against subclass instances in fu
   t.is(setRep1.compare(setRep2, 'fuzzy'), comparable)
 })
 
-// IterateArrayLike test
-test('iterateArrayLike yields no elements for sets', (t) => {
-  const context = new RealValueContext()
-  const set = new Set(['value1', 'value2'])
-  const setRep = context.represent(set) as SetRepresentation
-
-  const elements = [...setRep.iterateArrayLike()]
-
-  t.is(elements.length, 0)
-})
-
 // IterateIterable test
 test('iterateIterable yields values for sets', (t) => {
   const context = new RealValueContext()

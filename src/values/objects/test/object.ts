@@ -182,7 +182,7 @@ test('compare returns comparable for plain object vs custom class instance in fu
 })
 
 // Array-like objects tests
-test('iterateArrayLike yields elements for array-like objects', (t) => {
+test('isArrayLike returns true for array-like objects', (t) => {
   const arrayLike = {
     0: 'first', // eslint-disable-line @typescript-eslint/naming-convention
     1: 'second', // eslint-disable-line @typescript-eslint/naming-convention
@@ -191,17 +191,29 @@ test('iterateArrayLike yields elements for array-like objects', (t) => {
   const context = new RealValueContext()
   const representation = context.represent(arrayLike) as ObjectRepresentation
 
-  const elements = [...representation.iterateArrayLike()]
+  t.true(representation.isArrayLike)
+})
+
+test('iterateElements yields elements for array-like objects', (t) => {
+  const arrayLike = {
+    0: 'first', // eslint-disable-line @typescript-eslint/naming-convention
+    1: 'second', // eslint-disable-line @typescript-eslint/naming-convention
+    length: 2,
+  }
+  const context = new RealValueContext()
+  const representation = context.represent(arrayLike) as ObjectRepresentation
+
+  const elements = [...representation.iterateElements()]
 
   t.is(elements.length, 2)
 })
 
-test('iterateArrayLike yields no elements for non-array-like objects', (t) => {
+test('iterateElements yields no elements for non-array-like objects', (t) => {
   const object = {}
   const context = new RealValueContext()
   const representation = context.represent(object) as ObjectRepresentation
 
-  const elements = [...representation.iterateArrayLike()]
+  const elements = [...representation.iterateElements()]
 
   t.is(elements.length, 0)
 })
@@ -299,7 +311,7 @@ test('iterateIterable yields no entries for array-like objects even with Symbol.
   t.is(iterables.length, 0)
 
   // Confirm it's recognized as array-like
-  const arrayLikeElements = [...representation.iterateArrayLike()]
+  const arrayLikeElements = [...representation.iterateElements()]
   t.is(arrayLikeElements.length, 2)
 })
 
