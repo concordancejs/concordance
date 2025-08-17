@@ -42,10 +42,6 @@ class MockValueRepresentation implements CommonRepresentation, DeepFunctionality
 
 // Mock Groupable ValueRepresentation for testing groupForComparison
 class MockGroupableRepresentation implements CommonRepresentation, AccessorFunctionality {
-  static is(value: unknown): value is MockGroupableRepresentation {
-    return value instanceof MockGroupableRepresentation
-  }
-
   deserialized = false
   readonly #compareResult: Comparison
   readonly #groupToReturn: MockGroupRepresentation | undefined
@@ -68,11 +64,11 @@ class MockGroupableRepresentation implements CommonRepresentation, AccessorFunct
   }
 
   groupForComparison(takeWhile: TakeWhile, parent: ValueRepresentation, _mode: Mode): GroupRepresentation | undefined {
-    if (MockGroupRepresentation.is(parent)) return undefined
+    if (parent instanceof MockGroupRepresentation) return undefined
     if (!this.#groupToReturn) return undefined
 
     // Take the relevant representations using takeWhile
-    const additionalItems = [...takeWhile((value) => MockGroupableRepresentation.is(value))]
+    const additionalItems = [...takeWhile((value) => value instanceof MockGroupableRepresentation)]
 
     // Add this item and the additional items to the group
     this.#groupToReturn.children = [this, ...additionalItems]
@@ -87,10 +83,6 @@ class MockGroupableRepresentation implements CommonRepresentation, AccessorFunct
 
 // Mock Group representation for testing align functionality
 class MockGroupRepresentation implements GroupRepresentation {
-  static is(value: unknown): value is MockGroupRepresentation {
-    return value instanceof MockGroupRepresentation
-  }
-
   children: MockGroupableRepresentation[]
   deserialized = false
   readonly #compareResult: Comparison
@@ -103,7 +95,10 @@ class MockGroupRepresentation implements GroupRepresentation {
   compare(other?: ValueRepresentation): Comparison {
     // If we're comparing with another MockGroupRepresentation,
     // return unequal if either this or the other has unequal as its result
-    if (MockGroupRepresentation.is(other) && (this.#compareResult === unequal || other.#compareResult === unequal)) {
+    if (
+      other instanceof MockGroupRepresentation &&
+      (this.#compareResult === unequal || other.#compareResult === unequal)
+    ) {
       return unequal
     }
 
