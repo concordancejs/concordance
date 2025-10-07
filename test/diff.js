@@ -71,6 +71,9 @@ test('diffs single line strings', t => {
 
   const actual2 = diff('bar', 'baz')
   t.snapshot(actual2)
+
+  const actual3 = diff('prefix foo suffix', 'prefix bar suffix')
+  t.snapshot(actual3)
 })
 
 test('diffs multiline strings', t => {
@@ -108,6 +111,9 @@ quux`)
 
   const actual9 = diff('foo\nbar\ncorge\nbaz\nqux\nquux\n', 'foo\nbar\nbaz\ngrault\nqux\nquux')
   t.snapshot(actual9)
+
+  const actual10 = diff('foo\nbar-1\nprefix qux suffix\n', 'foo\nbar-2\nprefix quux suffix\n')
+  t.snapshot(actual10)
 })
 
 test('diffs diverging complex types', t => {
