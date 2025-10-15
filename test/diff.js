@@ -5,6 +5,10 @@ const { diff: _diff } = require('../lib/diff')
 
 const { theme, normalizedTheme, checkThemeUsage } = require('./_instrumentedTheme')
 
+const mapArray = arr => arr
+const mapArguments = arr => { let args; (function () { args = arguments })(...arr); return args }
+const mapSet = arr => new Set(arr)
+
 const diff = (actual, expected, { invert } = {}) => _diff(actual, expected, { invert, theme })
 test.after(checkThemeUsage)
 
@@ -122,10 +126,6 @@ test('diffs diverging complex types', t => {
 })
 
 {
-  const mapArray = arr => arr
-  const mapArguments = arr => { let args; (function () { args = arguments })(...arr); return args }
-  const mapSet = arr => new Set(arr)
-
   const equalLength = (t, map) => {
     const actual1 = diff(map([1, 2, 4]), map([1, 3, 4]))
     t.snapshot(actual1)
@@ -207,6 +207,42 @@ test('diffs diverging complex types', t => {
   test('detects missing array items', missing, mapArray)
   test('detects missing arguments items', missing, mapArguments)
   test('detects missing set items', missing, mapSet)
+}
+
+{
+  // Diff an arraylike against all varieties of three-item removals at head/middle/tail position.
+  const base = ['foo', 'bar', 'baz', 'qux', 'corge', 'grault', 'garply']
+  const knockouts = [
+    ...['HHH', 'MMM', 'TTT'], // one single block
+    ...['HH M', 'H MM', 'HH T', 'H TT', 'MM T', 'M TT'], // two separate blocks
+    ...['H M M', 'H M T', 'M M M', 'M M T'], // three isolated items
+  ]
+  const withKnockouts = pattern => {
+    const arr = [...base]
+    let i = 0
+    for (const block of pattern.split(' ')) {
+      if (!/^(H+|M+|T+)$/.test(block)) throw new Error(`Invalid pattern: ${pattern}`)
+      if (block[0] === 'M') i++
+      else if (block[0] === 'T') i = arr.length - block.length
+      for (let j = 0; j < block.length; j++) arr[i++] = undefined
+    }
+    return arr.filter(x => x !== undefined)
+  }
+
+  const testAllKnockouts = (t, map) => {
+    for (const pattern of knockouts) {
+      const arr = withKnockouts(pattern)
+
+      const result1 = diff(map(arr), map(base))
+      t.snapshot(result1, `actual knockouts ${pattern} vs. expect base`)
+
+      const result2 = diff(map(base), map(arr))
+      t.snapshot(result2, `actual base vs. expect knockouts ${pattern}`)
+    }
+  }
+  test('detects all array item knockouts', testAllKnockouts, mapArray)
+  test('detects all arguments item knockouts', testAllKnockouts, mapArguments)
+  test('detects all set item knockouts', testAllKnockouts, mapSet)
 }
 
 test('detects extraneous name properties', t => {
