@@ -104,6 +104,17 @@ test('escapes backticks in multi-line strings with the default theme', t => {
   t.snapshot(_format('`\n'), 'should be escaped')
 })
 
+test('escapes invisible and ambiguous characters in one-line strings', t => {
+  t.is(_format('a\u200Db'), "'a\\u200db'")
+  t.is(_format('a\u00A0b'), "'a\\u00a0b'")
+  t.is(_format('a\tb'), "'a\\tb'")
+})
+
+test('escapes invisible and ambiguous characters in keys', t => {
+  t.is(_format({ ['a\u200Db']: 1 }), "{\n  'a\\u200db': 1,\n}")
+  t.is(_format({ ['a\u00A0b']: 1 }), "{\n  'a\\u00a0b': 1,\n}")
+})
+
 test('formats a simple object', t => {
   const obj = { foo: 'bar', baz: 'qux' }
   const actual = format(obj)
