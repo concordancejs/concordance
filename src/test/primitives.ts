@@ -24,7 +24,7 @@ test('isPrimitive identifies primitive values correctly', (t) => {
   t.true(isPrimitive('string'))
   t.true(isPrimitive(''))
   t.true(isPrimitive(Symbol('test')))
-  t.true(isPrimitive(BigInt(123)))
+  t.true(isPrimitive(123n))
 
   // Non-primitive values
   t.false(isPrimitive({}))
@@ -89,13 +89,13 @@ test('representPrimitive returns correct representation for numbers', (t) => {
 test('representPrimitive returns correct representation for bigints', (t) => {
   const context = new RealValueContext()
 
-  const bigInt = representPrimitive(context, BigInt(123))
+  const bigInt = representPrimitive(context, 123n)
   t.true(bigInt instanceof BigIntRepresentation)
 
-  const zeroBigInt = representPrimitive(context, BigInt(0))
+  const zeroBigInt = representPrimitive(context, 0n)
   t.true(zeroBigInt instanceof BigIntRepresentation)
 
-  const negativeBigInt = representPrimitive(context, BigInt(-9_007_199_254_740_991))
+  const negativeBigInt = representPrimitive(context, -9_007_199_254_740_991n)
   t.true(negativeBigInt instanceof BigIntRepresentation)
 })
 

@@ -32,7 +32,7 @@ export class Stack<Fields extends OptionalFields = OptionalFields> {
 
     this.#values.set(representation, this.#values.size + 1)
 
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions, @typescript-eslint/no-unsafe-type-assertion
     const entry = {
       representation,
       ...fields,
@@ -111,7 +111,7 @@ export class Stack<Fields extends OptionalFields = OptionalFields> {
 
   get takeWhile(): TakeWhile {
     const { top: expectedTop = never('Stack is empty') } = this
-    return this.#takeWhile.bind(this, expectedTop) as TakeWhile
+    return this.#takeWhile.bind(this, expectedTop) as TakeWhile // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
   }
 }
 

@@ -1,14 +1,11 @@
 {
-  "extends": "@sindresorhus/tsconfig",
   "compilerOptions": {
     "allowImportingTsExtensions": true,
-    "module": "nodenext",
-    "outDir": "dist",
-    "rewriteRelativeImportExtensions": true,
     "erasableSyntaxOnly": true,
+    "outDir": "dist",
+    "rootDir": "./src",
+    "rewriteRelativeImportExtensions": true,
     "types": ["node"],
-    "lib": ["esnext"],
-    "target": "es2024",
     "verbatimModuleSyntax": true
   }
 }

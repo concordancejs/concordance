@@ -1,10 +1,11 @@
 import { unequal, type Mode } from '../../comparison.ts'
+import type { Context } from '../../context'
 import type { Decoder } from '../../decoder.ts'
 import type { DeserializationContext } from '../../deserialization-context.ts'
 import type { Encoder } from '../../encoder.ts'
 import type { Formatter } from '../../formatter.ts'
 import { staticTypeTable } from '../../serialization-types.ts'
-import type { FinalFormatOptions, ValueRepresentation } from '../../value.d.ts'
+import type { FinalFormatOptions, Opaque, ValueRepresentation } from '../../value.d.ts'
 import { ObjectRepresentation, type ObjectAnnotations } from '../objects/object.ts'
 
 const includeProperties = { include: ['type', 'extractable', 'algorithm', 'usages'] }
@@ -15,10 +16,17 @@ export class CryptoKeyRepresentation extends ObjectRepresentation {
     return new this(context, this.unpackAnnotations(objectAnnotations))
   }
 
-  readonly #stamp: undefined
+  readonly #context: Context
+  readonly #value: Opaque
+
+  constructor(context: Context, value: Opaque) {
+    super(context, value)
+    this.#context = context
+    this.#value = value
+  }
 
   override acceptsComparisonFrom(other: ValueRepresentation) {
-    return #stamp in other
+    return #context in other
   }
 
   override compare(other: ValueRepresentation, mode: Mode) {
@@ -28,12 +36,13 @@ export class CryptoKeyRepresentation extends ObjectRepresentation {
       return super.compare(other, mode)
     }
 
-    if (!(#stamp in other)) return unequal
+    if (!(#context in other)) return unequal
     return super.compare(other, mode)
   }
 
   override *iterateProperties() {
-    yield* super.iterateProperties(includeProperties)
+    // Only include properties relevant to the CryptoKey interface, not symbols specific to Node.js.
+    yield* this.#context.namedProperties(this.#value, includeProperties)
   }
 
   override finalFormat(formatter: Formatter, options?: FinalFormatOptions) {

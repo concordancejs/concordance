@@ -264,7 +264,7 @@ function injectNameProperty(context: RealValueContext, funcRep: FunctionRepresen
 
   // Inject the name property into the internal state by calling the callback directly
   // The callback is stored in the third argument of the notifyNextExplicitlyNamedPropertyAccess call
-  const callback = notifyNextExplicitlyNamedPropertyAccess.calls[0]!.arguments[2]
+  const callback = notifyNextExplicitlyNamedPropertyAccess.calls[0].arguments[2]
   callback(nameProperty, nameValue)
 
   return nameProperty

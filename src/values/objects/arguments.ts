@@ -6,8 +6,8 @@ import { staticTypeTable } from '../../serialization-types.ts'
 import type { Context } from '../../context.d.ts'
 import type { FinalFormatOptions, Opaque, ValueRepresentation } from '../../value.d.ts'
 import type { Formatter } from '../../formatter.ts'
-import { ObjectRepresentation, type ObjectAnnotations } from './object.ts'
 import type { ElementAccessor } from '../../accessors/element.ts'
+import { ObjectRepresentation, type ObjectAnnotations } from './object.ts'
 
 export class ArgumentsRepresentation extends ObjectRepresentation {
   static override deserialize(context: DeserializationContext, decoder: Decoder): ArgumentsRepresentation {

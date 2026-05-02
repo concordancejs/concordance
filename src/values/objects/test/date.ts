@@ -57,7 +57,7 @@ test('compare returns unequal when comparing to non-DateRepresentation', (t) => 
 test('compare returns comparable when comparing to a subclass instance in fuzzy mode', (t) => {
   const context = new RealValueContext()
   const date = firstCommitDate
-  class CustomDate extends Date {}
+  class CustomDate extends Date {} // eslint-disable-line @stylistic/curly-newline
   const customDate = new CustomDate(date.getTime())
 
   const dateRep = context.represent(date) as DateRepresentation

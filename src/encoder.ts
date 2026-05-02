@@ -20,10 +20,12 @@ export class Encoder {
     avoidInts: false,
     cde: false,
     collapseBigInts: true,
+    dateTag: 1,
     dcbor: false,
     float64: false,
     flushToZero: false,
     forceEndian: false, // Default to big-endian.
+    ignoreGlobalTags: true,
     ignoreOriginalEncoding: true,
     largeNegativeAsBigInt: false,
     reduceUnsafeNumbers: false,

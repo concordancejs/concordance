@@ -44,7 +44,7 @@ export function representPrimitive(context: RealValueContext, value: unknown): P
     }
 
     case 'symbol': {
-      return new SymbolRepresentation(context, value as unknown as Opaque)
+      return new SymbolRepresentation(context, value as unknown as Opaque) // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
     }
 
     case 'undefined': {

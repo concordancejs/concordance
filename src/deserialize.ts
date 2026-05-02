@@ -32,7 +32,7 @@ export function deserialize(bytes: Uint8Array, options?: DeserializeOptions): Va
     const version = decoder.int()
     if (version !== expectedVersion) throw new UnsupportedVersion(version)
   } catch {
-    throw new UnsupportedVersion(bytes[0]!)
+    throw new UnsupportedVersion(bytes[0])
   }
 
   return new DeserializationContext(decoder, options).next() ?? never('No value was deserialized')

@@ -58,7 +58,7 @@ test('int writes an integer', (t) => {
 test('bigInt writes bigints correctly', (t) => {
   // Test small bigint (which is represented as a regular integer)
   const encoder1 = new Encoder()
-  const smallBigIntValue = BigInt(42)
+  const smallBigIntValue = 42n
   encoder1.bigInt(smallBigIntValue)
 
   const bytes1 = encoder1.bytes
@@ -84,13 +84,13 @@ test('boolean writes a boolean', (t) => {
 
   const bytes1 = encoder1.bytes
   const decoded1 = decodeCbor(bytes1)
-  t.is(decoded1, true)
+  t.true(decoded1)
 
   const encoder2 = new Encoder()
   encoder2.boolean(false)
   const bytes2 = encoder2.bytes
   const decoded2 = decodeCbor(bytes2)
-  t.is(decoded2, false)
+  t.false(decoded2)
 })
 
 test('number writes integers as ints and non-integers as floats', (t) => {
@@ -157,7 +157,7 @@ test('annotations writes a map of annotations', (t) => {
   t.true(decoded instanceof Map)
   t.is(decoded.get('name'), 'test')
   t.is(decoded.get('value'), 42)
-  t.is(decoded.get('flag'), true)
+  t.true(decoded.get('flag'))
   t.false(decoded.has('optional'))
 })
 
@@ -204,5 +204,5 @@ test('methods can be chained with correct CBOR encoding', (t) => {
   t.is(values.length, 3)
   t.is(values[0], 1)
   t.is(values[1], 'test')
-  t.is(values[2], true)
+  t.true(values[2])
 })

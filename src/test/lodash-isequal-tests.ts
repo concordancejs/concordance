@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable prefer-rest-params */
@@ -249,7 +250,7 @@ test('compare objects regardless of key order', (t) => {
 })
 
 test('compare nested objects', (t) => {
-  const noop = () => {}
+  const noop = () => {} // eslint-disable-line @stylistic/curly-newline
 
   const object1 = {
     a: [1, 2, 3],
@@ -286,14 +287,14 @@ test('compare object instances', (t) => {
   class Foo {
     a = 1
     constructor() {
-      this.a = 1
+      this.a = 1 // eslint-disable-line unicorn/prefer-class-fields
     }
   }
 
   class Bar {
     a = 2
     constructor() {
-      this.a = 1
+      this.a = 1 // eslint-disable-line unicorn/prefer-class-fields
     }
   }
 
@@ -448,10 +449,7 @@ test('compare objects with shared property values', (t) => {
 
 test('treat objects created by `Object.create(null)` like plain objects', (t) => {
   class Foo {
-    a: number
-    constructor() {
-      this.a = 1
-    }
+    a = 1
   }
   // @ts-expect-error Doing it anyway
   Foo.prototype.constructor = null
@@ -528,7 +526,7 @@ test('compare array views', (t) => {
   const namespaces = [globalThis, realm]
   for (const ns of namespaces) {
     for (const [viewIndex, type] of arrayViews.entries()) {
-      const otherType = arrayViews[(viewIndex + 1) % arrayViews.length]!
+      const otherType = arrayViews[(viewIndex + 1) % arrayViews.length]
       const CtorA = ns[type]
       const CtorB = ns[otherType]
       const bufferA = new ns.ArrayBuffer(8)
@@ -569,7 +567,7 @@ test('compare error objects', (t) => {
   const errorTypes = ['Error', 'EvalError', 'RangeError', 'ReferenceError', 'SyntaxError', 'TypeError', 'URIError']
 
   for (let [index, type] of errorTypes.entries()) {
-    const otherType = errorTypes[++index % errorTypes.length]!
+    const otherType = errorTypes[++index % errorTypes.length]
     const CtorA = (globalThis as any)[type]
     const CtorB = (globalThis as any)[otherType]
 

@@ -79,6 +79,7 @@ class IterationState {
     return this.#valueAccessors
   }
 
+  // eslint-disable-next-line @typescript-eslint/related-getter-setter-pairs
   get lastAspect(): AspectType | undefined {
     return this.#lastAspect
   }
@@ -359,19 +360,19 @@ export class DeserializationContext implements Context {
   }
 
   describeSymbol(value: Opaque): DescribedSymbol {
-    return value as DescribedSymbol
+    return value as DescribedSymbol // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
   }
 
   isArrayLike(value: Opaque): boolean {
-    return (value as { isArrayLike: boolean }).isArrayLike
+    return (value as { isArrayLike: boolean }).isArrayLike // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
   }
 
   isNullProto(value: Opaque): boolean {
-    return (value as { isNullProto: boolean }).isNullProto
+    return (value as { isNullProto: boolean }).isNullProto // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
   }
 
   isObjectProto(value: Opaque): boolean {
-    return (value as { isObjectProto: boolean }).isObjectProto
+    return (value as { isObjectProto: boolean }).isObjectProto // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
   }
 
   *iterateElements(value: Opaque): IterableIterator<ElementAccessor> {
@@ -629,7 +630,7 @@ export class DeserializationContext implements Context {
   }
 
   length(value: Opaque): number {
-    return (value as { length: number }).length
+    return (value as { length: number }).length // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
   }
 
   pointer(_: ValueRepresentation, value: Opaque): number | undefined {
@@ -637,11 +638,11 @@ export class DeserializationContext implements Context {
   }
 
   representBytes(value: Opaque): BytesAccessor {
-    return (value as { bytes: BytesAccessor }).bytes
+    return (value as { bytes: BytesAccessor }).bytes // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
   }
 
   size(value: Opaque): number {
-    return (value as { size: number }).size
+    return (value as { size: number }).size // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
   }
 
   stringTag(value: Opaque): string | undefined {

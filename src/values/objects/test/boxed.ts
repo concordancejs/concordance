@@ -18,7 +18,7 @@ function createBoxedValues() {
     string: new String('test'),
     boolean: new Boolean(true),
     symbol: new Object(Symbol('test')),
-    bigint: new Object(BigInt(42)),
+    bigint: new Object(42n),
   }
 }
 
@@ -91,7 +91,7 @@ test('compare returns unequal when comparing to non-BoxedRepresentation', (t) =>
 test('compare returns comparable when comparing a boxed string with a subclass instance in fuzzy mode', (t) => {
   const context = new RealValueContext()
   const boxedString = new String('test')
-  class SubString extends String {}
+  class SubString extends String {} // eslint-disable-line @stylistic/curly-newline
   const subString = new SubString('test')
 
   const boxedRep = context.represent(boxedString) as BoxedRepresentation

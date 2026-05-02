@@ -285,13 +285,15 @@ export class ObjectRepresentation implements CommonRepresentation, DeepFunctiona
       // Only insert annotations from the calling code here; they technically could override other properties but the
       // types disallow that. Calling code should take care to order annotations to contribute to the stable
       // prefix.
-      ...remainingAnnotations,
+      // Cast to Omit<…, keyof ObjectAnnotations> so TypeScript knows the spread cannot contribute reserved
+      // ObjectAnnotations keys (a, c, n, o, p, q, t), which are handled explicitly above/below.
+      ...(remainingAnnotations as Omit<typeof remainingAnnotations, keyof ObjectAnnotations>),
       b, // Different for most values, but certain common values could still contribute to a stable prefix.
       l, // Different for most values, but certain common values could still contribute to a stable prefix.
       s, // Different for most values, but certain common values could still contribute to a stable prefix.
       v, // Different for most values, but certain common values could still contribute to a stable prefix.
       p: this.pointer, // Different for most values, so the stable prefix ends after the `p` property.
-    } as Annotations)
+    } satisfies Annotations)
     return partialRequiringTerminator
   }
 }

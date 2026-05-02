@@ -33,18 +33,18 @@ const isValidInput = (input: unknown): input is Record<string, unknown> => {
  * the disabled state.
  */
 export function deriveFlags(input?: unknown): Readonly<Flags> {
-  const normalized = { ...disabledFlags }
+  const normalized: Record<string, unknown> = { ...disabledFlags }
 
   if (!isValidInput(input)) {
-    return Object.freeze(normalized)
+    return Object.freeze(normalized) as Readonly<Flags> // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
   }
 
   // Only copy valid flag properties with matching types
-  for (const key of Object.keys(flags) as Array<keyof Flags>) {
-    if (key in input && typeof input[key] === typeof flags[key]) {
-      normalized[key] = input[key] as Flags[typeof key]
+  for (const [key, defaultValue] of Object.entries(flags)) {
+    if (key in input && typeof input[key] === typeof defaultValue) {
+      normalized[key] = input[key]
     }
   }
 
-  return Object.freeze(normalized)
+  return Object.freeze(normalized) as Readonly<Flags> // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
 }

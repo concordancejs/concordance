@@ -172,8 +172,8 @@ function injectProperties(context: RealValueContext, regexp: RegExp, representat
 
   // Inject the flags and source properties into the internal state
   // Get the callbacks from the notifyNextExplicitlyNamedPropertyAccess calls and invoke them
-  const flagsCallback = notifyNextExplicitlyNamedPropertyAccess.calls[0]!.arguments[2]
-  const sourceCallback = notifyNextExplicitlyNamedPropertyAccess.calls[1]!.arguments[2]
+  const flagsCallback = notifyNextExplicitlyNamedPropertyAccess.calls[0].arguments[2]
+  const sourceCallback = notifyNextExplicitlyNamedPropertyAccess.calls[1].arguments[2]
 
   flagsCallback(flagsProperty, flagsValue)
   sourceCallback(sourceProperty, sourceValue)

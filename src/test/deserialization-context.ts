@@ -465,7 +465,7 @@ test(
   },
   (t, elements) => {
     t.is(
-      elements[1]!.compare(new ElementAccessor(1, new SparseValueRepresentation()), 'comprehensive'),
+      elements[1].compare(new ElementAccessor(1, new SparseValueRepresentation()), 'comprehensive'),
       strictlyEqual,
       '2nd element should be sparse',
     )
@@ -549,7 +549,7 @@ test(
 
     for (const [i, property] of properties.entries()) {
       t.is(
-        property.compare(expectedProperties[i]!, 'comprehensive'),
+        property.compare(expectedProperties[i], 'comprehensive'),
         strictlyEqual,
         `Property at index ${i} should match expected value`,
       )
@@ -1119,7 +1119,7 @@ test(
 
     for (const [i, entry] of entries.entries()) {
       t.is(
-        entry.compare(expectedEntries[i]!, 'comprehensive'),
+        entry.compare(expectedEntries[i], 'comprehensive'),
         strictlyEqual,
         `Entry at index ${i} should match expected value`,
       )
@@ -1343,7 +1343,7 @@ test(
 
     for (const [i, value] of values.entries()) {
       t.is(
-        value.compare(expectedValues[i]!, 'comprehensive'),
+        value.compare(expectedValues[i], 'comprehensive'),
         strictlyEqual,
         `Value at index ${i} should match expected value`,
       )
@@ -1571,7 +1571,7 @@ test(typeDeserializationMacro, 'number (float)', 3.14, strictlyEqual)
 test(typeDeserializationMacro, 'number (NaN)', Number.NaN, strictlyEqual)
 test(typeDeserializationMacro, 'number (Infinity)', Infinity, strictlyEqual)
 test(typeDeserializationMacro, 'number (negative zero)', -0, strictlyEqual)
-test(typeDeserializationMacro, 'bigint', BigInt('9007199254740991'), strictlyEqual)
+test(typeDeserializationMacro, 'bigint', 9_007_199_254_740_991n, strictlyEqual)
 test(typeDeserializationMacro, 'string', 'hello world', strictlyEqual)
 test(typeDeserializationMacro, 'well-known symbol', Symbol.iterator, strictlyEqual)
 test(typeDeserializationMacro, 'registered symbol', Symbol.for('test'), strictlyEqual)
@@ -1731,8 +1731,8 @@ test('notifyNextExplicitlyNamedPropertyAccess - basic functionality and argument
   t.is(callback.mock.callCount(), 1, 'Callback should be called once')
 
   // Verify callback arguments
-  const [accessor, value] = callback.mock.calls[0]!.arguments
-  t.is(accessor, properties[0]!, 'Correct accessor passed to callback')
+  const [accessor, value] = callback.mock.calls[0].arguments
+  t.is(accessor, properties[0], 'Correct accessor passed to callback')
   t.is(
     value.compare(new StringRepresentation('test'), 'comprehensive'),
     strictlyEqual,

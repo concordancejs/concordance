@@ -24,7 +24,7 @@ type ThemePathProperties<P extends WrappableThemePath> = keyof Theme[P] & string
 
 export class Formatter {
   static readonly lineMarker: typeof lineMarker = lineMarker
-  static readonly #indentations = Object.create(null) as Record<number, string>
+  static readonly #indentations = Object.create(null) as Record<number, string> // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
 
   readonly #accumulator: Array<AccumulatedValue | Iterable<AccumulatedValue>> = []
   readonly #depth: number
@@ -168,11 +168,11 @@ export class Formatter {
 
       // Use \u notation for BMP characters (0-FFFF)
       if (codePoint <= 0xff_ff) {
-        return `\\u${codePoint.toString(16).padStart(4, '0')}`
+        return String.raw`\u${codePoint.toString(16).padStart(4, '0')}`
       }
 
       // Use \u{...} notation for astral symbols
-      return `\\u{${codePoint.toString(16)}}`
+      return String.raw`\u{${codePoint.toString(16)}}`
     })
   }
 
@@ -236,7 +236,7 @@ export class Formatter {
         default: {
           // Handle other control characters and non-visible characters. This also escapes ␛ which is
           // reserved for replacing the corresponding control character.
-          return `\\u${codePoint.toString(16).padStart(4, '0')}`
+          return String.raw`\u${codePoint.toString(16).padStart(4, '0')}`
         }
       }
     })
@@ -261,7 +261,7 @@ export class Formatter {
     closeProperty?: C,
   ): string {
     const { [openProperty ?? 'open']: open, [closeProperty ?? 'close']: close } = this.#theme[themePath]
-    return `${open as string}${value}${close as string}`
+    return `${open as string}${value}${close as string}` // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
   }
 
   appendWrapped<P extends OpenCloseThemePath>(
@@ -283,7 +283,7 @@ export class Formatter {
     closeProperty?: C,
   ): this {
     const { [openProperty ?? 'open']: open, [closeProperty ?? 'close']: close } = this.#theme[themePath]
-    return this.append(`${open as string}${value}${close as string}`)
+    return this.append(`${open as string}${value}${close as string}`) // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
   }
 
   prefixWrapped<P extends OpenCloseThemePath>(
@@ -305,7 +305,7 @@ export class Formatter {
     closeProperty?: C,
   ): this {
     const { [openProperty ?? 'open']: open, [closeProperty ?? 'close']: close } = this.#theme[themePath]
-    return this.prefix(`${open as string}${value}${close as string}`)
+    return this.prefix(`${open as string}${value}${close as string}`) // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
   }
 
   render(): string {

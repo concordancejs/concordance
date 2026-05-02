@@ -36,7 +36,7 @@ export class Decoder {
         return never('Unexpected bigint')
       }
 
-      return value as number
+      return value as number // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
     }
 
     return never(
@@ -51,7 +51,7 @@ export class Decoder {
     const [majorType, _, value] = boo
     if (majorType !== 0) return
 
-    const type = value as number
+    const type = value as number // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
     return isValidStaticType(type) ? type : undefined
   }
 
@@ -76,7 +76,7 @@ export class Decoder {
         return BigInt(value)
       }
 
-      return value as bigint
+      return value as bigint // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
     }
 
     // Decode bignums; major type 6 and tag 2 for positive values, 3 for negative.
@@ -92,7 +92,7 @@ export class Decoder {
   boolean(): boolean {
     const [majorType, additionalInformation, value] = this.#sequence.read() ?? never()
     if (majorType === 7 && (additionalInformation === 20 || additionalInformation === 21)) {
-      return value as boolean
+      return value as boolean // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
     }
 
     return never(`Expected a boolean, got major type ${majorType} with additional information ${additionalInformation}`)
@@ -105,14 +105,14 @@ export class Decoder {
         return never('Unexpected bigint')
       }
 
-      return value as number
+      return value as number // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
     }
 
     if (
       majorType === 7 &&
       (additionalInformation === 25 || additionalInformation === 26 || additionalInformation === 27)
     ) {
-      return value as number
+      return value as number // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
     }
 
     return never(`Expected a number, got major type ${majorType} with additional information ${additionalInformation}`)
@@ -121,7 +121,7 @@ export class Decoder {
   string(): string {
     const [majorType, additionalInformation, value] = this.#sequence.read() ?? never()
     if (majorType === 3 && additionalInformation !== 31) {
-      return value as string
+      return value as string // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
     }
 
     if (majorType === 6 && value === 273) {
@@ -137,7 +137,7 @@ export class Decoder {
   uint8Array(): Uint8Array {
     const [majorType, additionalInformation, value] = this.#sequence.read() ?? never()
     if (majorType === 2 && additionalInformation !== 31) {
-      return value as Uint8Array
+      return value as Uint8Array // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
     }
 
     return never(
@@ -153,8 +153,8 @@ export class Decoder {
       )
     }
 
-    const result = {} as unknown as T
-    const length = value as number
+    const result = {} as unknown as T // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
+    const length = value as number // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
     for (let i = 0; i < length; i++) {
       const key = this.string() as keyof T
       const [majorType, additionalInformation] = this.#sequence.peek() ?? never()
@@ -194,7 +194,7 @@ export class Decoder {
         }
       }
 
-      result[key] = (value as T[keyof T]) ?? never()
+      result[key] = (value as T[keyof T]) ?? never() // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
     }
 
     return result

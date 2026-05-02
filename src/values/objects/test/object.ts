@@ -144,11 +144,11 @@ test('unpackAnnotations correctly unpacks object annotations', (t) => {
 
   const unpacked = ObjectRepresentation.unpackAnnotations(annotations)
 
-  t.is(unpacked.isArrayLike, true)
+  t.true(unpacked.isArrayLike)
   t.is(unpacked.constructorName, 'TestClass')
   t.is(unpacked.length, 5)
-  t.is(unpacked.isNullProto, true)
-  t.is(unpacked.isObjectProto, false)
+  t.true(unpacked.isNullProto)
+  t.false(unpacked.isObjectProto)
   t.is(unpacked.pointer, 123)
   t.is(unpacked.stringTag, 'CustomTag')
 })
@@ -389,8 +389,8 @@ test('iterateProperties yields properties', (t) => {
   const properties = [...representation.iterateProperties()]
 
   t.is(properties.length, 2)
-  t.true(NamedPropertyAccessor.is(properties[0]!))
-  t.true(SymbolPropertyAccessor.is(properties[1]!))
+  t.true(NamedPropertyAccessor.is(properties[0]))
+  t.true(SymbolPropertyAccessor.is(properties[1]))
 })
 
 test('iterateProperties ignores non-enumerable properties', (t) => {
@@ -1014,9 +1014,7 @@ test('ObjectRepresentation - fuzzy compare allows array-like objects to compare 
   const context = new RealValueContext()
 
   // Create an array-like object (arguments object simulation)
-  const arrayLikeObject: Record<string | number, unknown> = { length: 2 }
-  arrayLikeObject[0] = 'a'
-  arrayLikeObject[1] = 'b'
+  const arrayLikeObject: Record<string | number, unknown> = { length: 2, 0: 'a', 1: 'b' } // eslint-disable-line @typescript-eslint/naming-convention
 
   // Create a real array
   const realArray = ['a', 'b']

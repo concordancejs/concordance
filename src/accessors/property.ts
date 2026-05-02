@@ -228,7 +228,7 @@ export class NamedPropertyGroup implements CommonRepresentation, GroupFunctional
   }
 
   get deserialized() {
-    return this.#properties[0]?.deserialized === true
+    return Boolean(this.#properties[0]?.deserialized)
   }
 
   align(other: ValueRepresentation, mode: Mode) {
@@ -270,7 +270,7 @@ export class SymbolPropertyGroup implements CommonRepresentation, GroupFunctiona
   }
 
   get deserialized() {
-    return this.#properties[0]?.deserialized === true
+    return Boolean(this.#properties[0]?.deserialized)
   }
 
   align(other: ValueRepresentation, mode: Mode) {

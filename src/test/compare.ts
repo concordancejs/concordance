@@ -688,8 +688,8 @@ test('fuzzy: object properties - no intersection fails', (t) => {
 
 test('fuzzy: class instances - constructor check is bypassed', (t) => {
   class Fruit {
-    name: string // eslint-disable-line @typescript-eslint/parameter-properties
-    color: string // eslint-disable-line @typescript-eslint/parameter-properties
+    name: string
+    color: string
     constructor(name: string, color: string) {
       this.name = name
       this.color = color

@@ -86,7 +86,7 @@ test('registered symbol', serde, Symbol.for('registered'))
 test('undefined', serde, undefined)
 
 // BigInt
-test('bigint', serde, BigInt(42))
+test('bigint', serde, 42n)
 test('large bigint', serde, 1_234_567_890_123_456_789_012_345_678_901_234_567_890n)
 test('large negative bigint', serde, -1_234_567_890_123_456_789_012_345_678_901_234_567_890n)
 
@@ -124,7 +124,7 @@ test('type error', serde, new TypeError('type error'))
 // Test circular references
 test('object with pointer to itself', (t) => {
   const object: Record<string, unknown> = {}
-  object['self'] = object
+  object.self = object
 
   const serialized = serialize(representValue(object))
   const deserialized = deserialize(serialized)

@@ -56,7 +56,7 @@ const { forEach } = Array.prototype
 
 const wellKnownSymbols = new Map<symbol, string>(
   Object.getOwnPropertyNames(Symbol)
-    .map((key: string) => [(Symbol as unknown as Record<string, unknown>)[key], key])
+    .map((key: string) => [(Symbol as unknown as Record<string, unknown>)[key], key]) // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
     .filter((entry): entry is [symbol, string] => typeof entry[0] === 'symbol'),
 )
 
@@ -90,7 +90,7 @@ export class RealValueContext implements Context {
   }
 
   stringTag(value: Opaque) {
-    const tag = (value as Record<symbol, unknown>)[Symbol.toStringTag]
+    const tag = (value as Record<symbol, unknown>)[Symbol.toStringTag] // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
     return typeof tag === 'string' ? tag : undefined
   }
 
@@ -116,7 +116,7 @@ export class RealValueContext implements Context {
       return false
     }
 
-    const { length } = value as { length: unknown }
+    const { length } = value as { length: unknown } // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
     return (
       typeof length === 'number' &&
       Number.isSafeInteger(length) &&
@@ -125,11 +125,11 @@ export class RealValueContext implements Context {
   }
 
   length(value: Opaque) {
-    return (value as { length: number }).length
+    return (value as { length: number }).length // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
   }
 
   size(value: Opaque) {
-    return (value as { size: number }).size
+    return (value as { size: number }).size // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
   }
 
   namedProperties(value: Opaque, excludeInclude?: { exclude?: string[]; include?: string[] }) {
@@ -153,12 +153,12 @@ export class RealValueContext implements Context {
         return Object.getOwnPropertyDescriptor(value, name)?.enumerable ?? false
       })
       .concat(excludeInclude?.include?.filter((name) => Reflect.has(value, name)) ?? []) // eslint-disable-line unicorn/prefer-spread
-      .sort()
+      .toSorted()
 
     const properties: NamedPropertyAccessor[] = []
     const objectNotifiers = this.#namedPropertyNotifiers.get(value)
     for (const name of nameCandidates) {
-      const propertyValue = this.represent((value as Record<string, unknown>)[name])
+      const propertyValue = this.represent((value as Record<string, unknown>)[name]) // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
       const accessor = new NamedPropertyAccessor(name, propertyValue)
       properties.push(accessor)
       if (objectNotifiers && excludeInclude?.include?.includes(name)) {
@@ -203,8 +203,8 @@ export class RealValueContext implements Context {
       .map(
         (symbol) =>
           new SymbolPropertyAccessor(
-            this.represent(symbol) as SymbolRepresentation,
-            this.represent((value as Record<symbol, unknown>)[symbol]),
+            this.represent(symbol) as SymbolRepresentation, // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
+            this.represent((value as Record<symbol, unknown>)[symbol]), // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
           ),
       )
   }
@@ -212,7 +212,7 @@ export class RealValueContext implements Context {
   *iterateElements(value: Opaque) {
     const length = this.length(value)
     for (let index = 0; index < length; index++) {
-      yield new ElementAccessor(index, this.represent((value as Record<number, unknown>)[index]))
+      yield new ElementAccessor(index, this.represent((value as Record<number, unknown>)[index])) // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
     }
   }
 
@@ -222,12 +222,14 @@ export class RealValueContext implements Context {
     }
 
     let index = 0
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
     for (const element of value as Iterable<unknown>) {
       yield new IteratorValueAccessor(index++, this.represent(element))
     }
   }
 
   *iterateMapEntries(value: Opaque) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
     for (const [key, element] of value as Map<unknown, unknown>) {
       yield new MapEntryAccessor(this, this.represent(key), this.represent(element))
     }
@@ -248,7 +250,7 @@ export class RealValueContext implements Context {
   }
 
   describeSymbol(value: Opaque): DescribedSymbol {
-    const symbol = value as unknown as symbol
+    const symbol = value as unknown as symbol // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
     const key = Symbol.keyFor(symbol)
     if (key !== undefined) {
       // This is a registered symbol.
@@ -266,11 +268,11 @@ export class RealValueContext implements Context {
   }
 
   representBytes(value: Opaque) {
-    const buffer = ArrayBuffer.isView(value) ? value.buffer : (value as ArrayBufferLike)
+    const buffer = ArrayBuffer.isView(value) ? value.buffer : (value as ArrayBufferLike) // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
     return new BytesAccessor(
       buffer,
       (value as { byteOffset?: number }).byteOffset ?? 0,
-      (value as ArrayBufferLike).byteLength,
+      (value as ArrayBufferLike).byteLength, // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
     )
   }
 
@@ -332,7 +334,7 @@ export class RealValueContext implements Context {
       return new ArrayBufferViewRepresentation(this, value)
     }
 
-    if (typesUtils.isNativeError(value)) {
+    if (Error.isError(value)) {
       return new ErrorRepresentation(this, value)
     }
 

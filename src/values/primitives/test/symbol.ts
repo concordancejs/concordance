@@ -306,8 +306,8 @@ test('deserialized property delegates to context', (t) => {
   const realContext = new RealValueContext()
   const deserializationContext = new DeserializationContext(new Decoder(new Uint8Array()))
 
-  const realRep = new SymbolRepresentation(realContext, {} as unknown as Record<string, unknown>)
-  const deserializedRep = new SymbolRepresentation(deserializationContext, {} as unknown as Record<string, unknown>)
+  const realRep = new SymbolRepresentation(realContext, {})
+  const deserializedRep = new SymbolRepresentation(deserializationContext, {})
 
   t.false(realRep.deserialized)
   t.true(deserializedRep.deserialized)

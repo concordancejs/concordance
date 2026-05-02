@@ -19,7 +19,7 @@ import { ObjectRepresentation, type ObjectAnnotations } from './object.ts'
 export class BoxedPrimitiveRepresentation extends ObjectRepresentation implements DeepFunctionality {
   static override deserialize(context: DeserializationContext, decoder: Decoder): BoxedPrimitiveRepresentation {
     const objectAnnotations = decoder.annotations<ObjectAnnotations>()
-    const primitive = (context.next() ?? never('No primitive value')) as PrimitiveRepresentation
+    const primitive = (context.next() ?? never('No primitive value')) as PrimitiveRepresentation // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
     return new this(context, this.unpackAnnotations(objectAnnotations), primitive)
   }
 

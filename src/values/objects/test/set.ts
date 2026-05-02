@@ -105,7 +105,7 @@ test('compare returns comparable when comparing different set instances with sam
 test('compare returns comparable when comparing against subclass instances in fuzzy mode', (t) => {
   const context = new RealValueContext()
   const set1 = new Set()
-  class SubSet extends Set {}
+  class SubSet extends Set {} // eslint-disable-line @stylistic/curly-newline
   const set2 = new SubSet()
 
   const setRep1 = context.represent(set1) as SetRepresentation
@@ -127,7 +127,7 @@ test('iterateIterable yields values for sets', (t) => {
 
   // We can't compare directly to string representations
   // Instead, extract the actual value representations from the iterators
-  const values = iteratorValues.map((iteratorValue) => [...iteratorValue][0]!)
+  const values = iteratorValues.map((iteratorValue) => [...iteratorValue][0])
 
   // Each value should be a representation of the corresponding set value
   const stringValue1 = context.represent('value1')
@@ -145,16 +145,10 @@ test('iterateIterable preserves insertion order', (t) => {
   const context = new RealValueContext()
 
   // Create a set with specific insertion order
-  const set = new Set()
-  set.add('value1')
-  set.add('value2')
-  set.add('value3')
+  const set = new Set(['value1', 'value2', 'value3'])
 
   // Create another set with the same values but different insertion order
-  const set2 = new Set()
-  set2.add('value3')
-  set2.add('value1')
-  set2.add('value2')
+  const set2 = new Set(['value3', 'value1', 'value2'])
 
   const setRep = context.represent(set) as SetRepresentation
   const set2Rep = context.represent(set2) as SetRepresentation
@@ -167,8 +161,8 @@ test('iterateIterable preserves insertion order', (t) => {
   t.is(iteratorValues2.length, 3)
 
   // Extract the actual values from the iterators
-  const values = iteratorValues.map((iteratorValue) => [...iteratorValue][0]!)
-  const values2 = iteratorValues2.map((iteratorValue) => [...iteratorValue][0]!)
+  const values = iteratorValues.map((iteratorValue) => [...iteratorValue][0])
+  const values2 = iteratorValues2.map((iteratorValue) => [...iteratorValue][0])
 
   // Create string representations for comparison
   const value1Rep = context.represent('value1')
@@ -176,14 +170,14 @@ test('iterateIterable preserves insertion order', (t) => {
   const value3Rep = context.represent('value3')
 
   // Check first set's order
-  t.is(values[0]!.compare(value1Rep, 'comprehensive'), strictlyEqual) // First is 'value1'
-  t.is(values[1]!.compare(value2Rep, 'comprehensive'), strictlyEqual) // Second is 'value2'
-  t.is(values[2]!.compare(value3Rep, 'comprehensive'), strictlyEqual) // Third is 'value3'
+  t.is(values[0].compare(value1Rep, 'comprehensive'), strictlyEqual) // First is 'value1'
+  t.is(values[1].compare(value2Rep, 'comprehensive'), strictlyEqual) // Second is 'value2'
+  t.is(values[2].compare(value3Rep, 'comprehensive'), strictlyEqual) // Third is 'value3'
 
   // Check second set's order
-  t.is(values2[0]!.compare(value3Rep, 'comprehensive'), strictlyEqual) // First is 'value3'
-  t.is(values2[1]!.compare(value1Rep, 'comprehensive'), strictlyEqual) // Second is 'value1'
-  t.is(values2[2]!.compare(value2Rep, 'comprehensive'), strictlyEqual) // Third is 'value2'
+  t.is(values2[0].compare(value3Rep, 'comprehensive'), strictlyEqual) // First is 'value3'
+  t.is(values2[1].compare(value1Rep, 'comprehensive'), strictlyEqual) // Second is 'value1'
+  t.is(values2[2].compare(value2Rep, 'comprehensive'), strictlyEqual) // Third is 'value2'
 })
 
 test('acceptsComparisonFrom returns true for SetRepresentation', (t) => {

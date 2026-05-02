@@ -501,7 +501,7 @@ test('annotations reads various value types correctly', (t) => {
   t.is(result.str, 'hello')
 
   // Test boolean value
-  t.is(result.bool, true)
+  t.true(result.bool)
 
   // Test float value
   t.is(result.float, 3.14)

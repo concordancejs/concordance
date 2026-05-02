@@ -91,7 +91,7 @@ export function normalizeTheme<T extends ThemeRecord>(root: T): NormalizedTheme<
     }
   }
 
-  return Object.freeze(root) as NormalizedTheme<T>
+  return Object.freeze(root) as NormalizedTheme<T> // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
 }
 
 const defaultTheme = normalizeTheme({

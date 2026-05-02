@@ -1,4 +1,5 @@
 import type { BytesAccessor } from './accessors/bytes.ts'
+import type { ElementAccessor } from './accessors/element.ts'
 import type { IteratorValueAccessor } from './accessors/iterator-value.ts'
 import type { MapEntryAccessor } from './accessors/map-entry.ts'
 import type { NamedPropertyAccessor, SymbolPropertyAccessor } from './accessors/property.ts'

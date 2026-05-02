@@ -228,7 +228,7 @@ test('represent() correctly delegates to representPrimitive for primitive values
   t.is(context.represent(true).constructor, BooleanRepresentation)
   t.is(context.represent(null).constructor, NullRepresentation)
   t.is(context.represent(undefined).constructor, UndefinedRepresentation)
-  t.is(context.represent(BigInt(123)).constructor, BigIntRepresentation)
+  t.is(context.represent(123n).constructor, BigIntRepresentation)
   t.is(context.represent(Symbol('test')).constructor, SymbolRepresentation)
 })
 
@@ -343,7 +343,7 @@ test('uses generic ObjectRepresentation for unknown object types', (t) => {
   CustomClass.prototype = Object.create(null) as Record<string, never>
 
   const instance = new CustomClass() // eslint-disable-line @typescript-eslint/no-unsafe-assignment
-  instance.customProp = 'test'
+  instance.customProp = 'test' // eslint-disable-line @typescript-eslint/no-unsafe-member-access
 
   // This should end up using the fallback case
   const representation = context.represent(instance)
@@ -469,13 +469,13 @@ test('handles circular references', (t) => {
   const context = new RealValueContext()
 
   const object: Record<string, unknown> = {}
-  object['self'] = object
+  object.self = object
 
   const representation = context.represent(object)
 
   // We need a separate object to verify pointer tracking works
   const object2: Record<string, unknown> = {}
-  object2['self'] = object2
+  object2.self = object2
 
   const representation2 = context.represent(object2)
 
@@ -498,9 +498,9 @@ test('iterateElements iterates through array-like elements', (t) => {
   const expectedElement2 = new ElementAccessor(2, context.represent(3))
 
   // Compare using accessor's compare method
-  t.is(elements[0]!.compare(expectedElement0, 'comprehensive'), strictlyEqual)
-  t.is(elements[1]!.compare(expectedElement1, 'comprehensive'), strictlyEqual)
-  t.is(elements[2]!.compare(expectedElement2, 'comprehensive'), strictlyEqual)
+  t.is(elements[0].compare(expectedElement0, 'comprehensive'), strictlyEqual)
+  t.is(elements[1].compare(expectedElement1, 'comprehensive'), strictlyEqual)
+  t.is(elements[2].compare(expectedElement2, 'comprehensive'), strictlyEqual)
 })
 
 test('iterateMapEntries iterates through map entries', (t) => {
@@ -519,8 +519,8 @@ test('iterateMapEntries iterates through map entries', (t) => {
   const expectedEntry1 = new MapEntryAccessor(context, context.represent('key2'), context.represent('value2'))
 
   // Compare using accessor's compare method
-  t.is(entries[0]!.compare(expectedEntry0, 'comprehensive'), strictlyEqual)
-  t.is(entries[1]!.compare(expectedEntry1, 'comprehensive'), strictlyEqual)
+  t.is(entries[0].compare(expectedEntry0, 'comprehensive'), strictlyEqual)
+  t.is(entries[1].compare(expectedEntry1, 'comprehensive'), strictlyEqual)
 })
 
 test('iterateValues handles objects with and without Symbol.iterator', (t) => {
@@ -796,8 +796,8 @@ test('notifyNextExplicitlyNamedPropertyAccess - basic functionality and argument
   t.is(callback.mock.callCount(), 1, 'Callback should be called once for explicitly named property')
 
   // Verify callback arguments are correct
-  const [accessor, value] = callback.mock.calls[0]!.arguments
-  const expectedAccessor = [...propertyGroup][0]!
+  const [accessor, value] = callback.mock.calls[0].arguments
+  const expectedAccessor = [...propertyGroup][0]
   t.is(accessor, expectedAccessor, 'Accessor passed to callback should be the exact same instance')
   t.true(StringRepresentation.is(value), 'Value should be a StringRepresentation')
 })

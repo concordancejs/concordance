@@ -101,7 +101,7 @@ test('compare returns unequal when comparing to non-ArrayRepresentation', (t) =>
 test('compare returns comparable when comparing to array subclass instances in fuzzy mode', (t) => {
   const context = new RealValueContext()
   const array = [1, 2, 3]
-  class SubArray extends Array {}
+  class SubArray extends Array {} // eslint-disable-line @stylistic/curly-newline
   const sub = new SubArray()
   sub.push(1, 2, 3)
 
@@ -202,7 +202,7 @@ test('iterateElements handles sparse arrays', (t) => {
   // Check that indices 1 and 3 represent sparse elements
   const sparseIndices = [1, 3]
   for (const index of sparseIndices) {
-    const element = elements[index]!
+    const element = elements[index]
     // Check if this element represents a sparse value
     t.true(element instanceof ElementAccessor)
     // The first (and only) value yielded by iterating the element should be a SparseValueRepresentation

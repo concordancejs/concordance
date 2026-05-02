@@ -102,7 +102,7 @@ export class StringRepresentation implements CommonRepresentation, ShallowFuncti
             default: {
               // Handle other control characters and non-visible characters. This also escapes ␛, ␊ and ␍ as these are
               // reserved for replacing the corresponding control characters.
-              return `\\u${codePoint.toString(16).padStart(4, '0')}`
+              return String.raw`\u${codePoint.toString(16).padStart(4, '0')}`
             }
           }
         })

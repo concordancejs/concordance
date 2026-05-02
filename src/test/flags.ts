@@ -76,8 +76,8 @@ test('deriveFlags() ignores unknown flags', (t) => {
   // Check structure matches expected - none of the unknown flags should be present
   const expectedShape = deriveFlags({ compareArgumentsToArrays: true })
   t.deepEqual(
-    Object.keys(result).sort(),
-    Object.keys(expectedShape).sort(),
+    Object.keys(result).toSorted(),
+    Object.keys(expectedShape).toSorted(),
     'result object should have the same properties as the expected flags object',
   )
 })

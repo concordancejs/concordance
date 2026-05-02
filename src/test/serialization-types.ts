@@ -1,3 +1,4 @@
+/* eslint-disable ava/no-useless-t-pass */
 import test from 'ava'
 import { expectType } from 'tsd'
 import {

@@ -299,9 +299,9 @@ test('ElementAccessor - groupForComparison creates group with consecutive elemen
 
     const elements = [...group]
     t.is(elements.length, 3)
-    t.true(ElementAccessor.is(elements[0]!))
-    t.true(ElementAccessor.is(elements[1]!))
-    t.true(ElementAccessor.is(elements[2]!))
+    t.true(ElementAccessor.is(elements[0]))
+    t.true(ElementAccessor.is(elements[1]))
+    t.true(ElementAccessor.is(elements[2]))
   }
 })
 
@@ -352,7 +352,7 @@ test('ElementAccessor - groupForComparison works with empty takeWhile result', (
   if (t.truthy(group)) {
     const elements = [...group]
     t.is(elements.length, 1)
-    t.true(ElementAccessor.is(elements[0]!))
+    t.true(ElementAccessor.is(elements[0]))
   }
 })
 
@@ -561,7 +561,7 @@ test('ElementGroup - deserialized property reflects first element', (t) => {
 test('ElementGroup - deserialized property returns false for empty group', (t) => {
   const group = new ElementGroup([])
 
-  t.is(group.deserialized, false)
+  t.false(group.deserialized)
 })
 
 test('ElementGroup - iterator yields all elements', (t) => {

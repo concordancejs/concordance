@@ -35,7 +35,7 @@ export class DateRepresentation extends ObjectRepresentation implements DeepFunc
   }
 
   preformat(formatter: Formatter) {
-    const sinceEpoch = this.#context.valueOf(this.#value) as number
+    const sinceEpoch = this.#context.valueOf(this.#value) as number // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
     if (Number.isNaN(sinceEpoch)) {
       formatter.append(formatter.theme.date.invalid)
     } else {
@@ -55,7 +55,7 @@ export class DateRepresentation extends ObjectRepresentation implements DeepFunc
 
   override serialize(encoder: Encoder) {
     return super.serialize(encoder, staticTypeTable.date, {
-      v: this.#context.valueOf(this.#value) as number,
+      v: this.#context.valueOf(this.#value) as number, // eslint-disable-line @typescript-eslint/no-unsafe-type-assertion
     })
   }
 }

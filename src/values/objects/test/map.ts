@@ -120,7 +120,7 @@ test('compare returns comparable when comparing different map instances with sam
 test('compare returns comparable when comparing against subclass instances in fuzzy mode', (t) => {
   const context = new RealValueContext()
   const map1 = new Map()
-  class SubMap extends Map {}
+  class SubMap extends Map {} // eslint-disable-line @stylistic/curly-newline
   const map2 = new SubMap()
 
   const mapRep1 = context.represent(map1) as MapRepresentation
@@ -153,16 +153,18 @@ test('iterateIterable preserves entry order', (t) => {
   const context = new RealValueContext()
 
   // Create a map with specific insertion order
-  const map = new Map()
-  map.set('key1', 'value1')
-  map.set('key2', 'value2')
-  map.set('key3', 'value3')
+  const map = new Map([
+    ['key1', 'value1'],
+    ['key2', 'value2'],
+    ['key3', 'value3'],
+  ])
 
   // Create another map with the same entries but different insertion order
-  const map2 = new Map()
-  map2.set('key3', 'value3')
-  map2.set('key1', 'value1')
-  map2.set('key2', 'value2')
+  const map2 = new Map([
+    ['key3', 'value3'],
+    ['key1', 'value1'],
+    ['key2', 'value2'],
+  ])
 
   const mapRep = context.represent(map) as MapRepresentation
   const map2Rep = context.represent(map2) as MapRepresentation
@@ -177,16 +179,16 @@ test('iterateIterable preserves entry order', (t) => {
   // The first entry from map1 should be key1/value1
   // The first entry from map2 should be key3/value3
   // They should be unequal
-  t.is(entries[0]!.compare(entries2[0]!, 'comprehensive'), unequal)
+  t.is(entries[0].compare(entries2[0], 'comprehensive'), unequal)
 
   // The first entry of map1 should exactly match the second entry of map2 (both key1/value1)
-  t.is(entries[0]!.compare(entries2[1]!, 'comprehensive'), strictlyEqual)
+  t.is(entries[0].compare(entries2[1], 'comprehensive'), strictlyEqual)
 
   // The second entry of map1 should match the third entry of map2 (both key2/value2)
-  t.is(entries[1]!.compare(entries2[2]!, 'comprehensive'), strictlyEqual)
+  t.is(entries[1].compare(entries2[2], 'comprehensive'), strictlyEqual)
 
   // The third entry of map1 should match the first entry of map2 (both key3/value3)
-  t.is(entries[2]!.compare(entries2[0]!, 'comprehensive'), strictlyEqual)
+  t.is(entries[2].compare(entries2[0], 'comprehensive'), strictlyEqual)
 })
 
 test('acceptsComparisonFrom returns true for MapRepresentation', (t) => {
