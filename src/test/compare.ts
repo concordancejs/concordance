@@ -379,7 +379,7 @@ test('compareDescriptors forwards explicit mode to compare, groupForComparison, 
 // In fuzzy mode:
 // - Objects: Only intersecting properties are compared (actual can have extra properties)
 // - Sets/Maps: Only intersecting elements are compared, but all expected elements must exist in actual
-// - Arrays: Still treated as ordered structures
+// - Arrays: Ordered, but actual may have more elements than expected (prefix matching)
 // - Order doesn't matter for Sets, Maps, and object properties
 
 test('fuzzy: object properties - subset matching', (t) => {
@@ -655,4 +655,58 @@ test('fuzzy: edge case - identical structures', (t) => {
   }
 
   t.true(compare(structure, copy, { mode: 'fuzzy' }).pass)
+})
+
+test('fuzzy: arrays - actual longer than expected passes', (t) => {
+  // Fuzzy mode allows actual to have more elements than expected (prefix matching)
+  t.true(compare([1, 2, 3, 4], [1, 2, 3], { mode: 'fuzzy' }).pass)
+  t.true(compare([1, 2, 3, 4, 5], [1, 2], { mode: 'fuzzy' }).pass)
+
+  // Same length still passes
+  t.true(compare([1, 2, 3], [1, 2, 3], { mode: 'fuzzy' }).pass)
+})
+
+test('fuzzy: arrays - actual shorter than expected fails', (t) => {
+  // Actual has fewer elements than expected - should fail even in fuzzy mode
+  t.false(compare([1, 2, 3], [1, 2, 3, 4], { mode: 'fuzzy' }).pass)
+  t.false(compare([], [1], { mode: 'fuzzy' }).pass)
+})
+
+test('fuzzy: arrays - element mismatch fails even when actual is longer', (t) => {
+  // Actual is longer but a compared element differs - should still fail
+  t.false(compare([1, 9, 3, 4], [1, 2, 3], { mode: 'fuzzy' }).pass)
+  t.false(compare([99, 2, 3, 4], [1, 2, 3], { mode: 'fuzzy' }).pass)
+})
+
+test('fuzzy: object properties - no intersection fails', (t) => {
+  // Expected properties have no overlap with actual properties - should fail
+  t.false(compare({ a: 1, b: 2 }, { c: 3, d: 4 }, { mode: 'fuzzy' }).pass)
+
+  // Empty actual with non-empty expected also fails
+  t.false(compare({}, { a: 1 }, { mode: 'fuzzy' }).pass)
+})
+
+test('fuzzy: class instances - constructor check is bypassed', (t) => {
+  class Fruit {
+    name: string // eslint-disable-line @typescript-eslint/parameter-properties
+    color: string // eslint-disable-line @typescript-eslint/parameter-properties
+    constructor(name: string, color: string) {
+      this.name = name
+      this.color = color
+    }
+  }
+
+  // In fuzzy mode, comparing a class instance against a plain object subset passes
+  t.true(compare(new Fruit('apple', 'red'), { name: 'apple' }, { mode: 'fuzzy' }).pass)
+  t.true(compare(new Fruit('apple', 'red'), { name: 'apple', color: 'red' }, { mode: 'fuzzy' }).pass)
+
+  // Reversed: plain actual vs class expected fails when expected has properties not in actual
+  t.false(compare({ name: 'apple' }, new Fruit('apple', 'red'), { mode: 'fuzzy' }).pass)
+
+  // Two instances of the same class compare normally
+  t.true(compare(new Fruit('apple', 'red'), new Fruit('apple', 'red'), { mode: 'fuzzy' }).pass)
+  t.false(compare(new Fruit('apple', 'red'), new Fruit('apple', 'green'), { mode: 'fuzzy' }).pass)
+
+  // In comprehensive mode the same plain-object comparison fails due to constructor mismatch
+  t.false(compare(new Fruit('apple', 'red'), { name: 'apple' }, { mode: 'comprehensive' }).pass)
 })
