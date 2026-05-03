@@ -60,6 +60,9 @@ const wellKnownSymbols = new Map<symbol, string>(
     .filter((entry): entry is [symbol, string] => typeof entry[0] === 'symbol'),
 )
 
+// Fallback needed for Node.js 22 compatibility.
+const isError = Error.isError ?? typesUtils.isNativeError // eslint-disable-line @typescript-eslint/no-deprecated
+
 export class RealValueContext implements Context {
   static is(context: Context): context is RealValueContext {
     return #pointers in context
@@ -334,7 +337,7 @@ export class RealValueContext implements Context {
       return new ArrayBufferViewRepresentation(this, value)
     }
 
-    if (Error.isError(value)) {
+    if (isError(value)) {
       return new ErrorRepresentation(this, value)
     }
 
