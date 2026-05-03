@@ -1,0 +1,291 @@
+import test from 'ava'
+import { RealValueContext } from '../../../real-value-context.ts'
+import { Encoder } from '../../../encoder.ts'
+import { Decoder } from '../../../decoder.ts'
+import { DeserializationContext } from '../../../deserialization-context.ts'
+import { DateRepresentation } from '../date.ts'
+import { comparable, strictlyEqual, unequal } from '../../../comparison.ts'
+import { staticTypeTable } from '../../../serialization-types.ts'
+import { snapshotEncoded } from '../../test/helpers/snapshot-encoded.ts'
+import { Formatter } from '../../../formatter.ts'
+import { deriveTheme } from '../../../theme.ts'
+
+// Use the first commit timestamp for testing
+const firstCommitDate = new Date('2017-02-17T16:58:13Z')
+
+// Deserialize method test
+test('deserialize creates a comparable DateRepresentation', (t) => {
+  const originalContext = new RealValueContext()
+  const date = firstCommitDate
+  const original = originalContext.represent(date) as DateRepresentation
+
+  const encoder = new Encoder()
+  original.serialize(encoder)
+
+  const decoder = new Decoder(encoder.bytes)
+  decoder.staticType() // Consume the type
+  const deserializationContext = new DeserializationContext(decoder)
+  const deserialized = DateRepresentation.deserialize(deserializationContext, decoder)
+
+  // The deserialized representation should be comparable to the original
+  t.is(original.compare(deserialized, 'comprehensive'), comparable)
+})
+
+// Compare method tests
+test('compare returns strictlyEqual when comparing the same date instance', (t) => {
+  const context = new RealValueContext()
+  const date = firstCommitDate
+
+  const dateRep1 = context.represent(date) as DateRepresentation
+  const dateRep2 = context.represent(date) as DateRepresentation
+
+  t.is(dateRep1.compare(dateRep2, 'comprehensive'), strictlyEqual)
+})
+
+test('compare returns unequal when comparing to non-DateRepresentation', (t) => {
+  const context = new RealValueContext()
+  const date = firstCommitDate
+  const object = {}
+
+  const dateRep = context.represent(date) as DateRepresentation
+  const objectRep = context.represent(object)
+
+  t.is(dateRep.compare(objectRep, 'comprehensive'), unequal)
+  t.is(dateRep.compare(objectRep, 'fuzzy'), unequal)
+})
+
+test('compare returns comparable when comparing to a subclass instance in fuzzy mode', (t) => {
+  const context = new RealValueContext()
+  const date = firstCommitDate
+  class CustomDate extends Date {} // eslint-disable-line @stylistic/curly-newline
+  const customDate = new CustomDate(date.getTime())
+
+  const dateRep = context.represent(date) as DateRepresentation
+  const customDateRep = context.represent(customDate) as DateRepresentation
+
+  t.is(dateRep.compare(customDateRep, 'fuzzy'), comparable)
+})
+
+test('compare returns unequal when comparing dates with different timestamps', (t) => {
+  const context = new RealValueContext()
+  const date1 = firstCommitDate
+  const date2 = new Date(firstCommitDate.getTime() + 1000) // Add 1 second
+
+  const dateRep1 = context.represent(date1) as DateRepresentation
+  const dateRep2 = context.represent(date2) as DateRepresentation
+
+  t.is(dateRep1.compare(dateRep2, 'comprehensive'), unequal)
+})
+
+test('compare returns comparable when comparing different date instances with same timestamp', (t) => {
+  const context = new RealValueContext()
+  // Create two different Date instances with the same timestamp
+  const date1 = new Date(firstCommitDate)
+  const date2 = new Date(firstCommitDate)
+
+  const dateRep1 = context.represent(date1) as DateRepresentation
+  const dateRep2 = context.represent(date2) as DateRepresentation
+
+  // Should be comparable, not strictly equal, as they are different instances
+  t.is(dateRep1.compare(dateRep2, 'comprehensive'), comparable)
+})
+
+test('compare handles invalid dates correctly', (t) => {
+  const context = new RealValueContext()
+
+  // Create invalid date objects
+  const invalidDate1 = new Date('invalid')
+  const invalidDate2 = new Date('invalid')
+
+  // Verify that these are indeed invalid dates
+  t.true(Number.isNaN(invalidDate1.getTime()))
+  t.true(Number.isNaN(invalidDate2.getTime()))
+
+  const invalidDateRep1 = context.represent(invalidDate1) as DateRepresentation
+  const invalidDateRep2 = context.represent(invalidDate2) as DateRepresentation
+
+  // Two invalid dates should be comparable
+  t.is(invalidDateRep1.compare(invalidDateRep2, 'comprehensive'), comparable)
+
+  // An invalid date should be unequal to a valid date
+  const validDate = firstCommitDate
+  const validDateRep = context.represent(validDate) as DateRepresentation
+
+  t.is(invalidDateRep1.compare(validDateRep, 'comprehensive'), unequal)
+})
+
+test('acceptsComparisonFrom returns true for DateRepresentation', (t) => {
+  const context = new RealValueContext()
+  const date1 = context.represent(new Date()) as DateRepresentation
+  const date2 = context.represent(new Date()) as DateRepresentation
+
+  t.true(date1.acceptsComparisonFrom(date2))
+})
+
+test('acceptsComparisonFrom returns false for non-DateRepresentation', (t) => {
+  const context = new RealValueContext()
+  const dateRep = context.represent(new Date()) as DateRepresentation
+  const objectRep = context.represent({})
+
+  t.false(dateRep.acceptsComparisonFrom(objectRep))
+})
+
+// Serialization tests
+test('serialize uses date static type and includes valueOf annotation', (t) => {
+  const context = new RealValueContext()
+  const date = firstCommitDate
+  const dateRep = context.represent(date) as DateRepresentation
+
+  const encoder = new Encoder()
+  dateRep.serialize(encoder)
+
+  // Check the overall structure and type
+  snapshotEncoded(t, encoder, 'date serialization')
+
+  // Verify the static type and annotations manually
+  const decoder = new Decoder(encoder.bytes)
+  t.is(decoder.staticType(), staticTypeTable.date)
+
+  // Check that the valueOf annotation (v) contains the correct timestamp
+  const annotations = decoder.annotations<{ v: number }>()
+  t.is(annotations.v, date.valueOf())
+})
+
+test('serializing and deserializing a Date preserves its timestamp', (t) => {
+  const originalContext = new RealValueContext()
+
+  // Test with various dates including the first commit date
+  const dates = [
+    firstCommitDate,
+    new Date(0), // Epoch
+    new Date('invalid'), // Invalid date
+  ]
+
+  for (const date of dates) {
+    const original = originalContext.represent(date) as DateRepresentation
+
+    const encoder = new Encoder()
+    original.serialize(encoder)
+
+    const decoder = new Decoder(encoder.bytes)
+    decoder.staticType() // Consume the type
+    const deserializationContext = new DeserializationContext(decoder)
+    const deserialized = DateRepresentation.deserialize(deserializationContext, decoder)
+
+    // The original and deserialized representations should be comparable
+    t.is(original.compare(deserialized, 'comprehensive'), comparable, `Failed for date: ${String(date)}`)
+  }
+})
+
+// Formatting tests
+test('preformat formats valid dates correctly', (t) => {
+  const context = new RealValueContext()
+  const date = new Date('2023-04-15T12:30:45.678Z')
+  const dateRep = context.represent(date) as DateRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  dateRep.preformat(formatter)
+
+  // Need to close the formatter before rendering
+  formatter.close()
+  const rendered = formatter.render()
+
+  // Should contain the formatted date
+  t.true(rendered.includes('2023-04-15'))
+  t.true(rendered.includes('12:30:45'))
+  t.true(rendered.includes('678ms UTC'))
+
+  // Snapshot the exact rendering
+  t.snapshot(rendered, 'valid date preformat')
+})
+
+test('preformat formats invalid dates correctly', (t) => {
+  const context = new RealValueContext()
+  const invalidDate = new Date('invalid')
+  const dateRep = context.represent(invalidDate) as DateRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+
+  // Get the actual invalid date text from the theme
+  const invalidDateText = formatter.theme.date.invalid
+
+  dateRep.preformat(formatter)
+
+  // Need to close the formatter before rendering
+  formatter.close()
+  const rendered = formatter.render()
+
+  // Should contain the invalid date indicator from the theme
+  t.true(rendered.includes(invalidDateText))
+
+  // Snapshot the exact rendering
+  t.snapshot(rendered, 'invalid date preformat')
+})
+
+test('finalFormat uses object brackets by default', (t) => {
+  const context = new RealValueContext()
+  const date = new Date('2023-04-15T12:30:45.678Z')
+  const dateRep = context.represent(date) as DateRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  dateRep.finalFormat(formatter)
+
+  const rendered = formatter.render()
+
+  // Should use object brackets
+  t.true(rendered.includes('{'))
+  t.true(rendered.includes('}'))
+
+  // Should not include explicit disambiguation hint by default
+  // (The constructor name "Date" will still appear as part of the default object formatting)
+  t.false(rendered.includes('// Date'))
+
+  // Snapshot the exact rendering
+  t.snapshot(rendered, 'date default format')
+})
+
+test('finalFormat shows disambiguation hint when options.disambiguationHint is true', (t) => {
+  const context = new RealValueContext()
+  const date = new Date('2023-04-15T12:30:45.678Z')
+  const dateRep = context.represent(date) as DateRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+  dateRep.finalFormat(formatter, { disambiguationHint: true })
+
+  const rendered = formatter.render()
+
+  // Should use object brackets
+  t.true(rendered.includes('{'))
+  t.true(rendered.includes('}'))
+
+  // Should include the disambiguation hint when options.disambiguationHint is true
+  t.true(rendered.includes('// Date'))
+
+  // Snapshot the exact rendering
+  t.snapshot(rendered, 'date with disambiguation hint')
+})
+
+test('integration of preformat and finalFormat produces correct output', (t) => {
+  const context = new RealValueContext()
+  const date = new Date('2023-04-15T12:30:45.678Z')
+  const dateRep = context.represent(date) as DateRepresentation
+
+  const formatter = new Formatter(deriveTheme())
+
+  // First preformat the date value
+  dateRep.preformat(formatter)
+
+  // Then do the final formatting
+  dateRep.finalFormat(formatter)
+
+  const rendered = formatter.render()
+
+  // Should contain both the date value and object brackets
+  t.true(rendered.includes('{'))
+  t.true(rendered.includes('}'))
+  t.true(rendered.includes('2023-04-15'))
+  t.true(rendered.includes('12:30:45'))
+
+  // Snapshot the complete rendering
+  t.snapshot(rendered, 'complete date rendering')
+})

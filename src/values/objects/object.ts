@@ -1,0 +1,303 @@
+import never from 'never'
+import type {
+  FinalFormatOptions,
+  CommonRepresentation,
+  DeepFunctionality,
+  ValueRepresentation,
+  Opaque,
+} from '../../value.d.ts'
+import type { ElementAccessor } from '../../accessors/element.ts'
+import type { IteratorValueAccessor } from '../../accessors/iterator-value.ts'
+import type { MapEntryAccessor } from '../../accessors/map-entry.ts'
+import { type Comparison, type Condition, type Mode, comparable, strictlyEqual, unequal } from '../../comparison.ts'
+import type { Context } from '../../context.d.ts'
+import type { BytesAccessor } from '../../accessors/bytes.ts'
+import type { Annotations, Encoder } from '../../encoder.ts'
+import { staticTypeTable, type StaticType } from '../../serialization-types.ts'
+import { partialRequiringTerminator, type SerializationResult } from '../../serialization-result.ts'
+import type { Decoder } from '../../decoder.ts'
+import type { DeserializationContext } from '../../deserialization-context.ts'
+import { Formatter } from '../../formatter.ts'
+
+export type ObjectAnnotations = {
+  a?: true // Is array like
+  c?: string // Constructor name; elided in favor of `q` if equal to the string tag
+  l?: number // Length of array or array-like
+  n?: true // Has null prototype
+  o?: true // Has object prototype
+  p: number // Pointer
+  q?: string // Constructor name *and* string tag
+  t?: string // String tag, undefined if not set; elided in favor of `q` if equal to the constructor name
+}
+
+type UnpackedAnnotations = {
+  isArrayLike: boolean
+  constructorName?: string
+  length?: number
+  isNullProto: boolean
+  isObjectProto: boolean
+  pointer: number
+  stringTag?: string
+}
+
+type KnownAnnotations = {
+  b?: BytesAccessor // Bytes
+  l?: number // Length of array
+  s?: number // Size of map or set
+  v?: boolean | number | string // "value of"
+}
+
+// This is a sentinel value used to indicate that the annotation is reserved for internal use. Because it's not
+// exported, calling code cannot assign it to the reserved properties.
+const reserved = Symbol('Sentinel value for reserved annotations')
+// eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
+type Reserved<T, Excluded extends keyof any = never> = { [K in Exclude<keyof Required<T>, Excluded>]?: typeof reserved }
+
+export type SerializationAnnotations = Annotations &
+  Reserved<ObjectAnnotations, keyof KnownAnnotations> &
+  KnownAnnotations
+
+export class ObjectRepresentation implements CommonRepresentation, DeepFunctionality {
+  static unpackAnnotations(annotations: ObjectAnnotations): UnpackedAnnotations {
+    const {
+      a: isArrayLike = false,
+      c: constructorName,
+      l: length,
+      n: isNullProto = false,
+      o: isObjectProto = false,
+      p: pointer,
+      q: constructorNameAndStringTag,
+      t: stringTag,
+    } = annotations
+    return {
+      isArrayLike,
+      constructorName: constructorNameAndStringTag ?? constructorName,
+      length,
+      isNullProto,
+      isObjectProto,
+      pointer,
+      stringTag: constructorNameAndStringTag ?? stringTag,
+    }
+  }
+
+  static deserialize(context: DeserializationContext, decoder: Decoder) {
+    return new this(context, this.unpackAnnotations(decoder.annotations<ObjectAnnotations>()))
+  }
+
+  readonly #value: Opaque
+  readonly #context: Context
+
+  constructor(context: Context, value: Opaque) {
+    this.#value = value
+    this.#context = context
+  }
+
+  get deserialized() {
+    return this.#context.deserialized
+  }
+
+  get pointer(): number {
+    return this.#context.pointer(this, this.#value) ?? never()
+  }
+
+  get isArrayLike(): boolean {
+    return this.#context.isArrayLike(this.#value)
+  }
+
+  get isPlain(): boolean {
+    return (
+      !this.#context.isNullProto(this.#value) &&
+      this.#context.isObjectProto(this.#value) &&
+      this.#context.constructorName(this.#value) === 'Object' &&
+      this.#context.stringTag(this.#value) === undefined
+    )
+  }
+
+  acceptsComparisonFrom(other: ValueRepresentation, mode: Mode, condition?: Condition): boolean {
+    if (mode === 'fuzzy' && condition === 'if-plain') {
+      return this.isPlain
+    }
+
+    if (condition !== undefined) {
+      return false
+    }
+
+    return #value in other
+  }
+
+  compare(other: ValueRepresentation, mode: Mode): Comparison {
+    if (!other.acceptsComparisonFrom(this, mode, this.isArrayLike ? 'from-array-like' : undefined)) {
+      return unequal
+    }
+
+    if (!(#value in other)) return unequal
+    if (this.#value === other.#value) return strictlyEqual
+
+    if (mode === 'fuzzy') {
+      // Do not compare constructor name, string tag or prototype when doing fuzzy comparisons.
+      // Compare with any representation that allows comparisons from us in fuzzy mode.
+      return comparable
+    }
+
+    // Allow either value to have a null prototype so such objects can be compared against literals.
+    if (
+      this.#context.flags.compareNullProtoToObjectProto &&
+      ((this.#context.isNullProto(this.#value) && other.#context.isObjectProto(other.#value)) ||
+        (this.#context.isObjectProto(this.#value) && other.#context.isNullProto(other.#value)))
+    ) {
+      return comparable
+    }
+
+    if (this.#context.stringTag(this.#value) !== other.#context.stringTag(other.#value)) return unequal
+    if (this.#context.constructorName(this.#value) !== other.#context.constructorName(other.#value)) return unequal
+
+    return comparable
+  }
+
+  *[Symbol.iterator](): IterableIterator<ValueRepresentation> {
+    yield* this.iterateElements()
+    yield* this.iterateProperties()
+    yield* this.iterateIterable()
+  }
+
+  *iterateElements(): IterableIterator<ElementAccessor> {
+    if (!this.isArrayLike) {
+      return
+    }
+
+    yield* this.#context.iterateElements(this.#value)
+  }
+
+  *iterateProperties(excludeInclude?: {
+    exclude?: string[]
+    include?: string[]
+  }): IterableIterator<ValueRepresentation> {
+    yield* this.#context.namedProperties(this.#value, excludeInclude)
+    yield* this.#context.symbolProperties(this.#value)
+  }
+
+  *iterateIterable(): IterableIterator<IteratorValueAccessor | MapEntryAccessor> {
+    if (this.isArrayLike) {
+      return
+    }
+
+    yield* this.#context.iterateValues(this.#value)
+  }
+
+  // eslint-disable-next-line complexity
+  finalFormat(formatter: Formatter, options?: FinalFormatOptions): void {
+    const constructorName = this.#context.constructorName(this.#value)
+    const { empty, maxDepthReached } = formatter
+    const stringTag = this.#context.stringTag(this.#value)
+    const isNullProto = this.#context.isNullProto(this.#value)
+    const asArray = options?.array === true || this.isArrayLike
+
+    const includeConstructorName =
+      constructorName !== undefined &&
+      ((asArray && constructorName !== 'Array') || (!asArray && constructorName !== 'Object'))
+
+    if (!includeConstructorName && stringTag !== undefined) {
+      if (stringTag === '') {
+        formatter.prefix(formatter.theme.object.stringTag.empty)
+      } else {
+        formatter.prefixWrapped('object.stringTag', formatter.encodeTypicalIdentifier(stringTag))
+      }
+
+      formatter.prefix(' ')
+    } else if (includeConstructorName) {
+      if (constructorName === '') {
+        formatter.prefix(formatter.theme.object.constructorName.empty)
+      } else {
+        formatter.prefixWrapped('object.constructorName', formatter.encodeTypicalIdentifier(constructorName))
+      }
+
+      formatter.prefix(' ')
+
+      if (stringTag !== undefined && stringTag !== constructorName) {
+        if (stringTag === '') {
+          formatter.prefix(formatter.theme.object.secondaryStringTag.empty)
+        } else {
+          formatter.prefixWrapped('object.secondaryStringTag', formatter.encodeTypicalIdentifier(stringTag))
+        }
+
+        formatter.prefix(' ')
+      }
+    }
+
+    if (isNullProto) {
+      formatter.prefix(formatter.theme.object.nullPrototype, ' ')
+    }
+
+    const bracketKey = asArray ? 'array.bracket' : 'object.bracket'
+    if (empty && !maxDepthReached) {
+      formatter.prefixWrapped(bracketKey)
+    } else {
+      formatter.prefix(formatter.theme[bracketKey].open)
+      if (maxDepthReached) {
+        if (empty) {
+          formatter.prefix(` ${formatter.theme.maxDepth} `, formatter.theme[bracketKey].close)
+        } else {
+          formatter.append(formatter.theme.maxDepth)
+        }
+      }
+    }
+
+    // Regular objects do not require a disambiguation hint, so ignore the `true` value.
+    if (typeof options?.disambiguationHint === 'string') {
+      formatter.prefix(' ')
+      formatter.prefixWrapped('disambiguationHint', options.disambiguationHint)
+    }
+
+    if (empty) {
+      formatter.close()
+    } else {
+      formatter.prefix(Formatter.lineMarker).append(Formatter.lineMarker).close(formatter.theme[bracketKey].close)
+    }
+  }
+
+  serialize(
+    encoder: Encoder,
+    staticType: StaticType = staticTypeTable.object,
+    annotations: SerializationAnnotations = {},
+  ): SerializationResult {
+    type Annotations = {
+      [K in keyof SerializationAnnotations]: K extends keyof ObjectAnnotations
+        ? ObjectAnnotations[K] | undefined
+        : SerializationAnnotations[K] | undefined
+    }
+
+    // Pack annotations such that recurring values have a stable prefix, which can be used to optimize compression.
+    //
+    // Note that the encoder elides undefined values.
+    const a = annotations.b ? undefined : this.isArrayLike || undefined
+    const c = this.#context.constructorName(this.#value)
+    const t = this.#context.stringTag(this.#value)
+    const q = c === t ? c : undefined
+    const { l = a && this.#context.length(this.#value), s, v, b, ...remainingAnnotations } = annotations
+
+    encoder.staticType(staticType).annotations({
+      c: q === undefined ? c : undefined,
+      t: q === undefined ? t : undefined,
+      q,
+      n: this.#context.isNullProto(this.#value) || undefined,
+      o: this.#context.isObjectProto(this.#value) || undefined,
+      a,
+      // Only insert annotations from the calling code here; they technically could override other properties but the
+      // types disallow that. Calling code should take care to order annotations to contribute to the stable
+      // prefix.
+      // Cast to Omit<…, keyof ObjectAnnotations> so TypeScript knows the spread cannot contribute reserved
+      // ObjectAnnotations keys (a, c, n, o, p, q, t), which are handled explicitly above/below.
+      ...(remainingAnnotations as Omit<typeof remainingAnnotations, keyof ObjectAnnotations>),
+      b, // Different for most values, but certain common values could still contribute to a stable prefix.
+      l, // Different for most values, but certain common values could still contribute to a stable prefix.
+      s, // Different for most values, but certain common values could still contribute to a stable prefix.
+      v, // Different for most values, but certain common values could still contribute to a stable prefix.
+      p: this.pointer, // Different for most values, so the stable prefix ends after the `p` property.
+    } satisfies Annotations)
+    return partialRequiringTerminator
+  }
+}
+
+void (ObjectRepresentation satisfies new (
+  ...arguments_: ConstructorParameters<typeof ObjectRepresentation>
+) => ValueRepresentation)
