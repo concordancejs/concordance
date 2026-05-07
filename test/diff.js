@@ -73,6 +73,12 @@ test('diffs single line strings', t => {
   t.snapshot(actual2)
 })
 
+test('diffs escaped invisible and ambiguous characters in strings', t => {
+  const noBreakSpace = String.fromCharCode(0xA0)
+
+  t.is(concordance.diff(`a${noBreakSpace}b`, 'a b'), "- 'a\\u00A0b'\n+ 'a b'")
+})
+
 test('diffs multiline strings', t => {
   const actual1 = diff('foo\nbar', 'baz\nbar')
   t.snapshot(actual1)
