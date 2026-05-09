@@ -267,6 +267,17 @@ test('formats functions with additional properties', t => {
   t.snapshot(actual)
 })
 
+test('formats functions with enumerable name properties', t => {
+  function onlyName () {} // eslint-disable-line unicorn/consistent-function-scoping
+  Object.defineProperty(onlyName, 'name', { value: 'onlyName', enumerable: true })
+  t.snapshot(format(onlyName), 'without additional properties')
+
+  function withExtra () {} // eslint-disable-line unicorn/consistent-function-scoping
+  Object.defineProperty(withExtra, 'name', { value: 'withExtra', enumerable: true })
+  withExtra.bar = 'baz'
+  t.snapshot(format(withExtra), 'with additional properties')
+})
+
 test('formats anonymous generator functions', t => {
   const actual = format(function * () {})
   // eslint-disable-next-line max-len
