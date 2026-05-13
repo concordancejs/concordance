@@ -38,6 +38,16 @@ test('formatDescriptor() reuses the first getter value for a descriptor', t => {
   t.is(subject.callCount, 1)
 })
 
+test('compareDescriptors() reuses the first getter value for a descriptor', t => {
+  const subject = objectWithGetter([1, 2])
+  const descriptor = concordance.describe(subject.object)
+
+  t.true(concordance.compareDescriptors(descriptor, concordance.describe({ value: 1 })))
+  t.false(concordance.compareDescriptors(descriptor, concordance.describe({ value: 2 })))
+  t.regex(concordance.formatDescriptor(descriptor), /value: 1/)
+  t.is(subject.callCount, 1)
+})
+
 test('compareDescriptors() reuses the first getter value after formatting', t => {
   const subject = objectWithGetter([1, 2])
   const descriptor = concordance.describe(subject.object)
