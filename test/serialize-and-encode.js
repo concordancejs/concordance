@@ -141,10 +141,20 @@ test('map with primitive key and value', useDeserialized, new Map([['foo', 'bar'
 test('map with complex key and primitive value', useDeserialized, new Map([[{}, 'bar']]))
 test('map with complex key and value', useDeserialized, new Map([[{}, {}]]))
 test('map with primitive key and complex value', useDeserialized, new Map([['foo', {}]]))
+{
+  const map = new Map([['foo', 'bar']])
+  map.extra = { baz: 'qux' }
+  test('map with additional property', useDeserialized, map)
+}
 
 // Sets
 test('set with primitive value', useDeserialized, new Set(['foo']))
 test('set with complex value', useDeserialized, new Set([{}]))
+{
+  const set = new Set(['foo'])
+  set.extra = { baz: 'qux' }
+  test('set with additional property', useDeserialized, set)
+}
 
 // Pointers
 {
