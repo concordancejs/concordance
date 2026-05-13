@@ -179,6 +179,22 @@ test('arguments', useDeserialized, (function () { return arguments })('foo', {})
 test('date', useDeserialized, new Date('1969-07-20T20:17:40Z'))
 test('error', useDeserialized, new Error('foo'))
 test('function', useDeserialized, function foo () {})
+{
+  const enumerableName = function foo () {}
+  Object.defineProperty(enumerableName, 'name', {
+    value: 'foo',
+    enumerable: true,
+  })
+  test('function with enumerable name', useDeserialized, enumerableName)
+
+  const enumerableNameWithProperty = function bar () {}
+  Object.defineProperty(enumerableNameWithProperty, 'name', {
+    value: 'bar',
+    enumerable: true,
+  })
+  enumerableNameWithProperty.extra = 'extra'
+  test('function with enumerable name and extra property', useDeserialized, enumerableNameWithProperty)
+}
 test('compare functions with different names', t => {
   function a () { return 1 + 2 } // eslint-disable-line unicorn/consistent-function-scoping
   function b () { return 1 + 2 } // eslint-disable-line unicorn/consistent-function-scoping

@@ -16,6 +16,11 @@ test('registration should fail when installed concordance version below minimal 
     { name: 'UnsupportedError' })
 })
 
+test('registration should fail when minimal concordance version is invalid', t => {
+  t.throws(() => pluginRegistry.add({ name: 'invalidRange', apiVersion: 1, minimalConcordanceVersion: 'invalid' }),
+    { name: 'PluginTypeError' })
+})
+
 test('registration should fail when descriptor id used twice', t => {
   const plugin = {
     name: 'complex',
