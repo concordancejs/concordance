@@ -54,6 +54,15 @@ test('survives odd circular references', t => {
   t.false(compare(foo, foo2).pass)
 })
 
+test('detects circular references only on expected side', t => {
+  const expected = {}
+  expected.self = expected
+
+  const actual = { self: {} }
+
+  t.false(compare(actual, expected).pass)
+})
+
 test('arrays are also compared by property', t => {
   const a1 = [1, 2, 3]
   a1.p = 'a1'
