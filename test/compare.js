@@ -1,5 +1,6 @@
 const test = require('ava')
 
+const { compareDescriptors, describe } = require('..')
 const { compare } = require('../lib/compare')
 
 test('compare functions by reference', t => {
@@ -34,6 +35,17 @@ test('objects compare even if symbol properties are out of order', t => {
   a2[s1] = 1
 
   t.true(compare(a1, a2).pass)
+})
+
+test('compares registered symbols by global key', t => {
+  t.true(compareDescriptors(describe(Symbol.for('shared')), describe(Symbol.for('shared'))))
+  t.false(compareDescriptors(describe(Symbol.for('shared')), describe(Symbol.for('other'))))
+  t.false(compareDescriptors(describe(Symbol.for('shared')), describe(Symbol('shared'))))
+})
+
+test('compares well-known symbols by identity label', t => {
+  t.true(compareDescriptors(describe(Symbol.iterator), describe(Symbol.iterator)))
+  t.false(compareDescriptors(describe(Symbol.iterator), describe(Symbol.asyncIterator)))
 })
 
 test('-0 is not equal to +0', t => {
