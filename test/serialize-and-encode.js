@@ -200,6 +200,11 @@ test('compare deserialized function with object', t => {
 test('generator function', useDeserialized, function * foo () {})
 test('global', useDeserialized, global)
 test('promise', useDeserialized, Promise.resolve())
+{
+  const promise = Promise.resolve()
+  promise.extra = 'value'
+  test('promise with extra property', useDeserialized, promise)
+}
 test('regexp', useDeserialized, /foo/gi)
 
 test('plugin', useDeserialized, new customErrorPlugin.CustomError('custom error', 'PLUGIN', 1), { plugins })
