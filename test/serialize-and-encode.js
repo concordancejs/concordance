@@ -94,6 +94,9 @@ if (typeof BigInt === 'function') {
 // Objects
 test('object with primitive property', useDeserialized, { foo: 'bar' })
 test('object with complex property', useDeserialized, { foo: {} })
+test('boxed string', useDeserialized, new Object('foo'))
+test('boxed number', useDeserialized, new Object(42))
+test('boxed boolean', useDeserialized, new Object(true))
 test('object with well known symbol key', useDeserialized, { [Symbol.unscopables]: 'bar' })
 test('object with registered symbol key', useDeserialized, { [Symbol.for('foo')]: 'bar' })
 test('object with arbitrary symbol key', useDeserialized, { [Symbol('foo')]: 'bar' })
