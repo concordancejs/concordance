@@ -104,6 +104,15 @@ test('escapes backticks in multi-line strings with the default theme', t => {
   t.snapshot(_format('`\n'), 'should be escaped')
 })
 
+test('escapes invisible and ambiguous characters in values and keys', t => {
+  const formattedValue = concordance.format('a\u00A0b\u200Dc')
+  t.true(formattedValue.includes('\\u00a0'))
+  t.true(formattedValue.includes('\\u200d'))
+
+  const formattedKey = concordance.format({ 'x\u00A0y': 1 })
+  t.true(formattedKey.includes('x\\u00a0y'))
+})
+
 test('formats a simple object', t => {
   const obj = { foo: 'bar', baz: 'qux' }
   const actual = format(obj)
