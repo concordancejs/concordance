@@ -71,6 +71,9 @@ test('diffs single line strings', t => {
 
   const actual2 = diff('bar', 'baz')
   t.snapshot(actual2)
+
+  const actual3 = diff('foo bar baz', 'foo baz quux')
+  t.snapshot(actual3)
 })
 
 test('diffs multiline strings', t => {
