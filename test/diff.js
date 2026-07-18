@@ -73,6 +73,15 @@ test('diffs single line strings', t => {
   t.snapshot(actual2)
 })
 
+test('prioritizes words in single line string diffs', t => {
+  t.snapshot(diff('The color is blue', 'The colour is blue'))
+  t.snapshot(diff(
+    'extraordinarilyLongIdentifierAlpha',
+    'extraordinarilyLongIdentifierBeta'))
+  t.snapshot(diff('préférer le café chaud', 'préférer le caffè chaud'))
+  t.snapshot(diff('call(foo,  bar)', 'call(foo;\tbar)'))
+})
+
 test('diffs multiline strings', t => {
   const actual1 = diff('foo\nbar', 'baz\nbar')
   t.snapshot(actual1)
