@@ -59,6 +59,13 @@ language-aware segmentation. Words longer than 30 characters are compared by
 character to keep changes in long identifiers readable. Punctuation and spaces
 remain visible in the diff.
 
+### Runtime verification
+
+After installing dependencies, run `node scripts/verify-runtime.js` with the Node
+version to verify. It runs the repository's lint and coverage-backed AVA steps,
+using that same executable for child processes. This does not install Node or
+dependencies, change the system PATH, or replace the CI operating-system matrix.
+
 ### Serialization details
 
 Concordance can serialize any value for later use. Deserialized values can be
