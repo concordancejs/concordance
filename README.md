@@ -53,6 +53,12 @@ Concordance tries to minimize diff lines. This is difficult with object values,
 which may have similar properties but a different constructor. Multi-line
 strings are compared line-by-line.
 
+Within a line, short words are kept whole when highlighting changes. Words use
+JavaScript word boundaries (letters A-Z and a-z, digits and underscores), not
+language-aware segmentation. Words longer than 30 characters are compared by
+character to keep changes in long identifiers readable. Punctuation and spaces
+remain visible in the diff.
+
 ### Serialization details
 
 Concordance can serialize any value for later use. Deserialized values can be

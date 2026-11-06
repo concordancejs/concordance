@@ -25,6 +25,7 @@
   "homepage": "https://github.com/concordancejs/concordance#readme",
   "dependencies": {
     "date-time": "^3.1.0",
+    "diff": "^4.0.4",
     "esutils": "^2.0.3",
     "fast-diff": "^1.2.0",
     "js-string-escape": "^1.0.1",
